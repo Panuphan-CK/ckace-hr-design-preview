@@ -10,7 +10,7 @@ Last Updated: 2026-10-15 Asia/Bangkok
 
 Phase A is complete. Continue Project B through the remaining Desktop Production parity and release gates.
 
-**Development mode from Owner directive: ChatGPT is the primary Developer for Project B and will implement/review/QA directly through @lnwjud. Do not delegate Project B coding to Codex unless the Owner explicitly requests Codex again.**
+**Development mode (updated 2026-10-15): the Owner moved Project B development to Claude. Project A (`D:\APP_Leave`) remains with Codex and must not be touched from here.**
 
 Current state: **TASK-39.8 — Full Desktop Production UI Parity = IN PROGRESS; Waves 1–2 = PASS; Wave 3 Reports = NEXT**.
 
@@ -118,6 +118,16 @@ Final traffic re-read:
 - no shared traffic mutation.
 
 ## In Progress
+
+**TASK-39.9 — Desktop full redesign (Owner-directed, mockup stage) — IN PROGRESS.** The Owner rejected the Wave 1–2 look and asked for a full redesign. Iterated mockups live in `docs/design/desktop-redesign-v1.html` … `v13.html`; **v13 is the current Owner-iterated direction** (no app code changed yet). Locked Owner decisions so far:
+- Platform is split into apps (HR, สำนักงานบัญชี, Audit, บุคลากร, ตั้งค่าระบบ) with an app switcher; each app has its own settings.
+- Left navy icon rail only (no top bar): profile with notification badge first, dashboard next, app switcher and settings at the bottom; clicking an icon opens a white flyout menu.
+- White page backgrounds, colored structure: tinted header strip with left bar and bottom line on every box/card, soft (light-tinted) buttons everywhere.
+- Each request type has its own page: form on top (with an approver-chain box) and that type's history below. Approvals and reports are split per type the same way; approvals are grid-only.
+- Prompt font (same as Production). Send-back wording follows Production: action "ส่งกลับให้แก้ไข", status "รอแก้ไข".
+- FlowAccount is a usability reference only; never copy its look.
+Next: Owner sign-off on v13, then implement in `apps/web` page by page.
+
 
 TASK-39.8 remains active.
 

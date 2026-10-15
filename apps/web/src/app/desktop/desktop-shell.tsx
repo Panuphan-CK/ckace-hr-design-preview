@@ -1,18 +1,17 @@
 "use client";
 
+import type {
+  RequestStatusOverview,
+  SelfProfileResponse,
+} from "@ckace/contracts";
 import Link from "next/link";
-import {
-  usePathname,
-  useRouter,
-} from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { requestDesktopLogout } from "./logout-request";
+import { Icon, type IconName } from "./ui/icons";
+import "./ui/ck.css";
 
 interface NavigationCapabilities {
   leave: boolean;
@@ -50,6 +49,8 @@ interface NavigationCapabilities {
   admin: boolean;
 }
 
+type Capability = keyof NavigationCapabilities;
+
 interface SessionPayload {
   authenticated: true;
   employeeId: string;
@@ -63,331 +64,154 @@ type SessionState =
   | { status: "ready"; session: SessionPayload }
   | { status: "error"; message: string };
 
-interface NavigationLink {
-  readonly type: "link";
+type Tone = "leave" | "sick" | "biz" | "ot" | "time" | "med" | "gray" | "accent";
+type SectionId = "requests" | "approvals" | "reports" | "settings";
+
+interface FlyLink {
   readonly id: string;
-  readonly capability?: keyof NavigationCapabilities;
-  readonly anyCapabilities?: readonly (keyof NavigationCapabilities)[];
   readonly label: string;
   readonly href: string;
-  readonly icon: string;
+  readonly icon: IconName;
+  readonly tone: Tone;
+  readonly capability: Capability;
+  readonly group?: string;
+  readonly countKey?: "LEAVE" | "OVERTIME" | "TIME_CORRECTION" | "MEDICAL";
 }
 
-interface NavigationGroup {
-  readonly type: "group";
-  readonly id: string;
-  readonly label: string;
-  readonly icon: string;
-  readonly items: readonly NavigationLink[];
+interface FlySection {
+  readonly id: SectionId;
+  readonly title: string;
+  readonly icon: IconName;
+  readonly tone: Tone;
+  readonly links: readonly FlyLink[];
 }
 
-type NavigationEntry = NavigationLink | NavigationGroup;
-
-const NAVIGATION: readonly NavigationEntry[] = [
+const SECTIONS: readonly FlySection[] = [
   {
-    type: "link",
-    id: "home",
-    label: "หน้าหลัก",
-    href: "/desktop",
-    icon: "bxs-home-smile",
-  },
-  {
-    type: "link",
-    id: "calendar",
-    capability: "calendar",
-    label: "ปฏิทินการลา",
-    href: "/desktop/calendar",
-    icon: "bxs-calendar",
-  },
-  {
-    type: "group",
     id: "requests",
-    label: "คำขอของฉัน",
-    icon: "bxs-file-plus",
-    items: [
-      {
-        type: "link",
-        id: "request-leave",
-        capability: "leave",
-        label: "การลา",
-        href: "/desktop/leave",
-        icon: "bxs-plane-alt",
-      },
-      {
-        type: "link",
-        id: "request-overtime",
-        capability: "overtime",
-        label: "OT",
-        href: "/desktop/overtime",
-        icon: "bxs-time-five",
-      },
-      {
-        type: "link",
-        id: "request-time-correction",
-        capability: "attendance",
-        label: "แก้ไขเวลา",
-        href: "/desktop/attendance#correction-request",
-        icon: "bxs-edit-alt",
-      },
-      {
-        type: "link",
-        id: "request-medical",
-        capability: "medical",
-        label: "ค่ารักษาพยาบาล",
-        href: "/desktop/medical",
-        icon: "bxs-first-aid",
-      },
+    title: "ยื่นคำขอ",
+    icon: "document",
+    tone: "leave",
+    links: [
+      { id: "leave", label: "การลา", href: "/desktop/leave", icon: "leave", tone: "leave", capability: "leave" },
+      { id: "overtime", label: "ทำงานล่วงเวลา", href: "/desktop/overtime", icon: "ot", tone: "ot", capability: "overtime" },
+      { id: "time-correction", label: "แก้ไขเวลา", href: "/desktop/attendance#correction-request", icon: "time", tone: "time", capability: "attendance" },
+      { id: "medical", label: "เบิกค่ารักษา", href: "/desktop/medical", icon: "med", tone: "med", capability: "medical" },
+      { id: "attendance", label: "ลงเวลาเข้าออก", href: "/desktop/attendance", icon: "clock", tone: "time", capability: "attendance", group: "บันทึกเวลาและสิทธิ" },
+      { id: "benefits", label: "สิทธิและสวัสดิการ", href: "/desktop/benefits", icon: "med", tone: "med", capability: "benefits", group: "บันทึกเวลาและสิทธิ" },
     ],
   },
   {
-    type: "group",
     id: "approvals",
-    label: "งานอนุมัติ",
-    icon: "bxs-check-shield",
-    items: [
-      {
-        type: "link",
-        id: "approval-leave",
-        capability: "leaveApprovals",
-        label: "การลา",
-        href: "/desktop/approvals#leave",
-        icon: "bxs-plane-alt",
-      },
-      {
-        type: "link",
-        id: "approval-overtime",
-        capability: "overtimeApprovals",
-        label: "OT",
-        href: "/desktop/approvals#overtime",
-        icon: "bxs-time-five",
-      },
-      {
-        type: "link",
-        id: "approval-time-correction",
-        capability: "timeCorrectionApprovals",
-        label: "แก้ไขเวลา",
-        href: "/desktop/approvals#time-correction",
-        icon: "bxs-edit-alt",
-      },
-      {
-        type: "link",
-        id: "approval-medical",
-        capability: "medicalApprovals",
-        label: "ค่ารักษาพยาบาล",
-        href: "/desktop/approvals#medical",
-        icon: "bxs-first-aid",
-      },
+    title: "งานอนุมัติ",
+    icon: "check",
+    tone: "med",
+    links: [
+      { id: "approval-leave", label: "การลา", href: "/desktop/approvals#leave", icon: "leave", tone: "leave", capability: "leaveApprovals", countKey: "LEAVE" },
+      { id: "approval-overtime", label: "ทำงานล่วงเวลา", href: "/desktop/approvals#overtime", icon: "ot", tone: "ot", capability: "overtimeApprovals", countKey: "OVERTIME" },
+      { id: "approval-time", label: "แก้ไขเวลา", href: "/desktop/approvals#time-correction", icon: "time", tone: "time", capability: "timeCorrectionApprovals", countKey: "TIME_CORRECTION" },
+      { id: "approval-medical", label: "เบิกค่ารักษา", href: "/desktop/approvals#medical", icon: "med", tone: "med", capability: "medicalApprovals", countKey: "MEDICAL" },
+      { id: "onboarding", label: "สมาชิกใหม่รออนุมัติ", href: "/desktop/onboarding", icon: "users", tone: "biz", capability: "onboarding", group: "บัญชีผู้ใช้" },
     ],
   },
   {
-    type: "group",
     id: "reports",
-    label: "รายงาน",
-    icon: "bxs-bar-chart-alt-2",
-    items: [
-      {
-        type: "link",
-        id: "report-overview",
-        capability: "reports",
-        label: "ภาพรวม",
-        href: "/desktop/reports#overview",
-        icon: "bxs-dashboard",
-      },
-      {
-        type: "link",
-        id: "report-leave",
-        capability: "reports",
-        label: "การลา",
-        href: "/desktop/reports#leave",
-        icon: "bxs-plane-alt",
-      },
-      {
-        type: "link",
-        id: "report-attendance",
-        capability: "reports",
-        label: "การเข้างาน",
-        href: "/desktop/reports#attendance",
-        icon: "bxs-user-check",
-      },
-      {
-        type: "link",
-        id: "report-overtime",
-        capability: "reports",
-        label: "OT",
-        href: "/desktop/reports#overtime",
-        icon: "bxs-time-five",
-      },
-      {
-        type: "link",
-        id: "report-medical",
-        capability: "reports",
-        label: "ค่ารักษาพยาบาล",
-        href: "/desktop/reports#medical",
-        icon: "bxs-first-aid",
-      },
+    title: "รายงาน",
+    icon: "chart",
+    tone: "biz",
+    links: [
+      { id: "report-overview", label: "ภาพรวม", href: "/desktop/reports#overview", icon: "dashboard", tone: "accent", capability: "reports" },
+      { id: "report-leave", label: "การลา", href: "/desktop/reports#leave", icon: "leave", tone: "leave", capability: "reports" },
+      { id: "report-attendance", label: "การเข้างาน", href: "/desktop/reports#attendance", icon: "clock", tone: "time", capability: "reports" },
+      { id: "report-overtime", label: "OT", href: "/desktop/reports#overtime", icon: "ot", tone: "ot", capability: "reports" },
+      { id: "report-medical", label: "ค่ารักษาพยาบาล", href: "/desktop/reports#medical", icon: "med", tone: "med", capability: "reports" },
     ],
   },
   {
-    type: "group",
-    id: "employees",
-    label: "พนักงาน",
-    icon: "bxs-group",
-    items: [
-      {
-        type: "link",
-        id: "employee-master",
-        capability: "usersAdmin",
-        label: "ฐานข้อมูลพนักงาน",
-        href: "/desktop/admin/management#users",
-        icon: "bxs-user-detail",
-      },
-      {
-        type: "link",
-        id: "organization",
-        capability: "organizationAdmin",
-        label: "โครงสร้างและสังกัด",
-        href: "/desktop/admin/management#organization",
-        icon: "bxs-buildings",
-      },
-      {
-        type: "link",
-        id: "access-control",
-        capability: "rbacAdmin",
-        label: "สิทธิ์และการเข้าถึง",
-        href: "/desktop/admin/management#roles",
-        icon: "bxs-shield-plus",
-      },
+    id: "settings",
+    title: "ตั้งค่า HR",
+    icon: "gear",
+    tone: "gray",
+    links: [
+      { id: "leave-entitlements", label: "สิทธิวันลา", href: "/desktop/admin/management#entitlements", icon: "leave", tone: "leave", capability: "entitlementAdmin", group: "การลา" },
+      { id: "work-calendar", label: "วันหยุดและวันทำงาน", href: "/desktop/admin/management#work-calendar", icon: "calendar", tone: "sick", capability: "workCalendarAdmin", group: "การลา" },
+      { id: "employee-master", label: "ฐานข้อมูลพนักงาน", href: "/desktop/admin/management#users", icon: "users", tone: "biz", capability: "usersAdmin", group: "พนักงานและสิทธิ์" },
+      { id: "organization", label: "โครงสร้างและสังกัด", href: "/desktop/admin/management#organization", icon: "building", tone: "time", capability: "organizationAdmin", group: "พนักงานและสิทธิ์" },
+      { id: "access-control", label: "สิทธิ์และการเข้าถึง", href: "/desktop/admin/management#roles", icon: "lock", tone: "ot", capability: "rbacAdmin", group: "พนักงานและสิทธิ์" },
+      { id: "announcements", label: "ประกาศ", href: "/desktop/announcements", icon: "megaphone", tone: "med", capability: "announcementAdmin", group: "อื่น ๆ" },
+      { id: "platform-settings", label: "ตั้งค่าระบบ", href: "/desktop/admin", icon: "gear", tone: "gray", capability: "adminSettings", group: "อื่น ๆ" },
     ],
   },
-  {
-    type: "group",
-    id: "leave-settings",
-    label: "ตั้งค่าระบบลา",
-    icon: "bxs-calendar-cog",
-    items: [
-      {
-        type: "link",
-        id: "leave-entitlements",
-        capability: "entitlementAdmin",
-        label: "สิทธิวันลา",
-        href: "/desktop/admin/management#entitlements",
-        icon: "bxs-calendar-star",
-      },
-      {
-        type: "link",
-        id: "work-calendar",
-        capability: "workCalendarAdmin",
-        label: "วันหยุด / วันทำงาน",
-        href: "/desktop/admin/management#work-calendar",
-        icon: "bxs-calendar-check",
-      },
-    ],
-  },
-  {
-    type: "link",
-    id: "platform-settings",
-    capability: "adminSettings",
-    label: "ตั้งค่าระบบ",
-    href: "/desktop/admin",
-    icon: "bxs-cog",
-  },
-] as const;
+];
 
-function canSeeLink(
-  item: NavigationLink,
-  navigation: NavigationCapabilities,
-): boolean {
-  if (
-    item.anyCapabilities &&
-    item.anyCapabilities.some((capability) => navigation[capability])
-  ) {
-    return true;
-  }
-  return item.capability === undefined || navigation[item.capability];
+/** Pages already rebuilt on the ck- design system render edge to edge; the rest keep their legacy padding. */
+const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop/leave"]);
+
+function isActive(href: string, pathname: string, hash: string): boolean {
+  const [path = href, hashPart] = href.split("#", 2);
+  if (hashPart) return pathname === path && hash === "#" + hashPart;
+  if (path === "/desktop") return pathname === path;
+  if (path === "/desktop/admin") return pathname === path;
+  return (pathname === path || pathname.startsWith(path + "/")) && hash === "";
 }
 
-function isLinkActive(
-  item: NavigationLink,
-  pathname: string,
-  currentHash: string,
-): boolean {
-  const [itemPath = item.href, itemHashPart] = item.href.split("#", 2);
-  const itemHash = itemHashPart ? "#" + itemHashPart : "";
-
-  if (itemHash) {
-    return pathname === itemPath && currentHash === itemHash;
-  }
-  if (itemPath === "/desktop") {
-    return pathname === itemPath && currentHash === "";
-  }
-  if (item.id === "platform-settings") {
-    return pathname === itemPath;
-  }
-  return (
-    (pathname === itemPath || pathname.startsWith(itemPath + "/")) &&
-    currentHash === ""
-  );
+function initials(fullName: string | null | undefined): string {
+  if (!fullName) return "ฉัน";
+  const parts = fullName.trim().split(/\s+/);
+  const first = Array.from(parts[0] ?? "")[0] ?? "";
+  const second = Array.from(parts[1] ?? "")[0] ?? "";
+  return (first + second) || "ฉัน";
 }
 
-export function DesktopShell({
-  children,
-}: {
-  readonly children: ReactNode;
-}) {
+const TONE_CLASS: Record<Tone, string> = {
+  leave: "ck-c-leave",
+  sick: "ck-c-sick",
+  biz: "ck-c-biz",
+  ot: "ck-c-ot",
+  time: "ck-c-time",
+  med: "ck-c-med",
+  gray: "ck-c-gray",
+  accent: "ck-c-accent",
+};
+
+export function DesktopShell({ children }: { readonly children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [state, setState] = useState<SessionState>({
-    status: "loading",
-  });
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [openGroupId, setOpenGroupId] = useState<string | null>(null);
+  const [state, setState] = useState<SessionState>({ status: "loading" });
+  const [profile, setProfile] = useState<SelfProfileResponse | null>(null);
+  const [pendingByKind, setPendingByKind] = useState<Readonly<Record<string, number>>>({});
+  const [hash, setHash] = useState("");
+  const [openSection, setOpenSection] = useState<SectionId | null>(null);
+  const [popover, setPopover] = useState<"me" | "apps" | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
-  const [darkMode, setDarkMode] = useState(false);
-  const [currentHash, setCurrentHash] = useState("");
 
   useEffect(() => {
-    const syncHash = () => setCurrentHash(window.location.hash);
-    syncHash();
-    window.addEventListener("hashchange", syncHash);
-    return () => window.removeEventListener("hashchange", syncHash);
-  }, []);
-
-  useEffect(() => {
-    const storedTheme = window.localStorage.getItem("ckace-desktop-theme");
-    const initialDark = storedTheme === "dark";
-    document.body.classList.toggle("dark", initialDark);
-    setDarkMode(initialDark);
-  }, []);
+    const sync = () => setHash(window.location.hash);
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, [pathname]);
 
   useEffect(() => {
     let cancelled = false;
-    void fetch("/api/security/session", {
-      credentials: "same-origin",
-      cache: "no-store",
-    })
+    void fetch("/api/security/session", { credentials: "same-origin", cache: "no-store" })
       .then(async (response) => {
         if (response.status === 401) {
           if (!cancelled) router.replace("/login");
           return null;
         }
-        if (!response.ok) {
-          throw new Error("session unavailable");
-        }
+        if (!response.ok) throw new Error("session unavailable");
         return response.json() as Promise<SessionPayload>;
       })
       .then((session) => {
-        if (!cancelled && session) {
-          setState({ status: "ready", session });
-        }
+        if (!cancelled && session) setState({ status: "ready", session });
       })
       .catch(() => {
         if (!cancelled) {
           setState({
             status: "error",
-            message:
-              "ไม่สามารถตรวจสอบสิทธิ์การเข้าใช้งานได้ กรุณาลองใหม่อีกครั้ง",
+            message: "ไม่สามารถตรวจสอบสิทธิ์การเข้าใช้งานได้ กรุณาลองใหม่อีกครั้ง",
           });
         }
       });
@@ -396,72 +220,71 @@ export function DesktopShell({
     };
   }, [router]);
 
-  const visibleNavigation = useMemo(() => {
-    if (state.status !== "ready") return [];
-    return NAVIGATION.flatMap((entry): NavigationEntry[] => {
-      if (entry.type === "link") {
-        return canSeeLink(entry, state.session.navigation) ? [entry] : [];
-      }
-      const items = entry.items.filter((item) =>
-        canSeeLink(item, state.session.navigation),
-      );
-      return items.length > 0 ? [{ ...entry, items }] : [];
-    });
-  }, [state]);
+  const navigation = state.status === "ready" ? state.session.navigation : null;
 
   useEffect(() => {
-    for (const entry of visibleNavigation) {
-      if (
-        entry.type === "group" &&
-        entry.items.some((item) => isLinkActive(item, pathname, currentHash))
-      ) {
-        setOpenGroupId(entry.id);
-        return;
-      }
-    }
-  }, [currentHash, pathname, visibleNavigation]);
+    if (!navigation?.profile) return;
+    let cancelled = false;
+    void fetch("/api/profile/me", { credentials: "same-origin", cache: "no-store" })
+      .then((response) => (response.ok ? (response.json() as Promise<SelfProfileResponse>) : null))
+      .then((value) => {
+        if (!cancelled && value) setProfile(value);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation?.profile]);
 
-  const activeTitle = useMemo(() => {
-    for (const entry of visibleNavigation) {
-      if (entry.type === "link") {
-        if (isLinkActive(entry, pathname, currentHash)) {
-          return entry.label;
+  useEffect(() => {
+    if (!navigation?.approvals) return;
+    let cancelled = false;
+    void fetch("/api/requests/assigned", { credentials: "same-origin", cache: "no-store" })
+      .then((response) => (response.ok ? (response.json() as Promise<RequestStatusOverview>) : null))
+      .then((value) => {
+        if (cancelled || !value) return;
+        const counts: Record<string, number> = {};
+        for (const item of value.requests) {
+          if (item.canDecide) counts[item.kind] = (counts[item.kind] ?? 0) + 1;
         }
-        continue;
-      }
-      const activeItem = entry.items.find((item) =>
-        isLinkActive(item, pathname, currentHash),
-      );
-      if (activeItem) {
-        return entry.label + " · " + activeItem.label;
-      }
-    }
-    if (pathname === "/desktop/attendance") return "เวลาเข้างาน";
-    if (pathname === "/desktop/profile") return "โปรไฟล์ของฉัน";
-    if (pathname === "/desktop/notifications") return "การแจ้งเตือน";
-    if (pathname === "/desktop/benefits") return "สิทธิและสวัสดิการ";
-    if (pathname === "/desktop/announcements") return "ประชาสัมพันธ์";
-    return "CKACE Employee Services";
-  }, [currentHash, pathname, visibleNavigation]);
+        setPendingByKind(counts);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation?.approvals, pathname]);
 
-  function toggleTheme() {
-    setDarkMode((current) => {
-      const next = !current;
-      document.body.classList.toggle("dark", next);
-      window.localStorage.setItem(
-        "ckace-desktop-theme",
-        next ? "dark" : "light",
-      );
-      return next;
-    });
-  }
+  const sections = useMemo(() => {
+    if (!navigation) return [];
+    return SECTIONS.map((section) => ({
+      ...section,
+      links: section.links.filter((link) => navigation[link.capability]),
+    })).filter((section) => section.links.length > 0);
+  }, [navigation]);
 
-  function toggleGroup(groupId: string) {
-    if (sidebarCollapsed) {
-      setSidebarCollapsed(false);
+  const activeSection = useMemo<SectionId | null>(() => {
+    for (const section of sections) {
+      if (section.links.some((link) => isActive(link.href, pathname, hash))) return section.id;
     }
-    setOpenGroupId((current) => (current === groupId ? null : groupId));
-  }
+    return null;
+  }, [sections, pathname, hash]);
+
+  useEffect(() => {
+    setOpenSection(activeSection);
+    setPopover(null);
+  }, [activeSection, pathname]);
+
+  useEffect(() => {
+    if (!popover) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPopover(null);
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [popover]);
+
+  const totalPending = Object.values(pendingByKind).reduce((sum, value) => sum + value, 0);
 
   async function logout() {
     if (loggingOut) return;
@@ -473,322 +296,239 @@ export function DesktopShell({
       router.refresh();
       return;
     }
-    setLogoutError(
-      "ยังไม่ยืนยันการออกจากระบบ กรุณาลองใหม่อีกครั้ง หรือปิดหน้าต่างเบราว์เซอร์",
-    );
+    setLogoutError("ยังไม่ยืนยันการออกจากระบบ กรุณาลองใหม่อีกครั้ง หรือปิดหน้าต่างเบราว์เซอร์");
     setLoggingOut(false);
   }
 
   if (state.status === "loading") {
     return (
-      <main className="state-page">
-        <div
-          className="state-card"
-          role="status"
-          aria-live="polite"
-          aria-busy="true"
-        >
-          <div className="spinner" aria-hidden="true" />
+      <div className="ck-app">
+        <main className="ck-main ck-state" role="status" aria-live="polite" aria-busy="true">
+          <div className="ck-spinner" aria-hidden="true" />
           <h1>กำลังตรวจสอบสิทธิ์</h1>
           <p>กำลังเตรียมพื้นที่บริการพนักงานของคุณ</p>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
   if (state.status === "error") {
     return (
-      <main className="state-page">
-        <div className="state-card" role="alert">
-          <div className="status-badge error">เกิดข้อผิดพลาด</div>
+      <div className="ck-app">
+        <main className="ck-main ck-state" role="alert">
           <h1>เปิดพื้นที่บริการพนักงานไม่สำเร็จ</h1>
           <p>{state.message}</p>
-          <button
-            className="primary-button"
-            onClick={() => window.location.reload()}
-          >
+          <button className="ck-btn sky" type="button" onClick={() => window.location.reload()}>
             ลองใหม่
           </button>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
-  return (
-    <div
-      className={
-        sidebarCollapsed
-          ? "desktop-frame admin-dashboard task396-shell sidebar-collapsed"
-          : "desktop-frame admin-dashboard task396-shell"
-      }
-    >
-      <aside
-        className={
-          menuOpen
-            ? "desktop-sidebar sidebar task396-sidebar open"
-            : "desktop-sidebar sidebar task396-sidebar"
-        }
+  const nav = state.session.navigation;
+  const flySection = sections.find((section) => section.id === openSection) ?? null;
+  const displayName = profile?.fullName ?? "บัญชีพนักงาน";
+  const subtitle = [profile?.roles[0], profile?.department?.name].filter(Boolean).join(" ") || "พนักงาน";
+
+  function railSectionButton(id: SectionId, label: string, icon: IconName, badge?: number) {
+    const section = sections.find((item) => item.id === id);
+    if (!section) return null;
+    const on = openSection === id || (openSection === null && activeSection === id);
+    return (
+      <button
+        type="button"
+        className={on ? "ck-ri on" : "ck-ri"}
+        aria-expanded={openSection === id}
+        aria-controls="ck-fly"
+        onClick={() => setOpenSection((current) => (current === id ? null : id))}
       >
-        <div className="sidebar-brand sidebar-logo task396-brand">
-          <span
-            className="company-logo sidebar-logo-image"
-            role="img"
-            aria-label="โลโก้บริษัท C.K.ACE"
-          />
-          <span className="task396-brand-copy sidebar-menu-item-text">
-            <strong>Employee Services</strong>
-            <small>Leave-first workspace</small>
-          </span>
-        </div>
+        <Icon name={icon} />
+        {badge ? <span className="ck-badge">{badge}</span> : null}
+        <span className="ck-tip">{label}</span>
+      </button>
+    );
+  }
 
-        <nav
-          className="desktop-nav sidebar-menu-list task396-nav"
-          aria-label="เมนูหลัก"
+  let lastGroup: string | undefined;
+
+  return (
+    <div className="ck-app">
+      <nav className="ck-rail" aria-label="เมนูหลัก">
+        <button
+          type="button"
+          className="ck-ri me"
+          aria-haspopup="dialog"
+          aria-expanded={popover === "me"}
+          onClick={() => setPopover((current) => (current === "me" ? null : "me"))}
         >
-          <div className="task396-nav-caption sidebar-menu-item-text">
-            WORKSPACE
-          </div>
+          <span className="ck-av">{initials(profile?.fullName)}</span>
+          {totalPending > 0 ? <span className="ck-badge">{totalPending}</span> : null}
+          <span className="ck-tip">{displayName}</span>
+        </button>
+        <div className="ck-rail-gap" />
+        <Link href="/desktop" className={pathname === "/desktop" ? "ck-ri on" : "ck-ri"}>
+          <Icon name="dashboard" />
+          <span className="ck-tip">แดชบอร์ด</span>
+        </Link>
+        {railSectionButton("requests", "ยื่นคำขอ", "document")}
+        {railSectionButton("approvals", "งานอนุมัติ", "check", totalPending || undefined)}
+        {nav.calendar ? (
+          <Link href="/desktop/calendar" className={pathname === "/desktop/calendar" ? "ck-ri on" : "ck-ri"}>
+            <Icon name="calendar" />
+            <span className="ck-tip">ปฏิทิน</span>
+          </Link>
+        ) : null}
+        {railSectionButton("reports", "รายงาน", "chart")}
+        <div className="ck-rail-fill" />
+        <button
+          type="button"
+          className="ck-ri"
+          aria-haspopup="dialog"
+          aria-expanded={popover === "apps"}
+          onClick={() => setPopover((current) => (current === "apps" ? null : "apps"))}
+        >
+          <Icon name="apps" />
+          <span className="ck-tip">แอปพลิเคชัน</span>
+        </button>
+        {railSectionButton("settings", "ตั้งค่า HR", "gear")}
+      </nav>
 
-          {visibleNavigation.map((entry, index) => {
-            const systemDivider = entry.id === "platform-settings";
-            if (entry.type === "link") {
-              const active = isLinkActive(entry, pathname, currentHash);
+      <aside id="ck-fly" className={flySection ? "ck-fly open" : "ck-fly"} aria-hidden={!flySection}>
+        {flySection ? (
+          <div className="ck-fly-in">
+            <div className={"ck-fh " + TONE_CLASS[flySection.tone]}>
+              <h2>{flySection.title}</h2>
+              <button type="button" aria-label="ปิดเมนู" onClick={() => setOpenSection(null)}>
+                <Icon name="back" size={18} />
+              </button>
+            </div>
+            {flySection.links.map((link) => {
+              const showGroup = link.group !== lastGroup && link.group !== undefined;
+              lastGroup = link.group;
+              const count = link.countKey ? pendingByKind[link.countKey] : undefined;
               return (
-                <div
-                  className={
-                    systemDivider
-                      ? "task396-nav-entry task396-platform-entry"
-                      : "task396-nav-entry"
-                  }
-                  key={entry.id}
-                >
-                  {systemDivider ? (
-                    <div className="task396-nav-divider" aria-hidden="true" />
-                  ) : null}
+                <div key={link.id}>
+                  {showGroup ? <div className="ck-fly-label">{link.group}</div> : null}
                   <Link
-                    href={entry.href}
-                    className={
-                      active
-                        ? "nav-item sidebar-menu-item-link task396-nav-link active"
-                        : "nav-item sidebar-menu-item-link task396-nav-link"
-                    }
-                    onClick={() => setMenuOpen(false)}
+                    href={link.href}
+                    className={(isActive(link.href, pathname, hash) ? "on " : "") + TONE_CLASS[link.tone]}
+                    onClick={() => setHash(link.href.includes("#") ? "#" + link.href.split("#")[1] : "")}
                   >
-                    <i
-                      className={"bx " + entry.icon + " sidebar-menu-item-icon"}
-                      aria-hidden="true"
-                    />
-                    <span className="sidebar-menu-item-text">{entry.label}</span>
+                    <span className="ck-chip sm">
+                      <Icon name={link.icon} size={15} />
+                    </span>
+                    {link.label}
+                    {count ? <span className="ck-n">{count}</span> : null}
                   </Link>
                 </div>
               );
-            }
-
-            const groupActive = entry.items.some((item) =>
-              isLinkActive(item, pathname, currentHash),
-            );
-            const open = openGroupId === entry.id;
-
-            return (
-              <div
-                className={
-                  groupActive
-                    ? "task396-nav-entry task396-nav-group active"
-                    : "task396-nav-entry task396-nav-group"
-                }
-                key={entry.id}
-              >
-                {index === 2 ? (
-                  <div className="task396-section-label sidebar-menu-item-text">
-                    งานของฉัน
-                  </div>
-                ) : entry.id === "employees" ? (
-                  <div className="task396-section-label sidebar-menu-item-text">
-                    การบริหาร
-                  </div>
-                ) : null}
-
-                <button
-                  className={
-                    groupActive
-                      ? "task396-nav-group-button active"
-                      : "task396-nav-group-button"
-                  }
-                  type="button"
-                  aria-expanded={open}
-                  aria-controls={"task396-group-" + entry.id}
-                  onClick={() => toggleGroup(entry.id)}
-                >
-                  <i
-                    className={"bx " + entry.icon + " sidebar-menu-item-icon"}
-                    aria-hidden="true"
-                  />
-                  <span className="sidebar-menu-item-text">{entry.label}</span>
-                  <i
-                    className={
-                      open
-                        ? "bx bx-chevron-up task396-nav-chevron sidebar-menu-item-text"
-                        : "bx bx-chevron-down task396-nav-chevron sidebar-menu-item-text"
-                    }
-                    aria-hidden="true"
-                  />
-                </button>
-
-                <div
-                  id={"task396-group-" + entry.id}
-                  className={
-                    open
-                      ? "task396-nav-children open"
-                      : "task396-nav-children"
-                  }
-                >
-                  {entry.items.map((item) => {
-                    const active = isLinkActive(
-                      item,
-                      pathname,
-                      currentHash,
-                    );
-                    return (
-                      <Link
-                        key={item.id}
-                        href={item.href}
-                        className={
-                          active
-                            ? "task396-nav-child active"
-                            : "task396-nav-child"
-                        }
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <span
-                          className="task396-nav-child-dot"
-                          aria-hidden="true"
-                        />
-                        <span className="sidebar-menu-item-text">
-                          {item.label}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </nav>
-
-        <div className="sidebar-footer task396-sidebar-footer">
-          <div className="sidebar-security-line">
-            <span className="security-dot" aria-hidden="true" />
-            <span className="sidebar-menu-item-text">
-              เชื่อมต่ออย่างปลอดภัย
-            </span>
+            })}
           </div>
-          <button
-            className="logout-btn"
-            type="button"
-            aria-busy={loggingOut}
-            onClick={() => void logout()}
-            disabled={loggingOut}
-          >
-            <i className="bx bx-log-out logout-btn-icon" aria-hidden="true" />
-            <span className="logout-btn-text">
-              {loggingOut ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}
-            </span>
-          </button>
-          {logoutError ? (
-            <span role="alert" className="sidebar-logout-error">
-              {logoutError}
-            </span>
-          ) : null}
-        </div>
+        ) : null}
       </aside>
 
-      {menuOpen ? (
-        <button
-          className="sidebar-backdrop sidebar-overlay"
-          aria-label="ปิดเมนู"
-          onClick={() => setMenuOpen(false)}
-        />
+      {popover ? (
+        <button type="button" className="ck-scrim" style={{ background: "transparent", zIndex: 40 }} aria-label="ปิด" onClick={() => setPopover(null)} />
       ) : null}
 
-      <div className="desktop-workspace">
-        <header className="desktop-topbar navbar task396-topbar">
-          <button
-            id="desktop-toggle"
-            className="shell-menu-toggle"
-            type="button"
-            aria-label={sidebarCollapsed ? "ขยายเมนู" : "ย่อเมนู"}
-            onClick={() => setSidebarCollapsed((current) => !current)}
-          >
-            <i className="bx bx-menu" aria-hidden="true" />
-          </button>
-          <button
-            id="mobile-toggle"
-            className="shell-menu-toggle mobile-toggle"
-            type="button"
-            aria-label="เปิดเมนู"
-            onClick={() => setMenuOpen(true)}
-          >
-            <i className="bx bx-menu" aria-hidden="true" />
-          </button>
-
-          <div className="navbar-title task396-page-title">
-            <small>CKACE</small>
-            <strong>{activeTitle}</strong>
+      {popover === "me" ? (
+        <div className="ck-pop" style={{ top: 14 }} role="dialog" aria-label="โปรไฟล์และการแจ้งเตือน">
+          <div className="ck-me">
+            <span className="ck-av md">{initials(profile?.fullName)}</span>
+            <span>
+              <b>{displayName}</b>
+              <small>{subtitle}</small>
+            </span>
           </div>
+          <div className="ck-pop-hr" />
+          <div className="ck-pop-t">การแจ้งเตือน</div>
+          {totalPending > 0 ? (
+            <Link className="ck-pop-link" href="/desktop/approvals" onClick={() => setPopover(null)}>
+              <Icon name="check" size={17} />
+              มี {totalPending} คำขอรอคุณอนุมัติ
+            </Link>
+          ) : null}
+          {nav.notifications ? (
+            <Link className="ck-pop-link" href="/desktop/notifications" onClick={() => setPopover(null)}>
+              <Icon name="bell" size={17} />
+              ดูการแจ้งเตือนทั้งหมด
+            </Link>
+          ) : null}
+          {nav.announcements ? (
+            <Link className="ck-pop-link" href="/desktop/announcements" onClick={() => setPopover(null)}>
+              <Icon name="megaphone" size={17} />
+              ประกาศจากบริษัท
+            </Link>
+          ) : null}
+          <div className="ck-pop-hr" />
+          <div className="ck-pop-t">แอปพลิเคชัน</div>
+          <AppGrid />
+          <div className="ck-pop-hr" />
+          {nav.profile ? (
+            <Link className="ck-pop-link" href="/desktop/profile" onClick={() => setPopover(null)}>
+              <Icon name="user" size={17} />
+              โปรไฟล์ของฉัน
+            </Link>
+          ) : null}
+          <button type="button" className="ck-pop-link danger" disabled={loggingOut} aria-busy={loggingOut} onClick={() => void logout()}>
+            <Icon name="logout" size={17} />
+            {loggingOut ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}
+          </button>
+          {logoutError ? (
+            <p role="alert" className="ck-msg error" style={{ margin: "6px 4px 2px", fontSize: 13 }}>
+              {logoutError}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
-          <div className="topbar-actions">
-            {state.session.navigation.attendance ? (
-              <Link
-                className="navbar-checkin-button task396-checkin"
-                href="/desktop/attendance"
-              >
-                <i className="bx bxs-watch" aria-hidden="true" />
-                <span className="hidden-mobile-text">ลงเวลา</span>
-              </Link>
-            ) : null}
+      {popover === "apps" ? (
+        <div className="ck-pop" style={{ bottom: 64 }} role="dialog" aria-label="แอปพลิเคชัน">
+          <div className="ck-pop-t">แอปพลิเคชัน</div>
+          <AppGrid />
+        </div>
+      ) : null}
 
-            {state.session.navigation.notifications ? (
-              <Link
-                className="notification-btn navbar-icon-button"
-                href="/desktop/notifications"
-                aria-label="เปิดการแจ้งเตือน"
-              >
-                <i className="bx bxs-bell" aria-hidden="true" />
-              </Link>
-            ) : null}
+      <main className="ck-main">
+        {REDESIGNED_PATHS.has(pathname) ? (
+          children
+        ) : (
+          <div className="ck-legacy desktop-content main-content task396-content">{children}</div>
+        )}
+      </main>
+    </div>
+  );
+}
 
-            <button
-              className="dark-mode-toggle"
-              type="button"
-              aria-label={darkMode ? "ใช้โหมดสว่าง" : "ใช้โหมดมืด"}
-              aria-pressed={darkMode}
-              onClick={toggleTheme}
-            >
-              <span className="slider">
-                <i
-                  className={darkMode ? "bx bxs-moon" : "bx bxs-sun"}
-                  aria-hidden="true"
-                />
-              </span>
-            </button>
-
-            {state.session.navigation.profile ? (
-              <Link className="topbar-profile" href="/desktop/profile">
-                <span className="topbar-avatar" aria-hidden="true">
-                  <i className="bx bxs-user" />
-                </span>
-                <span className="topbar-profile-copy">
-                  <strong>บัญชีพนักงาน</strong>
-                  <small>{state.session.employeeId}</small>
-                </span>
-              </Link>
-            ) : null}
-          </div>
-        </header>
-        <main className="desktop-content main-content task396-content">
-          {children}
-        </main>
-      </div>
+function AppGrid() {
+  const apps: readonly { label: string; icon: IconName; color: string; current?: boolean }[] = [
+    { label: "HR", icon: "calendar", color: "var(--ck-t-leave)", current: true },
+    { label: "สำนักงานบัญชี", icon: "building", color: "var(--ck-t-med)" },
+    { label: "Audit", icon: "audit", color: "var(--ck-gold)" },
+    { label: "บุคลากร", icon: "users", color: "var(--ck-t-biz)" },
+    { label: "ตั้งค่าระบบ", icon: "gear", color: "var(--ck-t-gray)" },
+  ];
+  return (
+    <div className="ck-apps">
+      {apps.map((app) =>
+        app.current ? (
+          <span key={app.label} className="ck-app-i cur" aria-current="true">
+            <span className="ic" style={{ background: app.color }}>
+              <Icon name={app.icon} size={19} />
+            </span>
+            {app.label}
+          </span>
+        ) : (
+          <span key={app.label} className="ck-app-i" aria-disabled="true" title="ยังไม่เปิดใช้งาน">
+            <span className="ic" style={{ background: app.color, opacity: 0.45 }}>
+              <Icon name={app.icon} size={19} />
+            </span>
+            {app.label}
+            <small>เร็ว ๆ นี้</small>
+          </span>
+        ),
+      )}
     </div>
   );
 }

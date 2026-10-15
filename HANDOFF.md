@@ -126,7 +126,14 @@ Final traffic re-read:
 - Each request type has its own page: form on top (with an approver-chain box) and that type's history below. Approvals and reports are split per type the same way; approvals are grid-only.
 - Prompt font (same as Production). Approver actions on one line: อนุมัติ / แก้ไข / ไม่อนุมัติ; status for sent-back requests is "รอแก้ไข" (Production wording). Inner cards are white with only a colored top line; submit buttons take their function color; request history uses the same card grid as approval history, with a date tile; every history card opens a detail dialog modelled on Production (requester, dates, reason, quota, files, approval-steps table). Hourly leave takes a start time plus number of hours. Approved status reads "อนุมัติ". History cards show labelled rows (date once, amount, detail, approver). Profile page follows Production "โปรไฟล์ของฉัน": photo on top (click the photo to change it, no separate upload button), general info (name, surname, nickname, email username, agency, department, password), signature box.
 - FlowAccount is a usability reference only; never copy its look.
-Next: Owner sign-off on v18, then implement in `apps/web` page by page.
+Owner approved v18 on 2026-10-15 and asked to start the real web implementation.
+
+Implementation progress (apps/web, design system in `src/app/desktop/ui/`):
+- DONE: new shell `desktop-shell.tsx` (navy icon rail, per-section flyout, profile/notification popover, app switcher; same session check, capability gating and logout as before) and `ui/ck.css` (ck- prefixed, coexists with legacy globals.css).
+- DONE: `/desktop/leave` rebuilt on real data (`/api/leave/me`, `/api/leave/approval-options`, existing idempotent submit/cancel). Hourly leave = start time + number of hours.
+- Pages not yet rebuilt render unchanged inside the new shell (`REDESIGNED_PATHS` in the shell controls this).
+- NEXT: overtime, time correction, medical, attendance clock, approvals (grid), dashboard, calendar, reports, settings, profile.
+- Needs backend before the UI can match the mockup: "แก้ไข / ส่งกลับให้แก้ไข" approver decision (API accepts only APPROVED/REJECTED), human-readable request numbers, per-request approval-step timeline, team-leave feed for the dashboard, approver delegation, per-type report endpoints, profile photo/signature upload.
 
 
 TASK-39.8 remains active.

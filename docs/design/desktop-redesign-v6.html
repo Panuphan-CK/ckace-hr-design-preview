@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CKACE Platform — Desktop Redesign v6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1f3a6e; --navy-dk:#162b54; --tint:#eef3fb;
+  --gold:#c9a84c; --gold-tint:#fbf5e4;
+  --line:#e6e9ef; --line2:#f0f2f5;
+  --ink:#1f2937; --ink-2:#5b6474; --ink-3:#9aa2b1;
+  --c-leave:#3b82f6; --c-sick:#ef4444; --c-biz:#8b5cf6; --c-ot:#f59e0b; --c-time:#0ea5e9; --c-med:#14b8a6;
+  --green:#22a55a; --green-t:#e8f7ee; --amber:#d98a06; --amber-t:#fdf4e2; --red:#e0443a; --red-t:#fdeeed; --orange:#c2410c; --orange-t:#fff1e6;
+  /* app colors */
+  --a-hr:#3b82f6; --a-office:#16a34a; --a-audit:#c9a84c; --a-people:#8b5cf6; --a-admin:#475569;
+  --sw:264px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff}
+body{font-family:'Prompt',sans-serif;color:var(--ink);font-size:14.5px;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit;text-align:left}
+input,select,textarea{font:inherit;color:inherit}
+svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.switch{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;border-radius:999px;padding:6px;display:flex;gap:4px;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:13px}
+.switch button{padding:7px 14px;border-radius:999px;color:#cbd5e1}
+.switch button.on{background:#fff;color:#111827;font-weight:500}
+
+.app{display:grid;grid-template-columns:auto minmax(0,1fr);min-height:100vh}
+
+/* ===== ICON RAIL + FLYOUT PANEL (the only chrome) ===== */
+.nav-wrap{display:flex;height:100vh;position:sticky;top:0;z-index:15}
+.rail{width:64px;background:var(--navy);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px}
+.rail .ri{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;color:#c9d3e6;position:relative}
+.rail .ri:hover{background:rgba(255,255,255,.08);color:#fff}
+.rail .ri.on{background:rgba(255,255,255,.14);color:#fff}
+.rail .ri.on::before{content:"";position:absolute;left:-10px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--gold)}
+.rail .ri svg{width:21px;height:21px}
+.rail .rav{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy-dk);display:grid;place-items:center;font-weight:600;font-size:12.5px;border:2px solid rgba(255,255,255,.6)}
+.rail .badge{position:absolute;top:6px;right:6px;min-width:16px;height:16px;border-radius:8px;background:var(--red);color:#fff;font-size:10px;display:grid;place-items:center;padding:0 4px;border:2px solid var(--navy)}
+.rail .hr{width:28px;border-top:1px solid rgba(255,255,255,.18);margin:8px 0}
+.rail .grow{flex:1}
+.rail .tip{position:absolute;left:54px;top:50%;transform:translateY(-50%);background:#111827;color:#fff;font-size:12.5px;padding:4px 9px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:.12s}
+.rail .ri:hover .tip{opacity:1}
+.panel{width:248px;background:#fff;border-right:1px solid var(--line);overflow:auto;padding:18px 14px;display:none;flex-direction:column}
+.panel.open{display:flex}
+.panel .ph2{display:flex;align-items:center;margin-bottom:12px}
+.panel .ph2 h3{font-size:21px;font-weight:500;color:var(--ink)}
+.panel .ph2 small{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
+.panel .close{margin-left:auto;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink-3)}
+.grp{margin-bottom:4px}
+.grp>button,.solo{display:flex;align-items:center;gap:12px;width:100%;padding:11px 10px;border-radius:10px;color:var(--ink);font-size:15px;font-weight:500;text-decoration:none;margin-bottom:4px}
+.grp>button svg.ic,.solo svg.ic{width:18px;height:18px;color:var(--navy)}
+.grp>button .chev{margin-left:auto;width:15px;height:15px;color:var(--ink-3);transition:.15s}
+.grp.open>button .chev{transform:rotate(90deg)}
+.grp>button:hover,.solo:hover{color:var(--navy)}
+.solo.on{background:var(--tint);color:var(--navy)}
+.solo .cnt{margin-left:auto;background:var(--red);color:#fff;font-size:11px;border-radius:9px;padding:0 7px;line-height:18px}
+.grp .items{display:none;margin:2px 0 10px 19px;padding-left:16px;border-left:1px solid var(--line)}
+.grp.open .items{display:block}
+.grp .items a{display:flex;align-items:center;padding:9px 12px;margin:2px 0;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:14.5px}
+.grp .items a:hover{color:var(--navy)}
+.grp .items a.on{background:var(--tint);color:var(--navy);font-weight:500}
+.nh{display:flex;align-items:center;gap:8px;padding:6px 4px 8px;font-size:14px}
+.nh b{font-weight:500}
+.nh .pill{background:var(--red);color:#fff;font-size:11px;border-radius:9px;padding:0 7px;line-height:18px}
+.nh a{font-size:12.5px;color:var(--navy);text-decoration:none}
+a.noti{display:block;text-decoration:none;color:var(--ink);border-radius:8px}
+a.noti:hover{background:var(--tint)}
+.acct{margin-top:auto;padding-top:10px;border-top:1px solid var(--line2)}
+.pfoot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--ink-3)}
+.pfoot b{color:var(--ink-2);font-weight:500}
+.pcard{display:flex;gap:12px;align-items:center;padding:4px 4px 14px;border-bottom:1px solid var(--line2);margin-bottom:8px}
+.pcard .big{width:48px;height:48px;border-radius:50%;background:var(--gold);color:var(--navy-dk);display:grid;place-items:center;font-weight:600}
+.pcard b{display:block;font-weight:500}
+.pcard small{color:var(--ink-3);font-size:12.5px}
+.plink{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:14px}
+.plink:hover{color:var(--navy)}
+.plink svg{width:17px;height:17px}
+.noti{padding:10px 8px;border-bottom:1px solid var(--line2);font-size:13.5px}
+.noti b{font-weight:500;display:block}
+.noti small{color:var(--ink-3)}
+.noti.unread b::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:6px;vertical-align:1px}
+
+/* app switcher popover */
+.pop{position:fixed;top:100px;left:72px;width:320px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(17,24,39,.14);z-index:30;display:none;overflow:hidden}
+.showapps .pop{display:block}
+.pop h5{font-size:13px;font-weight:500;color:var(--ink-3);padding:14px 16px 8px}
+.pop button{display:flex;align-items:center;gap:12px;width:100%;padding:10px 16px}
+.pop button:hover{background:var(--tint)}
+.pop b{display:block;font-weight:500;font-size:14.5px;line-height:1.25}
+.pop small{color:var(--ink-3);font-size:12.5px}
+.pop .cur{margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--green)}
+.pop .legacy{margin-left:auto;font-size:11px;border:1px solid var(--line);color:var(--ink-3);border-radius:6px;padding:1px 6px}
+.pop .divider{border-top:1px solid var(--line2);margin:6px 0}
+
+/* ===== MAIN (all white) ===== */
+.main{min-width:0;padding:22px 32px 90px}
+.ph{display:flex;align-items:flex-end;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.ph h1{font-size:23px;font-weight:500;line-height:1.2}
+.ph p{color:var(--ink-3);font-size:13.5px;margin-top:3px}
+.ml{margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:9px 16px;font-weight:500;font-size:14px;border:1px solid transparent;white-space:nowrap}
+.btn.primary{background:var(--navy);color:#fff}
+.btn.outline{border-color:var(--line);color:var(--ink-2)}
+.btn.outline:hover{border-color:#cfd6e2}
+.btn.ok{background:var(--green);color:#fff}
+.btn.back{border-color:#f5c9a5;color:var(--orange)}
+.btn.no{border-color:#f3c3bf;color:var(--red)}
+.box{border:1px solid var(--line);border-radius:14px;background:#fff}
+.sec-h{display:flex;align-items:center;gap:12px;margin:26px 0 12px}
+.sec-h h2{font-size:16.5px;font-weight:500}
+.sec-h p{color:var(--ink-3);font-size:13px}
+
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.tile{border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:13px;transition:.15s}
+.tile:hover{border-color:var(--navy);box-shadow:0 4px 14px rgba(31,58,110,.08)}
+.circle{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;flex:none}
+.circle svg{width:21px;height:21px}
+.tile b{display:block;font-weight:500;font-size:15px}
+.tile small{color:var(--ink-3);font-size:12.5px}
+.tile .plus{margin-left:auto;color:var(--ink-3)}
+
+.bal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.bc{border:1.5px solid;border-radius:14px;padding:16px 18px}
+.bc .row{display:flex;align-items:flex-start;gap:12px}
+.sq{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:#fff}
+.bc .big{margin-left:auto;text-align:right;font-size:28px;font-weight:600;line-height:1}
+.bc .big small{display:block;font-size:12px;font-weight:400;color:var(--ink-3);margin-top:4px}
+.bc h3{font-size:15.5px;font-weight:500;margin-top:12px}
+.bc .sub{font-size:12.5px;color:var(--ink-3)}
+.track{height:7px;border-radius:9px;background:var(--line2);margin-top:10px;overflow:hidden}
+.track i{display:block;height:100%;border-radius:9px}
+.bc .pct{text-align:right;font-size:12.5px;color:var(--ink-2);margin-top:5px}
+
+/* underline tabs (no gray pills) */
+.toolbar{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:0 4px}
+.utabs{display:flex;gap:4px}
+.utabs button{padding:12px 12px 10px;font-size:14px;color:var(--ink-2);border-bottom:2px solid transparent;display:flex;gap:6px;align-items:center;margin-bottom:-1px}
+.utabs .n{font-size:11.5px;border:1px solid var(--line);border-radius:8px;padding:0 6px;color:var(--ink-2)}
+.utabs button.on{color:var(--navy);border-color:var(--navy);font-weight:500}
+.utabs button.on .n{background:var(--navy);border-color:var(--navy);color:#fff}
+.fi{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13.5px;color:var(--ink-3)}
+table{width:100%;border-collapse:collapse}
+th{font-size:12.5px;font-weight:500;color:var(--ink-3);text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+td{padding:13px 14px;border-bottom:1px solid var(--line2);font-size:14px}
+tbody tr:hover td{background:#fbfcfe}
+td .s{display:block;color:var(--ink-3);font-size:12.5px}
+.rid{font-weight:500;color:var(--navy);white-space:nowrap}
+.tl{display:flex;align-items:center;gap:9px}
+.dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;flex:none}
+.dot svg{width:15px;height:15px}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;border-radius:999px;padding:3px 11px;white-space:nowrap}
+.st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st.wait{background:var(--amber-t);color:var(--amber)}
+.st.ok{background:var(--green-t);color:var(--green)}
+.st.back{background:var(--orange-t);color:var(--orange)}
+.lnk{color:var(--navy);font-weight:500;font-size:13.5px}
+
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(17,24,39,.35);z-index:20;display:none}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:640px;max-height:92vh;background:#fff;border-radius:18px;z-index:21;display:none;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.showform .scrim{display:block}.showform .modal{display:flex}
+.mh{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--line)}
+.mh h2{font-size:18px;font-weight:500}
+.mb{padding:20px 24px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.mf{padding:16px 24px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+.field label{display:block;font-size:13.5px;font-weight:500;margin-bottom:7px}
+.field label em{color:var(--red);font-style:normal}
+.inp{width:100%;border:1px solid #d5dae4;border-radius:10px;padding:9px 12px;background:#fff;font-size:14.5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.types{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;font-size:14px;display:flex;gap:7px;align-items:center}
+.chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chip small{color:var(--ink-3)}
+.chip.on{border-color:var(--navy);background:var(--tint);color:var(--navy);font-weight:500}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{padding:8px 0;font-size:13.5px;color:var(--ink-2);text-align:center;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--navy);color:#fff;font-weight:500}
+.sum{background:var(--gold-tint);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;font-size:14px}
+.sum b{font-size:20px;font-weight:600;color:var(--navy)}
+.line{display:flex;gap:8px;flex-wrap:wrap}
+.line span{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13.5px}
+.line span i{font-style:normal;width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:11px}
+.drop{border:1.5px dashed #ccd3df;border-radius:12px;padding:16px;text-align:center;color:var(--ink-3);font-size:13.5px}
+
+/* approvals */
+.split{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+.split>*{min-width:0}
+.chk{width:17px;height:17px;border:1.5px solid #c5ccd8;border-radius:5px;display:inline-block;vertical-align:middle}
+.chk.on{background:var(--navy);border-color:var(--navy)}
+tr.sel td{background:var(--tint)!important}
+.detail{position:sticky;top:20px}
+.dh{display:flex;gap:12px;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.dh h2{font-size:17px;font-weight:500}
+.dl{display:grid;grid-template-columns:96px 1fr;gap:9px 12px;padding:16px 18px;font-size:14px}
+.dl dt{color:var(--ink-3)}
+.note{margin:0 18px 12px;padding:10px 14px;border-radius:10px;font-size:13px;border:1px solid var(--line)}
+.flow{padding:2px 18px 14px}
+.flow div{display:flex;gap:10px;align-items:center;padding:5px 0;font-size:13.5px;color:var(--ink-2)}
+.flow i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:11px;border:1px solid var(--line);color:var(--ink-3)}
+.flow .done i{background:var(--green);border-color:var(--green);color:#fff}
+.flow .now i{background:var(--gold);border-color:var(--gold);color:#fff}
+.flow .now{color:var(--ink);font-weight:500}
+.act{padding:16px 18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+
+/* settings page */
+.set{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px}
+.set nav a{display:block;padding:9px 12px;border-radius:10px;color:var(--ink-2);text-decoration:none;font-size:14px}
+.set nav a.on{background:var(--tint);color:var(--navy);font-weight:500}
+.crumbs{font-size:13px;color:var(--ink-3);margin-bottom:6px}
+.crumbs a{color:var(--navy);text-decoration:none}
+.fgrid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:40px;align-items:start}
+.fsec{padding:4px 0 24px;margin-bottom:22px;border-bottom:1px solid var(--line)}
+.fsec h3{font-size:15.5px;font-weight:500;margin-bottom:14px}
+.factions{display:flex;gap:10px;justify-content:flex-end}
+.fside{position:sticky;top:24px;border-left:1px solid var(--line);padding-left:28px}
+.fside h4{font-size:13px;font-weight:500;color:var(--ink-3);margin:0 0 10px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;font-size:14px}
+.kv span{color:var(--ink-3)}
+.kv b{font-weight:500}
+.kv b.big{font-size:20px;color:var(--navy)}
+.hint{font-size:12.5px;color:var(--ink-3);margin-top:14px;line-height:1.6}
+.view{display:none}.view.on{display:block}
+</style>
+</head>
+<body>
+<div id="root">
+<div class="app">
+  <div class="nav-wrap">
+  <nav class="rail">
+    <button class="ri" data-panel="me"><span class="rav">กส</span><span class="badge">3</span><span class="tip">โปรไฟล์ · แจ้งเตือน 3 รายการ</span></button>
+    <button class="ri" data-apps><svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="10" y="3" width="5" height="5" rx="1"/><rect x="17" y="3" width="4" height="5" rx="1"/><rect x="3" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/><rect x="17" y="10" width="4" height="5" rx="1"/><rect x="3" y="17" width="5" height="4" rx="1"/><rect x="10" y="17" width="5" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/></svg><span class="tip">สลับแอป · ตอนนี้: HR</span></button>
+    <span class="hr"></span>
+    <button class="ri" data-panel="home"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="tip">ภาพรวม HR</span></button>
+    <button class="ri on" data-panel="req"><svg viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg><span class="tip">คำขอของฉัน</span></button>
+    <button class="ri" data-panel="appr"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg><span class="badge">7</span><span class="tip">งานอนุมัติ</span></button>
+    <button class="ri" data-panel="cal"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span class="tip">ปฏิทินและประกาศ</span></button>
+    <button class="ri" data-panel="rep"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="tip">รายงาน HR</span></button>
+    <span class="grow"></span>
+    <button class="ri" data-panel="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="tip">ตั้งค่า HR</span></button>
+  </nav>
+
+  <aside class="panel" id="p-me">
+    <div class="ph2"><h3>โปรไฟล์</h3><button class="close" data-x>‹</button></div>
+    <div class="pcard"><span class="big">กส</span><span><b>กมลวรรณ สุขใจ</b><small>เจ้าหน้าที่บัญชี · ฝ่ายบัญชี</small></span></div>
+    <div class="nh"><b>การแจ้งเตือน</b><span class="pill">3 ใหม่</span><a href="#" class="ml">อ่านทั้งหมด</a></div>
+    <a class="noti unread" href="#"><b>ใบลา LV-6910-011 อนุมัติแล้ว</b><small>ณัฐวุฒิ ผู้ดูแล · 2 ชม.ที่แล้ว</small></a>
+    <a class="noti unread" href="#"><b>คำขอแก้ไขเวลาถูกส่งกลับ</b><small>TC-6910-017 · ขอให้ระบุเหตุผลเพิ่ม · เมื่อวาน</small></a>
+    <a class="noti unread" href="#"><b>มีคำขอรอคุณอนุมัติ 7 รายการ</b><small>งานอนุมัติ · วันนี้</small></a>
+    <a class="noti" href="#"><b>ประกาศ: วันหยุดปีใหม่ 2570</b><small>ฝ่ายบุคคล · 12 ต.ค.</small></a>
+    <div class="acct">
+      <a class="plink" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>ข้อมูลส่วนตัว</a>
+      <a class="plink" href="#"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>เปลี่ยนรหัสผ่าน</a>
+      <a class="plink" href="#"><svg viewBox="0 0 24 24"><path d="M12 3l9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/></svg>เชื่อมต่อ LINE</a>
+      <a class="plink" href="#" style="color:var(--red)"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>ออกจากระบบ</a>
+    </div>
+  </aside>
+  <aside class="panel open" id="p-req">
+    <div class="ph2"><h3>คำขอของฉัน<small>HR</small></h3><button class="close" data-x>‹</button></div>
+    <div class="grp open"><button><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>ยื่นคำขอ<svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="items"><a href="#" data-open>ขอลางาน</a><a href="#">ขอทำงานล่วงเวลา</a><a href="#">ขอแก้ไขเวลา</a><a href="#">ขอเบิกค่ารักษา</a></div></div>
+    <a class="solo on" href="#" data-go="req"><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>ประวัติคำขอ</a>
+    <a class="solo" href="#"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7"/></svg>สิทธิคงเหลือ</a>
+    <a class="solo" href="#"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ลงเวลาทำงาน</a>
+  </aside>
+  <aside class="panel" id="p-appr">
+    <div class="ph2"><h3>งานอนุมัติ<small>HR</small></h3><button class="close" data-x>‹</button></div>
+    <a class="solo on" href="#" data-go="appr"><svg class="ic" viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>รออนุมัติ<span class="cnt">7</span></a>
+    <a class="solo" href="#"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>ประวัติการอนุมัติ</a>
+    <a class="solo" href="#"><svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/></svg>ผู้อนุมัติแทน</a>
+  </aside>
+  <aside class="panel" id="p-set">
+    <div class="ph2"><h3>ตั้งค่า HR</h3><button class="close" data-x>‹</button></div>
+    <div class="grp open"><button><svg class="ic" viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>การลา<svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="items"><a href="#" class="on" data-go="set">ประเภทการลาและสิทธิ</a><a href="#">สิทธิรายบุคคล</a></div></div>
+    <div class="grp"><button><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>เวลาทำงาน<svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="items"><a href="#">วันหยุดและวันทำงาน</a><a href="#">เวลาเข้างานและ OT</a></div></div>
+    <a class="solo" href="#"><svg class="ic" viewBox="0 0 24 24"><path d="M6 3v6a6 6 0 0 0 12 0V3M12 15v6"/></svg>สายอนุมัติ</a>
+    <a class="solo" href="#"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M12 11v5M9.5 13.5h5"/></svg>สวัสดิการค่ารักษา</a>
+    <a class="solo" href="#"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11l18-8v18L3 13z"/></svg>การแจ้งเตือน</a>
+  </aside>
+  </div>
+
+  <main class="main">
+    <!-- ===== MY REQUESTS ===== -->
+    <section class="view on" id="v-req">
+      <div class="ph"><div><h1>คำขอของฉัน</h1><p>ยื่นคำขอและติดตามสถานะ · ปี 2569</p></div></div>
+      <div class="tiles">
+        <button class="tile" data-open><span class="circle" style="background:var(--c-ot)"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></span><span><b>ขอลางาน</b><small>พักร้อน ป่วย กิจ และอื่น ๆ</small></span><svg class="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button class="tile"><span class="circle" style="background:var(--c-biz)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><b>ขอทำงานล่วงเวลา</b><small>บันทึก OT</small></span><svg class="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button class="tile"><span class="circle" style="background:var(--c-leave)"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span><span><b>ขอแก้ไขเวลา</b><small>ลืมสแกน / เวลาไม่ถูก</small></span><svg class="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button class="tile"><span class="circle" style="background:var(--c-med)"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M12 11v5M9.5 13.5h5"/></svg></span><span><b>ขอเบิกค่ารักษา</b><small>คงเหลือ 3,750 บาท</small></span><svg class="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+
+      <div class="sec-h"><div><h2>สิทธิวันลาของฉัน</h2><p>1 ม.ค. – 31 ธ.ค. 2569</p></div><button class="btn outline ml">2569 <svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M6 9l6 6 6-6"/></svg></button></div>
+      <div class="bal">
+        <div class="bc" style="border-color:#c7dafc"><div class="row"><span class="sq" style="background:var(--c-leave)"><svg viewBox="0 0 24 24"><path d="M2 16l20-6-3-3-6 2-6-5-2 1 4 6-4 1-2-2-1 1z"/></svg></span><div class="big" style="color:var(--c-leave)">4<small>วันคงเหลือ</small></div></div><h3>ลาพักร้อน</h3><div class="sub">สิทธิทั้งหมด 7 วัน · ใช้ไป 3 วัน</div><div class="track"><i style="width:43%;background:var(--c-leave)"></i></div><div class="pct">ใช้ไปแล้ว 43%</div></div>
+        <div class="bc" style="border-color:#f9cfcc"><div class="row"><span class="sq" style="background:var(--c-sick)"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></span><div class="big" style="color:var(--c-sick)">28<small>วันคงเหลือ</small></div></div><h3>ลาป่วย</h3><div class="sub">สิทธิทั้งหมด 30 วัน · ใช้ไป 2 วัน</div><div class="track"><i style="width:7%;background:var(--c-sick)"></i></div><div class="pct">ใช้ไปแล้ว 7%</div></div>
+        <div class="bc" style="border-color:#ddd0fd"><div class="row"><span class="sq" style="background:var(--c-biz)"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg></span><div class="big" style="color:var(--c-biz)">4.5<small>วันคงเหลือ</small></div></div><h3>ลากิจ</h3><div class="sub">สิทธิทั้งหมด 6 วัน · ใช้ไป 1.5 วัน</div><div class="track"><i style="width:25%;background:var(--c-biz)"></i></div><div class="pct">ใช้ไปแล้ว 25%</div></div>
+      </div>
+
+      <div class="sec-h"><div><h2>ประวัติคำขอ</h2><p>ลา OT แก้ไขเวลา และค่ารักษา</p></div></div>
+      <div class="toolbar">
+        <div class="utabs"><button class="on">ทั้งหมด <span class="n">8</span></button><button>รออนุมัติ <span class="n">2</span></button><button>อนุมัติแล้ว <span class="n">4</span></button><button>ส่งกลับแก้ไข <span class="n">1</span></button><button>ไม่อนุมัติ / ยกเลิก <span class="n">1</span></button></div>
+        <div class="fi ml" style="width:240px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>ค้นหารหัสคำขอ หรือเหตุผล</div>
+      </div>
+      <table>
+        <thead><tr><th>รหัสคำขอ</th><th>ประเภท</th><th>วันที่ / รายละเอียด</th><th>จำนวน</th><th>วันที่ยื่น</th><th>สถานะ</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="rid">LV-6910-012</td><td><div class="tl"><span class="dot" style="background:var(--c-leave)"><svg viewBox="0 0 24 24"><path d="M2 16l20-6-3-3-6 2-6-5-2 1 4 6-4 1-2-2-1 1z"/></svg></span>ลาพักร้อน</div></td><td>23 – 24 ต.ค. 2569<span class="s">เต็มวัน · รอ ณัฐวุฒิ (สายอนุมัติ 1)</span></td><td>2 วัน</td><td>15 ต.ค. 2569</td><td><span class="st wait">รออนุมัติ</span></td><td><button class="lnk">ยกเลิก</button></td></tr>
+          <tr><td class="rid">OT-6910-031</td><td><div class="tl"><span class="dot" style="background:var(--c-biz)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>ล่วงเวลา</div></td><td>14 ต.ค. 2569<span class="s">18:00 – 21:30</span></td><td>3.5 ชม.</td><td>14 ต.ค. 2569</td><td><span class="st wait">รออนุมัติ</span></td><td><button class="lnk">ดู</button></td></tr>
+          <tr><td class="rid">TC-6910-017</td><td><div class="tl"><span class="dot" style="background:var(--c-leave)"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>แก้ไขเวลา</div></td><td>13 ต.ค. 2569<span class="s">เข้างาน 08:58 · ลืมสแกน</span></td><td>—</td><td>13 ต.ค. 2569</td><td><span class="st back">ส่งกลับแก้ไข</span></td><td><button class="lnk">แก้ไข</button></td></tr>
+          <tr><td class="rid">LV-6910-011</td><td><div class="tl"><span class="dot" style="background:var(--c-sick)"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></span>ลาป่วย</div></td><td>6 ต.ค. 2569<span class="s">เต็มวัน · แนบใบรับรองแพทย์</span></td><td>1 วัน</td><td>7 ต.ค. 2569</td><td><span class="st ok">อนุมัติแล้ว</span></td><td><button class="lnk">ดู</button></td></tr>
+          <tr><td class="rid">MD-6909-004</td><td><div class="tl"><span class="dot" style="background:var(--c-med)"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M12 11v5M9.5 13.5h5"/></svg></span>ค่ารักษา</div></td><td>28 ก.ย. 2569<span class="s">คลินิกเวชกรรม</span></td><td>1,250.00 บาท</td><td>29 ก.ย. 2569</td><td><span class="st ok">อนุมัติแล้ว</span></td><td><button class="lnk">ดู</button></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===== APPROVALS ===== -->
+    <section class="view" id="v-appr">
+      <div class="ph"><div><h1>รออนุมัติ</h1><p>คำขอที่รอคุณพิจารณา 7 รายการ · เก่าสุดรอ 2 วัน</p></div><button class="btn outline ml"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>โหลดใหม่</button><button class="btn outline">ประวัติการอนุมัติ</button></div>
+      <div class="split">
+        <div>
+          <div class="toolbar">
+            <div class="utabs"><button class="on">ทั้งหมด <span class="n">7</span></button><button>คำขอลา <span class="n">3</span></button><button>ล่วงเวลา <span class="n">2</span></button><button>แก้ไขเวลา <span class="n">1</span></button><button>ค่ารักษา <span class="n">1</span></button></div>
+            <div class="fi ml" style="width:200px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>ค้นหา</div>
+          </div>
+          <table>
+            <thead><tr><th style="width:40px"><span class="chk"></span></th><th>รหัสคำขอ</th><th>พนักงาน</th><th>คำขอ</th><th>ยื่นเมื่อ</th></tr></thead>
+            <tbody>
+              <tr class="sel"><td><span class="chk on"></span></td><td class="rid">LV-6910-012</td><td>กมลวรรณ สุขใจ<span class="s">ฝ่ายบัญชี</span></td><td><div class="tl"><span class="dot" style="background:var(--c-leave)"><svg viewBox="0 0 24 24"><path d="M2 16l20-6-3-3-6 2-6-5-2 1 4 6-4 1-2-2-1 1z"/></svg></span><span>ลาพักร้อน 2 วัน<span class="s">23 – 24 ต.ค. 2569</span></span></div></td><td>วันนี้ 09:12</td></tr>
+              <tr><td><span class="chk on"></span></td><td class="rid">OT-6910-031</td><td>พิมพ์ชนก ใจดี<span class="s">ฝ่ายสอบบัญชี</span></td><td><div class="tl"><span class="dot" style="background:var(--c-biz)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span>OT 3.5 ชม.<span class="s">14 ต.ค. · 18:00 – 21:30</span></span></div></td><td>เมื่อวาน</td></tr>
+              <tr><td><span class="chk"></span></td><td class="rid">MD-6910-005</td><td>ธนากร มั่นคง<span class="s">ฝ่ายบัญชี</span></td><td><div class="tl"><span class="dot" style="background:var(--c-med)"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M12 11v5M9.5 13.5h5"/></svg></span><span>ค่ารักษา 1,250.00 บาท<span class="s">แนบใบเสร็จ 1 ไฟล์</span></span></div></td><td>13 ต.ค.</td></tr>
+              <tr><td><span class="chk"></span></td><td class="rid">TC-6910-018</td><td>พิมพ์ชนก ใจดี<span class="s">ฝ่ายสอบบัญชี</span></td><td><div class="tl"><span class="dot" style="background:var(--c-leave)"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span><span>แก้เวลาเข้า 08:58<span class="s">13 ต.ค. · ลืมสแกน</span></span></div></td><td>13 ต.ค.</td></tr>
+              <tr><td><span class="chk"></span></td><td class="rid">LV-6910-010</td><td>สมชาย ทองดี<span class="s">ฝ่ายบัญชี</span></td><td><div class="tl"><span class="dot" style="background:var(--c-sick)"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></span><span>ลาป่วย 1 วัน<span class="s">13 ต.ค. · แนบใบรับรองแพทย์</span></span></div></td><td>13 ต.ค.</td></tr>
+            </tbody>
+          </table>
+          <div style="display:flex;gap:10px;align-items:center;padding:14px 4px"><span style="font-size:13.5px;color:var(--ink-2)">เลือก 2 รายการ</span><button class="btn ok ml" style="padding:7px 14px">อนุมัติที่เลือก</button></div>
+        </div>
+        <div class="box detail">
+          <div class="dh"><span class="dot" style="background:var(--c-leave);width:40px;height:40px"><svg viewBox="0 0 24 24"><path d="M2 16l20-6-3-3-6 2-6-5-2 1 4 6-4 1-2-2-1 1z"/></svg></span><div><div class="rid" style="font-size:12.5px">LV-6910-012</div><h2>ลาพักร้อน 2 วัน</h2></div><span class="st wait ml">รออนุมัติ</span></div>
+          <dl class="dl"><dt>ผู้ขอ</dt><dd>กมลวรรณ สุขใจ · ฝ่ายบัญชี</dd><dt>วันที่ลา</dt><dd>พฤ. 23 – ศ. 24 ต.ค. 2569</dd><dt>ช่วงเวลา</dt><dd>เต็มวัน</dd><dt>เหตุผล</dt><dd>พาครอบครัวไปต่างจังหวัด</dd><dt>ไฟล์แนบ</dt><dd style="color:var(--ink-3)">ไม่มี</dd></dl>
+          <div class="note">หลังอนุมัติ สิทธิลาพักร้อนจะเหลือ <b>2 จาก 7 วัน</b></div>
+          <div class="flow"><div class="done"><i>✓</i>ยื่นคำขอ · 15 ต.ค. 2569 09:12</div><div class="now"><i>1</i>สายอนุมัติ 1 · คุณ</div><div><i>2</i>สายอนุมัติ 2 · ฝ่ายบุคคล</div></div>
+          <div class="act"><textarea class="inp" rows="2" placeholder="ความคิดเห็น (ต้องระบุเมื่อส่งกลับหรือไม่อนุมัติ)"></textarea><div style="display:flex;gap:8px"><button class="btn no" style="flex:1;justify-content:center">ไม่อนุมัติ</button><button class="btn back" style="flex:1;justify-content:center">ส่งกลับแก้ไข</button><button class="btn ok" style="flex:1.4;justify-content:center">อนุมัติ</button></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== LEAVE FORM PAGE ===== -->
+    <section class="view" id="v-form">
+      <div class="crumbs"><a href="#" data-go="req">คำขอของฉัน</a> › ขอลางาน</div>
+      <div class="ph"><div><h1>ขอลางาน</h1><p>กรอกรายละเอียดแล้วส่งให้ผู้อนุมัติ</p></div></div>
+      <div class="fgrid">
+        <div class="fmain">
+          <div class="fsec"><h3>1. ประเภทการลา</h3>
+            <div class="types"><span class="chip on"><i style="background:var(--c-leave)"></i>ลาพักร้อน <small>เหลือ 4</small></span><span class="chip"><i style="background:var(--c-sick)"></i>ลาป่วย <small>เหลือ 28</small></span><span class="chip"><i style="background:var(--c-biz)"></i>ลากิจ <small>เหลือ 4.5</small></span><span class="chip"><i style="background:#94a3b8"></i>ลาคลอด</span><span class="chip"><i style="background:#94a3b8"></i>ลาทหาร</span><span class="chip"><i style="background:#94a3b8"></i>ลาศึกษา</span><span class="chip"><i style="background:#94a3b8"></i>ลาอื่น ๆ</span></div>
+          </div>
+          <div class="fsec"><h3>2. วันและเวลาที่ลา</h3>
+            <div class="row2"><div class="field"><label>วันที่เริ่มลา <em>*</em></label><input class="inp" value="พฤ. 23 ต.ค. 2569"></div><div class="field"><label>วันที่สิ้นสุด <em>*</em></label><input class="inp" value="ศ. 24 ต.ค. 2569"></div></div>
+            <div class="field" style="margin-top:14px"><label>ช่วงเวลา</label><div class="seg" style="max-width:520px"><button class="on">เต็มวัน</button><button>ครึ่งเช้า</button><button>ครึ่งบ่าย</button><button>รายชั่วโมง</button></div></div>
+          </div>
+          <div class="fsec"><h3>3. เหตุผลและเอกสาร</h3>
+            <div class="field"><label>เหตุผล <em>*</em></label><textarea class="inp" rows="3">พาครอบครัวไปต่างจังหวัด</textarea></div>
+            <div class="field" style="margin-top:14px"><label>แนบไฟล์ <span style="color:var(--ink-3);font-weight:400">(ไม่บังคับ)</span></label><div class="drop">คลิกเพื่ออัปโหลด หรือลากไฟล์มาวาง · PDF, JPG ไม่เกิน 10 MB</div></div>
+          </div>
+          <div class="factions"><button class="btn outline" data-go="req">ยกเลิก</button><button class="btn primary">ส่งคำขอลา</button></div>
+        </div>
+        <aside class="fside">
+          <h4>สรุปคำขอ</h4>
+          <div class="kv"><span>ประเภท</span><b>ลาพักร้อน</b></div>
+          <div class="kv"><span>วันที่</span><b>23 – 24 ต.ค. 2569</b></div>
+          <div class="kv"><span>จำนวนวันลา</span><b class="big">2 วัน</b></div>
+          <div class="kv"><span>สิทธิคงเหลือหลังลา</span><b>2 จาก 7 วัน</b></div>
+          <div class="track" style="margin:4px 0 16px"><i style="width:71%;background:var(--c-leave)"></i></div>
+          <h4>สายอนุมัติ</h4>
+          <div class="flow" style="padding:0"><div><i>1</i>ณัฐวุฒิ ผู้ดูแล · หัวหน้าฝ่าย</div><div><i>2</i>ฝ่ายบุคคล</div></div>
+          <p class="hint">ไม่นับวันเสาร์-อาทิตย์และวันหยุดบริษัท ลาป่วยเกิน 3 วันต้องแนบใบรับรองแพทย์</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===== HR SETTINGS ===== -->
+    <section class="view" id="v-set">
+      <div class="ph"><div><h1>ประเภทการลาและสิทธิ</h1><p>ตั้งค่า HR · ใช้กับพนักงานทุกคนในบริษัท</p></div><button class="btn primary ml"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>เพิ่มประเภทการลา</button></div>
+      <table>
+        <thead><tr><th>ประเภทการลา</th><th>สิทธิต่อปี</th><th>ลาครึ่งวัน / รายชั่วโมง</th><th>ต้องแนบเอกสาร</th><th>สะสมข้ามปี</th><th>สถานะ</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><div class="tl"><span class="dot" style="background:var(--c-leave)"><svg viewBox="0 0 24 24"><path d="M2 16l20-6-3-3-6 2-6-5-2 1 4 6-4 1-2-2-1 1z"/></svg></span>ลาพักร้อน</div></td><td>7 วัน<span class="s">ตามอายุงาน</span></td><td>ได้ / ได้</td><td>ไม่ต้อง</td><td>สูงสุด 5 วัน</td><td><span class="st ok">ใช้งาน</span></td><td><button class="lnk">แก้ไข</button></td></tr>
+          <tr><td><div class="tl"><span class="dot" style="background:var(--c-sick)"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></span>ลาป่วย</div></td><td>30 วัน</td><td>ได้ / ไม่ได้</td><td>เกิน 3 วัน</td><td>ไม่สะสม</td><td><span class="st ok">ใช้งาน</span></td><td><button class="lnk">แก้ไข</button></td></tr>
+          <tr><td><div class="tl"><span class="dot" style="background:var(--c-biz)"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg></span>ลากิจ</div></td><td>6 วัน</td><td>ได้ / ได้</td><td>ไม่ต้อง</td><td>ไม่สะสม</td><td><span class="st ok">ใช้งาน</span></td><td><button class="lnk">แก้ไข</button></td></tr>
+          <tr><td><div class="tl"><span class="dot" style="background:#94a3b8"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span>ลาคลอด</div></td><td>98 วัน</td><td>ไม่ได้ / ไม่ได้</td><td>ใบรับรองแพทย์</td><td>ไม่สะสม</td><td><span class="st ok">ใช้งาน</span></td><td><button class="lnk">แก้ไข</button></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<!-- app switcher -->
+<div class="pop">
+  <h5>เลือกแอปพลิเคชัน</h5>
+  <button><span class="appicon" style="background:var(--a-hr)"><svg viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span><b>HR</b><small>ลา OT เวลา สวัสดิการ</small></span><span class="cur"></span></button>
+  <button><span class="appicon" style="background:var(--a-office)"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1"/></svg></span><span><b>สำนักงานบัญชี</b><small>ลูกค้า งานประจำเดือน ภาษี</small></span><span class="legacy">ระบบเดิม</span></button>
+  <button><span class="appicon" style="background:var(--a-audit)"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M4 4h10M4 9h5M4 14h5M4 19h16"/></svg></span><span><b>Audit</b><small>งานสอบ งบการเงิน รายงานผู้สอบ</small></span><span class="legacy">ระบบเดิม</span></button>
+  <button><span class="appicon" style="background:var(--a-people)"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 11a3 3 0 1 0 0-6M22 21a6 6 0 0 0-4-5.6"/></svg></span><span><b>บุคลากร</b><small>ทะเบียนพนักงาน สังกัด คุณวุฒิ</small></span></button>
+  <div class="divider"></div>
+  <button><span class="appicon" style="background:var(--a-admin)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span><span><b>ตั้งค่าระบบ</b><small>ผู้ใช้และสิทธิ์ ข้อมูลบริษัท LINE</small></span></button>
+</div>
+
+
+</div>
+
+<div class="switch">
+  <button data-v="req" class="on">คำขอของฉัน</button>
+  <button data-v="form">หน้าขอลางาน</button>
+  <button data-v="appr">รออนุมัติ</button>
+  <button data-v="set">ตั้งค่า HR</button>
+  <button data-v="apps">สลับแอป</button>
+  <button data-v="icons">ไอคอนอย่างเดียว</button>
+</div>
+<script>
+const root=document.getElementById('root');
+function show(page){['req','appr','set','form'].forEach(p=>document.getElementById('v-'+p).classList.toggle('on',p===page));}
+function panel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('open',p.id==='p-'+id));
+  if(!['me','noti'].includes(id)) document.querySelectorAll('.rail [data-panel]').forEach(b=>b.classList.toggle('on',b.dataset.panel===id));
+  if(['req','appr','set'].includes(id)) show(id);
+}
+function go(v){
+  root.classList.toggle('showapps',v==='apps');
+  if(v==='icons'){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'));show('req');}
+  else if(['req','appr','set'].includes(v)) panel(v);
+  else panel('req');
+  if(v==='form') show('form');
+  document.querySelectorAll('.switch button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+}
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+document.querySelectorAll('.rail [data-panel]').forEach(b=>b.onclick=()=>{
+  const p=document.getElementById('p-'+b.dataset.panel);
+  if(!p) return;
+  if(p.classList.contains('open')){p.classList.remove('open');return}
+  panel(b.dataset.panel);
+});
+document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>b.closest('.panel').classList.remove('open'));
+document.querySelectorAll('.grp>button').forEach(b=>b.onclick=()=>b.parentElement.classList.toggle('open'));
+document.querySelectorAll('[data-open]').forEach(b=>b.onclick=e=>{e.preventDefault();show('form')});
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>go('req'));
+document.querySelectorAll('[data-apps]').forEach(b=>b.onclick=()=>root.classList.toggle('showapps'));
+document.querySelectorAll('[data-go]').forEach(a=>a.onclick=e=>{e.preventDefault();show(a.dataset.go)});
+</script>
+</body>
+</html>

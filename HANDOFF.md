@@ -119,14 +119,14 @@ Final traffic re-read:
 
 ## In Progress
 
-**TASK-39.9 — Desktop full redesign (Owner-directed, mockup stage) — IN PROGRESS.** The Owner rejected the Wave 1–2 look and asked for a full redesign. Iterated mockups live in `docs/design/desktop-redesign-v1.html` … `v15.html`; **v15 is the current Owner-iterated direction** (no app code changed yet). Locked Owner decisions so far:
+**TASK-39.9 — Desktop full redesign (Owner-directed, mockup stage) — IN PROGRESS.** The Owner rejected the Wave 1–2 look and asked for a full redesign. Iterated mockups live in `docs/design/desktop-redesign-v1.html` … `v16.html`; **v16 is the current Owner-iterated direction** (no app code changed yet). Locked Owner decisions so far:
 - Platform is split into apps (HR, สำนักงานบัญชี, Audit, บุคลากร, ตั้งค่าระบบ) with an app switcher; each app has its own settings.
 - Left navy icon rail only (no top bar): profile with notification badge first, dashboard next, app switcher and settings at the bottom; clicking an icon opens a white flyout menu.
 - White page backgrounds, colored structure: tinted header strip with left bar and bottom line on every box/card, soft (light-tinted) buttons everywhere.
 - Each request type has its own page: form on top (with an approver-chain box) and that type's history below. Approvals and reports are split per type the same way; approvals are grid-only.
-- Prompt font (same as Production). Approver actions on one line: อนุมัติ / แก้ไข / ไม่อนุมัติ; status for sent-back requests is "รอแก้ไข" (Production wording). Inner cards are white with only a colored top line; submit buttons take their function color; request history uses the same card grid as approval history, with a date tile; every history card opens a detail dialog modelled on Production (requester, dates, reason, quota, files, approval-steps table). Hourly leave takes a start time plus number of hours. Approved status reads "อนุมัติ".
+- Prompt font (same as Production). Approver actions on one line: อนุมัติ / แก้ไข / ไม่อนุมัติ; status for sent-back requests is "รอแก้ไข" (Production wording). Inner cards are white with only a colored top line; submit buttons take their function color; request history uses the same card grid as approval history, with a date tile; every history card opens a detail dialog modelled on Production (requester, dates, reason, quota, files, approval-steps table). Hourly leave takes a start time plus number of hours. Approved status reads "อนุมัติ". History cards show labelled rows (date once, amount, detail, approver). Profile page follows Production "โปรไฟล์ของฉัน": photo on top, general info (name, surname, nickname, email username, agency, department, password), signature box.
 - FlowAccount is a usability reference only; never copy its look.
-Next: Owner sign-off on v15, then implement in `apps/web` page by page.
+Next: Owner sign-off on v16, then implement in `apps/web` page by page.
 
 
 TASK-39.8 remains active.

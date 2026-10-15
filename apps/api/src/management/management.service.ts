@@ -7,6 +7,7 @@ import type {
   ManagementReportView,
   OrganizationUnitItem,
   RbacAdminView,
+  RoleAssignmentInput,
   WorkCalendarAdminView,
 } from "@ckace/contracts";
 import type { ManagementRepository } from "@ckace/database";
@@ -40,6 +41,8 @@ export class ManagementService {
       readonly state?: ManagedAccountState;
       readonly agencyId?: string | null;
       readonly departmentId?: string | null;
+      readonly companyId?: string | null;
+      readonly managerEmployeeId?: string | null;
     },
     actorEmployeeId: string,
   ): Promise<ManagedEmployeeItem> {
@@ -58,6 +61,37 @@ export class ManagementService {
     );
   }
 
+  setEmployeeRoleAssignments(
+    employeeId: string,
+    assignments: readonly RoleAssignmentInput[],
+    actorEmployeeId: string,
+  ): Promise<ManagedEmployeeItem> {
+    return this.repository.setEmployeeRoleAssignments(
+      employeeId,
+      assignments,
+      actorEmployeeId,
+    );
+  }
+
+  companies(): Promise<readonly OrganizationUnitItem[]> {
+    return this.repository.listCompanies();
+  }
+
+  createCompany(
+    name: string,
+    actorEmployeeId: string,
+  ): Promise<OrganizationUnitItem> {
+    return this.repository.createCompany(name, actorEmployeeId);
+  }
+
+  updateCompany(
+    id: string,
+    input: { readonly name?: string; readonly active?: boolean },
+    actorEmployeeId: string,
+  ): Promise<OrganizationUnitItem> {
+    return this.repository.updateCompany(id, input, actorEmployeeId);
+  }
+
   agencies(): Promise<readonly OrganizationUnitItem[]> {
     return this.repository.listAgencies();
   }
@@ -71,7 +105,11 @@ export class ManagementService {
 
   updateAgency(
     id: string,
-    input: { readonly name?: string; readonly active?: boolean },
+    input: {
+      readonly name?: string;
+      readonly active?: boolean;
+      readonly companyId?: string | null;
+    },
     actorEmployeeId: string,
   ): Promise<OrganizationUnitItem> {
     return this.repository.updateAgency(id, input, actorEmployeeId);

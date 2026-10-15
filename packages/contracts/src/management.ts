@@ -44,6 +44,23 @@ export interface ManagementReportView extends ManagementDateRange {
 
 export type ManagedAccountState = "ACTIVE" | "PENDING" | "INACTIVE" | "RESIGNED";
 
+export type RoleScopeKind = "PLATFORM" | "COMPANY" | "TEAM_SET" | "SELF";
+
+export interface ManagedRoleAssignment {
+  readonly roleId: string;
+  readonly roleKey: string;
+  readonly scopeType: RoleScopeKind;
+  readonly scopeCompanyId: string | null;
+  readonly scopeAgencyIds: readonly string[];
+}
+
+export interface RoleAssignmentInput {
+  readonly roleId: string;
+  readonly scopeType: RoleScopeKind;
+  readonly scopeCompanyId?: string | null;
+  readonly scopeAgencyIds?: readonly string[];
+}
+
 export interface ManagedEmployeeItem {
   readonly id: string;
   readonly fullName: string;
@@ -53,13 +70,21 @@ export interface ManagedEmployeeItem {
   readonly agencyName: string | null;
   readonly departmentId: string | null;
   readonly departmentName: string | null;
+  readonly companyId: string | null;
+  readonly companyName: string | null;
+  readonly managerEmployeeId: string | null;
+  readonly managerName: string | null;
   readonly roles: readonly { readonly id: string; readonly key: string; readonly name: string }[];
+  readonly roleAssignments: readonly ManagedRoleAssignment[];
 }
 
 export interface OrganizationUnitItem {
   readonly id: string;
   readonly name: string;
   readonly active: boolean;
+  /** Teams (agencies) only: the company the team belongs to. */
+  readonly companyId?: string | null;
+  readonly companyName?: string | null;
 }
 
 export interface LeaveEntitlementAdminItem {

@@ -6,3 +6,4 @@ export * from "./overtime";
 export * from "./overtime-allowance";
 export * from "./leave-entitlement";
 export * from "./approval-route";
+export * from "./role-scope";

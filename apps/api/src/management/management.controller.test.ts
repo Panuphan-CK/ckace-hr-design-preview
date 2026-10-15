@@ -19,6 +19,10 @@ function createService() {
     employees: vi.fn(),
     updateEmployee: vi.fn(),
     setEmployeeRoles: vi.fn(),
+    setEmployeeRoleAssignments: vi.fn(),
+    companies: vi.fn(),
+    createCompany: vi.fn(),
+    updateCompany: vi.fn(),
     agencies: vi.fn(),
     createAgency: vi.fn(),
     updateAgency: vi.fn(),
@@ -81,6 +85,10 @@ describe("ManagementController", () => {
     ["users", "users.admin.read", "ADMIN_READ"],
     ["updateUser", "users.admin.write", "ADMIN_WRITE"],
     ["setUserRoles", "rbac.admin.write", "ADMIN_WRITE"],
+    ["setUserRoleAssignments", "rbac.admin.write", "ADMIN_WRITE"],
+    ["companies", "organization.admin.read", "ADMIN_READ"],
+    ["createCompany", "organization.admin.write", "ADMIN_WRITE"],
+    ["updateCompany", "organization.admin.write", "ADMIN_WRITE"],
     ["agencies", "organization.admin.read", "ADMIN_READ"],
     ["createAgency", "organization.admin.write", "ADMIN_WRITE"],
     ["updateAgency", "organization.admin.write", "ADMIN_WRITE"],
@@ -203,5 +211,114 @@ describe("ManagementController", () => {
         { isWorking: true },
       ),
     ).toThrow(BadRequestException);
+  });
+
+  it("delegates scoped role assignments and validates their shape", async () => {
+    const { controller: value, service } = controller();
+    service.setEmployeeRoleAssignments.mockResolvedValue({});
+    const TEAM_ID = "33333333-3333-4333-8333-333333333333";
+    const COMPANY_ID = "44444444-4444-4444-8444-444444444444";
+
+    expect(() =>
+      value.setUserRoleAssignments(actorRequest(), EMPLOYEE_ID, {
+        assignments: [{ roleId: ROLE_ID, scopeType: "GALAXY" }],
+      }),
+    ).toThrow(BadRequestException);
+    expect(() =>
+      value.setUserRoleAssignments(actorRequest(), EMPLOYEE_ID, {
+        assignments: [
+          { roleId: ROLE_ID, scopeType: "TEAM_SET", scopeAgencyIds: ["x"] },
+        ],
+      }),
+    ).toThrow(BadRequestException);
+
+    await value.setUserRoleAssignments(actorRequest(), EMPLOYEE_ID, {
+      assignments: [
+        { roleId: ROLE_ID, scopeType: "TEAM_SET", scopeAgencyIds: [TEAM_ID] },
+      ],
+    });
+    await value.setUserRoleAssignments(actorRequest(), EMPLOYEE_ID, {
+      assignments: [
+        { roleId: ROLE_ID, scopeType: "COMPANY", scopeCompanyId: COMPANY_ID },
+      ],
+    });
+
+    expect(service.setEmployeeRoleAssignments).toHaveBeenNthCalledWith(
+      1,
+      EMPLOYEE_ID,
+      [
+        {
+          roleId: ROLE_ID,
+          scopeType: "TEAM_SET",
+          scopeCompanyId: null,
+          scopeAgencyIds: [TEAM_ID],
+        },
+      ],
+      EMPLOYEE_ID,
+    );
+    expect(service.setEmployeeRoleAssignments).toHaveBeenNthCalledWith(
+      2,
+      EMPLOYEE_ID,
+      [
+        {
+          roleId: ROLE_ID,
+          scopeType: "COMPANY",
+          scopeCompanyId: COMPANY_ID,
+          scopeAgencyIds: [],
+        },
+      ],
+      EMPLOYEE_ID,
+    );
+  });
+
+  it("creates and updates companies with validated input", async () => {
+    const { controller: value, service } = controller();
+    service.createCompany.mockResolvedValue({});
+    service.updateCompany.mockResolvedValue({});
+
+    expect(() =>
+      value.createCompany(actorRequest(), { name: "  " }),
+    ).toThrow(BadRequestException);
+    expect(() =>
+      value.updateCompany(actorRequest(), ROLE_ID, {}),
+    ).toThrow(BadRequestException);
+
+    await value.createCompany(actorRequest(), { name: " สำนักงานบัญชี " });
+    await value.updateCompany(actorRequest(), ROLE_ID, { active: false });
+
+    expect(service.createCompany).toHaveBeenCalledWith(
+      "สำนักงานบัญชี",
+      EMPLOYEE_ID,
+    );
+    expect(service.updateCompany).toHaveBeenCalledWith(
+      ROLE_ID,
+      { active: false },
+      EMPLOYEE_ID,
+    );
+  });
+
+  it("accepts a manager and company on user updates and company on agencies", async () => {
+    const { controller: value, service } = controller();
+    service.updateEmployee.mockResolvedValue({});
+    service.updateAgency.mockResolvedValue({});
+
+    await value.updateUser(actorRequest(), EMPLOYEE_ID, {
+      managerEmployeeId: ROLE_ID,
+      companyId: null,
+    });
+    await value.updateAgency(actorRequest(), ROLE_ID, {
+      companyId: EMPLOYEE_ID,
+    });
+
+    expect(service.updateEmployee).toHaveBeenCalledWith(
+      EMPLOYEE_ID,
+      { managerEmployeeId: ROLE_ID, companyId: null },
+      EMPLOYEE_ID,
+    );
+    expect(service.updateAgency).toHaveBeenCalledWith(
+      ROLE_ID,
+      { companyId: EMPLOYEE_ID },
+      EMPLOYEE_ID,
+    );
   });
 });

@@ -1,3 +1,7 @@
+import {
+  assertValidManager,
+  normalizeRoleScope,
+} from "@ckace/business-rules";
 import type {
   LeaveCalendarView,
   LeaveEntitlementAdminItem,
@@ -7,9 +11,10 @@ import type {
   ManagementReportView,
   OrganizationUnitItem,
   RbacAdminView,
+  RoleAssignmentInput,
   WorkCalendarAdminView,
 } from "@ckace/contracts";
-import type { PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 
 export interface ManagementRepository {
   calendar(from: Date, to: Date): Promise<LeaveCalendarView>;
@@ -22,9 +27,23 @@ export interface ManagementRepository {
       readonly state?: ManagedAccountState;
       readonly agencyId?: string | null;
       readonly departmentId?: string | null;
+      readonly companyId?: string | null;
+      readonly managerEmployeeId?: string | null;
     },
     actorEmployeeId: string,
   ): Promise<ManagedEmployeeItem>;
+  setEmployeeRoleAssignments(
+    employeeId: string,
+    assignments: readonly RoleAssignmentInput[],
+    actorEmployeeId: string,
+  ): Promise<ManagedEmployeeItem>;
+  listCompanies(): Promise<readonly OrganizationUnitItem[]>;
+  createCompany(name: string, actorEmployeeId: string): Promise<OrganizationUnitItem>;
+  updateCompany(
+    id: string,
+    input: { readonly name?: string; readonly active?: boolean },
+    actorEmployeeId: string,
+  ): Promise<OrganizationUnitItem>;
   setEmployeeRoles(
     employeeId: string,
     roleIds: readonly string[],
@@ -34,7 +53,11 @@ export interface ManagementRepository {
   createAgency(name: string, actorEmployeeId: string): Promise<OrganizationUnitItem>;
   updateAgency(
     id: string,
-    input: { readonly name?: string; readonly active?: boolean },
+    input: {
+      readonly name?: string;
+      readonly active?: boolean;
+      readonly companyId?: string | null;
+    },
     actorEmployeeId: string,
   ): Promise<OrganizationUnitItem>;
   listDepartments(): Promise<readonly OrganizationUnitItem[]>;
@@ -83,32 +106,81 @@ function dateOnly(value: Date): string {
   return value.toISOString().slice(0, 10);
 }
 
-function employeeView(row: {
-  id: string;
-  fullName: string;
-  agencyId: string | null;
-  departmentId: string | null;
-  agency: { name: string } | null;
-  department: { name: string } | null;
+const MANAGED_EMPLOYEE_SELECT = {
+  id: true,
+  fullName: true,
+  agencyId: true,
+  departmentId: true,
+  companyId: true,
+  managerEmployeeId: true,
+  agency: {
+    select: {
+      name: true,
+      companyId: true,
+      company: { select: { name: true } },
+    },
+  },
+  department: { select: { name: true } },
+  company: { select: { name: true } },
+  manager: { select: { fullName: true } },
   userAccount: {
-    loginName: string;
-    state: ManagedAccountState;
-    roles: readonly {
-      role: { id: string; key: string; name: string };
-    }[];
-  } | null;
-}): ManagedEmployeeItem {
+    select: {
+      loginName: true,
+      state: true,
+      roles: {
+        select: {
+          scopeType: true,
+          scopeCompanyId: true,
+          scopeAgencyIds: true,
+          role: { select: { id: true, key: true, name: true } },
+        },
+        orderBy: { assignedAt: "asc" },
+      },
+    },
+  },
+} as const;
+
+type ManagedEmployeeRow = Prisma.EmployeeGetPayload<{
+  select: typeof MANAGED_EMPLOYEE_SELECT;
+}>;
+
+function employeeView(row: ManagedEmployeeRow): ManagedEmployeeItem {
+  const roleRows = row.userAccount?.roles ?? [];
+
   return {
     id: row.id,
     fullName: row.fullName,
     loginName: row.userAccount?.loginName ?? null,
-    state: row.userAccount?.state ?? null,
+    state: (row.userAccount?.state ?? null) as ManagedAccountState | null,
     agencyId: row.agencyId,
     agencyName: row.agency?.name ?? null,
     departmentId: row.departmentId,
     departmentName: row.department?.name ?? null,
-    roles: row.userAccount?.roles.map(({ role }) => role) ?? [],
+    companyId: row.companyId ?? row.agency?.companyId ?? null,
+    companyName: row.company?.name ?? row.agency?.company?.name ?? null,
+    managerEmployeeId: row.managerEmployeeId,
+    managerName: row.manager?.fullName ?? null,
+    roles: roleRows.map(({ role }) => role),
+    roleAssignments: roleRows.map((item) => ({
+      roleId: item.role.id,
+      roleKey: item.role.key,
+      scopeType: item.scopeType,
+      scopeCompanyId: item.scopeCompanyId,
+      scopeAgencyIds: [...(item.scopeAgencyIds ?? [])],
+    })),
   };
+}
+
+async function loadManagedEmployee(
+  tx: Pick<Prisma.TransactionClient, "employee">,
+  employeeId: string,
+): Promise<ManagedEmployeeItem> {
+  const row = await tx.employee.findUnique({
+    where: { id: employeeId },
+    select: MANAGED_EMPLOYEE_SELECT,
+  });
+  if (!row) throw new Error("Employee was not found");
+  return employeeView(row);
 }
 
 export class PrismaManagementRepository implements ManagementRepository {
@@ -284,24 +356,7 @@ export class PrismaManagementRepository implements ManagementRepository {
 
   async listEmployees(): Promise<readonly ManagedEmployeeItem[]> {
     const rows = await this.prisma.employee.findMany({
-      select: {
-        id: true,
-        fullName: true,
-        agencyId: true,
-        departmentId: true,
-        agency: { select: { name: true } },
-        department: { select: { name: true } },
-        userAccount: {
-          select: {
-            loginName: true,
-            state: true,
-            roles: {
-              select: { role: { select: { id: true, key: true, name: true } } },
-              orderBy: { assignedAt: "asc" },
-            },
-          },
-        },
-      },
+      select: MANAGED_EMPLOYEE_SELECT,
       orderBy: [{ fullName: "asc" }, { id: "asc" }],
       take: 2000,
     });
@@ -315,17 +370,47 @@ export class PrismaManagementRepository implements ManagementRepository {
       readonly state?: ManagedAccountState;
       readonly agencyId?: string | null;
       readonly departmentId?: string | null;
+      readonly companyId?: string | null;
+      readonly managerEmployeeId?: string | null;
     },
     actorEmployeeId: string,
   ): Promise<ManagedEmployeeItem> {
     return this.prisma.$transaction(async (tx) => {
+      if (input.companyId) {
+        const company = await tx.company.findUnique({
+          where: { id: input.companyId },
+          select: { id: true },
+        });
+        if (!company) throw new Error("Company was not found");
+      }
+      if (input.managerEmployeeId !== undefined) {
+        if (input.managerEmployeeId !== null) {
+          const manager = await tx.employee.findUnique({
+            where: { id: input.managerEmployeeId },
+            select: { id: true },
+          });
+          if (!manager) throw new Error("Manager was not found");
+        }
+        // Walk the existing hierarchy once so a loop is refused.
+        const parents = await tx.employee.findMany({
+          select: { id: true, managerEmployeeId: true },
+        });
+        const managerById = new Map(
+          parents.map((row) => [row.id, row.managerEmployeeId]),
+        );
+        assertValidManager({
+          employeeId,
+          managerId: input.managerEmployeeId,
+          managerOf: (id) => managerById.get(id) ?? null,
+        });
+      }
       if (input.state) {
         await tx.userAccount.update({
           where: { employeeId },
           data: { state: input.state },
         });
       }
-      const employee = await tx.employee.update({
+      await tx.employee.update({
         where: { id: employeeId },
         data: {
           ...(input.fullName !== undefined ? { fullName: input.fullName } : {}),
@@ -333,25 +418,14 @@ export class PrismaManagementRepository implements ManagementRepository {
           ...(input.departmentId !== undefined
             ? { departmentId: input.departmentId }
             : {}),
+          ...(input.companyId !== undefined
+            ? { companyId: input.companyId }
+            : {}),
+          ...(input.managerEmployeeId !== undefined
+            ? { managerEmployeeId: input.managerEmployeeId }
+            : {}),
         },
-        select: {
-          id: true,
-          fullName: true,
-          agencyId: true,
-          departmentId: true,
-          agency: { select: { name: true } },
-          department: { select: { name: true } },
-          userAccount: {
-            select: {
-              loginName: true,
-              state: true,
-              roles: {
-                select: { role: { select: { id: true, key: true, name: true } } },
-                orderBy: { assignedAt: "asc" },
-              },
-            },
-          },
-        },
+        select: { id: true },
       });
       await tx.auditLog.create({
         data: {
@@ -364,16 +438,31 @@ export class PrismaManagementRepository implements ManagementRepository {
             state: input.state ?? null,
             agencyChanged: input.agencyId !== undefined,
             departmentChanged: input.departmentId !== undefined,
+            companyChanged: input.companyId !== undefined,
+            managerChanged: input.managerEmployeeId !== undefined,
           },
         },
       });
-      return employeeView(employee);
+      return loadManagedEmployee(tx, employeeId);
     });
   }
 
   async setEmployeeRoles(
     employeeId: string,
     roleIds: readonly string[],
+    actorEmployeeId: string,
+  ): Promise<ManagedEmployeeItem> {
+    // Legacy endpoint: every role keeps the platform-wide scope.
+    return this.setEmployeeRoleAssignments(
+      employeeId,
+      roleIds.map((roleId) => ({ roleId, scopeType: "PLATFORM" as const })),
+      actorEmployeeId,
+    );
+  }
+
+  async setEmployeeRoleAssignments(
+    employeeId: string,
+    assignments: readonly RoleAssignmentInput[],
     actorEmployeeId: string,
   ): Promise<ManagedEmployeeItem> {
     return this.prisma.$transaction(async (tx) => {
@@ -383,23 +472,56 @@ export class PrismaManagementRepository implements ManagementRepository {
       });
       if (!account) throw new Error("User account was not found");
 
-      const uniqueRoleIds = [...new Set(roleIds)];
+      const roleIds = assignments.map((item) => item.roleId);
+      if (new Set(roleIds).size !== roleIds.length) {
+        throw new Error("A role can be assigned once per user");
+      }
       const roles = await tx.role.findMany({
-        where: { id: { in: uniqueRoleIds } },
+        where: { id: { in: roleIds } },
         select: { id: true, key: true },
       });
-      if (roles.length !== uniqueRoleIds.length) {
+      if (roles.length !== roleIds.length) {
         throw new Error("Unknown role ID");
+      }
+
+      const normalized = assignments.map((item) => ({
+        roleId: item.roleId,
+        ...normalizeRoleScope(item),
+      }));
+      const companyIds = [
+        ...new Set(
+          normalized
+            .map((item) => item.scopeCompanyId)
+            .filter((id): id is string => id !== null),
+        ),
+      ];
+      if (companyIds.length > 0) {
+        const found = await tx.company.count({
+          where: { id: { in: companyIds } },
+        });
+        if (found !== companyIds.length) throw new Error("Unknown company ID");
+      }
+      const teamIds = [
+        ...new Set(normalized.flatMap((item) => [...item.scopeAgencyIds])),
+      ];
+      if (teamIds.length > 0) {
+        const found = await tx.agency.count({
+          where: { id: { in: teamIds } },
+        });
+        if (found !== teamIds.length) throw new Error("Unknown team ID");
       }
 
       await tx.userRole.deleteMany({
         where: { userAccountId: account.id },
       });
-      if (roles.length > 0) {
+      if (normalized.length > 0) {
         await tx.userRole.createMany({
-          data: roles.map((role) => ({
+          data: normalized.map((item) => ({
             userAccountId: account.id,
-            roleId: role.id,
+            roleId: item.roleId,
+            scopeType: item.scopeType,
+            scopeCompanyId: item.scopeCompanyId,
+            scopeAgencyIds: [...item.scopeAgencyIds],
           })),
         });
       }
@@ -412,46 +534,89 @@ export class PrismaManagementRepository implements ManagementRepository {
           entityId: account.id,
           metadata: {
             employeeId,
-            roleKeys: roles.map((role) => role.key).sort(),
+            assignments: normalized.map((item) => ({
+              roleKey: roles.find((role) => role.id === item.roleId)?.key ?? "",
+              scopeType: item.scopeType,
+              scopeCompanyId: item.scopeCompanyId,
+              scopeAgencyIds: [...item.scopeAgencyIds],
+            })),
           },
         },
       });
 
-      const employee = await tx.employee.findUnique({
-        where: { id: employeeId },
-        select: {
-          id: true,
-          fullName: true,
-          agencyId: true,
-          departmentId: true,
-          agency: { select: { name: true } },
-          department: { select: { name: true } },
-          userAccount: {
-            select: {
-              loginName: true,
-              state: true,
-              roles: {
-                select: {
-                  role: {
-                    select: { id: true, key: true, name: true },
-                  },
-                },
-                orderBy: { assignedAt: "asc" },
-              },
-            },
-          },
+      return loadManagedEmployee(tx, employeeId);
+    });
+  }
+
+  async listCompanies(): Promise<readonly OrganizationUnitItem[]> {
+    return this.prisma.company.findMany({
+      select: { id: true, name: true, active: true },
+      orderBy: [{ active: "desc" }, { name: "asc" }, { id: "asc" }],
+    });
+  }
+
+  async createCompany(
+    name: string,
+    actorEmployeeId: string,
+  ): Promise<OrganizationUnitItem> {
+    return this.prisma.$transaction(async (tx) => {
+      const row = await tx.company.create({
+        data: { name },
+        select: { id: true, name: true, active: true },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId,
+          action: "COMPANY_CREATED",
+          entityType: "Company",
+          entityId: row.id,
         },
       });
-      if (!employee) throw new Error("Employee was not found");
-      return employeeView(employee);
+      return row;
+    });
+  }
+
+  async updateCompany(
+    id: string,
+    input: { readonly name?: string; readonly active?: boolean },
+    actorEmployeeId: string,
+  ): Promise<OrganizationUnitItem> {
+    return this.prisma.$transaction(async (tx) => {
+      const row = await tx.company.update({
+        where: { id },
+        data: input,
+        select: { id: true, name: true, active: true },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId,
+          action: "COMPANY_UPDATED",
+          entityType: "Company",
+          entityId: id,
+        },
+      });
+      return row;
     });
   }
 
   async listAgencies(): Promise<readonly OrganizationUnitItem[]> {
-    return this.prisma.agency.findMany({
-      select: { id: true, name: true, active: true },
+    const rows = await this.prisma.agency.findMany({
+      select: {
+        id: true,
+        name: true,
+        active: true,
+        companyId: true,
+        company: { select: { name: true } },
+      },
       orderBy: [{ active: "desc" }, { name: "asc" }, { id: "asc" }],
     });
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      active: row.active,
+      companyId: row.companyId,
+      companyName: row.company?.name ?? null,
+    }));
   }
 
   async createAgency(
@@ -461,7 +626,7 @@ export class PrismaManagementRepository implements ManagementRepository {
     return this.prisma.$transaction(async (tx) => {
       const row = await tx.agency.create({
         data: { name },
-        select: { id: true, name: true, active: true },
+        select: { id: true, name: true, active: true, companyId: true },
       });
       await tx.auditLog.create({
         data: {
@@ -471,20 +636,37 @@ export class PrismaManagementRepository implements ManagementRepository {
           entityId: row.id,
         },
       });
-      return row;
+      return { ...row, companyName: null };
     });
   }
 
   async updateAgency(
     id: string,
-    input: { readonly name?: string; readonly active?: boolean },
+    input: {
+      readonly name?: string;
+      readonly active?: boolean;
+      readonly companyId?: string | null;
+    },
     actorEmployeeId: string,
   ): Promise<OrganizationUnitItem> {
     return this.prisma.$transaction(async (tx) => {
+      if (input.companyId) {
+        const company = await tx.company.findUnique({
+          where: { id: input.companyId },
+          select: { id: true },
+        });
+        if (!company) throw new Error("Company was not found");
+      }
       const row = await tx.agency.update({
         where: { id },
         data: input,
-        select: { id: true, name: true, active: true },
+        select: {
+          id: true,
+          name: true,
+          active: true,
+          companyId: true,
+          company: { select: { name: true } },
+        },
       });
       await tx.auditLog.create({
         data: {
@@ -492,9 +674,16 @@ export class PrismaManagementRepository implements ManagementRepository {
           action: "AGENCY_UPDATED",
           entityType: "Agency",
           entityId: id,
+          metadata: { companyChanged: input.companyId !== undefined },
         },
       });
-      return row;
+      return {
+        id: row.id,
+        name: row.name,
+        active: row.active,
+        companyId: row.companyId,
+        companyName: row.company?.name ?? null,
+      };
     });
   }
 

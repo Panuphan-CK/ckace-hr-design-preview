@@ -1,4 +1,7 @@
-import type { ManagedAccountState } from "@ckace/contracts";
+import type {
+  ManagedAccountState,
+  RoleScopeKind,
+} from "@ckace/contracts";
 import {
   BadRequestException,
   Body,
@@ -28,6 +31,13 @@ const ACCOUNT_STATES = new Set<ManagedAccountState>([
   "PENDING",
   "INACTIVE",
   "RESIGNED",
+]);
+
+const ROLE_SCOPES = new Set<RoleScopeKind>([
+  "PLATFORM",
+  "COMPANY",
+  "TEAM_SET",
+  "SELF",
 ]);
 
 function objectBody(body: unknown): Record<string, unknown> {
@@ -178,11 +188,18 @@ export class ManagementController {
       value.departmentId,
       "departmentId",
     );
+    const companyId = optionalUuid(value.companyId, "companyId");
+    const managerEmployeeId = optionalUuid(
+      value.managerEmployeeId,
+      "managerEmployeeId",
+    );
     if (
       fullName === undefined &&
       state === undefined &&
       agencyId === undefined &&
-      departmentId === undefined
+      departmentId === undefined &&
+      companyId === undefined &&
+      managerEmployeeId === undefined
     ) {
       throw new BadRequestException("No user fields supplied");
     }
@@ -193,7 +210,56 @@ export class ManagementController {
         ...(state !== undefined ? { state } : {}),
         ...(agencyId !== undefined ? { agencyId } : {}),
         ...(departmentId !== undefined ? { departmentId } : {}),
+        ...(companyId !== undefined ? { companyId } : {}),
+        ...(managerEmployeeId !== undefined ? { managerEmployeeId } : {}),
       },
+      actorId(request),
+    );
+  }
+
+  @Put("users/:id/role-assignments")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("rbac.admin.write", "GLOBAL")
+  setUserRoleAssignments(
+    @Req() request: SecurityRequest,
+    @Param("id") id: string,
+    @Body() body: unknown,
+  ) {
+    requiredUuid(id, "employee ID");
+    const value = objectBody(body);
+    if (!Array.isArray(value.assignments) || value.assignments.length > 20) {
+      throw new BadRequestException("assignments must be an array of up to 20");
+    }
+    const assignments = value.assignments.map((entry: unknown) => {
+      const item = objectBody(entry);
+      const scopeType = item.scopeType;
+      if (
+        typeof scopeType !== "string" ||
+        !ROLE_SCOPES.has(scopeType as RoleScopeKind)
+      ) {
+        throw new BadRequestException("Invalid scopeType");
+      }
+      const scopeAgencyIds = item.scopeAgencyIds;
+      if (
+        scopeAgencyIds !== undefined &&
+        (!Array.isArray(scopeAgencyIds) ||
+          scopeAgencyIds.some(
+            (agency) => typeof agency !== "string" || !UUID.test(agency),
+          ))
+      ) {
+        throw new BadRequestException("scopeAgencyIds must be a UUID array");
+      }
+      return {
+        roleId: requiredUuid(item.roleId, "roleId"),
+        scopeType: scopeType as RoleScopeKind,
+        scopeCompanyId:
+          optionalUuid(item.scopeCompanyId, "scopeCompanyId") ?? null,
+        scopeAgencyIds: (scopeAgencyIds as string[] | undefined) ?? [],
+      };
+    });
+    return this.service.setEmployeeRoleAssignments(
+      id,
+      assignments,
       actorId(request),
     );
   }
@@ -219,6 +285,58 @@ export class ManagementController {
     return this.service.setEmployeeRoles(
       id,
       value.roleIds as string[],
+      actorId(request),
+    );
+  }
+
+  @Get("companies")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("organization.admin.read", "GLOBAL")
+  companies() {
+    return this.service.companies();
+  }
+
+  @Post("companies")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("organization.admin.write", "GLOBAL")
+  createCompany(
+    @Req() request: SecurityRequest,
+    @Body() body: unknown,
+  ) {
+    const value = objectBody(body);
+    return this.service.createCompany(
+      requiredText(value.name, "name", 200),
+      actorId(request),
+    );
+  }
+
+  @Patch("companies/:id")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("organization.admin.write", "GLOBAL")
+  updateCompany(
+    @Req() request: SecurityRequest,
+    @Param("id") id: string,
+    @Body() body: unknown,
+  ) {
+    requiredUuid(id, "company ID");
+    const value = objectBody(body);
+    const name =
+      value.name === undefined
+        ? undefined
+        : requiredText(value.name, "name", 200);
+    if (value.active !== undefined && typeof value.active !== "boolean") {
+      throw new BadRequestException("active must be boolean");
+    }
+    const active = value.active as boolean | undefined;
+    if (name === undefined && active === undefined) {
+      throw new BadRequestException("No company fields supplied");
+    }
+    return this.service.updateCompany(
+      id,
+      {
+        ...(name !== undefined ? { name } : {}),
+        ...(active !== undefined ? { active } : {}),
+      },
       actorId(request),
     );
   }
@@ -266,7 +384,12 @@ export class ManagementController {
           : (() => {
               throw new BadRequestException("active must be boolean");
             })();
-    if (name === undefined && active === undefined) {
+    const companyId = optionalUuid(value.companyId, "companyId");
+    if (
+      name === undefined &&
+      active === undefined &&
+      companyId === undefined
+    ) {
       throw new BadRequestException("No agency fields supplied");
     }
     return this.service.updateAgency(
@@ -274,6 +397,7 @@ export class ManagementController {
       {
         ...(name !== undefined ? { name } : {}),
         ...(active !== undefined ? { active } : {}),
+        ...(companyId !== undefined ? { companyId } : {}),
       },
       actorId(request),
     );

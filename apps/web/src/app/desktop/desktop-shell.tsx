@@ -95,7 +95,7 @@ const SECTIONS: readonly FlySection[] = [
     links: [
       { id: "leave", label: "การลา", href: "/desktop/leave", icon: "leave", tone: "leave", capability: "leave" },
       { id: "overtime", label: "ทำงานล่วงเวลา", href: "/desktop/overtime", icon: "ot", tone: "ot", capability: "overtime" },
-      { id: "time-correction", label: "แก้ไขเวลา", href: "/desktop/attendance#correction-request", icon: "time", tone: "time", capability: "attendance" },
+      { id: "time-correction", label: "แก้ไขเวลา", href: "/desktop/time-correction", icon: "time", tone: "time", capability: "attendance" },
       { id: "medical", label: "เบิกค่ารักษา", href: "/desktop/medical", icon: "med", tone: "med", capability: "medical" },
       { id: "attendance", label: "ลงเวลาเข้าออก", href: "/desktop/attendance", icon: "clock", tone: "time", capability: "attendance", group: "บันทึกเวลาและสิทธิ" },
       { id: "benefits", label: "สิทธิและสวัสดิการ", href: "/desktop/benefits", icon: "med", tone: "med", capability: "benefits", group: "บันทึกเวลาและสิทธิ" },
@@ -145,7 +145,7 @@ const SECTIONS: readonly FlySection[] = [
 ];
 
 /** Pages already rebuilt on the ck- design system render edge to edge; the rest keep their legacy padding. */
-const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop/leave", "/desktop/overtime", "/desktop/medical"]);
+const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop/leave", "/desktop/overtime", "/desktop/medical", "/desktop/time-correction"]);
 
 function isActive(href: string, pathname: string, hash: string): boolean {
   const [path = href, hashPart] = href.split("#", 2);

@@ -145,7 +145,7 @@ const SECTIONS: readonly FlySection[] = [
 ];
 
 /** Pages already rebuilt on the ck- design system render edge to edge; the rest keep their legacy padding. */
-const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop/leave", "/desktop/overtime", "/desktop/medical", "/desktop/time-correction"]);
+const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop/leave", "/desktop/overtime", "/desktop/medical", "/desktop/time-correction", "/desktop/attendance"]);
 
 function isActive(href: string, pathname: string, hash: string): boolean {
   const [path = href, hashPart] = href.split("#", 2);

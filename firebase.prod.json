@@ -1,0 +1,29 @@
+{
+  "hosting": {
+    "site": "ckace-hr-prod",
+    "public": "infra/firebase/static",
+    "ignore": [
+      "firebase.test.json",
+      "firebase.prod.json",
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "ckace-hr-api-prod",
+          "region": "asia-southeast1"
+        }
+      },
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "ckace-hr-web-prod",
+          "region": "asia-southeast1"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "m10d3-leave-live-delta-v1",
+  "capturedAt": "2026-10-08T05:25:00Z",
+  "sourceSystem": "APP_LEAVE_GAS",
+  "captureMode": "READ_ONLY_GOOGLE_SHEETS_CONNECTOR",
+  "baseline": {
+    "migrationRunId": "e6f8374c-2d24-4661-877d-56758105f774",
+    "importedAt": "2026-10-07T06:58:06.814Z",
+    "sourceSnapshot": "0f5b994dd80773818fb68dcd8a0762945a725b1e68678b9e7ae16014130eaf93",
+    "transformerVersion": "m9.8-leave-prod-baseline-v1",
+    "relevantSourceRows": 576
+  },
+  "sources": [
+    {
+      "sourceWorkbook": "CK&RR_Requests",
+      "sourceTab": "UserPolicies",
+      "sourcePeriod": "CURRENT",
+      "baselineRows": 69,
+      "liveRows": 69,
+      "added": 0,
+      "changed": 0,
+      "removed": 0
+    },
+    {
+      "sourceWorkbook": "Data_CK&RR_Requests",
+      "sourceTab": "LeaveRequests",
+      "sourcePeriod": "CURRENT",
+      "baselineRows": 108,
+      "liveRows": 108,
+      "added": 0,
+      "changed": 15,
+      "removed": 0
+    },
+    {
+      "sourceWorkbook": "Data_CK&RR_Requests",
+      "sourceTab": "LeaveRequests_2025",
+      "sourcePeriod": "2025",
+      "baselineRows": 84,
+      "liveRows": 84,
+      "added": 0,
+      "changed": 9,
+      "removed": 0
+    },
+    {
+      "sourceWorkbook": "Data_CK&RR_Requests",
+      "sourceTab": "ApprovalSteps",
+      "sourcePeriod": "CURRENT",
+      "baselineRows": 302,
+      "liveRows": 302,
+      "added": 0,
+      "changed": 3,
+      "removed": 0
+    },
+    {
+      "sourceWorkbook": "Data_CK&RR_Requests",
+      "sourceTab": "Attachments",
+      "sourcePeriod": "CURRENT",
+      "baselineRows": 13,
+      "liveRows": 13,
+      "added": 0,
+      "changed": 0,
+      "removed": 0
+    }
+  ],
+  "totals": {
+    "baselineRows": 576,
+    "liveRows": 576,
+    "added": 0,
+    "changed": 27,
+    "removed": 0
+  },
+  "hashContract": {
+    "canonicalization": "packages/migration/src/source-snapshot.ts canonicalJson",
+    "digest": "SHA-256",
+    "sanityChecks": [
+      {
+        "legacyId": "PL-00001",
+        "payloadHash": "51238f8885e8611e67fd259cdf6dfac5002937d819568004a9925615f91913f1",
+        "matchesProductionBaseline": true
+      },
+      {
+        "legacyId": "LEV-0001",
+        "payloadHash": "9f7067b8589e18042e20fdd00092dec8817326cf63e392af9e4d7d6489776cdb",
+        "matchesProductionBaseline": true
+      }
+    ]
+  },
+  "semanticClassification": {
+    "actionableCanonicalChanges": {
+      "count": 6,
+      "records": [
+        {
+          "sourceTab": "LeaveRequests",
+          "legacyId": "LEV-0103",
+          "baselinePayloadHash": "d4be87b2c51c7ef84a9f47a8a8d5bd71e3d532891a8472a520fa0c0f29874d20",
+          "finalPayloadHash": "3eab5df7c2be76ad117d164f197ff3d6f6b31e8c05aba5f8562f286d98fec7a0",
+          "changedFields": [
+            "status",
+            "decisionReason",
+            "updatedDate"
+          ],
+          "semanticEffect": "PENDING_TO_APPROVED"
+        },
+        {
+          "sourceTab": "LeaveRequests",
+          "legacyId": "LEV-0104",
+          "baselinePayloadHash": "36f7f8abe9623c96f25ba1a4a81effefc2306bfd93dec11079856d90105b66cf",
+          "finalPayloadHash": "d4e6ba7d9d3dd81b93a1ec30d52d5ebd8ff648480fa5aa8b62b550e396433698",
+          "changedFields": [
+            "status",
+            "decisionReason",
+            "updatedDate"
+          ],
+          "semanticEffect": "PENDING_TO_APPROVED"
+        },
+        {
+          "sourceTab": "LeaveRequests",
+          "legacyId": "LEV-0108",
+          "baselinePayloadHash": "32c30bfe162aca1c51fc792bd9c276e65936c38737818392a3d63e0468c854ea",
+          "finalPayloadHash": "d534424a580ba5273bd289e20844276d9db98bf632d96359c6b0dc28213022e0",
+          "changedFields": [
+            "updatedDate",
+            "currentStepOrder"
+          ],
+          "semanticEffect": "PENDING_STEP_ADVANCED_1_TO_2"
+        },
+        {
+          "sourceTab": "ApprovalSteps",
+          "legacyId": "LEV-0103-STEP3",
+          "baselinePayloadHash": "8642f57289caa5001db43f5b184f844372cffd78ae85726adc6c731277a54a81",
+          "finalPayloadHash": "fce8d6b01460bcec0d756ddf739972d981e934d486d99da8eb9bc17ee6ad61ef",
+          "changedFields": [
+            "approvedDate",
+            "rawStatus",
+            "normalizedStatus",
+            "comment"
+          ],
+          "semanticEffect": "PENDING_TO_APPROVED"
+        },
+        {
+          "sourceTab": "ApprovalSteps",
+          "legacyId": "LEV-0104-STEP3",
+          "baselinePayloadHash": "ae6ab98cae570b860126bcba1692a30bbf886d3da0cdc72ac78f66914cf17f28",
+          "finalPayloadHash": "f81fd9c24986d5b49f1d275a08e06b21aa28958bcb47630cf4be02be03d42b58",
+          "changedFields": [
+            "approvedDate",
+            "rawStatus",
+            "normalizedStatus",
+            "comment"
+          ],
+          "semanticEffect": "PENDING_TO_APPROVED"
+        },
+        {
+          "sourceTab": "ApprovalSteps",
+          "legacyId": "LEV-0108-STEP1",
+          "baselinePayloadHash": "3f4cce51d1d17b7ce1146dd8574fc2e4474b027d9f896f648482265f4ae89947",
+          "finalPayloadHash": "8acaa83a5c6a61bca5282c60f1c1f2e335487e89a1548d8f685641745ba6b7ad",
+          "changedFields": [
+            "approvedDate",
+            "rawStatus",
+            "normalizedStatus",
+            "comment"
+          ],
+          "semanticEffect": "PENDING_TO_APPROVED"
+        }
+      ]
+    },
+    "sourceInconsistency": {
+      "count": 1,
+      "records": [
+        {
+          "sourceTab": "LeaveRequests",
+          "legacyId": "LEV-0106",
+          "baselinePayloadHash": "f70e7ee0c31d9d36964118b2c1cb557b14d4c4f119cab6a3c27d44a3c05baa5c",
+          "finalPayloadHash": "046671e665287bf5224492b6f1561d85fffc2571fec28f3773d27bfe0d7929c6",
+          "issue": "Legacy request currentStep=3 while all corresponding approval steps remain PENDING; canonical current step remains 1.",
+          "disposition": "DO_NOT_BLINDLY_IMPORT_REQUEST_CURRENT_STEP; REQUIRE_EXPLICIT_SOURCE_RECONCILIATION"
+        }
+      ]
+    },
+    "representationOrExpectedModelDrift": {
+      "count": 20,
+      "currentRequestIds": [
+        "LEV-0004",
+        "LEV-0026",
+        "LEV-0029",
+        "LEV-0034",
+        "LEV-0040",
+        "LEV-0041",
+        "LEV-0052",
+        "LEV-0071",
+        "LEV-0072",
+        "LEV-0091",
+        "LEV-0092"
+      ],
+      "archiveRequestIds": [
+        "LEV-0003",
+        "LEV-0014",
+        "LEV-0015",
+        "LEV-0029",
+        "LEV-0037",
+        "LEV-0039",
+        "LEV-0047",
+        "LEV-0048",
+        "LEV-0083"
+      ],
+      "notes": [
+        "Terminal Legacy currentStep values are retained in source while canonical terminal approval instances intentionally have no active currentStepOrder.",
+        "Some hourly time cells in the archive are currently rendered by Google Sheets as 30/12/1899 date serial display; canonical Production time values remain semantically correct after normalization."
+      ]
+    }
+  },
+  "privacy": {
+    "leaveDescriptionsPersisted": false,
+    "employeeNamesPersisted": false,
+    "sourceRowsPersisted": false,
+    "onlySourceQualifiedIdsAndHashes": true
+  }
+}

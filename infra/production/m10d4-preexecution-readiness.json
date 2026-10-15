@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "m10d4-preexecution-readiness-v1",
+  "phase": "M10D.4_PREEXECUTION_READINESS_ONLY",
+  "evaluatedFrom": "M10D.3_EVIDENCE_AND_LOCAL_SOURCE_INSPECTION",
+  "ownerApprovalScope": "PREEXECUTION_READINESS_ONLY",
+  "decision": "EXECUTION_NO_GO",
+  "sourceOfTruth": "LEGACY",
+  "immutableBaseline": {
+    "baselineRows": 576,
+    "liveRows": 576,
+    "rawChanged": 27,
+    "added": 0,
+    "removed": 0,
+    "actionable": 6,
+    "sourceInconsistency": 1,
+    "representationDrift": 20
+  },
+  "legacyWritePaths": [
+    {
+      "id": "desktop-create",
+      "entry": "Gs/01_LeaveRequest.js:addRequest",
+      "channel": "DIRECT_GAS_DESKTOP",
+      "freezeCoverage": "NOT_PROVEN"
+    },
+    {
+      "id": "desktop-edit",
+      "entry": "Gs/01_LeaveRequest.js:upRequest",
+      "channel": "DIRECT_GAS_DESKTOP",
+      "freezeCoverage": "NOT_PROVEN"
+    },
+    {
+      "id": "desktop-delete",
+      "entry": "Gs/01_LeaveRequest.js:delDataLeaveRequests",
+      "channel": "DIRECT_GAS_DESKTOP",
+      "freezeCoverage": "NOT_PROVEN"
+    },
+    {
+      "id": "desktop-cancel",
+      "entry": "Gs/01_LeaveRequest.js:cancelApprovedLeave",
+      "channel": "DIRECT_GAS_DESKTOP",
+      "freezeCoverage": "NOT_PROVEN"
+    },
+    {
+      "id": "desktop-approve",
+      "entry": "Gs/02_Approval.js:setConfirmLeaveApprove",
+      "channel": "DIRECT_GAS_DESKTOP",
+      "freezeCoverage": "NOT_PROVEN"
+    },
+    {
+      "id": "desktop-revise",
+      "entry": "Gs/02_Approval.js:requestRevisionForLeave",
+      "channel": "DIRECT_GAS_DESKTOP",
+      "freezeCoverage": "NOT_PROVEN"
+    },
+    {
+      "id": "desktop-resubmit",
+      "entry": "Gs/02_Approval.js:resubmitRevisedLeave",
+      "channel": "DIRECT_GAS_DESKTOP",
+      "freezeCoverage": "NOT_PROVEN"
+    },
+    {
+      "id": "gas-liff-create",
+      "entry": "Gs/21_LineIntegration.js:submitLineLeaveRequest",
+      "channel": "GAS_LIFF",
+      "freezeCoverage": "NOT_PROVEN"
+    },
+    {
+      "id": "gas-liff-decision",
+      "entry": "Gs/25_LineLiffServices.js:decideLineLeaveRequest_",
+      "channel": "GAS_LIFF",
+      "freezeCoverage": "NOT_PROVEN"
+    },
+    {
+      "id": "gateway-liff-create",
+      "entry": "line-gateway/server.js:/api/liff/leave",
+      "channel": "GATEWAY_LIFF",
+      "freezeCoverage": "LOCAL_GUARD_PRESENT_PRODUCTION_NOT_VERIFIED"
+    },
+    {
+      "id": "gateway-liff-decision",
+      "entry": "line-gateway/server.js:/api/liff/decision",
+      "channel": "GATEWAY_LIFF",
+      "freezeCoverage": "LOCAL_GUARD_PRESENT_PRODUCTION_NOT_VERIFIED"
+    }
+  ],
+  "preexecutionGates": {
+    "globalLegacyFreezeCoverage": "BLOCKED_DIRECT_GAS_WRITES_NOT_GUARDED",
+    "gatewayProductionRevisionBridgeParity": "UNVERIFIED_PREVIOUS_BRIDGE_GOAL_CANCELLED",
+    "legacyQuietWindowAndBackups": "RECHECK_REQUIRED",
+    "finalFiveSourceSnapshotAfterFreeze": "NOT_STARTED",
+    "lev0106Disposition": "UNRESOLVED_DO_NOT_BLINDLY_IMPORT",
+    "deltaImportAndModuleReconciliation": "NOT_STARTED",
+    "ownerVerifiedUnlinkedIdentity": "UNRESOLVED_FAIL_CLOSED",
+    "pairedLeaveAuthorityApproval": "NOT_GRANTED",
+    "rollbackDrill": "NOT_VERIFIED_FOR_LIVE_EXECUTION"
+  },
+  "ownerApprovalRequiredBefore": [
+    "PRODUCTION_LEAVE_WRITE_FREEZE",
+    "PRODUCTION_LEAVE_DELTA_IMPORT",
+    "PRODUCTION_TRAFFIC_SWITCH",
+    "PAIRED_LEAVE_READ_WRITE_AUTHORITY_SWITCH",
+    "PRODUCTION_SOURCE_OF_TRUTH_CHANGE"
+  ],
+  "noProductionMutation": {
+    "productionFreezeEnabled": false,
+    "productionDeltaImported": false,
+    "trafficChanged": false,
+    "authorityChanged": false,
+    "sourceOfTruthChanged": false,
+    "dnsChanged": false,
+    "lineChanged": false,
+    "gasDeployed": false,
+    "credentialsChanged": false
+  },
+  "cutoverSafety": {
+    "requireSameFiveDescriptors": true,
+    "requireBothLeaveAuthoritiesSwitchTogether": true,
+    "beforeFirstNewWrite": "CAN_RETURN_TO_LEGACY_ONLY_AFTER_VERIFIED_LEGACY_HEALTH",
+    "afterFirstNewWrite": "STOP_NEW_WRITES_RECONCILE_NO_BLIND_ROLLBACK",
+    "doNotAssumeGatewayFlagFreezesDirectGAS": true,
+    "noIndefiniteDualWrite": true
+  },
+  "nextAction": "Complete non-production Legacy Desktop/GAS and LIFF/Gateway freeze coverage and test all paths; obtain a separately named Production execution approval."
+}

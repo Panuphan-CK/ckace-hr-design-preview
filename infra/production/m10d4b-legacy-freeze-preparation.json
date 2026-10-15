@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "m10d4b-legacy-leave-freeze-preparation-v1",
+  "phase": "M10D.4B_LOCAL_TEST_HARDENING",
+  "scope": "PROJECT_B_READINESS_ARTIFACT_ONLY_DUE_PROJECT_A_MUTEX",
+  "decision": "IMPLEMENTATION_BLOCKED_WORKSPACE_MUTATION_OWNER",
+  "projectA": {
+    "workspace": "D:\\APP_Leave",
+    "currentMutationOwnerGoal": "t17-rich-menu-crop-resize-touch-area-20261008",
+    "risk": "Another active scheduled goal holds Project A mutation ownership. Do not bypass, steal, or edit Project A while this remains active."
+  },
+  "projectB": {
+    "workspace": "D:\\CKACE_HR",
+    "sourceOfTruth": "LEGACY"
+  },
+  "sourceInventory": {
+    "count": 15,
+    "paths": [
+      {
+        "id": "desktop-leave-create",
+        "file": "Gs/01_LeaveRequest.js",
+        "entry": "addRequestWithVerifiedActor_",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_INSIDE_SCRIPT_LOCK_BEFORE_REPLAY_AND_MUTATION"
+      },
+      {
+        "id": "desktop-leave-edit",
+        "file": "Gs/01_LeaveRequest.js",
+        "entry": "upRequestValidated_",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_INSIDE_LOCK_BEFORE_MUTATION"
+      },
+      {
+        "id": "desktop-leave-delete",
+        "file": "Gs/01_LeaveRequest.js",
+        "entry": "delDataLeaveRequestsValidated_",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_INSIDE_LOCK_BEFORE_MUTATION"
+      },
+      {
+        "id": "desktop-leave-cancel",
+        "file": "Gs/01_LeaveRequest.js",
+        "entry": "cancelApprovedLeave",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_INSIDE_LOCK_BEFORE_MUTATION"
+      },
+      {
+        "id": "desktop-leave-approve",
+        "file": "Gs/02_Approval.js",
+        "entry": "setConfirmLeaveApprove",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_INSIDE_LOCK_BEFORE_MUTATION"
+      },
+      {
+        "id": "desktop-leave-revise",
+        "file": "Gs/02_Approval.js",
+        "entry": "requestRevisionForLeave",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_INSIDE_LOCK_BEFORE_MUTATION"
+      },
+      {
+        "id": "desktop-leave-resubmit",
+        "file": "Gs/02_Approval.js",
+        "entry": "resubmitRevisedLeave",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_INSIDE_LOCK_BEFORE_MUTATION"
+      },
+      {
+        "id": "gas-liff-create",
+        "file": "Gs/21_LineIntegration.js",
+        "entry": "submitLineLeaveRequest",
+        "channel": "GAS_LIFF",
+        "required": "REUSES_GUARDED_ADD_WITH_VERIFIED_ACTOR_AFTER_LOCK"
+      },
+      {
+        "id": "gas-liff-approval",
+        "file": "Gs/25_LineLiffServices.js",
+        "entry": "decideLineLeaveRequest_",
+        "channel": "GAS_LIFF",
+        "required": "GUARD_AFTER_LOCK_BEFORE_BATCH_UPDATE"
+      },
+      {
+        "id": "gateway-liff-create",
+        "file": "line-gateway/server.js",
+        "entry": "POST /api/liff/leave",
+        "channel": "GATEWAY_LIFF",
+        "required": "VERIFY_EXISTING_GATEWAY_GUARD_AND_NON_LEAVE_ROUTING"
+      },
+      {
+        "id": "gateway-liff-approval",
+        "file": "line-gateway/server.js",
+        "entry": "POST /api/liff/decision",
+        "channel": "GATEWAY_LIFF",
+        "required": "VERIFY_EXISTING_GATEWAY_GUARD_AND_NON_LEAVE_ROUTING"
+      },
+      {
+        "id": "admin-policy-add",
+        "file": "Gs/24_UserManagementSecurity.js",
+        "entry": "addUserPolicies",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_ADMIN_LOCKED_POLICY_MUTATION"
+      },
+      {
+        "id": "admin-policy-edit",
+        "file": "Gs/24_UserManagementSecurity.js",
+        "entry": "upUserPolicies",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_ADMIN_LOCKED_POLICY_MUTATION"
+      },
+      {
+        "id": "admin-policy-delete",
+        "file": "Gs/24_UserManagementSecurity.js",
+        "entry": "delDataUserPolicies",
+        "channel": "DIRECT_GAS_DESKTOP",
+        "required": "GUARD_ADMIN_LOCKED_POLICY_MUTATION"
+      },
+      {
+        "id": "onboarding-default-policy",
+        "file": "Gs/09_UserPolicies.js",
+        "entry": "ensureDefaultLeavePoliciesUnlocked_",
+        "channel": "USER_ACTIVATION",
+        "required": "GUARD_BEFORE_DEFAULT_LEAVE_POLICY_WRITE_AND_DOCUMENT_ACTIVATION_IMPACT"
+      }
+    ]
+  },
+  "cleanupExceptions": [
+    "rollbackLeavePoliciesByIds_ (rollback only)",
+    "rollbackLeavePoliciesForUser_ (rollback only)"
+  ],
+  "guardContract": {
+    "property": "CKACE_LEAVE_WRITE_FREEZE",
+    "gasSource": "PropertiesService.getScriptProperties()",
+    "gatewaySource": "Cloud Run environment (independent setting)",
+    "defaults": "UNSET_OR_EXPLICIT_FALSE_LEGACY_WRITES_ENABLED",
+    "frozen": "TRUE_REJECT_LEAVE_WRITES_FAIL_CLOSED",
+    "invalidOrUnavailable": "REJECT_WRITES_FAIL_CLOSED",
+    "requiredErrorCode": "LEAVE_WRITE_FROZEN",
+    "noClientSetter": true,
+    "scriptLockRecheck": true,
+    "readsRemainAvailable": true,
+    "unrelatedWritesRemainAvailable": true,
+    "noLivePropertyChangeAuthorized": true
+  },
+  "gates": {
+    "sourceEdits": "BLOCKED_BY_PROJECT_A_MUTATION_OWNER",
+    "isolatedGASBehaviorTests": "NOT_RUN",
+    "gatewayNonLeaveRegression": "NOT_RUN",
+    "productionDeployedParity": "NOT_VERIFIED",
+    "legacyWriteFreezeProof": "NOT_VERIFIED",
+    "m10d3SourceException": "LEV-0106_UNRESOLVED",
+    "identityException": "ONE_ACTIVE_UNLINKED",
+    "cutoverAuthority": "LEGACY",
+    "productionExecutionApproval": "NOT_GRANTED"
+  },
+  "productionMutationsPerformed": false,
+  "nextAction": "Resume this bounded A-source implementation ONLY after existing T17 goal frees Project A mutation ownership; re-read relevant files first."
+}

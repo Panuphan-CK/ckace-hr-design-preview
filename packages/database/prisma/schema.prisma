@@ -1,0 +1,841 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountState {
+  ACTIVE
+  PENDING
+  INACTIVE
+  RESIGNED
+}
+
+enum ApprovalScope {
+  SAME_AGENCY
+  SAME_DEPARTMENT
+  GLOBAL
+}
+
+enum RequestKind {
+  LEAVE
+  TIME_CORRECTION
+  OVERTIME
+  MEDICAL
+  BENEFIT
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  REVISION_REQUESTED
+}
+
+enum ApprovalStepStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SKIPPED
+  CANCELLED
+}
+
+enum LeaveDurationCode {
+  FULL_DAY
+  HOURLY
+  MORNING
+  AFTERNOON
+}
+
+enum RadiusState {
+  IN_RADIUS
+  OUTSIDE_RADIUS
+  UNKNOWN
+}
+
+enum StorageProvider {
+  LEGACY_DRIVE
+  R2
+}
+
+enum PrivacyClass {
+  INTERNAL
+  EMPLOYEE_PRIVATE
+  MEDICAL_PRIVATE
+  ADMIN_PRIVATE
+}
+
+enum EmployeeMediaKind {
+  PROFILE
+  SIGNATURE
+}
+
+enum AnnouncementScope {
+  GLOBAL
+  AGENCY
+  DEPARTMENT
+}
+
+enum NotificationStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum NotificationChannel {
+  LINE
+  EMAIL
+  CALENDAR
+}
+
+enum MigrationRunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  COMPLETED_WITH_EXCEPTIONS
+  FAILED
+  CANCELLED
+}
+
+enum ReconciliationStatus {
+  PASS
+  EXCEPTION
+  FAIL
+}
+
+model Agency {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  employees        Employee[]
+  approvalPolicies ApprovalPolicy[]
+  announcements    Announcement[]
+
+  @@index([name])
+  @@map("agencies")
+}
+
+model Department {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  employees     Employee[]
+  announcements Announcement[]
+
+  @@index([name])
+  @@map("departments")
+}
+
+model Employee {
+  id              String    @id @default(uuid()) @db.Uuid
+  fullName        String
+  nickname        String?
+  dateOfBirth     DateTime? @db.Date
+  employmentStart DateTime? @db.Date
+  resignationDate DateTime? @db.Date
+  agencyId        String?   @db.Uuid
+  departmentId    String?   @db.Uuid
+  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(3)
+
+  agency            Agency?                 @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+  department        Department?             @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  userAccount       UserAccount?
+  lineAccount       LineAccount?
+  media             EmployeeMedia[]
+  entitlements      LeaveEntitlement[]
+  leaveRequests     LeaveRequest[]
+  attendanceRecords AttendanceRecord[]
+  timeCorrections   TimeCorrectionRequest[]
+  overtimeRequests  OvertimeRequest[]
+  medicalClaims     MedicalClaim[]
+  approvalInstances ApprovalInstance[]      @relation("ApprovalRequester")
+  approvalSteps     ApprovalStep[]          @relation("ApprovalStepApprover")
+  attachments       Attachment[]            @relation("AttachmentOwner")
+  idempotencyKeys   IdempotencyKey[]
+  auditLogs         AuditLog[]
+
+  @@index([agencyId])
+  @@index([departmentId])
+  @@index([resignationDate])
+  @@map("employees")
+}
+
+model UserAccount {
+  id                 String       @id @default(uuid()) @db.Uuid
+  employeeId         String       @unique @db.Uuid
+  loginName          String
+  normalizedLogin    String       @unique
+  passwordHash       String?
+  legacyPasswordHash String?
+  state              AccountState @default(PENDING)
+  createdAt          DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime     @updatedAt @db.Timestamptz(3)
+
+  employee Employee   @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  roles    UserRole[]
+
+  @@index([state])
+  @@map("user_accounts")
+}
+
+model LineAccount {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @unique @db.Uuid
+  lineUserId String   @unique
+  linkedAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("line_accounts")
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  users               UserRole[]
+  permissions         RolePermission[]
+  approvalPolicySteps ApprovalPolicyStep[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userAccountId String   @db.Uuid
+  roleId        String   @db.Uuid
+  assignedAt    DateTime @default(now()) @db.Timestamptz(3)
+
+  userAccount UserAccount @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
+  role        Role        @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@id([userAccountId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String @db.Uuid
+  permissionId String @db.Uuid
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model ApprovalPolicy {
+  id          String      @id @default(uuid()) @db.Uuid
+  agencyId    String?     @db.Uuid
+  requestKind RequestKind
+  name        String
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime    @updatedAt @db.Timestamptz(3)
+
+  agency    Agency?              @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+  steps     ApprovalPolicyStep[]
+  instances ApprovalInstance[]
+
+  @@index([agencyId, requestKind, active])
+  @@map("approval_policies")
+}
+
+model ApprovalPolicyStep {
+  id             String        @id @default(uuid()) @db.Uuid
+  policyId       String        @db.Uuid
+  stepOrder      Int
+  requiredRoleId String        @db.Uuid
+  scope          ApprovalScope
+  createdAt      DateTime      @default(now()) @db.Timestamptz(3)
+
+  policy       ApprovalPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  requiredRole Role           @relation(fields: [requiredRoleId], references: [id], onDelete: Restrict)
+
+  @@unique([policyId, stepOrder])
+  @@index([requiredRoleId])
+  @@map("approval_policy_steps")
+}
+
+model ApprovalInstance {
+  id                  String        @id @default(uuid()) @db.Uuid
+  requestKind         RequestKind
+  requesterEmployeeId String        @db.Uuid
+  policyId            String?       @db.Uuid
+  status              RequestStatus @default(PENDING)
+  currentStepOrder    Int?
+  createdAt           DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime      @updatedAt @db.Timestamptz(3)
+  decidedAt           DateTime?     @db.Timestamptz(3)
+
+  requester Employee        @relation("ApprovalRequester", fields: [requesterEmployeeId], references: [id], onDelete: Restrict)
+  policy    ApprovalPolicy? @relation(fields: [policyId], references: [id], onDelete: SetNull)
+  steps     ApprovalStep[]
+
+  leaveRequest    LeaveRequest?
+  timeCorrection  TimeCorrectionRequest?
+  overtimeRequest OvertimeRequest?
+  medicalClaim    MedicalClaim?
+
+  @@index([requesterEmployeeId, requestKind, status])
+  @@index([policyId])
+  @@map("approval_instances")
+}
+
+model ApprovalStep {
+  id                 String             @id @default(uuid()) @db.Uuid
+  approvalInstanceId String             @db.Uuid
+  stepOrder          Int
+  approverEmployeeId String?            @db.Uuid
+  status             ApprovalStepStatus @default(PENDING)
+  assignedAt         DateTime?          @db.Timestamptz(3)
+  decidedAt          DateTime?          @db.Timestamptz(3)
+  comment            String?
+  legacyRawStatus    String?
+  createdAt          DateTime           @default(now()) @db.Timestamptz(3)
+
+  approvalInstance ApprovalInstance @relation(fields: [approvalInstanceId], references: [id], onDelete: Cascade)
+  approver         Employee?        @relation("ApprovalStepApprover", fields: [approverEmployeeId], references: [id], onDelete: SetNull)
+
+  @@unique([approvalInstanceId, stepOrder])
+  @@index([approverEmployeeId, status])
+  @@map("approval_steps")
+}
+
+model LeaveType {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique
+  name        String
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  aliases      LeaveTypeAlias[]
+  entitlements LeaveEntitlement[]
+  requests     LeaveRequest[]
+
+  @@map("leave_types")
+}
+
+model LeaveTypeAlias {
+  id          String @id @default(uuid()) @db.Uuid
+  leaveTypeId String @db.Uuid
+  alias       String @unique
+
+  leaveType LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+
+  @@map("leave_type_aliases")
+}
+
+model LeaveEntitlement {
+  id          String    @id @default(uuid()) @db.Uuid
+  employeeId  String    @db.Uuid
+  leaveTypeId String    @db.Uuid
+  quota       Decimal   @db.Decimal(10, 2)
+  validFrom   DateTime? @db.Date
+  validTo     DateTime? @db.Date
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+
+  employee  Employee       @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  leaveType LeaveType      @relation(fields: [leaveTypeId], references: [id], onDelete: Restrict)
+  requests  LeaveRequest[]
+
+  @@index([employeeId, leaveTypeId])
+  @@map("leave_entitlements")
+}
+
+model LeaveRequest {
+  id                  String            @id @default(uuid()) @db.Uuid
+  requesterEmployeeId String            @db.Uuid
+  leaveTypeId         String            @db.Uuid
+  entitlementId       String?           @db.Uuid
+  approvalInstanceId  String?           @unique @db.Uuid
+  description         String
+  startDate           DateTime          @db.Date
+  endDate             DateTime          @db.Date
+  durationCode        LeaveDurationCode
+  startTime           DateTime?         @db.Time(0)
+  endTime             DateTime?         @db.Time(0)
+  status              RequestStatus     @default(PENDING)
+  decisionReason      String?
+  submittedAt         DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime          @updatedAt @db.Timestamptz(3)
+
+  requester           Employee                 @relation(fields: [requesterEmployeeId], references: [id], onDelete: Restrict)
+  leaveType           LeaveType                @relation(fields: [leaveTypeId], references: [id], onDelete: Restrict)
+  entitlement         LeaveEntitlement?        @relation(fields: [entitlementId], references: [id], onDelete: SetNull)
+  approvalInstance    ApprovalInstance?        @relation(fields: [approvalInstanceId], references: [id], onDelete: SetNull)
+  attachments         LeaveRequestAttachment[]
+  linkedMedicalClaims MedicalClaim[]
+
+  @@index([requesterEmployeeId, startDate])
+  @@index([status, submittedAt])
+  @@index([leaveTypeId])
+  @@map("leave_requests")
+}
+
+model AttendanceRecord {
+  id                   String    @id @default(uuid()) @db.Uuid
+  employeeId           String    @db.Uuid
+  workDate             DateTime  @db.Date
+  checkInAt            DateTime  @db.Timestamptz(3)
+  checkOutAt           DateTime? @db.Timestamptz(3)
+  checkInLocationText  String?
+  checkOutLocationText String?
+  createdAt            DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt            DateTime  @updatedAt @db.Timestamptz(3)
+
+  employee         Employee                @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  calculation      AttendanceCalculation?
+  corrections      TimeCorrectionRequest[]
+  overtimeSegments OvertimeSegment[]
+
+  // Intentionally NOT unique on (employeeId, workDate): M0 found a real duplicate business-day pair.
+  @@index([employeeId, workDate])
+  @@index([workDate])
+  @@map("attendance_records")
+}
+
+model AttendanceCalculation {
+  id                 String      @id @default(uuid()) @db.Uuid
+  attendanceRecordId String      @unique @db.Uuid
+  workMinutes        Int?
+  lateMinutes        Int?
+  earlyMinutes       Int?
+  overtimeMinutes    Int?
+  checkInRadius      RadiusState @default(UNKNOWN)
+  checkOutRadius     RadiusState @default(UNKNOWN)
+  policyVersion      String?
+  calculatedAt       DateTime    @default(now()) @db.Timestamptz(3)
+
+  attendanceRecord AttendanceRecord @relation(fields: [attendanceRecordId], references: [id], onDelete: Cascade)
+
+  @@map("attendance_calculations")
+}
+
+model AttendancePolicy {
+  id              String    @id @default(uuid()) @db.Uuid
+  name            String
+  timezone        String    @default("Asia/Bangkok")
+  officeLatitude  Decimal   @db.Decimal(9, 6)
+  officeLongitude Decimal   @db.Decimal(9, 6)
+  radiusKm        Decimal   @db.Decimal(6, 2)
+  lateAfter       DateTime  @db.Time(0)
+  workEnd         DateTime  @db.Time(0)
+  breakStart      DateTime? @db.Time(0)
+  breakEnd        DateTime? @db.Time(0)
+  effectiveFrom   DateTime  @db.Date
+  effectiveTo     DateTime? @db.Date
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@index([active, effectiveFrom])
+  @@map("attendance_policies")
+}
+
+model TimeCorrectionRequest {
+  id                 String        @id @default(uuid()) @db.Uuid
+  employeeId         String        @db.Uuid
+  attendanceRecordId String?       @db.Uuid
+  approvalInstanceId String?       @unique @db.Uuid
+  attendanceDate     DateTime      @db.Date
+  originalCheckIn    DateTime?     @db.Time(0)
+  originalCheckOut   DateTime?     @db.Time(0)
+  correctedCheckIn   DateTime?     @db.Time(0)
+  correctedCheckOut  DateTime?     @db.Time(0)
+  reason             String
+  status             RequestStatus @default(PENDING)
+  decisionComment    String?
+  requestedAt        DateTime      @default(now()) @db.Timestamptz(3)
+  decidedAt          DateTime?     @db.Timestamptz(3)
+  updatedAt          DateTime      @updatedAt @db.Timestamptz(3)
+
+  employee         Employee          @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  attendanceRecord AttendanceRecord? @relation(fields: [attendanceRecordId], references: [id], onDelete: SetNull)
+  approvalInstance ApprovalInstance? @relation(fields: [approvalInstanceId], references: [id], onDelete: SetNull)
+
+  @@index([employeeId, attendanceDate])
+  @@index([status, requestedAt])
+  @@map("time_correction_requests")
+}
+
+model OvertimeRequest {
+  id                 String        @id @default(uuid()) @db.Uuid
+  employeeId         String        @db.Uuid
+  approvalInstanceId String?       @unique @db.Uuid
+  reason             String
+  status             RequestStatus @default(PENDING)
+  decisionReason     String?
+  submittedAt        DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime      @updatedAt @db.Timestamptz(3)
+
+  employee         Employee                    @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  approvalInstance ApprovalInstance?           @relation(fields: [approvalInstanceId], references: [id], onDelete: SetNull)
+  segments         OvertimeSegment[]
+  attachments      OvertimeRequestAttachment[]
+
+  @@index([employeeId, status, submittedAt])
+  @@map("overtime_requests")
+}
+
+model OvertimeSegment {
+  id                 String   @id @default(uuid()) @db.Uuid
+  overtimeRequestId  String   @db.Uuid
+  attendanceRecordId String?  @db.Uuid
+  workDate           DateTime @db.Date
+  startTime          DateTime @db.Time(0)
+  endTime            DateTime @db.Time(0)
+  requestedMinutes   Int
+  createdAt          DateTime @default(now()) @db.Timestamptz(3)
+
+  request          OvertimeRequest   @relation(fields: [overtimeRequestId], references: [id], onDelete: Cascade)
+  attendanceRecord AttendanceRecord? @relation(fields: [attendanceRecordId], references: [id], onDelete: SetNull)
+
+  @@index([overtimeRequestId, workDate])
+  @@index([attendanceRecordId])
+  @@map("overtime_segments")
+}
+
+model BenefitPolicy {
+  id            String    @id @default(uuid()) @db.Uuid
+  key           String
+  name          String
+  annualLimit   Decimal?  @db.Decimal(12, 2)
+  effectiveFrom DateTime  @db.Date
+  effectiveTo   DateTime? @db.Date
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt @db.Timestamptz(3)
+
+  medicalClaims MedicalClaim[]
+
+  @@unique([key, effectiveFrom])
+  @@index([active, effectiveFrom])
+  @@map("benefit_policies")
+}
+
+model MedicalClaim {
+  id                 String        @id @default(uuid()) @db.Uuid
+  employeeId         String        @db.Uuid
+  leaveRequestId     String?       @db.Uuid
+  benefitPolicyId    String?       @db.Uuid
+  approvalInstanceId String?       @unique @db.Uuid
+  claimDate          DateTime      @db.Date
+  sicknessDate       DateTime      @db.Date
+  amount             Decimal       @db.Decimal(12, 2)
+  description        String
+  status             RequestStatus @default(PENDING)
+  decisionReason     String?
+  submittedAt        DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime      @updatedAt @db.Timestamptz(3)
+
+  employee         Employee                 @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  leaveRequest     LeaveRequest?            @relation(fields: [leaveRequestId], references: [id], onDelete: SetNull)
+  benefitPolicy    BenefitPolicy?           @relation(fields: [benefitPolicyId], references: [id], onDelete: SetNull)
+  approvalInstance ApprovalInstance?        @relation(fields: [approvalInstanceId], references: [id], onDelete: SetNull)
+  attachments      MedicalClaimAttachment[]
+
+  @@index([employeeId, sicknessDate])
+  @@index([status, submittedAt])
+  @@index([leaveRequestId])
+  @@map("medical_claims")
+}
+
+model Holiday {
+  id          String   @id @default(uuid()) @db.Uuid
+  holidayDate DateTime @db.Date
+  description String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([holidayDate])
+  @@map("holidays")
+}
+
+model WeeklyWorkRule {
+  id         String   @id @default(uuid()) @db.Uuid
+  isoWeekday Int
+  isWorking  Boolean
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([isoWeekday])
+  @@map("weekly_work_rules")
+}
+
+model Attachment {
+  id                String          @id @default(uuid()) @db.Uuid
+  ownerEmployeeId   String?         @db.Uuid
+  privacyClass      PrivacyClass
+  storageProvider   StorageProvider
+  storageKey        String?
+  originalFilename  String?
+  mimeType          String?
+  sizeBytes         BigInt?
+  checksumSha256    String?
+  finalizedAt       DateTime?       @db.Timestamptz(3)
+  legacyDriveFileId String?
+  legacyDriveUrl    String?
+  createdAt         DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(3)
+
+  owner            Employee?                  @relation("AttachmentOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  leaveLink        LeaveRequestAttachment?
+  overtimeLink     OvertimeRequestAttachment?
+  medicalLink      MedicalClaimAttachment?
+  announcementLink AnnouncementAttachment?
+  employeeMedia    EmployeeMedia?
+
+  @@unique([storageProvider, storageKey])
+  @@index([ownerEmployeeId, privacyClass])
+  @@index([storageProvider])
+  @@map("attachments")
+}
+
+model LeaveRequestAttachment {
+  attachmentId   String @id @db.Uuid
+  leaveRequestId String @db.Uuid
+
+  attachment   Attachment   @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+  leaveRequest LeaveRequest @relation(fields: [leaveRequestId], references: [id], onDelete: Cascade)
+
+  @@index([leaveRequestId])
+  @@map("leave_request_attachments")
+}
+
+model OvertimeRequestAttachment {
+  attachmentId      String @id @db.Uuid
+  overtimeRequestId String @db.Uuid
+
+  attachment      Attachment      @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+  overtimeRequest OvertimeRequest @relation(fields: [overtimeRequestId], references: [id], onDelete: Cascade)
+
+  @@index([overtimeRequestId])
+  @@map("overtime_request_attachments")
+}
+
+model MedicalClaimAttachment {
+  attachmentId   String @id @db.Uuid
+  medicalClaimId String @db.Uuid
+
+  attachment   Attachment   @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+  medicalClaim MedicalClaim @relation(fields: [medicalClaimId], references: [id], onDelete: Cascade)
+
+  @@index([medicalClaimId])
+  @@map("medical_claim_attachments")
+}
+
+model EmployeeMedia {
+  id           String            @id @default(uuid()) @db.Uuid
+  employeeId   String            @db.Uuid
+  attachmentId String            @unique @db.Uuid
+  kind         EmployeeMediaKind
+  createdAt    DateTime          @default(now()) @db.Timestamptz(3)
+
+  employee   Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  attachment Attachment @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, kind])
+  @@map("employee_media")
+}
+
+model Announcement {
+  id           String            @id @default(uuid()) @db.Uuid
+  title        String?
+  content      String
+  scope        AnnouncementScope @default(GLOBAL)
+  agencyId     String?           @db.Uuid
+  departmentId String?           @db.Uuid
+  publishedAt  DateTime?         @db.Timestamptz(3)
+  createdAt    DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime          @updatedAt @db.Timestamptz(3)
+
+  agency      Agency?                  @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+  department  Department?              @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  attachments AnnouncementAttachment[]
+
+  @@index([scope, publishedAt])
+  @@index([agencyId])
+  @@index([departmentId])
+  @@map("announcements")
+}
+
+model AnnouncementAttachment {
+  attachmentId   String @id @db.Uuid
+  announcementId String @db.Uuid
+
+  attachment   Attachment   @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  @@index([announcementId])
+  @@map("announcement_attachments")
+}
+
+model NotificationOutbox {
+  id            String             @id @default(uuid()) @db.Uuid
+  aggregateType String
+  aggregateId   String
+  eventType     String
+  payload       Json
+  status        NotificationStatus @default(PENDING)
+  availableAt   DateTime           @default(now()) @db.Timestamptz(3)
+  attempts      Int                @default(0)
+  lastError     String?
+  createdAt     DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime           @updatedAt @db.Timestamptz(3)
+
+  deliveries NotificationDelivery[]
+
+  @@index([status, availableAt])
+  @@index([aggregateType, aggregateId])
+  @@map("notification_outbox")
+}
+
+model NotificationDelivery {
+  id          String              @id @default(uuid()) @db.Uuid
+  outboxId    String              @db.Uuid
+  channel     NotificationChannel
+  status      NotificationStatus  @default(PENDING)
+  providerRef String?
+  error       String?
+  attemptedAt DateTime?           @db.Timestamptz(3)
+  createdAt   DateTime            @default(now()) @db.Timestamptz(3)
+
+  outbox NotificationOutbox @relation(fields: [outboxId], references: [id], onDelete: Cascade)
+
+  @@index([outboxId, channel])
+  @@index([status, attemptedAt])
+  @@map("notification_deliveries")
+}
+
+model AuditLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  actorEmployeeId String?  @db.Uuid
+  action          String
+  entityType      String
+  entityId        String?
+  correlationId   String?
+  metadata        Json?
+  occurredAt      DateTime @default(now()) @db.Timestamptz(3)
+
+  actor Employee? @relation(fields: [actorEmployeeId], references: [id], onDelete: SetNull)
+
+  @@index([actorEmployeeId, occurredAt])
+  @@index([entityType, entityId, occurredAt])
+  @@index([correlationId])
+  @@map("audit_logs")
+}
+
+model IdempotencyKey {
+  id                String    @id @default(uuid()) @db.Uuid
+  actorEmployeeId   String    @db.Uuid
+  operationKind     String
+  clientKey         String
+  payloadHash       String
+  resultReferenceId String?
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+  expiresAt         DateTime? @db.Timestamptz(3)
+
+  actor Employee @relation(fields: [actorEmployeeId], references: [id], onDelete: Cascade)
+
+  @@unique([actorEmployeeId, operationKind, clientKey])
+  @@index([expiresAt])
+  @@map("idempotency_keys")
+}
+
+model MigrationRun {
+  id                 String             @id @default(uuid()) @db.Uuid
+  sourceSystem       String
+  sourceSnapshot     String
+  transformerVersion String
+  status             MigrationRunStatus @default(PENDING)
+  startedAt          DateTime?          @db.Timestamptz(3)
+  completedAt        DateTime?          @db.Timestamptz(3)
+  importedCount      Int                @default(0)
+  skippedCount       Int                @default(0)
+  rejectedCount      Int                @default(0)
+  mismatchCount      Int                @default(0)
+  createdAt          DateTime           @default(now()) @db.Timestamptz(3)
+
+  legacyRecords         LegacyRecord[]
+  reconciliationResults MigrationReconciliationResult[]
+
+  @@index([status, createdAt])
+  @@map("migration_runs")
+}
+
+model LegacyRecord {
+  id               String   @id @default(uuid()) @db.Uuid
+  migrationRunId   String   @db.Uuid
+  sourceSystem     String
+  sourceWorkbook   String
+  sourceTab        String
+  sourcePeriod     String
+  legacyId         String
+  rowFingerprint   String
+  payloadHash      String?
+  targetEntityType String?
+  targetEntityId   String?  @db.Uuid
+  importedAt       DateTime @default(now()) @db.Timestamptz(3)
+
+  migrationRun MigrationRun @relation(fields: [migrationRunId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceSystem, sourceWorkbook, sourceTab, sourcePeriod, legacyId])
+  @@index([migrationRunId, sourceTab])
+  @@index([targetEntityType, targetEntityId])
+  @@map("legacy_records")
+}
+
+model MigrationReconciliationResult {
+  id             String               @id @default(uuid()) @db.Uuid
+  migrationRunId String               @db.Uuid
+  entityType     String
+  checkName      String
+  status         ReconciliationStatus
+  sourceValue    String
+  targetValue    String
+  exceptionCode  String?
+  disposition    String?
+  evidenceRef    String?
+  createdAt      DateTime             @default(now()) @db.Timestamptz(3)
+
+  migrationRun MigrationRun @relation(fields: [migrationRunId], references: [id], onDelete: Cascade)
+
+  @@index([migrationRunId, status])
+  @@index([entityType, checkName])
+  @@map("migration_reconciliation_results")
+}

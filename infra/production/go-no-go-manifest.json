@@ -1,0 +1,212 @@
+{
+  "schemaVersion": "m8.8-v1",
+  "mode": "FINAL_GO_NO_GO_EVIDENCE_ONLY",
+  "productionMutationAuthorized": false,
+  "observedAt": "2026-10-06T15:18:50+07:00",
+  "m8": {
+    "status": "PASS",
+    "completedGates": [
+      "M8.1_PRODUCTION_INVENTORY",
+      "M8.2_CONFIG_IAM_SECRETS_PARITY",
+      "M8.3_DATABASE_REHEARSAL_ROLLBACK",
+      "M8.4_IMMUTABLE_RELEASE_ARTIFACTS",
+      "M8.5_OBSERVABILITY_BACKUP_ROLLBACK",
+      "M8.6_CUTOVER_RUNBOOK",
+      "M8.7_PRODUCTION_LIKE_UAT"
+    ],
+    "finalGate": "M8.8_FINAL_GO_NO_GO"
+  },
+  "decision": {
+    "m8Close": "PASS",
+    "m9EngineeringDevTest": "GO",
+    "productionProvisioning": "HOLD_EXPLICIT_OWNER_APPROVAL_REQUIRED",
+    "productionAuthoritySwitch": "NO_GO",
+    "productionLineDnsGasCutover": "NO_GO",
+    "rationale": [
+      "M8 preparation/rehearsal evidence is complete and internally consistent for moving into M9 engineering.",
+      "Production landing-zone resources are not provisioned.",
+      "Server-side per-module routing is not implemented; runtime accepts LEGACY only.",
+      "Full M7 surface route coverage is incomplete.",
+      "Bounded per-module write-freeze control is not implemented.",
+      "Any M9 code change requires a new immutable release candidate before Production deployment.",
+      "Production authority switching remains a separate explicit Owner gate."
+    ]
+  },
+  "releaseAuthority": {
+    "releaseId": "ckace-hr-m8-rc-20261006a",
+    "immutableApiImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-release@sha256:bef4064b47a4a1dfc6437522248243a60805299582b70e18087891e4c0aaee2b",
+    "immutableWebImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-release@sha256:aced93f23bc778bb33ff7c825b36763e450312c5ad143c7cd0ba19e184a1da49",
+    "m8_4ArtifactInputFileCount": 208,
+    "m8_4ArtifactInputSha256": "e7c189bc9a60030cc69167a090ccfafc8e190316d452cb2103fb582bfd5cb619",
+    "currentArtifactInputFileCount": 208,
+    "currentWorkingTreeSha256": "c76bbeb56f77c21ea434ae4601c5a179ca4e2b148b209af980d01591decf7b2f",
+    "currentMedicalUatHarnessSha256": "4e736ca7c0ae7b4bbf264fb61406d65be16738eb80aee8b87e90ce7a3d62dd4a",
+    "sourceTreeMatchesFrozenRelease": false,
+    "interpretation": "EXPECTED_POST_RELEASE_UAT_TOOLING_DRIFT_DO_NOT_REWRITE_M8_4",
+    "deploymentRule": "M8.4 immutable images remain evidence authority for M8.7. After M9 code changes, build and verify a fresh immutable release candidate before any Production deploy."
+  },
+  "legacyProductionBaseline": {
+    "source": "LIVE_GCP_READBACK_PLUS_PROJECT_A_CONTINUITY",
+    "cloudRunService": "ckrr-line-gateway",
+    "revision": "ckrr-line-gateway-ownerui-20261006a",
+    "trafficPercent": 100,
+    "imageDigest": "sha256:272fc4db43213b50b90387477d7f0e864f8c2d9cd0a4354c2b1608effea87d7f",
+    "immediateRollbackRevision": "ckrr-line-gateway-readretry-20261006a",
+    "gasVersion": "v38",
+    "gasHistoricalRollbackVersion": "v37",
+    "productionLiffId": "2011403971-rHQJIrOx",
+    "sourceOfTruth": "LEGACY_GAS_SHEETS_DRIVE",
+    "operationalRisk": {
+      "id": "LEGACY_TRANSIENT_READ_TIMEOUTS",
+      "status": "OPEN_NON_BLOCKING_FOR_M9_ENGINEERING",
+      "detail": "Project A recorded transient read-only 502/timeouts on secondary APIs after the ownerui UI deploy; no business-write retry was introduced.",
+      "productionExecutionRule": "Refresh legacy health/readiness/log quiet-window evidence immediately before any Production cutover and do not assume this baseline remains unchanged."
+    }
+  },
+  "liveProjectBProductionInventory": {
+    "cloudRunProdServicesPresent": false,
+    "cloudRunQueryResultCount": 0,
+    "domain": "hr.ckaceaccount.com",
+    "dnsState": "NXDOMAIN",
+    "productionRuntimeServiceAccountProvisioned": false,
+    "productionNeonProvisioned": false,
+    "productionR2PrimaryProvisioned": false,
+    "productionR2BackupProvisioned": false,
+    "productionFirebaseSiteProvisioned": false,
+    "productionAlertPoliciesProvisioned": false,
+    "interpretation": "EXPECTED_NOT_READY_FOR_PRODUCTION_EXECUTION"
+  },
+  "evidenceSummary": {
+    "databaseRehearsal": {
+      "status": "PASS",
+      "migrations": 5,
+      "schemaColumns": 326,
+      "recoveredFingerprint": "faf3daecb280265054ffe2b3a909eccb00effedd21d02a7b8c387c0bb757b2ea"
+    },
+    "rollbackRecovery": {
+      "status": "PASS",
+      "apiRollback": "PASS",
+      "webRollback": "PASS",
+      "databaseRecovery": "PASS",
+      "r2Recovery": "PASS",
+      "alertContracts": 7
+    },
+    "uat": {
+      "status": "PASS",
+      "backendEvidenceGroups": 7,
+      "webScope": "FOUNDATION_ONLY",
+      "functionalWebLiffUi": "DEFERRED_BY_OWNER",
+      "routing": "LEGACY",
+      "productionMutation": 0
+    },
+    "repositoryQa": {
+      "status": "PASS",
+      "testFiles": 48,
+      "tests": 281,
+      "lint": "PASS",
+      "typecheck": "PASS",
+      "build": "PASS"
+    }
+  },
+  "m9EntryPrerequisites": {
+    "engineeringStart": [
+      {
+        "id": "M8_EVIDENCE_COMPLETE",
+        "status": "PASS"
+      },
+      {
+        "id": "DEV_TEST_BACKEND_UAT",
+        "status": "PASS"
+      },
+      {
+        "id": "ROLLBACK_RECOVERY_REHEARSAL",
+        "status": "PASS"
+      }
+    ],
+    "beforeFirstProductionAuthoritySwitch": [
+      {
+        "id": "SERVER_SIDE_MODULE_ROUTING_PLANE",
+        "status": "BLOCKING"
+      },
+      {
+        "id": "ROUTING_CONTRACT_FULL_M7_SURFACE_COVERAGE",
+        "status": "BLOCKING"
+      },
+      {
+        "id": "BOUNDED_MODULE_WRITE_FREEZE_CONTROL",
+        "status": "BLOCKING"
+      },
+      {
+        "id": "PRODUCTION_LANDING_ZONE_PROVISIONED",
+        "status": "BLOCKING_OWNER_GATED"
+      },
+      {
+        "id": "PRODUCTION_ALERT_POLICIES_ACTIVE",
+        "status": "BLOCKING_OWNER_GATED"
+      },
+      {
+        "id": "PRODUCTION_DB_BACKUP_RECOVERY_VERIFIED",
+        "status": "BLOCKING_OWNER_GATED"
+      },
+      {
+        "id": "PRODUCTION_R2_INDEPENDENT_BACKUP_VERIFIED",
+        "status": "BLOCKING_OWNER_GATED"
+      },
+      {
+        "id": "FRESH_POST_M9_IMMUTABLE_RELEASE_CANDIDATE",
+        "status": "BLOCKING"
+      },
+      {
+        "id": "LIVE_LEGACY_BASELINE_REFRESH",
+        "status": "BLOCKING"
+      },
+      {
+        "id": "NAMED_MODULE_RECONCILIATION_PASS",
+        "status": "BLOCKING"
+      },
+      {
+        "id": "EXPLICIT_OWNER_APPROVAL_FOR_NAMED_PRODUCTION_SWITCH",
+        "status": "BLOCKING_OWNER_GATED"
+      }
+    ]
+  },
+  "deferredScope": {
+    "webLiffFunctionalUi": {
+      "status": "DEFERRED_BY_OWNER",
+      "blockingM8": false,
+      "blockingM9Engineering": false,
+      "rule": "Do not claim functional Web/LIFF HR UI/mobile UX tested until the later dedicated Web/LIFF project."
+    }
+  },
+  "m9RecommendedStart": {
+    "workstream": "M9.1_SERVER_SIDE_MODULE_ROUTING_AND_WRITE_FREEZE_FOUNDATION",
+    "environment": "DEV_TEST_ONLY",
+    "requiredChanges": [
+      "Expand routing contract to every M7 Production surface.",
+      "Implement server-side routing authority resolution; never trust client routing inputs.",
+      "Implement bounded per-module write-freeze control.",
+      "Keep default/failure mode LEGACY until a named Owner-approved Production cutover.",
+      "Add tests for paired read/write authority, fail-closed unknown routes and post-write rollback boundaries.",
+      "Do not provision or switch Production as part of this engineering task."
+    ]
+  },
+  "ownerGatesRemain": [
+    "PRODUCTION_IAM_SECRET_RESOURCE_PROVISIONING",
+    "PRODUCTION_NEON_CREATE_MIGRATE_IMPORT_WRITE",
+    "PRODUCTION_R2_PRIMARY_BACKUP_CREATE_OR_CREDENTIALS",
+    "PRODUCTION_CLOUD_RUN_OR_FIREBASE_DEPLOY",
+    "PRODUCTION_DNS_OR_CUSTOM_DOMAIN",
+    "PRODUCTION_LINE_LIFF_LOGIN_MESSAGING_RICH_MENU",
+    "GAS_PRODUCTION_OR_SOURCE_OF_TRUTH_CHANGE",
+    "ANY_MODULE_AUTHORITY_SWITCH_FROM_LEGACY_TO_NEW",
+    "ANY_PRODUCTION_ROLLBACK_MUTATION"
+  ],
+  "safety": {
+    "productionMutationByM8_8": "NONE",
+    "routingAtClose": "LEGACY",
+    "productionDataWrite": false,
+    "productionDnsChanged": false,
+    "productionLineChanged": false,
+    "productionGasChanged": false
+  }
+}

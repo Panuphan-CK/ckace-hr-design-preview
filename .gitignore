@@ -1,0 +1,20 @@
+node_modules/
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+
+.env
+.env.*
+!.env.example
+
+packages/database/src/generated/
+packages/database/prisma/migrations/*_shadow/
+
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+
+# Local scratch / QA helpers
+.tmp/

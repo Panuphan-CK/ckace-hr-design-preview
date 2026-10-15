@@ -1,0 +1,23 @@
+{
+  "name": "@ckace/database",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "prisma:validate": "prisma validate"
+  },
+  "dependencies": {
+    "@ckace/auth": "0.1.0",
+    "@ckace/business-rules": "^0.1.0",
+    "@ckace/contracts": "^0.1.0",
+    "@ckace/storage": "0.1.0",
+    "@prisma/client": "6.12.0"
+  },
+  "devDependencies": {
+    "prisma": "6.12.0"
+  }
+}

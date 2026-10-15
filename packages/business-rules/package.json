@@ -1,0 +1,15 @@
+{
+  "name": "@ckace/business-rules",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0"
+  },
+  "dependencies": {
+    "@ckace/contracts": "0.1.0"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "displayName": "CKACE HR PROD - Readiness Failure",
+  "combiner": "OR",
+  "enabled": true,
+  "documentation": {
+    "content": "Firebase-front-door /api/ready check failed. Production routing must remain LEGACY and cutover must not proceed.",
+    "mimeType": "text/markdown"
+  },
+  "conditions": [
+    {
+      "displayName": "Readiness uptime failed",
+      "conditionThreshold": {
+        "filter": "metric.type = \"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.type = \"uptime_url\" AND metric.label.check_id = \"ckace-hr-prod-ready-SyetOn1yjms\"",
+        "comparison": "COMPARISON_LT",
+        "thresholdValue": 1,
+        "duration": "60s",
+        "trigger": {
+          "count": 1
+        },
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "perSeriesAligner": "ALIGN_NEXT_OLDER"
+          }
+        ]
+      }
+    }
+  ]
+}

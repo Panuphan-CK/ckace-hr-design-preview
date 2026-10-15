@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "m8.2-v1",
+  "mode": "READINESS_ONLY",
+  "productionMutationAuthorized": false,
+  "gcp": {
+    "projectId": "ckrr-leave-system-2026",
+    "region": "asia-southeast1",
+    "apiService": "ckace-hr-api-prod",
+    "webService": "ckace-hr-web-prod",
+    "runtimeServiceAccount": "ckace-hr-prod@ckrr-leave-system-2026.iam.gserviceaccount.com",
+    "artifactRepository": "cloud-run-source-deploy"
+  },
+  "runtime": {
+    "stage": "production",
+    "moduleRouting": "LEGACY",
+    "databaseName": "ckace_hr_prod",
+    "r2Bucket": "ckace-hr-prod-private"
+  },
+  "secretManager": {
+    "databaseUrl": "ckace-hr-neon-prod-database-url",
+    "legacyBridgeSecret": "ckace-hr-prod-bridge-secret",
+    "r2AccessKeyId": "ckace-hr-prod-r2-access-key-id",
+    "r2SecretAccessKey": "ckace-hr-prod-r2-secret-access-key"
+  },
+  "neon": {
+    "isolation": "Dedicated Production Neon project/database; DEV/TEST database or branch reuse is forbidden.",
+    "databaseName": "ckace_hr_prod",
+    "provisioned": false
+  },
+  "r2": {
+    "isolation": "Dedicated private Production bucket and bucket-scoped runtime token; TEST token/bucket reuse is forbidden.",
+    "bucketName": "ckace-hr-prod-private",
+    "publicAccess": false,
+    "provisioned": false
+  },
+  "firebase": {
+    "testConfig": "firebase.test.json",
+    "testSite": "ckrr-leave-system-2026",
+    "productionConfig": "firebase.prod.json",
+    "productionSite": "ckace-hr-prod",
+    "productionSiteProvisioned": false,
+    "productionDomain": "hr.ckaceaccount.com"
+  },
+  "iam": {
+    "runtimeServiceAccountProjectWideRoles": [],
+    "runtimeSecretAccess": "Grant roles/secretmanager.secretAccessor only on the four CKACE_HR Production secrets.",
+    "serviceIdentity": "Bind both Production Cloud Run services to the dedicated CKACE_HR Production runtime service account.",
+    "deploymentBoundary": "Deployment identity privileges remain separate from runtime identity and are granted only at an Owner-approved provisioning/deploy gate."
+  },
+  "ownerApprovalRequiredBefore": [
+    "Create or mutate Production Cloud Run services",
+    "Create or mutate Production runtime service account or IAM",
+    "Create Production Neon resources or write Production data",
+    "Create Production R2 bucket/token or credentials",
+    "Create Production Secret Manager secrets or versions",
+    "Create/attach Production Firebase Hosting site or custom domain",
+    "Change Production DNS",
+    "Change Production LINE/LIFF/Login/Messaging configuration",
+    "Change GAS Production/source-of-truth",
+    "Change CKACE_MODULE_ROUTING away from LEGACY"
+  ]
+}

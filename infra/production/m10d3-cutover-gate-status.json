@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "m10d3-cutover-gate-v1",
+  "phase": "M10D.3_PRODUCTION_CUTOVER_GATE",
+  "decision": "GATE_PASS_EXECUTION_NO_GO",
+  "evaluatedAt": "2026-10-08T12:25:00+07:00",
+  "sourceOfTruth": "LEGACY",
+  "legacyRuntime": {
+    "service": "ckrr-line-gateway",
+    "revision": "ckrr-line-gateway-ownerui-20261006a",
+    "trafficPercent": 100,
+    "imageDigest": "sha256:272fc4db43213b50b90387477d7f0e864f8c2d9cd0a4354c2b1608effea87d7f",
+    "backendAuthority": "GAS",
+    "smoke": {
+      "root": 200,
+      "liff": 200,
+      "health": 200
+    },
+    "errorLookbackMinutes": 30,
+    "errorCount": 0
+  },
+  "projectBProduction": {
+    "baseline": {
+      "apiRevision": "ckace-hr-api-prod-m9-6-stage-20261007a",
+      "apiTrafficPercent": 100,
+      "webRevision": "ckace-hr-web-prod-m9-6-stage-20261007a",
+      "webTrafficPercent": 100
+    },
+    "candidate": {
+      "apiRevision": "ckace-hr-api-prod-m10d2d",
+      "apiTrafficPercent": 0,
+      "apiDigest": "sha256:d81150489bc92de5b5ee0ccef26744629c2067210f64c1c311b3149bbe7888b4",
+      "webRevision": "ckace-hr-web-prod-m10d2b",
+      "webTrafficPercent": 0,
+      "webDigest": "sha256:1af21f148f26793fd2655ffcba89f7aff32a0dea1982ee13d312ab7df3c62216"
+    },
+    "currentAuthority": "LEGACY"
+  },
+  "delta": {
+    "rawChangedRecords": 27,
+    "added": 0,
+    "removed": 0,
+    "actionableCanonicalChanges": 6,
+    "sourceInconsistencies": 1,
+    "representationOrExpectedModelDrift": 20,
+    "requiresBoundedDeltaImport": true,
+    "deltaImportedByM10D3": false
+  },
+  "identity": {
+    "activeAccounts": 20,
+    "lineLinkedActiveAccounts": 19,
+    "desktopActivatedAccounts": 0,
+    "activeUnlinkedExceptions": 1,
+    "disposition": "FAIL_CLOSED_UNTIL_OWNER_VERIFIED_IDENTITY_REMEDIATION_OR_EXPLICIT_LAUNCH_EXCLUSION"
+  },
+  "executionPrerequisites": [
+    "ENTER_BOUNDED_LEAVE_WRITE_FREEZE",
+    "RECAPTURE_FINAL_LEGACY_SNAPSHOTS_USING_SAME_FIVE_SOURCE_DESCRIPTORS",
+    "RESOLVE_OR_EXPLICITLY_DISPOSITION_LEV_0106_SOURCE_CURRENT_STEP_INCONSISTENCY",
+    "IMPORT_ONLY_RECONCILED_CHANGED_OR_ADDED_RECORDS",
+    "RUN_FINAL_LEAVE_RECONCILIATION_AND_MIGRATION_REPORT_COVERAGE",
+    "OWNER_VERIFY_REMEDIATION_OR_EXPLICIT_EXCLUSION_FOR_ONE_ACTIVE_UNLINKED_IDENTITY",
+    "EXPLICIT_OWNER_APPROVAL_FOR_PAIRED_LEAVE_READ_WRITE_AUTHORITY_SWITCH",
+    "PRODUCTION_SMOKE_AND_MONITORING_THEN_RELEASE_FREEZE"
+  ],
+  "prohibitedWithoutNextApproval": [
+    "PRODUCTION_WRITE_FREEZE",
+    "PRODUCTION_DELTA_IMPORT",
+    "PRODUCTION_TRAFFIC_SWITCH",
+    "PRODUCTION_MODULE_AUTHORITY_SWITCH",
+    "SOURCE_OF_TRUTH_SWITCH",
+    "DNS_MUTATION",
+    "LINE_OR_LIFF_CONFIGURATION_MUTATION",
+    "GAS_MUTATION"
+  ],
+  "nextAction": {
+    "phase": "M10D.4_LEAVE_EXECUTION_WINDOW",
+    "ownerApprovalRequired": true,
+    "description": "Approve the bounded LEAVE execution window to freeze Legacy LEAVE writes, recapture final snapshots, reconcile/disposition LEV-0106, import only verified delta, run final reconciliation, then request/execute paired LEAVE authority switch if all gates pass."
+  }
+}

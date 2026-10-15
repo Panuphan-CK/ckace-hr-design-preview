@@ -1,0 +1,223 @@
+{
+  "schemaVersion": "m8.5-v1",
+  "mode": "READINESS_ONLY",
+  "productionMutationAuthorized": false,
+  "releaseAnchor": {
+    "releaseId": "ckace-hr-m8-rc-20261006a",
+    "apiImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-release@sha256:bef4064b47a4a1dfc6437522248243a60805299582b70e18087891e4c0aaee2b",
+    "webImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-release@sha256:aced93f23bc778bb33ff7c825b36763e450312c5ad143c7cd0ba19e184a1da49",
+    "sourceSha256": "e7c189bc9a60030cc69167a090ccfafc8e190316d452cb2103fb582bfd5cb619",
+    "migrationSetSha256": "0f21a111f6fd30a06378d51900e1b0974b91d04aba636366fea5e682e54fabe5"
+  },
+  "observability": {
+    "health": {
+      "path": "/api/health",
+      "testStatus": 200,
+      "required": {
+        "ok": true,
+        "stage": "test",
+        "runtime": "NON_PRODUCTION",
+        "moduleRouting": "LEGACY"
+      },
+      "productionExpected": {
+        "ok": true,
+        "stage": "production",
+        "runtime": "PRODUCTION",
+        "moduleRouting": "LEGACY"
+      },
+      "includes": [
+        "serviceRevision",
+        "contractVersion"
+      ]
+    },
+    "readiness": {
+      "path": "/api/ready",
+      "testStatus": 200,
+      "required": {
+        "ok": true,
+        "database": "connected",
+        "stage": "test",
+        "moduleRouting": "LEGACY"
+      },
+      "productionExpected": {
+        "ok": true,
+        "database": "connected",
+        "stage": "production",
+        "moduleRouting": "LEGACY"
+      }
+    },
+    "platformLogs": {
+      "provider": "Google Cloud Run request logs",
+      "testEvidence": true,
+      "fieldsVerified": [
+        "httpRequest.status",
+        "httpRequest.latency",
+        "trace",
+        "spanId",
+        "revision_name",
+        "service_name"
+      ]
+    },
+    "alerts": [
+      {
+        "id": "revision-not-ready",
+        "trigger": "Cloud Run revision Ready is not True before traffic assignment",
+        "action": "ABORT_BEFORE_TRAFFIC",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "readiness-failure",
+        "trigger": "/api/ready is non-200 or database != connected after cutover",
+        "action": "ROLLBACK_IMMEDIATELY",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "health-failure",
+        "trigger": "Two consecutive /api/health non-200 or release/stage/routing mismatch within 60 seconds",
+        "action": "ROLLBACK_IMMEDIATELY",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "server-error-rate",
+        "trigger": "At least 3 HTTP 5xx in 5 minutes OR >=5% 5xx with >=20 requests in 5 minutes",
+        "action": "HOLD_TRAFFIC_AND_ROLLBACK_IF_NOT_TRANSIENT",
+        "severity": "HIGH"
+      },
+      {
+        "id": "latency-regression",
+        "trigger": "p95 request latency >3 seconds for 10 minutes on core HR routes",
+        "action": "HOLD_CUTOVER_AND_INVESTIGATE",
+        "severity": "HIGH"
+      },
+      {
+        "id": "auth-regression",
+        "trigger": "Protected route unexpectedly returns success signed-out, or authenticated UAT loses valid actor/session behavior",
+        "action": "ROLLBACK_IMMEDIATELY",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "attachment-storage-failure",
+        "trigger": "Two consecutive R2 upload/download/finalize failures during cutover validation",
+        "action": "HOLD_CUTOVER_AND_ROLLBACK_AFFECTED_MODULE",
+        "severity": "HIGH"
+      }
+    ],
+    "productionPoliciesProvisioned": false,
+    "productionPolicyProvisioningOwnerGated": true
+  },
+  "rollbackRehearsal": {
+    "api": {
+      "service": "ckace-hr-api-rollback-rehearsal-test",
+      "private": true,
+      "baselineRevision": "ckace-hr-api-rollback-rehearsal-test-baseline",
+      "baselineImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-test@sha256:2c463c601c9c9e6af3d1e24a45dd19d26bd33d731ab721868bdbca9945e6705f",
+      "candidateRevision": "ckace-hr-api-rollback-rehearsal-test-rc",
+      "candidateImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-release@sha256:bef4064b47a4a1dfc6437522248243a60805299582b70e18087891e4c0aaee2b",
+      "candidateReady": true,
+      "forwardTrafficPercent": 100,
+      "rollbackTrafficPercent": 100,
+      "finalRevision": "ckace-hr-api-rollback-rehearsal-test-baseline",
+      "result": "PASS"
+    },
+    "web": {
+      "service": "ckace-hr-web-rollback-rehearsal-test",
+      "private": true,
+      "baselineRevision": "ckace-hr-web-rollback-rehearsal-test-baseline",
+      "baselineImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-test@sha256:7d9752ec23bd90d9c7b49d1b1eaaa7a83e9233f1f8d67d1f4b17ac90403aafad",
+      "candidateRevision": "ckace-hr-web-rollback-rehearsal-test-rc",
+      "candidateImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-release@sha256:aced93f23bc778bb33ff7c825b36763e450312c5ad143c7cd0ba19e184a1da49",
+      "candidateReady": true,
+      "forwardTrafficPercent": 100,
+      "rollbackTrafficPercent": 100,
+      "finalRevision": "ckace-hr-web-rollback-rehearsal-test-baseline",
+      "result": "PASS"
+    },
+    "primaryTestServicesUnchanged": {
+      "api": {
+        "service": "ckace-hr-api-test",
+        "revision": "ckace-hr-api-test-00012-lwk",
+        "trafficPercent": 100
+      },
+      "web": {
+        "service": "ckace-hr-web-test",
+        "revision": "ckace-hr-web-test-00001-nwx",
+        "trafficPercent": 100
+      }
+    }
+  },
+  "backupRecovery": {
+    "database": {
+      "evidenceSource": "M8.3",
+      "mode": "NON_PRODUCTION_DATABASE_COPY",
+      "migrationCount": 5,
+      "recoveredFingerprint": "faf3daecb280265054ffe2b3a909eccb00effedd21d02a7b8c387c0bb757b2ea",
+      "snapshotMatch": true,
+      "recoveredMatch": true,
+      "result": "PASS",
+      "productionRequirement": {
+        "preCutoverSnapshotRequired": true,
+        "providerNativeRecoveryCapabilityMustBeVerifiedAtProvisioning": true,
+        "retention": "RETAIN_THROUGH_M10_STABILIZATION_AND_UNTIL_EXPLICIT_OWNER_CLEANUP_APPROVAL"
+      }
+    },
+    "objectStorage": {
+      "evidenceSource": "M8.5",
+      "mode": "TEST_OBJECT_COPY_RESTORE",
+      "testBucket": "ckace-hr-test-private",
+      "job": "ckace-hr-m8-r2-restore-test",
+      "execution": "ckace-hr-m8-r2-restore-test-trxfl",
+      "harnessBuildId": "a6c5e23a-9424-4ec7-841b-3153bc34e63a",
+      "harnessImageDigest": "sha256:7445bf8b16c329c8aa5095d27fe5df95b1f8e796260283003cfc431dcd04ad19",
+      "checksumSha256": "8b6623f0dc5d930c90f90bfa905cabefb6f1a0bd87afd3b416ffce89a699f6a9",
+      "backupMatch": true,
+      "mutationDetected": true,
+      "restoreMatch": true,
+      "evidenceObjectsRetained": true,
+      "sameFaultDomainRehearsal": true,
+      "result": "PASS",
+      "productionRequirement": {
+        "independentPrivateBackupRequired": true,
+        "plannedBackupBucket": "ckace-hr-prod-backup-private",
+        "provisioned": false,
+        "ownerApprovalRequired": true,
+        "retention": "RETAIN_THROUGH_M10_STABILIZATION_AND_UNTIL_EXPLICIT_OWNER_CLEANUP_APPROVAL"
+      }
+    },
+    "coordinatedRestoreOrder": [
+      "STOP_NEW_PROJECT_B_WRITES_OR_KEEP_ROUTING_LEGACY",
+      "RESTORE_AND_VERIFY_PRIVATE_OBJECT_BYTES",
+      "RESTORE_DATABASE_TO_MATCHING_SNAPSHOT_BOUNDARY",
+      "RUN_SCHEMA_MIGRATION_AND_RECONCILIATION_GATES",
+      "VERIFY_HEALTH_READINESS_AND_ATTACHMENT_CHECKSUMS",
+      "RESUME_TRAFFIC_ONLY_AFTER_OWNER_APPROVAL"
+    ]
+  },
+  "abortConditions": [
+    "IMMUTABLE_RELEASE_DIGEST_MISMATCH",
+    "REVISION_NOT_READY",
+    "HEALTH_OR_READINESS_FAILURE",
+    "DATABASE_RECONCILIATION_FAIL",
+    "BACKUP_EVIDENCE_MISSING",
+    "R2_RESTORE_OR_CHECKSUM_FAIL",
+    "AUTH_OR_SESSION_REGRESSION",
+    "AMBIGUOUS_BUSINESS_WRITE_OR_UNKNOWN_COMMIT_STATE"
+  ],
+  "ownership": {
+    "developmentLead": "MONITOR_DIAGNOSE_RECOMMEND_AND_VERIFY",
+    "owner": "EXPLICITLY_APPROVE_ANY_PRODUCTION_TRAFFIC_OR_ROLLBACK_MUTATION",
+    "executor": "EXECUTE_ONLY_AFTER_OWNER_GATE",
+    "qa": "VERIFY_POST_CHANGE_HEALTH_READINESS_RECONCILIATION_AND_CORE_UAT"
+  },
+  "productionGates": {
+    "rollbackMutationOwnerApprovalRequired": true,
+    "alertPolicyProvisioningOwnerApprovalRequired": true,
+    "backupResourceProvisioningOwnerApprovalRequired": true,
+    "routingRemains": "LEGACY"
+  },
+  "evidenceResidue": {
+    "isolatedRollbackServicesRetained": true,
+    "r2EvidenceObjectsRetained": true,
+    "destructiveCleanupPerformed": false,
+    "cleanupRequiresExplicitOwnerApproval": true
+  }
+}

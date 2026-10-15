@@ -1,0 +1,30 @@
+{
+  "displayName": "CKACE HR PROD - Server Error Rate",
+  "combiner": "OR",
+  "enabled": true,
+  "documentation": {
+    "content": "At least 3 API 5xx responses in a 5-minute aligned window. Hold cutover and investigate.",
+    "mimeType": "text/markdown"
+  },
+  "conditions": [
+    {
+      "displayName": "API 5xx >= 3 in 5m",
+      "conditionThreshold": {
+        "filter": "metric.type = \"run.googleapis.com/request_count\" AND resource.type = \"cloud_run_revision\" AND resource.label.service_name = \"ckace-hr-api-prod\" AND metric.label.response_code_class = \"5xx\"",
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 2,
+        "duration": "0s",
+        "trigger": {
+          "count": 1
+        },
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_SUM",
+            "crossSeriesReducer": "REDUCE_SUM"
+          }
+        ]
+      }
+    }
+  ]
+}

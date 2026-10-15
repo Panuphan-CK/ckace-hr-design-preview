@@ -1,0 +1,26 @@
+{
+  "hosting": {
+    "public": "infra/firebase/static",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "ckace-hr-api-test",
+          "region": "asia-southeast1"
+        }
+      },
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "ckace-hr-web-test",
+          "region": "asia-southeast1"
+        }
+      }
+    ]
+  }
+}

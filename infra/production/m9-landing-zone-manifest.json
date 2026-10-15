@@ -1,0 +1,361 @@
+{
+  "schemaVersion": "m9.4-v1",
+  "mode": "PRODUCTION_LANDING_ZONE_READINESS_PLAN_ONLY",
+  "productionMutationAuthorized": false,
+  "observedAt": "2026-10-06T21:47:20+07:00",
+  "target": {
+    "gcpProjectId": "ckrr-leave-system-2026",
+    "region": "asia-southeast1",
+    "apiService": "ckace-hr-api-prod",
+    "webService": "ckace-hr-web-prod",
+    "runtimeServiceAccount": "ckace-hr-prod@ckrr-leave-system-2026.iam.gserviceaccount.com",
+    "firebaseSite": "ckace-hr-prod",
+    "domain": "hr.ckaceaccount.com",
+    "databaseName": "ckace_hr_prod",
+    "r2PrimaryBucket": "ckace-hr-prod-private",
+    "r2BackupBucket": "ckace-hr-prod-backup-private",
+    "moduleRouting": "LEGACY"
+  },
+  "liveInventory": {
+    "cloudRun": {
+      "productionServices": [],
+      "productionServicesPresent": false,
+      "legacyGateway": {
+        "service": "ckrr-line-gateway",
+        "revision": "ckrr-line-gateway-ownerui-20261006a",
+        "trafficPercent": 100
+      }
+    },
+    "iam": {
+      "runtimeServiceAccountPresent": false,
+      "runtimeServiceAccountProjectWideRoles": []
+    },
+    "secretManager": {
+      "requiredProductionSecrets": [
+        "ckace-hr-neon-prod-database-url",
+        "ckace-hr-prod-bridge-secret",
+        "ckace-hr-prod-r2-access-key-id",
+        "ckace-hr-prod-r2-secret-access-key"
+      ],
+      "presentProductionSecrets": [],
+      "missingProductionSecrets": [
+        "ckace-hr-neon-prod-database-url",
+        "ckace-hr-prod-bridge-secret",
+        "ckace-hr-prod-r2-access-key-id",
+        "ckace-hr-prod-r2-secret-access-key"
+      ],
+      "observedNeonSecrets": [
+        "ckace-hr-neon-dev-database-url"
+      ]
+    },
+    "monitoring": {
+      "alertPolicyCount": 0,
+      "productionAlertPoliciesPresent": false
+    },
+    "dns": {
+      "domain": "hr.ckaceaccount.com",
+      "state": "NXDOMAIN"
+    },
+    "firebase": {
+      "localCliAvailable": false,
+      "productionConfigFile": "firebase.prod.json",
+      "plannedSite": "ckace-hr-prod",
+      "liveProductionSiteVerified": false,
+      "observabilityStatus": "UNVERIFIED_FIREBASE_CLI_UNAVAILABLE"
+    },
+    "neon": {
+      "localProjectConfigId": "flat-tree-71711157",
+      "connectorStatus": "AUTH_401",
+      "productionDatabase": "ckace_hr_prod",
+      "liveProductionDatabaseVerified": false,
+      "observabilityStatus": "UNVERIFIED_CONNECTOR_AUTH_FAILURE",
+      "readinessRule": "DO_NOT_CLAIM_PROVISIONED_UNTIL_OWNER_APPROVED_CREATION_OR_SUCCESSFUL_LIVE_VERIFICATION"
+    },
+    "r2": {
+      "providerInventoryReadableFromCurrentToolchain": false,
+      "primaryBucket": "ckace-hr-prod-private",
+      "backupBucket": "ckace-hr-prod-backup-private",
+      "productionCredentialSecretsPresent": false,
+      "observabilityStatus": "UNVERIFIED_PROVIDER_INVENTORY",
+      "readinessRule": "DO_NOT_CLAIM_PROVISIONED_UNTIL_OWNER_APPROVED_CREATION_AND_LIVE_PRIVATE_ACCESS_VERIFICATION"
+    }
+  },
+  "completedM9Prerequisites": [
+    {
+      "id": "SERVER_SIDE_MODULE_ROUTING_PLANE",
+      "status": "PASS",
+      "source": "M9.1"
+    },
+    {
+      "id": "ROUTING_CONTRACT_FULL_M7_SURFACE_COVERAGE",
+      "status": "PASS",
+      "source": "M9.1"
+    },
+    {
+      "id": "BOUNDED_MODULE_WRITE_FREEZE_CONTROL",
+      "status": "PASS",
+      "source": "M9.1"
+    },
+    {
+      "id": "ROUTING_FREEZE_SECURITY_FAILURE_QA",
+      "status": "PASS",
+      "source": "M9.2"
+    },
+    {
+      "id": "NAMED_MODULE_DELTA_RECONCILIATION_TOOLING",
+      "status": "PASS",
+      "source": "M9.3"
+    },
+    {
+      "id": "FRESH_POST_M9_IMMUTABLE_RELEASE_CANDIDATE",
+      "status": "PASS",
+      "source": "M9.5"
+    }
+  ],
+  "blockingBeforeProductionDeployOrSwitch": [
+    {
+      "id": "EXPLICIT_OWNER_PROVISIONING_APPROVAL",
+      "status": "BLOCKING_OWNER_GATED"
+    },
+    {
+      "id": "PRODUCTION_LANDING_ZONE_PROVISIONED",
+      "status": "BLOCKING_OWNER_GATED"
+    },
+    {
+      "id": "PRODUCTION_ALERT_POLICIES_ACTIVE",
+      "status": "BLOCKING_OWNER_GATED"
+    },
+    {
+      "id": "PRODUCTION_DB_BACKUP_RECOVERY_VERIFIED",
+      "status": "BLOCKING_OWNER_GATED"
+    },
+    {
+      "id": "PRODUCTION_R2_INDEPENDENT_BACKUP_VERIFIED",
+      "status": "BLOCKING_OWNER_GATED"
+    },
+    {
+      "id": "LIVE_LEGACY_BASELINE_REFRESH",
+      "status": "BLOCKING_BEFORE_SWITCH"
+    },
+    {
+      "id": "NAMED_MODULE_RECONCILIATION_PASS",
+      "status": "BLOCKING_BEFORE_SWITCH"
+    },
+    {
+      "id": "EXPLICIT_OWNER_APPROVAL_FOR_NAMED_PRODUCTION_SWITCH",
+      "status": "BLOCKING_OWNER_GATED"
+    }
+  ],
+  "freshRelease": {
+    "historicalReleaseId": "ckace-hr-m8-rc-20261006a",
+    "historicalReleaseReusableForM9ProductionDeploy": false,
+    "reason": "M9.1-M9.3 changed runtime build inputs after the M8.4 frozen release.",
+    "freshPostM9ReleaseRequired": true,
+    "status": "BUILT_VERIFIED",
+    "releaseId": "ckace-hr-m9-rc-20261006a",
+    "sourceArtifactInputSha256": "478e320df30215adb79965abbbe54c34db3c02ac5da41b6669bfa23c850f86a2",
+    "migrationSetSha256": "0f21a111f6fd30a06378d51900e1b0974b91d04aba636366fea5e682e54fabe5",
+    "apiImmutableRef": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-release@sha256:8a14832c4361e4813e786899ee169a93fa4e07beafcb4866771a950d198bb88b",
+    "webImmutableRef": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-release@sha256:a7bc1b9b729518a47345a610a96b7927e5f81defb00fc9ac702f46344656aeeb"
+  },
+  "provisioningPlan": {
+    "executionMode": "PLAN_ONLY_NON_EXECUTABLE",
+    "ownerApprovalRequired": true,
+    "phases": [
+      {
+        "id": "P1_IDENTITY_AND_SECRET_CONTAINERS",
+        "wouldMutateProduction": true,
+        "ownerApprovalRequired": true,
+        "executionStatus": "NOT_AUTHORIZED",
+        "actions": [
+          {
+            "operation": "CREATE_SERVICE_ACCOUNT",
+            "resource": "ckace-hr-prod@ckrr-leave-system-2026.iam.gserviceaccount.com"
+          },
+          {
+            "operation": "CREATE_SECRET",
+            "resource": "ckace-hr-neon-prod-database-url"
+          },
+          {
+            "operation": "CREATE_SECRET",
+            "resource": "ckace-hr-prod-bridge-secret"
+          },
+          {
+            "operation": "CREATE_SECRET",
+            "resource": "ckace-hr-prod-r2-access-key-id"
+          },
+          {
+            "operation": "CREATE_SECRET",
+            "resource": "ckace-hr-prod-r2-secret-access-key"
+          },
+          {
+            "operation": "GRANT_EXACT_SECRET_ACCESSOR_ONLY",
+            "resource": "ckace-hr-prod runtime service account"
+          }
+        ]
+      },
+      {
+        "id": "P2_DATABASE_AND_PRIVATE_OBJECT_STORAGE",
+        "wouldMutateProduction": true,
+        "ownerApprovalRequired": true,
+        "executionStatus": "NOT_AUTHORIZED",
+        "actions": [
+          {
+            "operation": "CREATE_DEDICATED_NEON_PRODUCTION_BOUNDARY",
+            "resource": "ckace_hr_prod"
+          },
+          {
+            "operation": "VERIFY_NEON_NATIVE_BACKUP_OR_PITR",
+            "resource": "Production Neon"
+          },
+          {
+            "operation": "CREATE_PRIVATE_R2_PRIMARY_BUCKET",
+            "resource": "ckace-hr-prod-private"
+          },
+          {
+            "operation": "CREATE_PRIVATE_R2_INDEPENDENT_BACKUP_BUCKET",
+            "resource": "ckace-hr-prod-backup-private"
+          },
+          {
+            "operation": "CREATE_BUCKET_SCOPED_RUNTIME_CREDENTIALS",
+            "resource": "ckace-hr-prod-private"
+          },
+          {
+            "operation": "STORE_OWNER_APPROVED_SECRET_VERSIONS",
+            "resource": "four CKACE_HR Production secrets"
+          }
+        ]
+      },
+      {
+        "id": "P3_FRESH_POST_M9_RELEASE",
+        "wouldMutateProduction": false,
+        "ownerApprovalRequired": false,
+        "executionStatus": "COMPLETED_NON_PRODUCTION_BUILD",
+        "actions": [
+          {
+            "operation": "BUILD_FRESH_API_IMMUTABLE_IMAGE",
+            "resource": "ckace-hr-api-release"
+          },
+          {
+            "operation": "BUILD_FRESH_WEB_IMMUTABLE_IMAGE",
+            "resource": "ckace-hr-web-release"
+          },
+          {
+            "operation": "VERIFY_SOURCE_SCHEMA_MIGRATION_AND_REGISTRY_DIGESTS",
+            "resource": "fresh post-M9 release manifest"
+          }
+        ]
+      },
+      {
+        "id": "P4_CLOUD_RUN_AND_FIREBASE",
+        "wouldMutateProduction": true,
+        "ownerApprovalRequired": true,
+        "executionStatus": "NOT_AUTHORIZED",
+        "dependencies": [
+          "P1_IDENTITY_AND_SECRET_CONTAINERS",
+          "P2_DATABASE_AND_PRIVATE_OBJECT_STORAGE",
+          "P3_FRESH_POST_M9_RELEASE"
+        ],
+        "actions": [
+          {
+            "operation": "CREATE_PRODUCTION_API_SERVICE",
+            "resource": "ckace-hr-api-prod"
+          },
+          {
+            "operation": "CREATE_PRODUCTION_WEB_SERVICE",
+            "resource": "ckace-hr-web-prod"
+          },
+          {
+            "operation": "BIND_DEDICATED_RUNTIME_SERVICE_ACCOUNT",
+            "resource": "both Production Cloud Run services"
+          },
+          {
+            "operation": "CONFIGURE_STAGE_AND_LEGACY_ROUTING",
+            "resource": "CKACE_RUNTIME_STAGE=production; CKACE_MODULE_ROUTING=LEGACY"
+          },
+          {
+            "operation": "ATTACH_ONLY_APPROVED_SECRET_REFS",
+            "resource": "Production API"
+          },
+          {
+            "operation": "CREATE_FIREBASE_HOSTING_SITE",
+            "resource": "ckace-hr-prod"
+          },
+          {
+            "operation": "DEPLOY_FIREBASE_REWRITES_TO_PRODUCTION_SERVICES",
+            "resource": "firebase.prod.json"
+          },
+          {
+            "operation": "KEEP_MODULE_AUTHORITY_LEGACY",
+            "resource": "all modules"
+          }
+        ]
+      },
+      {
+        "id": "P5_OBSERVABILITY_AND_RECOVERY",
+        "wouldMutateProduction": true,
+        "ownerApprovalRequired": true,
+        "executionStatus": "NOT_AUTHORIZED",
+        "actions": [
+          {
+            "operation": "CREATE_M8_5_ALERT_POLICIES",
+            "resource": "7 Production alert contracts"
+          },
+          {
+            "operation": "VERIFY_PRODUCTION_DATABASE_BACKUP_RECOVERY",
+            "resource": "ckace_hr_prod"
+          },
+          {
+            "operation": "VERIFY_R2_PRIMARY_TO_INDEPENDENT_BACKUP_RESTORE",
+            "resource": "ckace-hr-prod-private -> ckace-hr-prod-backup-private"
+          },
+          {
+            "operation": "VERIFY_HEALTH_READINESS_LOGGING",
+            "resource": "Production API/Web"
+          }
+        ]
+      },
+      {
+        "id": "P6_DOMAIN_STAGING",
+        "wouldMutateProduction": true,
+        "ownerApprovalRequired": true,
+        "executionStatus": "NOT_AUTHORIZED",
+        "dependencies": [
+          "P4_CLOUD_RUN_AND_FIREBASE",
+          "P5_OBSERVABILITY_AND_RECOVERY"
+        ],
+        "actions": [
+          {
+            "operation": "ATTACH_CUSTOM_DOMAIN",
+            "resource": "hr.ckaceaccount.com"
+          },
+          {
+            "operation": "CREATE_OWNER_APPROVED_DNS_RECORDS",
+            "resource": "hr.ckaceaccount.com"
+          },
+          {
+            "operation": "WAIT_FOR_MANAGED_TLS_READY",
+            "resource": "hr.ckaceaccount.com"
+          },
+          {
+            "operation": "VERIFY_TARGET_ORIGIN_WITHOUT_LINE_SWITCH",
+            "resource": "https://hr.ckaceaccount.com"
+          }
+        ]
+      }
+    ]
+  },
+  "explicitlyExcludedFromM9_4Execution": [
+    "PRODUCTION_LINE_LIFF_LOGIN_MESSAGING_RICH_MENU_CHANGE",
+    "GAS_PRODUCTION_CHANGE",
+    "PRODUCTION_SOURCE_OF_TRUTH_SWITCH",
+    "MODULE_AUTHORITY_SWITCH_FROM_LEGACY_TO_NEW",
+    "PRODUCTION_DATA_IMPORT",
+    "GAS_RETIREMENT"
+  ],
+  "ownerDecision": {
+    "current": "HOLD",
+    "reason": "Preparation may complete without Production mutation; every mutating provisioning phase remains explicit Owner-gated.",
+    "approvalScopeMustBeNamed": true
+  }
+}

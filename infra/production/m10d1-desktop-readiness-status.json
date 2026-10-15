@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "m10d1-v1",
+  "phase": "M10D.1_DESKTOP_PRODUCTION_READINESS",
+  "mode": "READINESS_ONLY_NO_PRODUCTION_DEPLOY",
+  "observedDate": "2026-10-08",
+  "productionMutationAuthorized": false,
+  "productionDeployAuthorized": false,
+  "productionAuthoritySwitchAuthorized": false,
+  "decision": "NO_GO_PRODUCTION_DESKTOP_DEPLOY_OR_CUTOVER",
+  "liveProductionRuntime": {
+    "sourceOfTruth": "LEGACY",
+    "moduleRouting": "LEGACY",
+    "api": {
+      "service": "ckace-hr-api-prod",
+      "revision": "ckace-hr-api-prod-m9-6-stage-20261007a",
+      "trafficPercent": 100,
+      "imageDigest": "sha256:8a14832c4361e4813e786899ee169a93fa4e07beafcb4866771a950d198bb88b",
+      "dedicatedServiceAccount": true,
+      "desktopSessionSecretBound": false
+    },
+    "web": {
+      "service": "ckace-hr-web-prod",
+      "revision": "ckace-hr-web-prod-m9-6-stage-20261007a",
+      "trafficPercent": 100,
+      "imageDigest": "sha256:a7bc1b9b729518a47345a610a96b7927e5f81defb00fc9ac702f46344656aeeb"
+    },
+    "firebase": {
+      "site": "ckace-hr-prod",
+      "defaultUrl": "https://ckace-hr-prod.web.app",
+      "healthStatus": 200,
+      "readinessStatus": 200,
+      "signedOutSessionStatus": 401,
+      "loginRouteStatus": 404,
+      "desktopRouteStatus": 404
+    },
+    "customDomain": {
+      "domain": "hr.ckaceaccount.com",
+      "dnsState": "NXDOMAIN"
+    },
+    "monitoring": {
+      "alertPoliciesVerified": 7,
+      "uptimeChecksVerified": 4,
+      "alertPolicies": [
+        "CKACE HR PROD - Auth Regression",
+        "CKACE HR PROD - Server Error Rate",
+        "CKACE HR PROD - Health Failure",
+        "CKACE HR PROD - Revision Not Ready",
+        "CKACE HR PROD - Attachment Storage Failure",
+        "CKACE HR PROD - Readiness Failure",
+        "CKACE HR PROD - Latency Regression"
+      ],
+      "uptimeChecks": [
+        "CKACE HR PROD Auth Guard",
+        "CKACE HR PROD Health",
+        "CKACE HR PROD Ready",
+        "CKACE HR PROD Web"
+      ]
+    }
+  },
+  "liveProductionDatabase": {
+    "neonProjectId": "falling-paper-66157438",
+    "neonProjectName": "CKACE HR PROD",
+    "region": "aws-ap-southeast-1",
+    "branchId": "br-flat-sky-b3swsapw",
+    "branchName": "production",
+    "databaseName": "ckace_hr_prod",
+    "postgresMajorVersion": 18,
+    "applicationTables": 41,
+    "prismaMigrationTablePresent": false,
+    "counts": {
+      "employees": 25,
+      "userAccounts": 25,
+      "activeAccounts": 20,
+      "resignedAccounts": 5,
+      "roles": 4,
+      "userRoles": 25,
+      "permissions": 0,
+      "rolePermissions": 0,
+      "modernPasswordHashes": 0,
+      "legacyPasswordHashes": 0,
+      "lineAccounts": 24,
+      "leaveRequests": 192,
+      "leaveEntitlements": 69,
+      "approvalPolicies": 3,
+      "approvalPolicySteps": 8,
+      "approvalInstances": 108,
+      "approvalSteps": 302,
+      "attachments": 13,
+      "legacyRecords": 654,
+      "migrationRuns": 1,
+      "migrationReconciliationResults": 0,
+      "attendanceRecords": 0,
+      "timeCorrections": 0,
+      "overtimeRequests": 0,
+      "medicalClaims": 0,
+      "benefitPolicies": 0,
+      "attendancePolicies": 0
+    },
+    "migrationRun": {
+      "id": "e6f8374c-2d24-4661-877d-56758105f774",
+      "sourceSystem": "APP_LEAVE_GAS",
+      "sourceSnapshot": "0f5b994dd80773818fb68dcd8a0762945a725b1e68678b9e7ae16014130eaf93",
+      "transformerVersion": "m9.8-leave-prod-baseline-v1",
+      "status": "COMPLETED_WITH_EXCEPTIONS",
+      "importedCount": 654,
+      "skippedCount": 0,
+      "rejectedCount": 0,
+      "mismatchCount": 86,
+      "createdAt": "2026-10-07T06:58:06.814Z"
+    },
+    "historicalDrift": {
+      "staleEvidence": "infra/production/m9.8-leave-execution-status.json",
+      "staleClaimApplicationTables": 0,
+      "staleClaimProductionBusinessDataImported": false,
+      "liveStateOverridesHistoricalManifest": true
+    }
+  },
+  "freshDesktopRelease": {
+    "manifest": "infra/production/m10d1-release-manifest.json",
+    "releaseId": "ckace-hr-m10d1-rc-20261008a",
+    "sourceSha256": "2edb9151f27f35041ddd735c7683d55511f5fed43494371c9565de9a13f3331a",
+    "schemaChangedSinceM9_5": false,
+    "apiDigest": "sha256:9e8f2c95d83c23447fe1cc3ac70f779227e5f1073beeadf3448e5632154ec720",
+    "webDigest": "sha256:b054a993a70dbbd29d2087b392cef04ff3b24f0a1291d03109bd8af102624fd9",
+    "productionDeployed": false
+  },
+  "rollbackAndRecovery": {
+    "existingProductionApiRevision": "ckace-hr-api-prod-m9-6-stage-20261007a",
+    "existingProductionWebRevision": "ckace-hr-web-prod-m9-6-stage-20261007a",
+    "currentProductionImagesRemainUntouched": true,
+    "neonHistoricalRestoreProof": "PASS_M9_6",
+    "r2HistoricalIndependentRestoreProof": "PASS_M9_6",
+    "postNewWriteRule": "STOP_WRITES_AND_RECONCILE_BEFORE_ANY_SOURCE_OF_TRUTH_ROLLBACK",
+    "productionRollbackMutationRequiresOwnerApproval": true
+  },
+  "blockers": [
+    {
+      "id": "LIVE_PRODUCTION_DATA_STATE_DRIFT_REQUIRES_RECONCILIATION_EVIDENCE",
+      "detail": "Live Production contains imported schema/data that contradicts the historical M9.8 zero-table/no-import status. The existing 654-row migration run has 86 mismatches and no reconciliation-result rows."
+    },
+    {
+      "id": "PRODUCTION_SCHEMA_PROVENANCE_NOT_TRACKED_BY_PRISMA_MIGRATIONS",
+      "detail": "The Production database contains the application schema but no _prisma_migrations table. Schema provenance must be reconciled before future schema changes."
+    },
+    {
+      "id": "PRODUCTION_DESKTOP_AUTH_CREDENTIAL_STATE_NOT_READY",
+      "detail": "All 25 Production user accounts have neither modern passwordHash nor legacyPasswordHash; Desktop password authentication cannot succeed."
+    },
+    {
+      "id": "PRODUCTION_DESKTOP_RBAC_NOT_READY",
+      "detail": "Production has 0 permissions and 0 role_permissions, so server-derived Desktop navigation/authorization cannot grant module capability."
+    },
+    {
+      "id": "PRODUCTION_DESKTOP_SESSION_SECRET_NOT_BOUND",
+      "detail": "Production API has no Desktop session secret binding, and the planned Production Desktop session secret does not currently exist."
+    },
+    {
+      "id": "CURRENT_PRODUCTION_IMAGES_PRE_M9D_DESKTOP",
+      "detail": "Production API/Web are still M9.5/M9.6 images; the current Firebase Production front door returns 404 for /login and /desktop."
+    },
+    {
+      "id": "PRODUCTION_CUSTOM_DOMAIN_NOT_ACTIVE",
+      "detail": "hr.ckaceaccount.com remains NXDOMAIN; the Firebase default Production origin is the only verified front door."
+    }
+  ],
+  "ownerGatesBeforeNextMutation": [
+    "PRODUCTION_DATA_RECONCILIATION_OR_REPAIR",
+    "PRODUCTION_SCHEMA_BASELINE_OR_MIGRATION_HISTORY_REPAIR",
+    "PRODUCTION_PASSWORD_OR_IDENTITY_CREDENTIAL_POPULATION",
+    "PRODUCTION_PERMISSION_AND_ROLE_PERMISSION_SEED",
+    "PRODUCTION_DESKTOP_SESSION_SECRET_CREATE_OR_BIND",
+    "PRODUCTION_API_OR_WEB_DEPLOY",
+    "PRODUCTION_DNS_OR_CUSTOM_DOMAIN_CHANGE",
+    "ANY_MODULE_AUTHORITY_SWITCH_FROM_LEGACY_TO_NEW"
+  ],
+  "requiredNextAction": {
+    "phase": "M10D.2_PRODUCTION_IDENTITY_RBAC_DATA_RECONCILIATION",
+    "ownerApprovalRequired": true,
+    "scope": [
+      "Reconcile and disposition the existing Production migration run and 86 mismatches without deleting or rewriting source-qualified legacy evidence.",
+      "Establish an auditable Production schema baseline/migration-history strategy before any future schema mutation.",
+      "Define and execute an approved Production Desktop credential population strategy.",
+      "Seed canonical permissions/role_permissions and verify server-derived role capability mapping.",
+      "Create/bind a managed Production Desktop session secret only under explicit security approval.",
+      "After those gates pass, stage the fresh immutable API/Web release at 0% traffic and run authenticated Production UAT before any traffic switch."
+    ]
+  },
+  "safety": {
+    "productionBusinessDataWrittenByM10D1": false,
+    "productionSchemaChangedByM10D1": false,
+    "productionSecretOrIamChangedByM10D1": false,
+    "productionCloudRunOrFirebaseDeployedByM10D1": false,
+    "productionDnsChangedByM10D1": false,
+    "productionLineOrLiffChangedByM10D1": false,
+    "productionGasChangedByM10D1": false,
+    "moduleAuthorityChangedByM10D1": false,
+    "sourceOfTruth": "LEGACY"
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "m9.7-v1",
+  "mode": "PRE_CUTOVER_PREPARATION_ONLY",
+  "productionMutationAuthorized": false,
+  "module": "LEAVE",
+  "decision": "PASS_PRECUTOVER_PREP_OWNER_GATE_REQUIRED_NO_CUTOVER",
+  "authority": {
+    "read": "LEGACY",
+    "write": "LEGACY",
+    "sourceOfTruth": "LEGACY",
+    "moduleRouting": "LEGACY"
+  },
+  "legacyBaseline": {
+    "cloudRunService": "ckrr-line-gateway",
+    "revision": "ckrr-line-gateway-ownerui-20261006a",
+    "trafficPercent": 100,
+    "imageDigest": "sha256:272fc4db43213b50b90387477d7f0e864f8c2d9cd0a4354c2b1608effea87d7f",
+    "basicSmoke": {
+      "root": 200,
+      "liff": 200,
+      "health": 200
+    },
+    "quietWindow": {
+      "lookbackMinutes": 30,
+      "status": "PASS",
+      "errorEntries": 0,
+      "observedAt": "2026-10-07T05:51:15Z",
+      "mustRecheckImmediatelyBeforeFreeze": true,
+      "priorTransient502BatchObserved": true,
+      "priorBatchObservedAt": "2026-10-07T05:00:43Z"
+    }
+  },
+  "sourceContract": {
+    "sourceSystem": "APP_LEAVE_GAS",
+    "sources": [
+      {
+        "workbook": "CK&RR_Requests",
+        "tab": "UserPolicies",
+        "period": "CURRENT",
+        "purpose": "leave_entitlement"
+      },
+      {
+        "workbook": "Data_CK&RR_Requests",
+        "tab": "LeaveRequests",
+        "period": "CURRENT",
+        "purpose": "leave_request"
+      },
+      {
+        "workbook": "Data_CK&RR_Requests",
+        "tab": "LeaveRequests_2025",
+        "period": "2025",
+        "purpose": "leave_request_archive"
+      },
+      {
+        "workbook": "Data_CK&RR_Requests",
+        "tab": "ApprovalSteps",
+        "period": "CURRENT",
+        "purpose": "leave_approval_step"
+      },
+      {
+        "workbook": "Data_CK&RR_Requests",
+        "tab": "Attachments",
+        "period": "CURRENT",
+        "purpose": "leave_attachment_reference"
+      }
+    ],
+    "readOnlyExtractionRequired": true,
+    "sameDescriptorSetRequiredForFinalDelta": true,
+    "sourceQualifiedProvenanceRequired": true
+  },
+  "migrationCoverage": {
+    "entitlementTransformer": "leave-entitlement-v1",
+    "requestTransformer": "leave-request-v1",
+    "approvalStepTransformer": "leave-approval-step-v1",
+    "attachmentTransformer": "leave-attachment-v1",
+    "attachmentCoverageAddedInM9_7": true,
+    "attachmentPolicy": {
+      "privacyClass": "EMPLOYEE_PRIVATE",
+      "legacyRuntimeAuthority": "LEGACY_DRIVE_REFERENCE_ONLY_UNTIL_R2_COPY_CHECKSUM_AND_AUTHORIZATION_RECONCILE",
+      "archiveAssociationRule": "CURRENT_REQUEST_ONLY_DO_NOT_INFER_ARCHIVE_HISTORY_BY_LEAVE_ID"
+    },
+    "archiveApprovalHistoryRule": "PRESERVE_ARCHIVE_REQUESTS_WITH_SOURCE_QUALIFIED_PROVENANCE_AND_DO_NOT_ATTACH_CURRENT_STEPS_BY_LEGACY_ID"
+  },
+  "reconciliationGate": {
+    "requiresLegacyLegacyPreSwitchAuthority": true,
+    "requiresActiveWriteFreeze": true,
+    "requiresExactDeltaImportReportCoverage": true,
+    "requiresRemovedRecordReconciliation": true,
+    "requiresModuleReconciliation": true,
+    "requiresRuntimeHealthReadinessAuthenticationIdempotency": true,
+    "leaveChecks": [
+      "request_count",
+      "request_status_counts",
+      "leave_type_counts",
+      "duration_counts",
+      "entitlement_count",
+      "quota_total",
+      "attachment_count"
+    ]
+  },
+  "executionWindowPlan": {
+    "ownerApprovalRequiredBeforeProductionSchemaOrDataWrite": true,
+    "ownerApprovalRequiredBeforeWriteFreezeActivation": true,
+    "ownerApprovalRequiredBeforeAuthoritySwitch": true,
+    "steps": [
+      "RECHECK_LEGACY_QUIET_WINDOW_AND_IMMUTABLE_BASELINE",
+      "VERIFY_PRODUCTION_BACKUP_AND_RECOVERY_EVIDENCE",
+      "OWNER_APPROVES_LEAVE_EXECUTION_WINDOW",
+      "ENABLE_BOUNDED_LEAVE_WRITE_FREEZE",
+      "CAPTURE_FINAL_LEGACY_DELTA_READ_ONLY",
+      "APPLY_ONLY_SEPARATELY_APPROVED_PRODUCTION_SCHEMA_AND_DELTA_IMPORT",
+      "RUN_EXACT_RECONCILIATION_AND_KNOWN_EXCEPTION_GATES",
+      "VERIFY_NEW_RUNTIME_HEALTH_READINESS_AUTHENTICATION_AND_IDEMPOTENCY",
+      "OWNER_APPROVES_PAIRED_LEAVE_READ_WRITE_AUTHORITY_SWITCH",
+      "SWITCH_LEAVE_READ_AND_WRITE_AUTHORITY_TO_NEW_TOGETHER",
+      "RUN_ONLY_OWNER_APPROVED_PRODUCTION_SMOKE",
+      "RELEASE_FREEZE_ON_NEW_AUTHORITY",
+      "MONITOR_AND_RECONCILE"
+    ]
+  },
+  "rollback": {
+    "beforeFirstNewAuthorityBusinessWrite": [
+      "KEEP_OR_RESTORE_LEAVE_READ_WRITE_AUTHORITY_TO_LEGACY",
+      "DO_NOT_IMPORT_ADDITIONAL_DELTA",
+      "VERIFY_LEGACY_READS_AND_WRITES_HEALTHY"
+    ],
+    "afterAnyNewAuthorityBusinessWrite": [
+      "STOP_NEW_PROJECT_B_LEAVE_WRITES",
+      "DO_NOT_BLINDLY_ROUTE_WRITES_BACK_TO_LEGACY",
+      "IDENTIFY_ALL_PROJECT_B_LEAVE_WRITES_SINCE_SWITCH",
+      "RECONCILE_DATABASE_AND_ATTACHMENT_CHANGES",
+      "OWNER_APPROVES_FORWARD_FIX_OR_CONTROLLED_DATA_ROLLBACK",
+      "RESUME_EXACTLY_ONE_SOURCE_OF_TRUTH_AFTER_RECONCILIATION"
+    ]
+  },
+  "productionSafety": {
+    "productionBusinessDataImported": false,
+    "productionSchemaAppliedForModuleCutover": false,
+    "moduleAuthorityChanged": false,
+    "dnsChanged": false,
+    "lineChanged": false,
+    "gasChanged": false,
+    "legacyRetired": false
+  },
+  "verification": {
+    "targetedTests": {
+      "filesPassed": 2,
+      "testsPassed": 19
+    },
+    "migrationPackageTypecheck": "PASS",
+    "repositoryQa": {
+      "lint": "PASS",
+      "typecheck": "PASS",
+      "testFilesPassed": 54,
+      "testsPassed": 355,
+      "build": "PASS"
+    }
+  }
+}

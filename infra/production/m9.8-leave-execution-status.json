@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "m9.8-v1",
+  "mode": "OWNER_APPROVED_LEAVE_PRODUCTION_EXECUTION",
+  "ownerApproval": {
+    "recorded": true,
+    "scope": "LEAVE_PRODUCTION_EXECUTION_WINDOW",
+    "stillExcluded": [
+      "DNS_MUTATION",
+      "LINE_CONFIGURATION_MUTATION",
+      "GAS_DEPLOYMENT_OR_CODE_MUTATION",
+      "GAS_RETIREMENT",
+      "UNRELATED_MODULE_AUTHORITY_SWITCH"
+    ]
+  },
+  "phase": "PREFLIGHT_BLOCKED",
+  "decision": "BLOCKED_BOUNDED_LEGACY_GATEWAY_COMPATIBILITY_APPROVAL_REQUIRED",
+  "productionSafety": {
+    "leaveReadAuthority": "LEGACY",
+    "leaveWriteAuthority": "LEGACY",
+    "sourceOfTruth": "LEGACY",
+    "moduleRouting": "LEGACY",
+    "leaveWriteFreezeActive": false,
+    "productionSchemaApplied": false,
+    "productionBusinessDataImported": false,
+    "moduleAuthorityChanged": false,
+    "dnsChanged": false,
+    "lineChanged": false,
+    "gasChanged": false,
+    "legacyRetired": false
+  },
+  "preflight": {
+    "legacy": {
+      "service": "ckrr-line-gateway",
+      "revision": "ckrr-line-gateway-ownerui-20261006a",
+      "quietWindowMinutes": 30,
+      "errorEntries": 0,
+      "quietWindowStatus": "PASS",
+      "trafficPath": "LINE_LIFF_TO_LEGACY_GATEWAY_TO_GAS",
+      "projectBBridgePresentInDeployedGateway": false
+    },
+    "projectBApi": {
+      "service": "ckace-hr-api-prod",
+      "revision": "ckace-hr-api-prod-m9-6-stage-20261007a",
+      "productionNewAuthorityCurrentlyAllowedByCode": false,
+      "reason": "M9.1 production guard rejects any NEW module route"
+    },
+    "database": {
+      "projectId": "falling-paper-66157438",
+      "branchId": "br-flat-sky-b3swsapw",
+      "databaseName": "ckace_hr_prod",
+      "applicationTables": 0,
+      "preStageSnapshotId": "snap-green-frost-b3f0kh95",
+      "preStageSnapshotPresent": true,
+      "snapshotScheduleEntries": 0
+    },
+    "legacyLiveMetadata": {
+      "sheetA": {
+        "spreadsheetId": "1bElWvoE-jXGv9rmUhUY8omexXT6ljDzVl-8pNgKZNVw",
+        "title": "CK&RR_Requests"
+      },
+      "sheetB": {
+        "spreadsheetId": "1RKZrQc0borKzmLydLCWthcfmQvvfkYFlZQ7Vgrzs1TQ",
+        "title": "Data_CK&RR_Requests"
+      },
+      "finalExtractionMustUseLiveValues": true
+    }
+  },
+  "blockingFindings": [
+    {
+      "code": "LEGACY_GATEWAY_HAS_NO_PROJECT_B_LEAVE_BRIDGE",
+      "detail": "Deployed Legacy gateway routes /api/liff/* to Apps Script and has no Project B endpoint/bridge configuration."
+    },
+    {
+      "code": "PROJECT_B_PRODUCTION_NEW_ROUTE_STILL_LOCKED_BY_M9_1_GUARD",
+      "detail": "Project B production routing code rejects any NEW module authority."
+    },
+    {
+      "code": "PRODUCTION_DATABASE_STILL_EMPTY",
+      "detail": "LEAVE NEW runtime needs schema plus identity/master/approval/calendar dependencies before LEAVE data can be authoritative."
+    },
+    {
+      "code": "NO_PRODUCTION_MIGRATION_TARGET_ADAPTER",
+      "detail": "MigrationTargetStore has only interface/test stores; no verified Prisma Production migration target adapter exists yet."
+    }
+  ],
+  "requiredApprovalToContinue": {
+    "scope": "BOUNDED_PROJECT_A_LEGACY_GATEWAY_COMPATIBILITY_CHANGE_FOR_LEAVE_ONLY",
+    "allowedFilesArea": "D:\\APP_Leave\\line-gateway",
+    "purpose": "Bridge LEAVE traffic from the existing Production LIFF gateway to CKACE_HR while preserving the existing LIFF ID and all non-LEAVE Legacy routes.",
+    "mustPreserve": [
+      "EXISTING_PRODUCTION_LIFF_ID",
+      "EXISTING_RICH_MENUS",
+      "NON_LEAVE_ROUTES_TO_LEGACY_GAS",
+      "NO_GAS_CODE_OR_DEPLOYMENT_CHANGE",
+      "NO_DNS_CHANGE"
+    ]
+  }
+}

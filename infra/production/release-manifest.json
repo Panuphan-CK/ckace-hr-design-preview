@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "m8.4-v1",
+  "releaseId": "ckace-hr-m8-rc-20261006a",
+  "mode": "READINESS_ONLY",
+  "productionMutationAuthorized": false,
+  "source": {
+    "gitBaseline": null,
+    "gitBaselineStatus": "NO_APPROVED_BASELINE",
+    "artifactInputSelector": [
+      "package.json",
+      "package-lock.json",
+      "tsconfig.base.json",
+      "apps/**",
+      "packages/**"
+    ],
+    "excludedGeneratedPaths": [
+      "**/dist/**",
+      "**/.next/**",
+      "**/node_modules/**"
+    ],
+    "artifactInputFileCount": 208,
+    "artifactInputSha256": "e7c189bc9a60030cc69167a090ccfafc8e190316d452cb2103fb582bfd5cb619",
+    "packageLockSha256": "d55db9c755ccd8056d5724df2393eefc4acf74badadfec4ce92ab8b197260286"
+  },
+  "schema": {
+    "prismaVersion": "6.12.0",
+    "prismaSchemaSha256": "0b7d9ad4dc893d0f1f644150d0dfca80bdff22be0fdb81dc43f5de45adea37c0",
+    "migrationCount": 5,
+    "migrations": [
+      "20261004_m2_baseline",
+      "20261005_m7_attachment_finalize",
+      "20261005_m7_leave_duration_hourly",
+      "20261005_m7_leave_legacy_step_status",
+      "20261005_m7_onboarding_password_hash"
+    ],
+    "migrationSetSha256": "0f21a111f6fd30a06378d51900e1b0974b91d04aba636366fea5e682e54fabe5",
+    "rehearsalRecoveredFingerprint": "faf3daecb280265054ffe2b3a909eccb00effedd21d02a7b8c387c0bb757b2ea",
+    "rehearsalResult": "PASS"
+  },
+  "artifacts": {
+    "api": {
+      "tag": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-release:m8-rc-20261006a",
+      "digest": "sha256:bef4064b47a4a1dfc6437522248243a60805299582b70e18087891e4c0aaee2b",
+      "immutableRef": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-release@sha256:bef4064b47a4a1dfc6437522248243a60805299582b70e18087891e4c0aaee2b",
+      "buildId": "cbe7f999-2f5d-4de4-8956-76985ca11a9d",
+      "buildStatus": "SUCCESS",
+      "sourceArchive": "gs://ckrr-leave-system-2026_cloudbuild/source/1791262702.612804-13e22c1656864b528b591e22f96ab6c7.tgz#1791262708177045",
+      "dockerfile": "infra/cloudrun/api.Dockerfile",
+      "dockerfileSha256": "3497f715373f1bfedcb9241b1c90b3626a571768ebf6ebae888f83368ac77412",
+      "cloudBuildConfig": "infra/cloudbuild/api.yaml",
+      "cloudBuildConfigSha256": "33c04620dba1334b8533898fc6350396676008aa2ab6ca3052d4457329344aa1",
+      "registryDigestVerified": true
+    },
+    "web": {
+      "tag": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-release:m8-rc-20261006a",
+      "digest": "sha256:aced93f23bc778bb33ff7c825b36763e450312c5ad143c7cd0ba19e184a1da49",
+      "immutableRef": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-release@sha256:aced93f23bc778bb33ff7c825b36763e450312c5ad143c7cd0ba19e184a1da49",
+      "buildId": "0efdf7b7-7bb3-4384-9930-a671a63dcc3c",
+      "buildStatus": "SUCCESS",
+      "sourceArchive": "gs://ckrr-leave-system-2026_cloudbuild/source/1791262987.701152-14e785a3e03f4bf5a85f6a50b434c40e.tgz#1791262989907350",
+      "dockerfile": "infra/cloudrun/web.Dockerfile",
+      "dockerfileSha256": "862e0de54540eb0ab2c6a515a160e0b14598929f643bd145eacd66f8531af23b",
+      "cloudBuildConfig": "infra/cloudbuild/web.yaml",
+      "cloudBuildConfigSha256": "644cb014bbe2f194609696c1bc60434b8be42bc30152ae5a64b826dd8027670e",
+      "registryDigestVerified": true
+    }
+  },
+  "productionConfig": {
+    "projectId": "ckrr-leave-system-2026",
+    "region": "asia-southeast1",
+    "apiService": "ckace-hr-api-prod",
+    "webService": "ckace-hr-web-prod",
+    "runtimeServiceAccount": "ckace-hr-prod@ckrr-leave-system-2026.iam.gserviceaccount.com",
+    "runtimeStage": "production",
+    "moduleRouting": "LEGACY",
+    "databaseName": "ckace_hr_prod",
+    "r2Bucket": "ckace-hr-prod-private",
+    "firebaseSite": "ckace-hr-prod",
+    "productionDomain": "hr.ckaceaccount.com",
+    "firebaseProdSha256": "a6b62c476ab7ef008ea0d5fa40cc47b1c49c35dfcdf79c5b338722166c0b336b",
+    "readinessManifestSha256": "c675aeb9e50f73c35d6a4e8f31d298ebe6ab1e1e7c98d9c2ad237c671b78e168",
+    "secretRefs": {
+      "databaseUrl": "ckace-hr-neon-prod-database-url",
+      "legacyBridgeSecret": "ckace-hr-prod-bridge-secret",
+      "r2AccessKeyId": "ckace-hr-prod-r2-access-key-id",
+      "r2SecretAccessKey": "ckace-hr-prod-r2-secret-access-key"
+    },
+    "r2AccountId": {
+      "status": "OWNER_GATED_REQUIRED_BEFORE_DEPLOY",
+      "valueEmbedded": false,
+      "placeholder": "<OWNER_APPROVED_R2_ACCOUNT_ID>"
+    },
+    "lineLoginChannelId": {
+      "status": "OWNER_GATED_REQUIRED_BEFORE_DEPLOY",
+      "valueEmbedded": false,
+      "placeholder": "<OWNER_APPROVED_LINE_LOGIN_CHANNEL_ID>"
+    }
+  },
+  "deploymentPolicy": {
+    "imageAuthority": "IMMUTABLE_DIGEST_ONLY",
+    "apiImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-release@sha256:bef4064b47a4a1dfc6437522248243a60805299582b70e18087891e4c0aaee2b",
+    "webImage": "asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-release@sha256:aced93f23bc778bb33ff7c825b36763e450312c5ad143c7cd0ba19e184a1da49",
+    "tagOnlyDeployForbidden": true,
+    "sourceTreeDeployForbidden": true,
+    "ownerApprovalRequired": true
+  },
+  "verification": {
+    "sourceDigestVerifiedBeforeBuild": true,
+    "registryDigestsVerifiedAfterBuild": true,
+    "repositoryGate": "npm run check PASS; 48 test files / 281 tests; lint/typecheck/build PASS",
+    "productionMutation": "NONE"
+  }
+}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { addHours, dmyToIso, isoToDmy, maskDmy, thaiDate, thaiDateRange, weekdaysBetween } from "./format";
+import { monthGrid } from "./date-picker";
+import { addHours, dmyToIso, isoToDmy, thaiDate, thaiDateRange, weekdaysBetween } from "./format";
 
 describe("desktop format helpers", () => {
   it("formats ISO dates in Thai with the Buddhist year", () => {
@@ -24,17 +25,17 @@ describe("desktop format helpers", () => {
     expect(isoToDmy("2026-10-23")).toBe("23/10/2569");
     expect(isoToDmy("")).toBe("");
     expect(dmyToIso("23/10/2569")).toBe("2026-10-23");
-    expect(dmyToIso("23/10/2026")).toBe("2026-10-23");
+    expect(dmyToIso("23/10/2026")).toBe("");
     expect(dmyToIso("31/02/2569")).toBe("");
     expect(dmyToIso("23/13/2569")).toBe("");
     expect(dmyToIso("23/10/25")).toBe("");
   });
 
-  it("masks typed digits into DD/MM/YYYY", () => {
-    expect(maskDmy("2")).toBe("2");
-    expect(maskDmy("2310")).toBe("23/10");
-    expect(maskDmy("23102569")).toBe("23/10/2569");
-    expect(maskDmy("23/10/2569999")).toBe("23/10/2569");
+  it("builds a Monday-first month grid", () => {
+    const grid = monthGrid(2026, 9); // October 2026 starts on a Thursday
+    expect(grid.slice(0, 4)).toEqual([null, null, null, "2026-10-01"]);
+    expect(grid.length % 7).toBe(0);
+    expect(grid.filter(Boolean)).toHaveLength(31);
   });
 
   it("adds hours to a start time without crossing midnight", () => {

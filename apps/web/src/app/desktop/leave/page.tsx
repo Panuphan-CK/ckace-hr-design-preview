@@ -16,8 +16,8 @@ import {
   shouldDiscardSubmissionIntent,
   type SubmissionIntent,
 } from "../submission-intent";
-import { DateInput } from "../ui/date-input";
-import { addHours, thaiDate, thaiDateRange, thaiDateTime, weekdaysBetween } from "../ui/format";
+import { DatePicker } from "../ui/date-picker";
+import { addHours, isoToDmy, thaiDateRange, thaiDateTime, weekdaysBetween } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
 
 type PageState =
@@ -175,7 +175,7 @@ export default function LeaveDesktopPage() {
       return;
     }
     if (!startDate) {
-      setActionMessage({ kind: "error", text: "กรุณาระบุวันที่ลาในรูปแบบ วว/ดด/ปปปป" });
+      setActionMessage({ kind: "error", text: "กรุณาเลือกวันที่ลา" });
       return;
     }
     if (duration === "HOURLY" && !endTime) {
@@ -187,7 +187,7 @@ export default function LeaveDesktopPage() {
       entitlementId,
       description: String(data.get("description") ?? ""),
       startDate,
-      endDate: duration === "HOURLY" ? startDate : endDate || startDate,
+      endDate: duration === "FULL_DAY" ? endDate || startDate : startDate,
       durationCode: duration,
       startTime: duration === "HOURLY" ? startTime : null,
       endTime: duration === "HOURLY" ? endTime : null,
@@ -342,21 +342,34 @@ export default function LeaveDesktopPage() {
               )}
             </div>
 
-            <div className="ck-field">
-              <span>{duration === "HOURLY" ? "วันที่ลา" : "ตั้งแต่วันที่"}</span>
-              <DateInput label={duration === "HOURLY" ? "วันที่ลา" : "วันที่เริ่มลา"} required value={startDate} onChange={setStartDate} />
+            <div className="ck-field span2">
+              <span>{duration === "FULL_DAY" ? "วันที่ลา (เลือกเป็นช่วงได้)" : "วันที่ลา (วันเดียว)"}</span>
+              <DatePicker
+                mode={duration === "FULL_DAY" ? "range" : "single"}
+                label="วันที่ลา"
+                start={startDate}
+                end={endDate}
+                onChange={(from, to) => {
+                  setStartDate(from);
+                  setEndDate(to);
+                }}
+              />
             </div>
-            {duration === "HOURLY" ? null : (
-              <div className="ck-field">
-                <span>ถึงวันที่</span>
-                <DateInput label="วันที่สิ้นสุด" min={startDate || undefined} value={endDate} onChange={setEndDate} />
-              </div>
-            )}
-            <div className={duration === "HOURLY" ? "ck-field span3" : "ck-field span2"}>
+            <div className="ck-field span2">
               <span>ช่วงเวลา</span>
               <div className="ck-seg" role="radiogroup" aria-label="ช่วงเวลา">
                 {DURATIONS.map((code) => (
-                  <button key={code} type="button" role="radio" aria-checked={duration === code} className={duration === code ? "on" : ""} onClick={() => setDuration(code)}>
+                  <button
+                    key={code}
+                    type="button"
+                    role="radio"
+                    aria-checked={duration === code}
+                    className={duration === code ? "on" : ""}
+                    onClick={() => {
+                      setDuration(code);
+                      if (code !== "FULL_DAY") setEndDate(startDate);
+                    }}
+                  >
                     {DURATION_LABEL[code]}
                   </button>
                 ))}
@@ -444,7 +457,7 @@ export default function LeaveDesktopPage() {
               {selected && startDate ? (
                 duration === "HOURLY" ? (
                   <>
-                    ลา <b>{selected.leaveTypeName}</b> วันที่ <b>{thaiDate(startDate)}</b> เวลา <b>{startTime}</b> ถึง <b>{endTime || "—"}</b>
+                    ลา <b>{selected.leaveTypeName}</b> วันที่ <b>{isoToDmy(startDate)}</b> เวลา <b>{startTime}</b> ถึง <b>{endTime || "—"}</b>
                   </>
                 ) : (
                   <>

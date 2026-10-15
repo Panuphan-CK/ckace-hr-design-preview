@@ -6,6 +6,7 @@ import {
 import type {
   OvertimeApprovalQueueItem,
   OvertimeCancelResult,
+  OvertimeBreakCode,
   OvertimeCreateInput,
   OvertimeCreateResult,
   OvertimeDecisionInput,
@@ -121,6 +122,9 @@ function parseCreateBody(
         "clientKey",
         120,
       ),
+      ...(Array.isArray(source.breaks)
+        ? { breaks: source.breaks as OvertimeBreakCode[] }
+        : {}),
     });
   } catch (error) {
     if (error instanceof BadRequestException) {

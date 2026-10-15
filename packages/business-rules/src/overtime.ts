@@ -10,6 +10,40 @@ export interface ExistingOvertimeWindow {
   readonly status: string;
 }
 
+/**
+ * Optional unpaid breaks an employee may take inside an overtime window.
+ * Company default (Owner, 2026-10-15): work 09:00-17:30 Mon-Fri, lunch 12:00-13:00,
+ * activity break 13:00-14:00; overtime breaks are optional and chosen per request.
+ */
+export type OvertimeBreakCode =
+  | "LUNCH"
+  | "ACTIVITY"
+  | "DINNER"
+  | "DINNER_SHORT";
+
+export const OVERTIME_BREAK_CODES: readonly OvertimeBreakCode[] =
+  ["LUNCH", "ACTIVITY", "DINNER", "DINNER_SHORT"];
+
+interface OvertimeBreakWindow {
+  readonly start: number;
+  readonly end: number;
+  /** Most minutes that can be deducted for this break. */
+  readonly maxMinutes: number;
+}
+
+const OVERTIME_BREAK_WINDOWS: Readonly<
+  Record<OvertimeBreakCode, OvertimeBreakWindow>
+> = {
+  LUNCH: { start: 12 * 60, end: 13 * 60, maxMinutes: 60 },
+  ACTIVITY: { start: 13 * 60, end: 14 * 60, maxMinutes: 60 },
+  DINNER: { start: 17 * 60 + 30, end: 18 * 60 + 30, maxMinutes: 60 },
+  DINNER_SHORT: {
+    start: 17 * 60 + 30,
+    end: 18 * 60 + 30,
+    maxMinutes: 30,
+  },
+};
+
 export interface NormalizedOvertimeCreate {
   readonly startDate: string;
   readonly endDate: string;
@@ -17,6 +51,11 @@ export interface NormalizedOvertimeCreate {
   readonly endTime: string;
   readonly reason: string;
   readonly clientKey: string;
+  /**
+   * Breaks the employee takes during the overtime. When omitted the legacy
+   * default applies (lunch always, evening break on non-workdays).
+   */
+  readonly breaks?: readonly OvertimeBreakCode[];
 }
 
 export interface OvertimeDayRequest {
@@ -142,7 +181,7 @@ export function normalizeOvertimeCreate(
     );
   }
 
-  return {
+  const normalized = {
     startDate,
     endDate,
     startTime,
@@ -150,6 +189,42 @@ export function normalizeOvertimeCreate(
     reason: normalizeOvertimeReason(input.reason),
     clientKey: normalizeOvertimeClientKey(input.clientKey),
   };
+
+  return input.breaks === undefined
+    ? normalized
+    : { ...normalized, breaks: normalizeOvertimeBreaks(input.breaks) };
+}
+
+export function normalizeOvertimeBreaks(
+  value: readonly string[],
+): readonly OvertimeBreakCode[] {
+  if (!Array.isArray(value)) {
+    throw new Error("overtime breaks must be a list");
+  }
+
+  const known = new Set<string>(OVERTIME_BREAK_CODES);
+  const unique = new Set<OvertimeBreakCode>();
+
+  for (const item of value) {
+    if (typeof item !== "string" || !known.has(item)) {
+      throw new Error("overtime break is not supported");
+    }
+    unique.add(item as OvertimeBreakCode);
+  }
+
+  // A full evening break already covers the short one.
+  if (unique.has("DINNER")) {
+    unique.delete("DINNER_SHORT");
+  }
+
+  return OVERTIME_BREAK_CODES.filter((code) => unique.has(code));
+}
+
+/** Legacy behaviour: lunch is always taken out; evening break only off workdays. */
+export function defaultOvertimeBreaks(
+  isWorkday: boolean,
+): readonly OvertimeBreakCode[] {
+  return isWorkday ? ["LUNCH"] : ["LUNCH", "DINNER"];
 }
 
 export function assertOvertimeDateRangeNotFuture(input: {
@@ -184,6 +259,7 @@ export function calculateOvertimeRequestedMinutes(
   startTime: string,
   endTime: string,
   isWorkday: boolean,
+  breaks?: readonly OvertimeBreakCode[],
 ): number {
   const start = clockMinutes(startTime);
   const end = clockMinutes(endTime);
@@ -194,15 +270,18 @@ export function calculateOvertimeRequestedMinutes(
     );
   }
 
-  let minutes = end - start;
-  minutes -= overlap(start, end, 12 * 60, 13 * 60);
+  const chosen =
+    breaks === undefined
+      ? defaultOvertimeBreaks(isWorkday)
+      : normalizeOvertimeBreaks(breaks);
 
-  if (!isWorkday) {
-    minutes -= overlap(
-      start,
-      end,
-      17 * 60 + 30,
-      18 * 60 + 30,
+  let minutes = end - start;
+
+  for (const code of chosen) {
+    const window = OVERTIME_BREAK_WINDOWS[code];
+    minutes -= Math.min(
+      window.maxMinutes,
+      overlap(start, end, window.start, window.end),
     );
   }
 
@@ -309,6 +388,7 @@ export function expandOvertimeDays(
         normalized.startTime,
         normalized.endTime,
         byDate.get(date) ?? false,
+        normalized.breaks,
       ),
     });
 

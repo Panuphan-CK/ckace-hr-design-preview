@@ -6,6 +6,12 @@ export type OvertimeRequestStatus =
 
 export type OvertimeDecision = "APPROVED" | "REJECTED";
 
+export type OvertimeBreakCode =
+  | "LUNCH"
+  | "ACTIVITY"
+  | "DINNER"
+  | "DINNER_SHORT";
+
 export interface OvertimeCreateInput {
   readonly startDate: string;
   readonly endDate: string;
@@ -13,6 +19,8 @@ export interface OvertimeCreateInput {
   readonly endTime: string;
   readonly reason: string;
   readonly clientKey: string;
+  /** Breaks taken during the overtime; omitted = legacy default. */
+  readonly breaks?: readonly OvertimeBreakCode[];
 }
 
 export interface OvertimeSegmentView {

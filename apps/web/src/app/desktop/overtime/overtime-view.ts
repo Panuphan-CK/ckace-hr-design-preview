@@ -1,4 +1,5 @@
 import type {
+  OvertimeBreakCode,
   OvertimeRequestStatus,
   OvertimeRequestView,
   OvertimeSelfOverview,
@@ -88,4 +89,41 @@ export function attendanceLinkLabel(
   return attendanceRecordId
     ? "เชื่อมข้อมูลเวลาเข้างานแล้ว"
     : "ยังไม่พบบันทึกเวลาเข้างานของวันนั้น";
+}
+
+export interface OvertimeBreakOption {
+  readonly code: OvertimeBreakCode;
+  readonly label: string;
+  readonly start: number;
+  readonly end: number;
+  readonly maxMinutes: number;
+}
+
+/** Same windows as packages/business-rules/src/overtime.ts (server stays authoritative). */
+export const OVERTIME_BREAK_OPTIONS: readonly OvertimeBreakOption[] = [
+  { code: "LUNCH", label: "พักกินข้าวเที่ยง 12:00–13:00", start: 720, end: 780, maxMinutes: 60 },
+  { code: "ACTIVITY", label: "พักทำกิจกรรม 13:00–14:00", start: 780, end: 840, maxMinutes: 60 },
+  { code: "DINNER", label: "พักกินข้าวเย็น 17:30–18:30", start: 1050, end: 1110, maxMinutes: 60 },
+  { code: "DINNER_SHORT", label: "พักกินข้าวเย็น 30 นาที", start: 1050, end: 1110, maxMinutes: 30 },
+];
+
+function clockToMinutes(value: string): number | null {
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+}
+
+/** Minutes of the chosen breaks that really fall inside the window (preview only). */
+export function overtimeBreakDeduction(
+  startTime: string,
+  endTime: string,
+  breaks: readonly OvertimeBreakCode[],
+): number {
+  const start = clockToMinutes(startTime);
+  const end = clockToMinutes(endTime);
+  if (start === null || end === null || end <= start) return 0;
+  return OVERTIME_BREAK_OPTIONS.filter((option) => breaks.includes(option.code)).reduce(
+    (sum, option) =>
+      sum + Math.min(option.maxMinutes, Math.max(0, Math.min(end, option.end) - Math.max(start, option.start))),
+    0,
+  );
 }

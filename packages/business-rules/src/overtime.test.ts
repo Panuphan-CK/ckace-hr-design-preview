@@ -6,6 +6,8 @@ import {
   assertOvertimeDateRangeNotFuture,
   calculateOvertimeRequestedMinutes,
   expandOvertimeDays,
+  defaultOvertimeBreaks,
+  normalizeOvertimeBreaks,
   normalizeOvertimeCreate,
   normalizeOvertimeDecision,
 } from "./overtime";
@@ -202,5 +204,83 @@ describe("overtime business rules", () => {
         decision: "revise",
       }),
     ).toThrow("APPROVED or REJECTED");
+  });
+});
+
+describe("overtime optional breaks (company defaults 2026-10-15)", () => {
+  it("takes no break out when the employee chooses none", () => {
+    expect(
+      calculateOvertimeRequestedMinutes("09:00", "20:00", false, []),
+    ).toBe(660);
+    expect(
+      calculateOvertimeRequestedMinutes("17:30", "20:00", true, []),
+    ).toBe(150);
+  });
+
+  it("deducts only the breaks the employee selects", () => {
+    // holiday 09:00-18:00 with lunch and activity break
+    expect(
+      calculateOvertimeRequestedMinutes("09:00", "18:00", false, [
+        "LUNCH",
+        "ACTIVITY",
+      ]),
+    ).toBe(420);
+    // weekday overtime with a full dinner break, then a short one
+    expect(
+      calculateOvertimeRequestedMinutes("17:30", "21:00", true, ["DINNER"]),
+    ).toBe(150);
+    expect(
+      calculateOvertimeRequestedMinutes("17:30", "21:00", true, [
+        "DINNER_SHORT",
+      ]),
+    ).toBe(180);
+  });
+
+  it("caps each break by the time it actually overlaps", () => {
+    expect(
+      calculateOvertimeRequestedMinutes("12:30", "15:00", false, [
+        "LUNCH",
+        "ACTIVITY",
+      ]),
+    ).toBe(60);
+    expect(() =>
+      calculateOvertimeRequestedMinutes("17:30", "17:50", true, [
+        "DINNER_SHORT",
+      ]),
+    ).toThrow("payable");
+  });
+
+  it("keeps the legacy default when no breaks are given", () => {
+    expect(defaultOvertimeBreaks(true)).toEqual(["LUNCH"]);
+    expect(defaultOvertimeBreaks(false)).toEqual(["LUNCH", "DINNER"]);
+    expect(
+      calculateOvertimeRequestedMinutes("11:30", "19:00", false),
+    ).toBe(330);
+  });
+
+  it("normalizes break lists and rejects unknown codes", () => {
+    expect(
+      normalizeOvertimeBreaks(["DINNER_SHORT", "LUNCH", "LUNCH"]),
+    ).toEqual(["LUNCH", "DINNER_SHORT"]);
+    expect(normalizeOvertimeBreaks(["DINNER", "DINNER_SHORT"])).toEqual([
+      "DINNER",
+    ]);
+    expect(() => normalizeOvertimeBreaks(["NAP"])).toThrow("break");
+  });
+
+  it("carries chosen breaks through day expansion", () => {
+    const days = expandOvertimeDays(
+      {
+        startDate: "2026-10-17",
+        endDate: "2026-10-17",
+        startTime: "09:00",
+        endTime: "13:00",
+        reason: "audit support",
+        clientKey: "ot-client-0002",
+        breaks: ["LUNCH"],
+      },
+      [{ date: "2026-10-17", isWorkday: false }],
+    );
+    expect(days[0]?.requestedMinutes).toBe(180);
   });
 });

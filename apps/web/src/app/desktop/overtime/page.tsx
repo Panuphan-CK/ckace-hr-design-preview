@@ -1,6 +1,6 @@
 "use client";
 
-import type { OvertimeCreateResult, OvertimeRequestStatus, OvertimeRequestView, OvertimeSelfOverview } from "@ckace/contracts";
+import type { OvertimeBreakCode, OvertimeCreateResult, OvertimeRequestStatus, OvertimeRequestView, OvertimeSelfOverview } from "@ckace/contracts";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -9,7 +9,7 @@ import { DatePicker } from "../ui/date-picker";
 import { thaiDateRange, thaiDateTime, weekdaysBetween } from "../ui/format";
 import { Icon } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
-import { attendanceLinkLabel, overtimeMetrics, overtimeRequestMinutes } from "./overtime-view";
+import { attendanceLinkLabel, OVERTIME_BREAK_OPTIONS, overtimeBreakDeduction, overtimeMetrics, overtimeRequestMinutes } from "./overtime-view";
 
 type State = { status: "loading" } | { status: "ready"; overview: OvertimeSelfOverview } | { status: "error"; message: string };
 type Filter = "ALL" | OvertimeRequestStatus;
@@ -68,6 +68,7 @@ export default function DesktopOvertimePage() {
   const [startTime, setStartTime] = useState("18:00");
   const [endTime, setEndTime] = useState("");
   const [reason, setReason] = useState("");
+  const [breaks, setBreaks] = useState<readonly OvertimeBreakCode[]>([]);
   const [filter, setFilter] = useState<Filter>("ALL");
   const [detail, setDetail] = useState<OvertimeRequestView | null>(null);
 
@@ -98,12 +99,13 @@ export default function DesktopOvertimePage() {
     setStartTime("18:00");
     setEndTime("");
     setReason("");
+    setBreaks([]);
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (state.status !== "ready" || busy) return;
-    const body = { startDate, endDate: endDate || startDate, startTime, endTime, reason: reason.trim() };
+    const body = { startDate, endDate: endDate || startDate, startTime, endTime, reason: reason.trim(), breaks };
     if (!body.startDate || !body.startTime || !body.endTime || !body.reason) {
       setMessage({ kind: "error", text: "กรุณากรอกวันที่ เวลา และงานที่ทำให้ครบ" });
       return;
@@ -157,7 +159,7 @@ export default function DesktopOvertimePage() {
   if (state.status === "loading") return <LoadingState title="กำลังโหลดข้อมูล OT" />;
   if (state.status === "error") return <ErrorState title="เปิดหน้า OT ไม่สำเร็จ" message={state.message} onRetry={() => void load()} />;
 
-  const perDay = spanMinutes(startTime, endTime);
+  const perDay = Math.max(0, spanMinutes(startTime, endTime) - overtimeBreakDeduction(startTime, endTime, breaks));
   const days = startDate ? Math.max(1, weekdaysBetween(startDate, endDate || startDate) || 1) : 0;
   const filtered = filter === "ALL" ? requests : requests.filter((request) => request.status === filter);
 
@@ -202,6 +204,33 @@ export default function DesktopOvertimePage() {
             <div className="ck-field">
               <span>สิ้นสุด</span>
               <TimeInput label="เวลาสิ้นสุด OT" value={endTime} onChange={setEndTime} />
+            </div>
+            <div className="ck-field full">
+              <span>เวลาพักที่ใช้ในช่วง OT (เลือกได้ ไม่บังคับ — ไม่เลือก = ไม่หักเวลา)</span>
+              <div className="ck-seg" role="group" aria-label="เวลาพักในช่วง OT">
+                {OVERTIME_BREAK_OPTIONS.map((option) => {
+                  const on = breaks.includes(option.code);
+                  return (
+                    <button
+                      key={option.code}
+                      type="button"
+                      aria-pressed={on}
+                      className={on ? "on" : ""}
+                      onClick={() =>
+                        setBreaks((current) => {
+                          const next = on ? current.filter((code) => code !== option.code) : [...current, option.code];
+                          // a full evening break replaces the 30-minute one
+                          if (!on && option.code === "DINNER") return next.filter((code) => code !== "DINNER_SHORT");
+                          if (!on && option.code === "DINNER_SHORT") return next.filter((code) => code !== "DINNER");
+                          return next;
+                        })
+                      }
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <label className="ck-field full">
               <span>งานที่ทำ</span>

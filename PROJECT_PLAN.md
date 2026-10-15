@@ -31,7 +31,7 @@ Phase A review is complete on TEST. Production remains **NO-GO** until later exp
 | TASK-39.6 | Desktop UX/UI Redesign + Leave-first Platform Structure | **PASS** |
 | TASK-39.7 | Desktop Production Visual Parity Polish | **PASS** |
 | TASK-39.8 | Full Desktop Production UI Parity | **SUPERSEDED by TASK-39.9 — Waves 1–2 rejected by Owner** |
-| TASK-39.9 | Desktop full redesign (apps, icon rail, per-type pages) | **IN PROGRESS — mockup v14 under Owner review** |
+| TASK-39.9 | Desktop full redesign (apps, icon rail, per-type pages) | **IN PROGRESS — mockup v15 under Owner review** |
 | TASK-40 | Production Readiness Plan | NOT STARTED |
 | TASK-41 | Production Go / No-Go | NOT STARTED |
 

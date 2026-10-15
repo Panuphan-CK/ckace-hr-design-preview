@@ -23,6 +23,29 @@ import {
   type PrismaClient,
 } from "@prisma/client";
 
+/** Request states whose days count against the entitlement when a new request is checked. */
+export const QUOTA_RESERVING_STATUSES = ["APPROVED", "PENDING", "REVISION_REQUESTED"] as const;
+
+/**
+ * Splits an entitlement's usage into approved days and days held by open requests,
+ * and what is still available to request. Pure so it can be unit tested.
+ */
+export function summarizeEntitlementUsage<T extends { readonly status: string; readonly entitlementId: string | null }>(
+  requests: readonly T[],
+  entitlementId: string,
+  quota: number,
+  usageOf: (request: T) => number,
+): { used: number; pending: number; remaining: number } {
+  let used = 0;
+  let pending = 0;
+  for (const request of requests) {
+    if (request.entitlementId !== entitlementId) continue;
+    if (request.status === "APPROVED") used += usageOf(request);
+    else if (request.status === "PENDING" || request.status === "REVISION_REQUESTED") pending += usageOf(request);
+  }
+  return { used, pending, remaining: Math.max(0, quota - used - pending) };
+}
+
 export interface LeaveRepository {
   getSelfOverview(
     employeeId: string,
@@ -395,18 +418,13 @@ export class PrismaLeaveRepository implements LeaveRepository {
 
     return {
       entitlements: entitlements.map((entitlement) => {
-        const used = requests
-          .filter(
-            (request) =>
-              request.status === "APPROVED" &&
-              request.entitlementId === entitlement.id,
-          )
-          .reduce(
-            (sum, request) =>
-              sum + usageForRequest(request, calendar),
-            0,
-          );
         const quota = asNumber(entitlement.quota);
+        const { used, pending, remaining } = summarizeEntitlementUsage(
+          requests,
+          entitlement.id,
+          quota,
+          (request) => usageForRequest(request, calendar),
+        );
 
         return {
           entitlementId: entitlement.id,
@@ -415,7 +433,8 @@ export class PrismaLeaveRepository implements LeaveRepository {
           leaveTypeName: entitlement.leaveType.name,
           quota,
           used,
-          remaining: Math.max(0, quota - used),
+          pending,
+          remaining,
         };
       }),
       requests: requestViews,
@@ -543,11 +562,12 @@ export class PrismaLeaveRepository implements LeaveRepository {
             calendar,
           );
 
+          // Pending and sent-back requests reserve quota too, so several open requests cannot exceed it together.
           const approved = await tx.leaveRequest.findMany({
             where: {
               requesterEmployeeId: input.employeeId,
               entitlementId: entitlement.id,
-              status: "APPROVED",
+              status: { in: [...QUOTA_RESERVING_STATUSES] },
             },
             select: {
               startDate: true,

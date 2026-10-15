@@ -17,7 +17,11 @@ export interface LeaveEntitlementView {
   readonly leaveTypeKey: string;
   readonly leaveTypeName: string;
   readonly quota: number;
+  /** Days already approved. */
   readonly used: number;
+  /** Days held by requests that are still pending or sent back for revision. */
+  readonly pending: number;
+  /** quota - used - pending: what can still be requested. */
   readonly remaining: number;
 }
 

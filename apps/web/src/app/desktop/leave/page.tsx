@@ -80,6 +80,20 @@ function errorMessage(status: number): string {
   return "ไม่สามารถโหลดข้อมูลการลาได้ กรุณาลองใหม่อีกครั้ง";
 }
 
+/** Turns the server's 400 reason into Thai; falls back to the status-based message. */
+async function submitErrorMessage(response: Response): Promise<string> {
+  if (response.status === 400) {
+    const body = (await response.json().catch(() => null)) as { message?: unknown } | null;
+    const reason = typeof body?.message === "string" ? body.message : "";
+    if (reason === "Leave entitlement exceeded") return "วันลาเกินสิทธิคงเหลือ (นับรวมใบลาที่รออนุมัติอยู่แล้ว)";
+    if (reason.startsWith("Leave entitlement is unavailable")) return "ประเภทการลานี้ใช้ไม่ได้ในช่วงวันที่เลือก";
+    if (reason === "Leave request must consume positive leave quota") return "ช่วงวันที่เลือกไม่มีวันทำงาน กรุณาเลือกใหม่";
+    if (reason.startsWith("Selected approver")) return "ผู้อนุมัติที่เลือกไม่ถูกต้อง กรุณาเลือกใหม่";
+    return "ข้อมูลใบลาไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
+  }
+  return errorMessage(response.status);
+}
+
 async function getJson<T>(url: string): Promise<T> {
   const response = await fetch(url, { credentials: "same-origin", cache: "no-store" });
   if (!response.ok) throw new Error(errorMessage(response.status));
@@ -139,14 +153,17 @@ export default function LeaveDesktopPage() {
   const entitlements = state.status === "ready" ? state.overview.entitlements : [];
   const selected: LeaveEntitlementView | undefined = entitlements.find((item) => item.entitlementId === entitlementId);
   const endTime = duration === "HOURLY" ? addHours(startTime, hours) : "";
+  // Client-side estimate matching the server rule (8 hours = 1 day; half day = 0.5 per working day).
+  // The server still re-checks with company holidays and rejects anything over quota.
   const estimateDays =
     duration === "HOURLY"
-      ? 0
+      ? endTime
+        ? Math.round((hours / 8) * 1000) / 1000
+        : 0
       : duration === "FULL_DAY"
         ? weekdaysBetween(startDate, endDate || startDate)
-        : startDate
-          ? 0.5
-          : 0;
+        : weekdaysBetween(startDate, startDate) * 0.5;
+  const overQuota = Boolean(selected && startDate && estimateDays > selected.remaining + 1e-9);
 
   const requests = useMemo(() => {
     if (state.status !== "ready") return [];
@@ -178,6 +195,10 @@ export default function LeaveDesktopPage() {
       setActionMessage({ kind: "error", text: "กรุณาเลือกวันที่ลา" });
       return;
     }
+    if (overQuota && selected) {
+      setActionMessage({ kind: "error", text: `วันลาเกินสิทธิคงเหลือ ${selected.leaveTypeName} เหลือ ${selected.remaining} วัน` });
+      return;
+    }
     if (duration === "HOURLY" && !endTime) {
       setActionMessage({ kind: "error", text: "เวลาลารายชั่วโมงต้องจบภายในวันเดียวกัน" });
       return;
@@ -205,7 +226,7 @@ export default function LeaveDesktopPage() {
       });
       if (!response.ok) {
         if (shouldDiscardSubmissionIntent(response.status)) createIntent.current = null;
-        throw new Error(errorMessage(response.status));
+        throw new Error(await submitErrorMessage(response));
       }
       createIntent.current = null;
       resetForm(form);
@@ -333,7 +354,9 @@ export default function LeaveDesktopPage() {
                         </span>
                         <span>
                           <b>{item.leaveTypeName}</b>
-                          <small>เหลือ {item.remaining} วัน</small>
+                          <small>
+                            เหลือ {item.remaining} วัน{item.pending > 0 ? ` (รออนุมัติ ${item.pending})` : ""}
+                          </small>
                         </span>
                       </button>
                     );
@@ -451,6 +474,12 @@ export default function LeaveDesktopPage() {
             )}
           </div>
 
+          {overQuota && selected ? (
+            <p className="ck-msg error" role="alert" style={{ marginTop: 16 }}>
+              เลือกวันลาเกินสิทธิคงเหลือ: {selected.leaveTypeName} เหลือ {selected.remaining} วัน แต่เลือกไว้ประมาณ {estimateDays} วัน
+            </p>
+          ) : null}
+
           <div className="ck-fbar">
             <span className="ck-sumline">
               <Icon name="calendar" size={18} />
@@ -471,7 +500,7 @@ export default function LeaveDesktopPage() {
             <button className="ck-btn quiet ck-ml" type="reset" onClick={(event) => resetForm(event.currentTarget.form as HTMLFormElement)}>
               ล้างฟอร์ม
             </button>
-            <button className="ck-btn tone" type="submit" disabled={submitting || !hasAvailable || approvalOptions.length === 0}>
+            <button className="ck-btn tone" type="submit" disabled={submitting || !hasAvailable || approvalOptions.length === 0 || overQuota}>
               {submitting ? "กำลังส่ง…" : "ส่งใบลา"}
             </button>
           </div>

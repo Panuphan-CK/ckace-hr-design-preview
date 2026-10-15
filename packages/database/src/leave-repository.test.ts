@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buildLeaveApproverScopeWhere } from "./leave-repository";
+import {
+  buildLeaveApproverScopeWhere,
+  QUOTA_RESERVING_STATUSES,
+  summarizeEntitlementUsage,
+} from "./leave-repository";
 
 describe("leave approver scope guards", () => {
   it("returns no organization filter for GLOBAL scope", () => {
@@ -52,5 +56,32 @@ describe("leave approver scope guards", () => {
         departmentId: null,
       }),
     ).toThrow("requires requester department");
+  });
+});
+
+describe("leave entitlement usage", () => {
+  const rows = [
+    { entitlementId: "e1", status: "APPROVED", days: 2 },
+    { entitlementId: "e1", status: "PENDING", days: 1.5 },
+    { entitlementId: "e1", status: "REVISION_REQUESTED", days: 1 },
+    { entitlementId: "e1", status: "REJECTED", days: 3 },
+    { entitlementId: "e1", status: "CANCELLED", days: 3 },
+    { entitlementId: "e2", status: "PENDING", days: 5 },
+  ];
+
+  it("counts open requests as reserved so they cannot exceed the quota together", () => {
+    expect(summarizeEntitlementUsage(rows, "e1", 6, (row) => row.days)).toEqual({
+      used: 2,
+      pending: 2.5,
+      remaining: 1.5,
+    });
+  });
+
+  it("never reports negative remaining days", () => {
+    expect(summarizeEntitlementUsage(rows, "e1", 3, (row) => row.days).remaining).toBe(0);
+  });
+
+  it("reserves pending and sent-back requests when a new request is checked", () => {
+    expect(QUOTA_RESERVING_STATUSES).toEqual(["APPROVED", "PENDING", "REVISION_REQUESTED"]);
   });
 });

@@ -32,6 +32,7 @@ interface SessionPayload {
 
 interface AdminData {
   readonly users: readonly ManagedEmployeeItem[] | null;
+  readonly companies: readonly OrganizationUnitItem[] | null;
   readonly agencies: readonly OrganizationUnitItem[] | null;
   readonly departments: readonly OrganizationUnitItem[] | null;
   readonly entitlements: readonly LeaveEntitlementAdminItem[] | null;
@@ -54,6 +55,7 @@ type Message = { kind: "success" | "error"; text: string };
 type ManagementSection =
   | "users"
   | "organization"
+  | "companies"
   | "agencies"
   | "departments"
   | "entitlements"
@@ -65,6 +67,7 @@ type ManagementSection =
 const MANAGEMENT_SECTION_LABEL: Readonly<Record<ManagementSection, string>> = {
   users: "ฐานข้อมูลพนักงาน",
   organization: "โครงสร้างและสังกัด",
+  companies: "จัดการบริษัท",
   agencies: "จัดการหน่วยงาน",
   departments: "จัดการฝ่าย",
   entitlements: "สิทธิวันลาพนักงาน",
@@ -194,6 +197,7 @@ export default function DesktopManagementPage() {
       const [
         sessionResponse,
         users,
+        companies,
         agencies,
         departments,
         entitlements,
@@ -206,6 +210,7 @@ export default function DesktopManagementPage() {
           cache: "no-store",
         }),
         readOptional<readonly ManagedEmployeeItem[]>("/api/management/users"),
+        readOptional<readonly OrganizationUnitItem[]>("/api/management/companies"),
         readOptional<readonly OrganizationUnitItem[]>("/api/management/agencies"),
         readOptional<readonly OrganizationUnitItem[]>("/api/management/departments"),
         readOptional<readonly LeaveEntitlementAdminItem[]>("/api/management/entitlements"),
@@ -225,6 +230,7 @@ export default function DesktopManagementPage() {
         status: "ready",
         data: {
           users,
+          companies,
           agencies,
           departments,
           entitlements,
@@ -289,6 +295,9 @@ export default function DesktopManagementPage() {
             state: String(data.get("state") ?? ""),
             agencyId: String(data.get("agencyId") ?? "") || null,
             departmentId: String(data.get("departmentId") ?? "") || null,
+            companyId: String(data.get("companyId") ?? "") || null,
+            managerEmployeeId:
+              String(data.get("managerEmployeeId") ?? "") || null,
           },
         ),
       "บันทึกข้อมูลพนักงานแล้ว",
@@ -303,15 +312,29 @@ export default function DesktopManagementPage() {
     if (state.status !== "ready" || !state.capabilities.rbacAdminWrite) return;
     const data = new FormData(event.currentTarget);
     const roleIds = data.getAll("roleIds").map((value) => String(value));
+    const scopeType = String(data.get("scopeType") ?? "PLATFORM");
+    const scopeCompanyId = String(data.get("scopeCompanyId") ?? "") || null;
+    const scopeAgencyIds = data
+      .getAll("scopeAgencyIds")
+      .map((value) => String(value));
     await run(
       "user-roles-" + employeeId,
       () =>
         mutate(
           "/api/management/users/" +
             encodeURIComponent(employeeId) +
-            "/roles",
+            "/role-assignments",
           "PUT",
-          { roleIds },
+          {
+            assignments: roleIds.map((roleId) => ({
+              roleId,
+              scopeType,
+              scopeCompanyId:
+                scopeType === "COMPANY" ? scopeCompanyId : null,
+              scopeAgencyIds:
+                scopeType === "TEAM_SET" ? scopeAgencyIds : [],
+            })),
+          },
         ),
       "บันทึกระดับสิทธิ์ของพนักงานแล้ว",
     );
@@ -319,7 +342,7 @@ export default function DesktopManagementPage() {
 
   async function createUnit(
     event: FormEvent<HTMLFormElement>,
-    type: "agencies" | "departments",
+    type: "companies" | "agencies" | "departments",
   ) {
     event.preventDefault();
     if (
@@ -342,7 +365,7 @@ export default function DesktopManagementPage() {
 
   async function updateUnit(
     event: FormEvent<HTMLFormElement>,
-    type: "agencies" | "departments",
+    type: "companies" | "agencies" | "departments",
     id: string,
   ) {
     event.preventDefault();
@@ -362,7 +385,13 @@ export default function DesktopManagementPage() {
         mutate(
           "/api/management/" + type + "/" + encodeURIComponent(id),
           "PATCH",
-          { name, active },
+          type === "agencies"
+            ? {
+                name,
+                active,
+                companyId: String(data.get("companyId") ?? "") || null,
+              }
+            : { name, active },
         ),
       "บันทึกข้อมูลแล้ว",
     );
@@ -570,9 +599,14 @@ export default function DesktopManagementPage() {
       ),
     ) ?? [];
 
+  const visibleCompanies =
+    data.companies?.filter((item) =>
+      containsSearch([item.id, item.name], search),
+    ) ?? [];
+
   const visibleAgencies =
     data.agencies?.filter((item) =>
-      containsSearch([item.id, item.name], search),
+      containsSearch([item.id, item.name, item.companyName], search),
     ) ?? [];
 
   const visibleDepartments =
@@ -695,9 +729,11 @@ export default function DesktopManagementPage() {
                     <th>รหัส</th>
                     <th>พนักงาน</th>
                     <th>สถานะ</th>
-                    <th>หน่วยงาน</th>
+                    <th>บริษัท</th>
+                    <th>หน่วยงาน (ทีม)</th>
                     <th>ฝ่าย</th>
-                    <th>ระดับ</th>
+                    <th>ผู้บังคับบัญชา</th>
+                    <th>ระดับและขอบเขต</th>
                     <th>จัดการ</th>
                   </tr>
                 </thead>
@@ -739,6 +775,24 @@ export default function DesktopManagementPage() {
                         <td>
                           <select
                             className="production-table-select"
+                            name="companyId"
+                            form={formId}
+                            defaultValue={user.companyId ?? ""}
+                            disabled={
+                              !capabilities.usersAdminWrite || Boolean(busy)
+                            }
+                          >
+                            <option value="">ไม่ระบุ</option>
+                            {data.companies?.map((item) => (
+                              <option key={item.id} value={item.id}>
+                                {item.name}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <select
+                            className="production-table-select"
                             name="agencyId"
                             form={formId}
                             defaultValue={user.agencyId ?? ""}
@@ -773,6 +827,26 @@ export default function DesktopManagementPage() {
                           </select>
                         </td>
                         <td>
+                          <select
+                            className="production-table-select"
+                            name="managerEmployeeId"
+                            form={formId}
+                            defaultValue={user.managerEmployeeId ?? ""}
+                            disabled={
+                              !capabilities.usersAdminWrite || Boolean(busy)
+                            }
+                          >
+                            <option value="">ไม่มี (ใช้สายตามนโยบาย)</option>
+                            {data.users
+                              ?.filter((candidate) => candidate.id !== user.id)
+                              .map((candidate) => (
+                                <option key={candidate.id} value={candidate.id}>
+                                  {candidate.fullName}
+                                </option>
+                              ))}
+                          </select>
+                        </td>
+                        <td>
                           {data.rbac && capabilities.rbacAdminWrite ? (
                             <select
                               className="production-table-select production-role-select"
@@ -803,6 +877,58 @@ export default function DesktopManagementPage() {
                                 : "—"}
                             </div>
                           )}
+                          {data.rbac && capabilities.rbacAdminWrite ? (
+                            <div className="production-scope-fields">
+                              <select
+                                className="production-table-select"
+                                name="scopeType"
+                                form={roleFormId}
+                                defaultValue={
+                                  user.roleAssignments[0]?.scopeType ??
+                                  "PLATFORM"
+                                }
+                                aria-label={"ขอบเขตสิทธิ์ของ " + user.fullName}
+                              >
+                                <option value="PLATFORM">ทั้งแพลตฟอร์ม</option>
+                                <option value="COMPANY">ทั้งบริษัท</option>
+                                <option value="TEAM_SET">เฉพาะทีมที่เลือก</option>
+                                <option value="SELF">เฉพาะตนเอง</option>
+                              </select>
+                              <select
+                                className="production-table-select"
+                                name="scopeCompanyId"
+                                form={roleFormId}
+                                defaultValue={
+                                  user.roleAssignments[0]?.scopeCompanyId ?? ""
+                                }
+                                aria-label={"บริษัทของขอบเขตสิทธิ์ " + user.fullName}
+                              >
+                                <option value="">— บริษัท (ถ้าเลือกทั้งบริษัท)</option>
+                                {data.companies?.map((item) => (
+                                  <option key={item.id} value={item.id}>
+                                    {item.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <select
+                                className="production-table-select"
+                                name="scopeAgencyIds"
+                                form={roleFormId}
+                                multiple
+                                size={Math.min(4, Math.max(2, data.agencies?.length ?? 2))}
+                                defaultValue={
+                                  user.roleAssignments[0]?.scopeAgencyIds ?? []
+                                }
+                                aria-label={"ทีมของขอบเขตสิทธิ์ " + user.fullName}
+                              >
+                                {data.agencies?.map((item) => (
+                                  <option key={item.id} value={item.id}>
+                                    {item.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          ) : null}
                         </td>
                         <td>
                           {data.rbac && capabilities.rbacAdminWrite ? (
@@ -863,7 +989,7 @@ export default function DesktopManagementPage() {
                   })}
                   {visibleUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="production-empty-row">
+                      <td colSpan={9} className="production-empty-row">
                         ไม่พบข้อมูล! 😓
                       </td>
                     </tr>
@@ -876,6 +1002,112 @@ export default function DesktopManagementPage() {
             </div>
           </section>
         </>
+      ) : null}
+
+      {(selectedSection === "organization" ||
+        selectedSection === "companies") &&
+      data.companies ? (
+        <section id="companies" className="module-panel production-management-panel fade-in">
+          <div className="production-management-panel-head">
+            <h1>{MANAGEMENT_SECTION_LABEL.companies}</h1>
+            <div className="production-management-head-actions">
+              <form
+                className="production-inline-create"
+                onSubmit={(event) => void createUnit(event, "companies")}
+              >
+                <input
+                  className="form-input"
+                  name="name"
+                  required
+                  maxLength={200}
+                  placeholder="ชื่อบริษัท"
+                />
+                <button
+                  className="success-button"
+                  disabled={
+                    !capabilities.organizationAdminWrite || Boolean(busy)
+                  }
+                >
+                  เพิ่มข้อมูล
+                </button>
+              </form>
+            </div>
+          </div>
+          <div className="table-scroll">
+            <table className="data-table production-management-table">
+              <thead>
+                <tr>
+                  <th>รหัส</th>
+                  <th>บริษัท</th>
+                  <th>สถานะ</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visibleCompanies.map((item) => {
+                  const formId = "company-form-" + item.id;
+                  return (
+                    <tr key={item.id}>
+                      <td title={item.id}>{compactId(item.id)}</td>
+                      <td>
+                        <input
+                          className="production-table-input"
+                          form={formId}
+                          name="name"
+                          defaultValue={item.name}
+                          maxLength={200}
+                          required
+                        />
+                      </td>
+                      <td>
+                        <select
+                          className="production-table-select"
+                          form={formId}
+                          name="active"
+                          defaultValue={String(item.active)}
+                        >
+                          <option value="true">เปิดใช้งาน</option>
+                          <option value="false">ปิดใช้งาน</option>
+                        </select>
+                      </td>
+                      <td>
+                        <form
+                          id={formId}
+                          className="production-table-actions"
+                          onSubmit={(event) =>
+                            void updateUnit(event, "companies", item.id)
+                          }
+                        >
+                          <button
+                            className="production-action-button production-action-edit"
+                            disabled={
+                              !capabilities.organizationAdminWrite ||
+                              Boolean(busy)
+                            }
+                            type="submit"
+                            title="บันทึก"
+                          >
+                            <i
+                              className="fa-solid fa-pen-to-square"
+                              aria-hidden="true"
+                            />
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {visibleCompanies.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="production-empty-row">
+                      ยังไม่มีบริษัท เพิ่มบริษัทแรกด้านบน
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </section>
       ) : null}
 
       {(selectedSection === "organization" ||
@@ -922,7 +1154,8 @@ export default function DesktopManagementPage() {
               <thead>
                 <tr>
                   <th>รหัส</th>
-                  <th>หน่วยงาน</th>
+                  <th>หน่วยงาน (ทีม)</th>
+                  <th>บริษัท</th>
                   <th>สถานะ</th>
                   <th>จัดการ</th>
                 </tr>
@@ -942,6 +1175,21 @@ export default function DesktopManagementPage() {
                           maxLength={200}
                           required
                         />
+                      </td>
+                      <td>
+                        <select
+                          className="production-table-select"
+                          form={formId}
+                          name="companyId"
+                          defaultValue={item.companyId ?? ""}
+                        >
+                          <option value="">ไม่ระบุ</option>
+                          {data.companies?.map((company) => (
+                            <option key={company.id} value={company.id}>
+                              {company.name}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td>
                         <select
@@ -983,7 +1231,7 @@ export default function DesktopManagementPage() {
                 })}
                 {visibleAgencies.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="production-empty-row">
+                    <td colSpan={5} className="production-empty-row">
                       ไม่พบข้อมูล! 😓
                     </td>
                   </tr>

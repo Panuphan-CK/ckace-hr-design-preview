@@ -133,7 +133,8 @@ Implementation progress (apps/web, design system in `src/app/desktop/ui/`):
 - DONE: `/desktop/leave` rebuilt on real data (`/api/leave/me`, `/api/leave/approval-options`, existing idempotent submit/cancel). Hourly leave = start time + number of hours.
 - FIXED 2026-10-15: leave quota now reserves days held by PENDING and REVISION_REQUESTED requests on create (`QUOTA_RESERVING_STATUSES` in `packages/database/src/leave-repository.ts`); `LeaveEntitlementView` gained `pending`, and `remaining = quota - used - pending`. The desktop form also blocks over-quota requests. OPEN: the LINE LIFF bridge `apps/api/src/leave/legacy-leave-liff.service.ts` still counts only APPROVED; not changed because LIFF is out of scope without Owner approval.
 - Pages not yet rebuilt render unchanged inside the new shell (`REDESIGNED_PATHS` in the shell controls this).
-- NEXT: overtime, time correction, medical, attendance clock, approvals (grid), dashboard, calendar, reports, settings, profile.
+- DONE: `/desktop/overtime` (date-range picker, 24h time fields, same idempotent submit/cancel) and `/desktop/medical` (treatment date picker with no future dates, same receipt upload/finalize-recovery logic kept verbatim, history grid with receipt download in the detail dialog).
+- NEXT: time correction, attendance clock, approvals (grid), dashboard, calendar, reports, settings, profile.
 - Needs backend before the UI can match the mockup: "แก้ไข / ส่งกลับให้แก้ไข" approver decision (API accepts only APPROVED/REJECTED), human-readable request numbers, per-request approval-step timeline, team-leave feed for the dashboard, approver delegation, per-type report endpoints, profile photo/signature upload.
 
 

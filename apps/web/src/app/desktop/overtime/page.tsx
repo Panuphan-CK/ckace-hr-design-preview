@@ -1,127 +1,84 @@
 "use client";
 
-import type {
-  OvertimeCreateResult,
-  OvertimeRequestView,
-  OvertimeSelfOverview,
-} from "@ckace/contracts";
+import type { OvertimeCreateResult, OvertimeRequestStatus, OvertimeRequestView, OvertimeSelfOverview } from "@ckace/contracts";
 import type { FormEvent } from "react";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import {
-  attendanceLinkLabel,
-  overtimeMetrics,
-  overtimeRequestMinutes,
-  overtimeStatusClass,
-  overtimeStatusLabel,
-} from "./overtime-view";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import {
-  resolveSubmissionIntent,
-  shouldDiscardSubmissionIntent,
-  type SubmissionIntent,
-} from "../submission-intent";
-import {
-  RequestListToolbar,
-  RequestWorkspaceTabs,
-  type RequestWorkspaceView,
-} from "../request-workspace-tabs";
+import { resolveSubmissionIntent, shouldDiscardSubmissionIntent, type SubmissionIntent } from "../submission-intent";
+import { DatePicker } from "../ui/date-picker";
+import { thaiDateRange, thaiDateTime, weekdaysBetween } from "../ui/format";
+import { Icon } from "../ui/icons";
+import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
+import { attendanceLinkLabel, overtimeMetrics, overtimeRequestMinutes } from "./overtime-view";
 
-type State =
-  | { status: "loading" }
-  | { status: "ready"; overview: OvertimeSelfOverview }
-  | { status: "error"; message: string };
+type State = { status: "loading" } | { status: "ready"; overview: OvertimeSelfOverview } | { status: "error"; message: string };
+type Filter = "ALL" | OvertimeRequestStatus;
 
-type Message =
-  | { kind: "success"; text: string }
-  | { kind: "error"; text: string };
+const STATUS: Readonly<Record<OvertimeRequestStatus, { label: string; tone: string }>> = {
+  PENDING: { label: "รออนุมัติ", tone: "wait" },
+  APPROVED: { label: "อนุมัติ", tone: "ok" },
+  REJECTED: { label: "ไม่อนุมัติ", tone: "bad" },
+  CANCELLED: { label: "ยกเลิก", tone: "muted" },
+};
 
-const dateFmt = new Intl.DateTimeFormat("th-TH", {
-  timeZone: "Asia/Bangkok",
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
-const dateTimeFmt = new Intl.DateTimeFormat("th-TH", {
-  timeZone: "Asia/Bangkok",
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-});
+const FILTERS: readonly { id: Filter; label: string }[] = [
+  { id: "ALL", label: "ทั้งหมด" },
+  { id: "PENDING", label: "รออนุมัติ" },
+  { id: "APPROVED", label: "อนุมัติ" },
+  { id: "REJECTED", label: "ไม่อนุมัติ" },
+];
 
-function todayBangkok(): string {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Bangkok",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-  const values = new Map(parts.map((part) => [part.type, part.value]));
-  return `${values.get("year")}-${values.get("month")}-${values.get("day")}`;
-}
-
-function formatDate(value: string): string {
-  const date = new Date(`${value}T00:00:00+07:00`);
-  return Number.isNaN(date.getTime()) ? value : dateFmt.format(date);
-}
-
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : dateTimeFmt.format(date);
-}
-
-function minutes(value: number): string {
+function minutesLabel(value: number): string {
   const h = Math.floor(value / 60);
   const m = value % 60;
   if (!h) return `${m} นาที`;
-  return m ? `${h} ชม. ${m} นาที` : `${h} ชม.`;
+  return m ? `${h} ชั่วโมง ${m} นาที` : `${h} ชั่วโมง`;
+}
+
+function spanMinutes(start: string, end: string): number {
+  const a = /^(\d{2}):(\d{2})$/.exec(start);
+  const b = /^(\d{2}):(\d{2})$/.exec(end);
+  if (!a || !b) return 0;
+  let diff = Number(b[1]) * 60 + Number(b[2]) - (Number(a[1]) * 60 + Number(a[2]));
+  if (diff <= 0) diff += 24 * 60; // crosses midnight
+  return diff;
 }
 
 function errorMessage(status: number): string {
   if (status === 401) return "หมดเวลาการเข้าใช้งาน กรุณาเข้าสู่ระบบใหม่";
-  if (status === 403) return "บัญชีนี้ไม่มีสิทธิ์ใช้งานโอที";
-  if (status === 409) {
-    return "รายการโอทีซ้ำหรือสถานะเปลี่ยนแล้ว กรุณารีเฟรช";
-  }
-  if (status === 503) {
-    return "โมดูลโอทียังไม่เปิดใช้งานใน environment นี้";
-  }
-  return "ไม่สามารถดำเนินการโอทีได้ กรุณาลองใหม่อีกครั้ง";
+  if (status === 403) return "บัญชีนี้ไม่มีสิทธิ์ใช้งาน OT";
+  if (status === 409) return "รายการ OT ซ้ำหรือสถานะเปลี่ยนแล้ว กรุณารีเฟรช";
+  if (status === 503) return "ระบบ OT ยังไม่เปิดใช้งานในตอนนี้";
+  if (status === 400) return "ข้อมูล OT ไม่ถูกต้อง กรุณาตรวจสอบวันที่และเวลา";
+  return "ไม่สามารถดำเนินการ OT ได้ กรุณาลองใหม่อีกครั้ง";
+}
+
+function requestDates(request: OvertimeRequestView): { start: string; end: string } {
+  const dates = request.segments.map((segment) => segment.workDate).sort();
+  return { start: dates[0] ?? "", end: dates[dates.length - 1] ?? "" };
 }
 
 export default function DesktopOvertimePage() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [busy, setBusy] = useState<string | null>(null);
   const createIntent = useRef<SubmissionIntent | null>(null);
-  const [message, setMessage] = useState<Message | null>(null);
-  const [workspaceView, setWorkspaceView] =
-    useState<RequestWorkspaceView>("new");
-  const [requestSearch, setRequestSearch] = useState("");
-  const [requestMonth, setRequestMonth] = useState("");
-  const today = useMemo(() => todayBangkok(), []);
+  const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [startTime, setStartTime] = useState("18:00");
+  const [endTime, setEndTime] = useState("");
+  const [reason, setReason] = useState("");
+  const [filter, setFilter] = useState<Filter>("ALL");
+  const [detail, setDetail] = useState<OvertimeRequestView | null>(null);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
     try {
-      const response = await fetch("/api/overtime/me", {
-        credentials: "same-origin",
-        cache: "no-store",
-      });
+      const response = await fetch("/api/overtime/me", { credentials: "same-origin", cache: "no-store" });
       if (!response.ok) throw new Error(errorMessage(response.status));
-      setState({
-        status: "ready",
-        overview: (await response.json()) as OvertimeSelfOverview,
-      });
+      setState({ status: "ready", overview: (await response.json()) as OvertimeSelfOverview });
     } catch (error) {
-      setState({
-        status: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "ไม่สามารถโหลดข้อมูลโอทีได้",
-      });
+      setState({ status: "error", message: error instanceof Error ? error.message : "ไม่สามารถโหลดข้อมูล OT ได้" });
     }
   }, []);
 
@@ -129,34 +86,28 @@ export default function DesktopOvertimePage() {
     void load();
   }, [load]);
 
-  const metrics = useMemo(
-    () => (state.status === "ready" ? overtimeMetrics(state.overview) : null),
+  const metrics = useMemo(() => (state.status === "ready" ? overtimeMetrics(state.overview) : null), [state]);
+  const requests = useMemo(
+    () => (state.status === "ready" ? [...state.overview.requests].sort((a, b) => b.submittedAt.localeCompare(a.submittedAt)) : []),
     [state],
   );
+
+  function resetForm() {
+    setStartDate("");
+    setEndDate("");
+    setStartTime("18:00");
+    setEndTime("");
+    setReason("");
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (state.status !== "ready" || busy) return;
-    const form = event.currentTarget;
-    const data = new FormData(form);
-    const body = {
-      startDate: String(data.get("startDate") ?? ""),
-      endDate: String(data.get("endDate") ?? ""),
-      startTime: String(data.get("startTime") ?? ""),
-      endTime: String(data.get("endTime") ?? ""),
-      reason: String(data.get("reason") ?? "").trim(),
-    };
-    if (
-      !body.startDate ||
-      !body.endDate ||
-      !body.startTime ||
-      !body.endTime ||
-      !body.reason
-    ) {
-      setMessage({ kind: "error", text: "กรุณากรอกวันที่ เวลา และเหตุผลให้ครบ" });
+    const body = { startDate, endDate: endDate || startDate, startTime, endTime, reason: reason.trim() };
+    if (!body.startDate || !body.startTime || !body.endTime || !body.reason) {
+      setMessage({ kind: "error", text: "กรุณากรอกวันที่ เวลา และงานที่ทำให้ครบ" });
       return;
     }
-
     createIntent.current = resolveSubmissionIntent(createIntent.current, body);
     setBusy("create");
     setMessage(null);
@@ -168,341 +119,232 @@ export default function DesktopOvertimePage() {
         body: JSON.stringify({ ...body, clientKey: createIntent.current.clientKey }),
       });
       if (!response.ok) {
-        if (shouldDiscardSubmissionIntent(response.status)) {
-          createIntent.current = null;
-        }
+        if (shouldDiscardSubmissionIntent(response.status)) createIntent.current = null;
         throw new Error(errorMessage(response.status));
       }
       const result = (await response.json()) as OvertimeCreateResult;
       setMessage({
         kind: "success",
-        text:
-          `ส่งคำขอโอที ${result.requests.length} วันเรียบร้อยแล้ว` +
-          (result.warnings.length ? ` มีคำเตือน ${result.warnings.length} รายการ` : ""),
+        text: `ส่งคำขอ OT ${result.requests.length} วันเรียบร้อยแล้ว` + (result.warnings.length ? ` มีคำเตือน ${result.warnings.length} รายการ` : ""),
       });
       createIntent.current = null;
-      form.reset();
+      resetForm();
       await load();
     } catch (error) {
-      setMessage({
-        kind: "error",
-        text: error instanceof Error ? error.message : "ส่งคำขอโอทีไม่สำเร็จ",
-      });
+      setMessage({ kind: "error", text: error instanceof Error ? error.message : "ส่งคำขอ OT ไม่สำเร็จ" });
     } finally {
       setBusy(null);
     }
   }
 
   async function cancel(request: OvertimeRequestView) {
-    if (
-      busy ||
-      request.status !== "PENDING" ||
-      !window.confirm("ยืนยันยกเลิกคำขอโอทีนี้?")
-    ) {
-      return;
-    }
+    if (busy || request.status !== "PENDING" || !window.confirm("ยืนยันยกเลิกคำขอ OT นี้?")) return;
     setBusy(request.id);
     setMessage(null);
     try {
-      const response = await fetch(
-        `/api/overtime/requests/${encodeURIComponent(request.id)}/cancel`,
-        { method: "POST", credentials: "same-origin" },
-      );
+      const response = await fetch(`/api/overtime/requests/${encodeURIComponent(request.id)}/cancel`, { method: "POST", credentials: "same-origin" });
       if (!response.ok) throw new Error(errorMessage(response.status));
-      setMessage({ kind: "success", text: "ยกเลิกคำขอโอทีเรียบร้อยแล้ว" });
+      setDetail(null);
+      setMessage({ kind: "success", text: "ยกเลิกคำขอ OT เรียบร้อยแล้ว" });
       await load();
     } catch (error) {
-      setMessage({
-        kind: "error",
-        text:
-          error instanceof Error
-            ? error.message
-            : "ยกเลิกคำขอโอทีไม่สำเร็จ",
-      });
+      setMessage({ kind: "error", text: error instanceof Error ? error.message : "ยกเลิกคำขอ OT ไม่สำเร็จ" });
     } finally {
       setBusy(null);
     }
   }
 
-  if (state.status === "loading") {
-    return (
-      <section
-        className="module-state"
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-      >
-        <div className="spinner" aria-hidden="true" />
-        <h1>กำลังโหลดข้อมูลโอที</h1>
-        <p>กำลังตรวจสอบคำขอและ Attendance linkage จาก Server</p>
-      </section>
-    );
-  }
+  if (state.status === "loading") return <LoadingState title="กำลังโหลดข้อมูล OT" />;
+  if (state.status === "error") return <ErrorState title="เปิดหน้า OT ไม่สำเร็จ" message={state.message} onRetry={() => void load()} />;
 
-  if (state.status === "error") {
-    return (
-      <section className="module-state" role="alert">
-        <div className="status-badge error">OT ERROR</div>
-        <h1>เปิดเมนูโอทีไม่สำเร็จ</h1>
-        <p>{state.message}</p>
-        <button className="primary-button" onClick={() => void load()}>
-          ลองใหม่
-        </button>
-      </section>
-    );
-  }
-
-  const pendingRequests = state.overview.requests.filter(
-    (request) => request.status === "PENDING",
-  );
-  const historyRequests = state.overview.requests.filter(
-    (request) => request.status !== "PENDING",
-  );
-  const visibleRequests =
-    workspaceView === "pending" ? pendingRequests : historyRequests;
-  const requestSearchKey = requestSearch.trim().toLocaleLowerCase("th");
-  const filteredVisibleRequests = visibleRequests.filter((request) => {
-    const firstWorkDate = request.segments[0]?.workDate ?? "";
-    const matchesSearch =
-      requestSearchKey.length === 0 ||
-      [
-        request.reason,
-        overtimeStatusLabel(request.status),
-        ...request.segments.map(
-          (segment) =>
-            segment.workDate + " " + segment.startTime + " " + segment.endTime,
-        ),
-      ]
-        .join(" ")
-        .toLocaleLowerCase("th")
-        .includes(requestSearchKey);
-    const matchesMonth =
-      requestMonth.length === 0 || firstWorkDate.slice(5, 7) === requestMonth;
-    return matchesSearch && matchesMonth;
-  });
+  const perDay = spanMinutes(startTime, endTime);
+  const days = startDate ? Math.max(1, weekdaysBetween(startDate, endDate || startDate) || 1) : 0;
+  const filtered = filter === "ALL" ? requests : requests.filter((request) => request.status === filter);
 
   return (
-    <div className="module-stack task398-request-page">
-      <section className="module-heading">
-        <div>
-          <p className="eyebrow">OVERTIME DESKTOP</p>
-          <h1>โอที</h1>
-          <p>
-            ยื่นคำขอโอที ดูประวัติ และตรวจการเชื่อม OT segment กับ Attendance
-            record ที่ Server เป็นผู้กำหนด
-          </p>
+    <>
+      <PageHead tone="ot" icon="ot" title="ทำงานล่วงเวลา" subtitle="ขอ OT และดูประวัติชั่วโมง OT ของคุณ">
+        <div className="ck-minibal">
+          <span className="ck-c-ot">
+            <i />
+            ขอไปแล้ว <b>{minutesLabel(metrics?.totalRequestedMinutes ?? 0)}</b>
+          </span>
+          <span className="ck-c-med">
+            <i />
+            อนุมัติ <b>{metrics?.approvedRequests ?? 0}</b> คำขอ
+          </span>
         </div>
-      </section>
+      </PageHead>
 
-      <RequestWorkspaceTabs
-        value={workspaceView}
-        onChange={setWorkspaceView}
-        newLabel="ขอ OT"
-        pendingCount={pendingRequests.length}
-        historyCount={historyRequests.length}
-      />
+      <div className="ck-wrap ck-stack">
+        <Message value={message} />
 
-      {message ? (
-        <div
-          className={
-            message.kind === "success"
-              ? "action-message success"
-              : "action-message error"
-          }
-          role={message.kind === "error" ? "alert" : "status"}
-        >
-          {message.text}
-        </div>
-      ) : null}
-
-      <section className="metric-grid">
-        <article className="metric-card">
-          <span>คำขอทั้งหมด</span>
-          <strong>{metrics?.totalRequests ?? 0}</strong>
-        </article>
-        <article className="metric-card">
-          <span>รออนุมัติ</span>
-          <strong>{metrics?.pendingRequests ?? 0}</strong>
-        </article>
-        <article className="metric-card">
-          <span>อนุมัติแล้ว</span>
-          <strong>{metrics?.approvedRequests ?? 0}</strong>
-        </article>
-        <article className="metric-card">
-          <span>เวลาที่ขอรวม</span>
-          <strong>{minutes(metrics?.totalRequestedMinutes ?? 0)}</strong>
-        </article>
-      </section>
-
-      {workspaceView === "new" ? (
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">NEW REQUEST</p>
-            <h2>ยื่นคำขอโอที</h2>
+        <form className="ck-fbox ck-c-ot" onSubmit={submit} noValidate>
+          <SectionHead title="ขอทำงานล่วงเวลา" hint="ส่งได้ทั้งก่อนและหลังวันที่ทำ ถ้าเลือกหลายวันระบบแยกเป็นคำขอรายวัน" />
+          <div className="ck-fgrid">
+            <div className="ck-field span2">
+              <span>วันที่ทำ (เลือกเป็นช่วงได้)</span>
+              <DatePicker
+                mode="range"
+                label="วันที่ทำ OT"
+                start={startDate}
+                end={endDate}
+                onChange={(from, to) => {
+                  setStartDate(from);
+                  setEndDate(to);
+                }}
+              />
+            </div>
+            <div className="ck-field">
+              <span>เริ่ม</span>
+              <TimeInput label="เวลาเริ่ม OT" value={startTime} onChange={setStartTime} />
+            </div>
+            <div className="ck-field">
+              <span>สิ้นสุด</span>
+              <TimeInput label="เวลาสิ้นสุด OT" value={endTime} onChange={setEndTime} />
+            </div>
+            <label className="ck-field full">
+              <span>งานที่ทำ</span>
+              <input className="ck-in" value={reason} maxLength={2000} placeholder="เช่น ปิดงบลูกค้าให้ทันส่ง DBD" onChange={(event) => setReason(event.currentTarget.value)} />
+            </label>
           </div>
-          <span className="panel-note">วันที่ต้องไม่เกิน {formatDate(today)}</span>
-        </div>
-        <form className="leave-form" onSubmit={submit}>
-          <label>
-            วันที่เริ่ม
-            <input type="date" name="startDate" max={today} required disabled={busy === "create"} />
-          </label>
-          <label>
-            วันที่สิ้นสุด
-            <input type="date" name="endDate" max={today} required disabled={busy === "create"} />
-          </label>
-          <label>
-            เวลาเริ่ม
-            <input type="time" name="startTime" required disabled={busy === "create"} />
-          </label>
-          <label>
-            เวลาสิ้นสุด
-            <input type="time" name="endTime" required disabled={busy === "create"} />
-          </label>
-          <label className="form-span-2">
-            เหตุผล
-            <textarea
-              name="reason"
-              rows={3}
-              maxLength={1000}
-              required
-              disabled={busy === "create"}
-              placeholder="ระบุงานหรือเหตุผลในการทำโอที"
-            />
-          </label>
-          <div className="form-span-2 form-actions">
-            <button className="primary-button" type="submit" disabled={busy === "create"}>
-              {busy === "create" ? "กำลังส่งคำขอ..." : "ส่งคำขอโอที"}
+
+          <div className="ck-aprbox">
+            <div className="ck-aprh">
+              <Icon name="flow" size={18} style={{ color: "var(--tc)" }} />
+              ผู้อนุมัติคำขอนี้
+              <span className="ck-hint">ระบบส่งให้หัวหน้าตามสายอนุมัติ OT ของบริษัทโดยอัตโนมัติ</span>
+            </div>
+            <div className="ck-aprrow">
+              <div className="ck-apr">
+                <span className="ck-apr-n">1</span>
+                <small>ผู้อนุมัติขั้นที่ 1</small>
+                <b>หัวหน้าตามสายงาน</b>
+              </div>
+            </div>
+          </div>
+
+          <div className="ck-fbar">
+            <span className="ck-sumline">
+              <Icon name="clock" size={18} />
+              {startDate && perDay > 0 ? (
+                <>
+                  รวม <b>{minutesLabel(perDay)}</b> ต่อวัน {days > 1 ? <>จำนวน <b>{days} วัน</b></> : null} วันที่ <b>{thaiDateRange(startDate, endDate || startDate)}</b>
+                </>
+              ) : (
+                "เลือกวันที่และเวลา ระบบจะสรุปชั่วโมงให้ตรงนี้"
+              )}
+            </span>
+            <button className="ck-btn quiet ck-ml" type="button" onClick={resetForm}>
+              ล้างฟอร์ม
+            </button>
+            <button className="ck-btn tone" type="submit" disabled={busy !== null}>
+              {busy === "create" ? "กำลังส่ง…" : "ส่งคำขอ OT"}
             </button>
           </div>
         </form>
-      </section>
-      ) : null}
 
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">ATTENDANCE LINKAGE</p>
-            <h2>การเชื่อมกับเวลาเข้างาน</h2>
-          </div>
-          <div className="ot-link-summary">
-            <span>เชื่อมแล้ว {metrics?.linkedSegments ?? 0}</span>
-            <span>ยังไม่เชื่อม {metrics?.unlinkedSegments ?? 0}</span>
-          </div>
-        </div>
-        <p className="panel-description">
-          Desktop แสดง linkage จาก Project B Server เท่านั้น ไม่สร้างหรือแก้
-          Attendance linkage ฝั่ง client
-        </p>
-      </section>
-
-      {workspaceView !== "new" ? (
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">
-              {workspaceView === "pending" ? "IN PROGRESS" : "HISTORY"}
-            </p>
-            <h2>
-              {workspaceView === "pending"
-                ? "คำขอ OT ที่กำลังดำเนินการ"
-                : "ประวัติ OT"}
-            </h2>
-          </div>
-          <span className="panel-note">{filteredVisibleRequests.length} รายการ</span>
-        </div>
-
-        <RequestListToolbar
-          search={requestSearch}
-          onSearchChange={setRequestSearch}
-          month={requestMonth}
-          onMonthChange={setRequestMonth}
-          onClear={() => {
-            setRequestSearch("");
-            setRequestMonth("");
-          }}
-          onCreate={() => setWorkspaceView("new")}
-          createLabel="ขอ OT"
-          searchPlaceholder="ค้นหาเหตุผลหรือวันที่..."
-        />
-
-        {filteredVisibleRequests.length === 0 ? (
-          <div className="empty-state">
-            <h3>
-              {workspaceView === "pending"
-                ? "ไม่มีคำขอ OT ที่กำลังดำเนินการ"
-                : "ยังไม่มีประวัติ OT"}
-            </h3>
-            <p>
-              {workspaceView === "pending"
-                ? "คำขอที่รอการพิจารณาจะแสดงที่นี่"
-                : "คำขอที่สิ้นสุดแล้วจะแสดงที่นี่"}
-            </p>
-          </div>
-        ) : (
-          <div className="ot-history-list">
-            {filteredVisibleRequests.map((request) => (
-              <article className="ot-request-card" key={request.id}>
-                <div className="ot-request-head">
-                  <div>
-                    <strong>{request.reason}</strong>
-                    <small>ส่งเมื่อ {formatDateTime(request.submittedAt)}</small>
-                  </div>
-                  <span className={overtimeStatusClass(request.status)}>
-                    {overtimeStatusLabel(request.status)}
-                  </span>
-                </div>
-
-                <div className="ot-request-meta">
-                  <span>{request.segments.length} ช่วง</span>
-                  <span>{minutes(overtimeRequestMinutes(request))}</span>
-                </div>
-
-                <div className="ot-segment-grid">
-                  {request.segments.map((segment) => (
-                    <div className="ot-segment-card" key={segment.id}>
-                      <strong>{formatDate(segment.workDate)}</strong>
-                      <span>{segment.startTime}–{segment.endTime}</span>
-                      <small>{minutes(segment.requestedMinutes)}</small>
-                      <span
-                        className={
-                          segment.attendanceRecordId
-                            ? "ot-link-state linked"
-                            : "ot-link-state pending"
-                        }
-                      >
-                        {attendanceLinkLabel(segment.attendanceRecordId)}
+        <section className="ck-panel ck-c-ot" aria-labelledby="ot-history">
+          <SectionHead title="ประวัติ OT" id="ot-history" count={requests.length}>
+            <Filters value={filter} options={FILTERS} onChange={setFilter} />
+          </SectionHead>
+          {filtered.length === 0 ? (
+            <EmptyState title={requests.length === 0 ? "ยังไม่มีประวัติ OT" : "ไม่มีคำขอในสถานะนี้"}>คำขอ OT ที่ส่งแล้วจะแสดงที่นี่</EmptyState>
+          ) : (
+            <div className="ck-hgrid">
+              {filtered.map((request) => {
+                const { start, end } = requestDates(request);
+                const first = request.segments[0];
+                const status = STATUS[request.status];
+                return (
+                  <button key={request.id} type="button" className="ck-hcard ck-c-ot" onClick={() => setDetail(request)}>
+                    <span className="ck-hc-top">
+                      <span className="ck-chip">
+                        <Icon name="ot" />
                       </span>
-                    </div>
-                  ))}
-                </div>
+                      <span>
+                        <b>OT {minutesLabel(overtimeRequestMinutes(request))}</b>
+                        <small>ยื่นเมื่อ {thaiDateTime(request.submittedAt)}</small>
+                      </span>
+                      <span className={"ck-pill " + status.tone}>{status.label}</span>
+                    </span>
+                    <dl className="ck-dl">
+                      <div>
+                        <dt>วันที่</dt>
+                        <dd>{start ? thaiDateRange(start, end) : "—"}</dd>
+                      </div>
+                      <div>
+                        <dt>เวลา</dt>
+                        <dd>{first ? `${first.startTime} ถึง ${first.endTime}` : "—"}</dd>
+                      </div>
+                      <div>
+                        <dt>งานที่ทำ</dt>
+                        <dd>{request.reason || "—"}</dd>
+                      </div>
+                    </dl>
+                    <span className="ck-hc-foot">
+                      <span className="ck-more">
+                        ดูรายละเอียด
+                        <Icon name="chevron" size={14} />
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </div>
 
-                {request.decisionReason ? (
-                  <div className="decision-note">
-                    <strong>เหตุผลผลพิจารณา</strong>
-                    <span>{request.decisionReason}</span>
-                  </div>
-                ) : null}
-
-                {request.status === "PENDING" ? (
-                  <div className="approval-actions">
-                    <button
-                      className="danger-button"
-                      type="button"
-                      disabled={Boolean(busy)}
-                      onClick={() => void cancel(request)}
-                    >
-                      {busy === request.id ? "กำลังยกเลิก..." : "ยกเลิกคำขอ"}
-                    </button>
-                  </div>
-                ) : null}
-              </article>
-            ))}
+      {detail ? (
+        <DetailDialog
+          tone="ot"
+          icon="ot"
+          kicker="รายละเอียดคำขอ OT"
+          title={`OT ${minutesLabel(overtimeRequestMinutes(detail))}`}
+          status={STATUS[detail.status]}
+          onClose={() => setDetail(null)}
+          footer={
+            detail.status === "PENDING" ? (
+              <button type="button" className="ck-btn no" disabled={busy !== null} onClick={() => void cancel(detail)}>
+                ยกเลิกคำขอ
+              </button>
+            ) : null
+          }
+        >
+          <dl className="ck-dlg-grid">
+            <div>
+              <dt>ยื่นเมื่อ</dt>
+              <dd>{thaiDateTime(detail.submittedAt)}</dd>
+            </div>
+            <div>
+              <dt>รวมเวลา</dt>
+              <dd>{minutesLabel(overtimeRequestMinutes(detail))}</dd>
+            </div>
+          </dl>
+          <div className="ck-dlg-sec">
+            <h3>งานที่ทำ</h3>
+            <p>{detail.reason || "—"}</p>
           </div>
-        )}
-      </section>
+          <div className="ck-dlg-sec">
+            <h3>ช่วงเวลาที่ขอ</h3>
+            <dl className="ck-dl">
+              {detail.segments.map((segment) => (
+                <div key={segment.id}>
+                  <dt>{thaiDateRange(segment.workDate, segment.workDate)}</dt>
+                  <dd>
+                    {segment.startTime} ถึง {segment.endTime} ({minutesLabel(segment.requestedMinutes)}) {attendanceLinkLabel(segment.attendanceRecordId)}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div className="ck-dlg-sec">
+            <h3>ผลการพิจารณา</h3>
+            <p>{detail.decisionReason || (detail.status === "PENDING" ? "รอผู้อนุมัติพิจารณา" : "—")}</p>
+          </div>
+        </DetailDialog>
       ) : null}
-    </div>
+    </>
   );
 }

@@ -73,7 +73,7 @@ describe("Desktop Overtime view helpers", () => {
       ),
     ).toBe("เชื่อมข้อมูลเวลาเข้างานแล้ว");
     expect(attendanceLinkLabel(null)).toBe(
-      "ยังไม่มี Attendance linkage",
+      "ยังไม่พบบันทึกเวลาเข้างานของวันนั้น",
     );
   });
 });

@@ -3,6 +3,7 @@
 import type {
   AttachmentDownloadResult,
   LeaveSelfOverview,
+  MedicalClaimStatus,
   MedicalClaimView,
   MedicalCreateResult,
   MedicalSelfOverview,
@@ -21,11 +22,10 @@ import {
   shouldDiscardSubmissionIntent,
   type SubmissionIntent,
 } from "../submission-intent";
-import {
-  RequestListToolbar,
-  RequestWorkspaceTabs,
-  type RequestWorkspaceView,
-} from "../request-workspace-tabs";
+import { DatePicker } from "../ui/date-picker";
+import { thaiDate, thaiDateRange, thaiDateTime } from "../ui/format";
+import { Icon } from "../ui/icons";
+import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
 import {
   completeMedicalReceiptUploads,
   errorMessage,
@@ -37,10 +37,7 @@ import { preparePrivateDownloadTab, showPrivateDownload } from "../private-downl
 import {
   MEDICAL_DESKTOP_PER_CLAIM_LIMIT,
   formatMedicalBytes,
-  medicalMetrics,
   shouldCleanupUnlinkedReceipts,
-  medicalStatusClass,
-  medicalStatusLabel,
   validateReceiptCandidates,
 } from "./medical-view";
 
@@ -59,23 +56,6 @@ const currency = new Intl.NumberFormat("th-TH", {
   maximumFractionDigits: 2,
 });
 
-const dateFormat = new Intl.DateTimeFormat("th-TH", {
-  timeZone: "Asia/Bangkok",
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
-
-const dateTimeFormat = new Intl.DateTimeFormat("th-TH", {
-  timeZone: "Asia/Bangkok",
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-});
-
 function todayBangkok(): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Bangkok",
@@ -89,19 +69,21 @@ function todayBangkok(): string {
   return `${values.get("year")}-${values.get("month")}-${values.get("day")}`;
 }
 
-function formatDate(value: string): string {
-  const date = new Date(`${value}T00:00:00+07:00`);
-  return Number.isNaN(date.getTime())
-    ? value
-    : dateFormat.format(date);
-}
+type Filter = "ALL" | MedicalClaimStatus;
 
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : dateTimeFormat.format(date);
-}
+const STATUS: Readonly<Record<MedicalClaimStatus, { label: string; tone: string }>> = {
+  PENDING: { label: "รออนุมัติ", tone: "wait" },
+  APPROVED: { label: "อนุมัติ", tone: "ok" },
+  REJECTED: { label: "ไม่อนุมัติ", tone: "bad" },
+  CANCELLED: { label: "ยกเลิก", tone: "muted" },
+};
+
+const FILTERS: readonly { id: Filter; label: string }[] = [
+  { id: "ALL", label: "ทั้งหมด" },
+  { id: "PENDING", label: "รออนุมัติ" },
+  { id: "APPROVED", label: "อนุมัติ" },
+  { id: "REJECTED", label: "ไม่อนุมัติ" },
+];
 
 async function cleanupAttachments(
   attachmentIds: readonly string[],
@@ -131,10 +113,10 @@ export default function DesktopMedicalPage() {
   const uploadedForIntent = useRef<MedicalReceiptProgress | null>(null);
   const [message, setMessage] =
     useState<ActionMessage | null>(null);
-  const [workspaceView, setWorkspaceView] =
-    useState<RequestWorkspaceView>("new");
-  const [requestSearch, setRequestSearch] = useState("");
-  const [requestMonth, setRequestMonth] = useState("");
+  const [sicknessDate, setSicknessDate] = useState("");
+  const [amountText, setAmountText] = useState("");
+  const [filter, setFilter] = useState<Filter>("ALL");
+  const [detail, setDetail] = useState<MedicalClaimView | null>(null);
   const today = useMemo(() => todayBangkok(), []);
 
   const load = useCallback(async () => {
@@ -176,14 +158,6 @@ export default function DesktopMedicalPage() {
   useEffect(() => {
     void load();
   }, [load]);
-
-  const metrics = useMemo(
-    () =>
-      state.status === "ready"
-        ? medicalMetrics(state.overview)
-        : null,
-    [state],
-  );
 
   async function submitClaim(
     event: FormEvent<HTMLFormElement>,
@@ -278,6 +252,8 @@ export default function DesktopMedicalPage() {
       uploadedForIntent.current = null;
       form.reset();
       setFiles([]);
+      setSicknessDate("");
+      setAmountText("");
       await load();
     } catch (error) {
       // Never delete potentially linked receipts after an uncertain POST outcome.
@@ -378,433 +354,288 @@ export default function DesktopMedicalPage() {
     }
   }
 
-  if (state.status === "loading") {
-    return (
-      <section
-        className="module-state"
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-      >
-        <div className="spinner" aria-hidden="true" />
-        <h1>กำลังโหลดค่ารักษาพยาบาล</h1>
-        <p>
-          กำลังตรวจวงเงินรายปี ประวัติ และสิทธิ์ไฟล์ใบเสร็จจาก Server
-        </p>
-      </section>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <section className="module-state" role="alert">
-        <div className="status-badge error">MEDICAL ERROR</div>
-        <h1>เปิดค่ารักษาพยาบาลไม่สำเร็จ</h1>
-        <p>{state.message}</p>
-        <button
-          className="primary-button"
-          type="button"
-          onClick={() => void load()}
-        >
-          ลองใหม่
-        </button>
-      </section>
-    );
-  }
+  if (state.status === "loading") return <LoadingState title="กำลังโหลดค่ารักษาพยาบาล" />;
+  if (state.status === "error") return <ErrorState title="เปิดหน้าค่ารักษาพยาบาลไม่สำเร็จ" message={state.message} onRetry={() => void load()} />;
 
   const { overview } = state;
-  const maxAmount = Math.max(
-    0,
-    Math.min(
-      MEDICAL_DESKTOP_PER_CLAIM_LIMIT,
-      overview.entitlement.remaining,
-    ),
-  );
-  const leaveOptions =
-    leaveOverview?.requests.filter(
-      (request) => request.status !== "CANCELLED",
-    ) ?? [];
-  const pendingClaims = overview.claims.filter(
-    (claim) => claim.status === "PENDING",
-  );
-  const historyClaims = overview.claims.filter(
-    (claim) => claim.status !== "PENDING",
-  );
-  const visibleClaims =
-    workspaceView === "pending" ? pendingClaims : historyClaims;
-  const requestSearchKey = requestSearch.trim().toLocaleLowerCase("th");
-  const filteredVisibleClaims = visibleClaims.filter((claim) => {
-    const matchesSearch =
-      requestSearchKey.length === 0 ||
-      [
-        claim.description,
-        medicalStatusLabel(claim.status),
-        String(claim.amount),
-        claim.sicknessDate,
-      ]
-        .join(" ")
-        .toLocaleLowerCase("th")
-        .includes(requestSearchKey);
-    const matchesMonth =
-      requestMonth.length === 0 || claim.sicknessDate.slice(5, 7) === requestMonth;
-    return matchesSearch && matchesMonth;
-  });
+  const maxAmount = Math.max(0, Math.min(MEDICAL_DESKTOP_PER_CLAIM_LIMIT, overview.entitlement.remaining));
+  const leaveOptions = leaveOverview?.requests.filter((request) => request.status !== "CANCELLED") ?? [];
+  const claims = [...overview.claims].sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+  const filtered = filter === "ALL" ? claims : claims.filter((claim) => claim.status === filter);
+  const amountNumber = Number(amountText);
+  const overLimit = Number.isFinite(amountNumber) && amountNumber > maxAmount;
+  const usedPercent = overview.entitlement.annualLimit > 0 ? Math.min(((overview.entitlement.annualLimit - overview.entitlement.remaining) / overview.entitlement.annualLimit) * 100, 100) : 0;
 
   return (
-    <div className="module-stack task398-request-page">
-      <section className="module-heading">
-        <div>
-          <p className="eyebrow">MEDICAL CLAIM DESKTOP</p>
-          <h1>ค่ารักษาพยาบาล</h1>
-          <p>
-            ตรวจวงเงินรายปี ยื่นคำขอพร้อมใบเสร็จส่วนตัว
-            และติดตามผลผ่าน Project B
-          </p>
-        </div>
-        <div className="module-heading-actions">
-          <button
-            className="secondary-button"
-            type="button"
-            onClick={() => void load()}
-          >
-            รีเฟรช
-          </button>
-        </div>
-      </section>
-
-      <RequestWorkspaceTabs
-        value={workspaceView}
-        onChange={setWorkspaceView}
-        newLabel="เบิกค่ารักษา"
-        pendingCount={pendingClaims.length}
-        historyCount={historyClaims.length}
-      />
-
-      {message ? (
-        <div
-          className={
-            message.kind === "success"
-              ? "action-message success"
-              : "action-message error"
-          }
-          role={message.kind === "error" ? "alert" : "status"}
-        >
-          {message.text}
-        </div>
-      ) : null}
-
-      <section className="metric-grid medical-metric-grid">
-        <article className="metric-card">
-          <span>วงเงินรายปี</span>
-          <strong>
-            {currency.format(overview.entitlement.annualLimit)}
-          </strong>
-        </article>
-        <article className="metric-card">
-          <span>อนุมัติแล้ว</span>
-          <strong>
-            {currency.format(overview.entitlement.approved)}
-          </strong>
-        </article>
-        <article className="metric-card">
-          <span>ยอดผูกพัน</span>
-          <strong>
-            {currency.format(overview.entitlement.committed)}
-          </strong>
-        </article>
-        <article className="metric-card">
-          <span>วงเงินคงเหลือ</span>
-          <strong>
-            {currency.format(overview.entitlement.remaining)}
-          </strong>
-        </article>
-      </section>
-
-      {workspaceView === "new" ? (
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">NEW CLAIM</p>
-            <h2>ยื่นเบิกค่ารักษาพยาบาล</h2>
-          </div>
-          <span className="panel-note">
-            สูงสุด {currency.format(MEDICAL_DESKTOP_PER_CLAIM_LIMIT)}
-            /ครั้ง
+    <>
+      <PageHead tone="med" icon="med" title="เบิกค่ารักษา" subtitle="เบิกค่ารักษาพยาบาลและดูวงเงินคงเหลือของปีนี้">
+        <div className="ck-minibal">
+          <span className="ck-c-med">
+            <i />
+            คงเหลือ <b>{currency.format(overview.entitlement.remaining)}</b>
+          </span>
+          <span className="ck-c-ot">
+            <i />
+            รออนุมัติ <b>{currency.format(Math.max(overview.entitlement.committed - overview.entitlement.approved, 0))}</b>
           </span>
         </div>
+      </PageHead>
 
-        <form className="leave-form" onSubmit={submitClaim}>
-          <label>
-            วันที่รักษา
-            <input
-              type="date"
-              name="sicknessDate"
-              max={today}
-              required
-              disabled={busy === "create" || maxAmount <= 0}
-            />
-          </label>
-          <label>
-            จำนวนเงิน
-            <input
-              type="number"
-              name="amount"
-              min="0.01"
-              max={maxAmount || undefined}
-              step="0.01"
-              required
-              disabled={busy === "create" || maxAmount <= 0}
-            />
-            <small className="field-help">
-              เบิกได้ไม่เกิน {currency.format(maxAmount)} จากวงเงินปัจจุบัน
-            </small>
-          </label>
+      <div className="ck-wrap ck-stack">
+        <Message value={message} />
 
-          {leaveOptions.length > 0 ? (
-            <label className="form-span-2">
-              เชื่อมกับคำขอลา (ถ้ามี)
-              <select
-                name="leaveRequestId"
-                defaultValue=""
-                disabled={busy === "create"}
-              >
-                <option value="">ไม่เชื่อมคำขอลา</option>
+        <form className="ck-fbox ck-c-med" onSubmit={submitClaim} noValidate>
+          <SectionHead title="ขอเบิกค่ารักษา" hint={`แนบใบเสร็จที่อ่านได้ชัด เบิกได้สูงสุด ${currency.format(MEDICAL_DESKTOP_PER_CLAIM_LIMIT)} ต่อครั้ง`} />
+          {maxAmount <= 0 ? (
+            <p className="ck-msg error" role="alert" style={{ marginBottom: 16 }}>
+              วงเงินค่ารักษาของปีนี้ไม่เพียงพอสำหรับการเบิกเพิ่ม
+            </p>
+          ) : null}
+          <div className="ck-fgrid">
+            <div className="ck-field">
+              <span>วันที่รักษา</span>
+              <DatePicker mode="single" label="วันที่รักษา" start={sicknessDate} end={sicknessDate} max={today} onChange={(day) => setSicknessDate(day)} />
+              <input type="hidden" name="sicknessDate" value={sicknessDate} />
+            </div>
+            <label className="ck-field">
+              <span>จำนวนเงิน (บาท)</span>
+              <input
+                className="ck-in"
+                type="number"
+                name="amount"
+                min="0.01"
+                step="0.01"
+                inputMode="decimal"
+                required
+                value={amountText}
+                disabled={busy === "create" || maxAmount <= 0}
+                onChange={(event) => setAmountText(event.currentTarget.value)}
+              />
+            </label>
+            <label className="ck-field span2">
+              <span>เชื่อมกับใบลา (ถ้ามี)</span>
+              <select className="ck-in" name="leaveRequestId" defaultValue="" disabled={busy === "create" || leaveOptions.length === 0}>
+                <option value="">{leaveOptions.length === 0 ? "ไม่มีใบลาให้เชื่อม" : "ไม่เชื่อมกับใบลา"}</option>
                 {leaveOptions.map((request) => (
-                  <option
-                    key={request.requestId}
-                    value={request.requestId}
-                  >
-                    {request.leaveTypeName} · {formatDate(request.startDate)}
-                    {request.startDate !== request.endDate
-                      ? ` – ${formatDate(request.endDate)}`
-                      : ""}
+                  <option key={request.requestId} value={request.requestId}>
+                    {request.leaveTypeName} {thaiDateRange(request.startDate, request.endDate)}
                   </option>
                 ))}
               </select>
             </label>
-          ) : null}
-
-          <label className="form-span-2">
-            รายละเอียด
-            <textarea
-              name="description"
-              rows={3}
-              maxLength={1000}
-              required
-              disabled={busy === "create" || maxAmount <= 0}
-              placeholder="ระบุอาการหรือรายละเอียดการรักษา"
-            />
-          </label>
-
-          <label className="form-span-2">
-            ใบเสร็จ / เอกสาร
-            <input
-              type="file"
-              accept="image/jpeg,image/png,application/pdf"
-              multiple
-              required
-              disabled={busy === "create" || maxAmount <= 0}
-              onChange={(event) => {
-                const next = Array.from(
-                  event.currentTarget.files ?? [],
-                );
-                const error = validateReceiptCandidates(next);
-                setFiles(next);
-                setMessage(
-                  error
-                    ? { kind: "error", text: error }
-                    : null,
-                );
-              }}
-            />
-            <small className="field-help">
-              1–3 ไฟล์ · JPG/PNG/PDF · ไม่เกิน 2 MiB/ไฟล์ · รวมไม่เกิน
-              4 MiB · จัดเก็บเป็น MEDICAL_PRIVATE
-            </small>
-          </label>
-
+            <label className="ck-field span3">
+              <span>อาการหรือรายละเอียดการรักษา</span>
+              <input className="ck-in" name="description" maxLength={1000} required placeholder="เช่น ไข้หวัด เจ็บคอ" disabled={busy === "create" || maxAmount <= 0} />
+            </label>
+            <label className="ck-field">
+              <span>ใบเสร็จ (1 ถึง 3 ไฟล์)</span>
+              <span className="ck-in ck-file">
+                <Icon name="clip" size={17} />
+                {files.length > 0 ? `เลือกแล้ว ${files.length} ไฟล์` : "เลือกไฟล์ JPG PNG หรือ PDF"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,application/pdf"
+                  multiple
+                  required
+                  disabled={busy === "create" || maxAmount <= 0}
+                  onChange={(event) => {
+                    const next = Array.from(event.currentTarget.files ?? []);
+                    const error = validateReceiptCandidates(next);
+                    setFiles(next);
+                    setMessage(error ? { kind: "error", text: error } : null);
+                  }}
+                />
+              </span>
+            </label>
+          </div>
           {files.length > 0 ? (
-            <div className="form-span-2 medical-file-list">
+            <div className="ck-files">
               {files.map((file) => (
                 <span key={`${file.name}-${file.size}`}>
-                  {file.name} · {formatMedicalBytes(file.size)}
+                  <Icon name="clip" size={14} />
+                  {file.name} ({formatMedicalBytes(file.size)})
                 </span>
               ))}
             </div>
           ) : null}
 
-          <div className="form-span-2 form-actions">
+          <div className="ck-aprbox">
+            <div className="ck-aprh">
+              <Icon name="flow" size={18} style={{ color: "var(--tc)" }} />
+              ผู้อนุมัติคำขอนี้
+              <span className="ck-hint">ระบบส่งตามสายอนุมัติค่ารักษาของบริษัทโดยอัตโนมัติ</span>
+            </div>
+            <div className="ck-aprrow">
+              <div className="ck-apr">
+                <span className="ck-apr-n">1</span>
+                <small>ผู้อนุมัติ</small>
+                <b>ตามสายอนุมัติค่ารักษา</b>
+              </div>
+            </div>
+          </div>
+
+          {overLimit ? (
+            <p className="ck-msg error" role="alert" style={{ marginTop: 16 }}>
+              จำนวนเงินเกินที่เบิกได้ เบิกได้ไม่เกิน {currency.format(maxAmount)}
+            </p>
+          ) : null}
+
+          <div className="ck-fbar">
+            <span className="ck-sumline">
+              <Icon name="med" size={18} />
+              {amountNumber > 0 && !overLimit ? (
+                <>
+                  เบิก <b>{currency.format(amountNumber)}</b> หลังเบิกเหลือวงเงิน <b>{currency.format(overview.entitlement.remaining - amountNumber)}</b>
+                </>
+              ) : (
+                <>
+                  เบิกได้ไม่เกิน <b>{currency.format(maxAmount)}</b> ในครั้งนี้
+                </>
+              )}
+            </span>
             <button
-              className="primary-button"
+              className="ck-btn tone ck-ml"
               type="submit"
-              disabled={
-                busy === "create" ||
-                maxAmount <= 0 ||
-                files.length === 0
-              }
+              disabled={busy === "create" || maxAmount <= 0 || files.length === 0 || overLimit || !sicknessDate}
             >
-              {busy === "create"
-                ? "กำลังอัปโหลดและส่งคำขอ..."
-                : maxAmount <= 0
-                  ? "วงเงินปีนี้ไม่เพียงพอ"
-                  : "ส่งคำขอเบิก"}
+              {busy === "create" ? "กำลังอัปโหลดและส่ง…" : "ส่งคำขอเบิก"}
             </button>
           </div>
         </form>
-      </section>
-      ) : null}
 
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">SUMMARY</p>
-            <h2>สถานะปีปัจจุบัน</h2>
+        <section className="ck-panel ck-c-med" aria-labelledby="med-quota">
+          <SectionHead title="วงเงินค่ารักษาปีนี้" id="med-quota" />
+          <div className="ck-quota">
+            <div>
+              <small>วงเงินทั้งปี</small>
+              <b>{currency.format(overview.entitlement.annualLimit)}</b>
+            </div>
+            <div>
+              <small>อนุมัติแล้ว</small>
+              <b>{currency.format(overview.entitlement.approved)}</b>
+            </div>
+            <div>
+              <small>รออนุมัติ</small>
+              <b>{currency.format(Math.max(overview.entitlement.committed - overview.entitlement.approved, 0))}</b>
+            </div>
+            <div>
+              <small>คงเหลือ</small>
+              <b className="hl">{currency.format(overview.entitlement.remaining)}</b>
+            </div>
           </div>
-        </div>
-        <div className="medical-summary-strip">
-          <span>ทั้งหมด {metrics?.totalClaims ?? 0}</span>
-          <span>รออนุมัติ {metrics?.pendingClaims ?? 0}</span>
-          <span>อนุมัติ {metrics?.approvedClaims ?? 0}</span>
-          <span>ไม่อนุมัติ {metrics?.rejectedClaims ?? 0}</span>
-        </div>
-      </section>
-
-      {workspaceView !== "new" ? (
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">
-              {workspaceView === "pending" ? "IN PROGRESS" : "HISTORY"}
-            </p>
-            <h2>
-              {workspaceView === "pending"
-                ? "คำขอค่ารักษาที่กำลังดำเนินการ"
-                : "ประวัติค่ารักษาพยาบาล"}
-            </h2>
+          <div className="ck-track" style={{ marginTop: 14 }}>
+            <i style={{ width: `${usedPercent}%` }} />
           </div>
-          <span className="panel-note">
-            {filteredVisibleClaims.length} รายการ
-          </span>
-        </div>
+        </section>
 
-        <RequestListToolbar
-          search={requestSearch}
-          onSearchChange={setRequestSearch}
-          month={requestMonth}
-          onMonthChange={setRequestMonth}
-          onClear={() => {
-            setRequestSearch("");
-            setRequestMonth("");
-          }}
-          onCreate={() => setWorkspaceView("new")}
-          createLabel="เบิกค่ารักษา"
-          searchPlaceholder="ค้นหารายละเอียดหรือจำนวนเงิน..."
-        />
+        <section className="ck-panel ck-c-med" aria-labelledby="med-history">
+          <SectionHead title="ประวัติการเบิก" id="med-history" count={claims.length}>
+            <Filters value={filter} options={FILTERS} onChange={setFilter} />
+          </SectionHead>
+          {filtered.length === 0 ? (
+            <EmptyState title={claims.length === 0 ? "ยังไม่มีประวัติการเบิก" : "ไม่มีคำขอในสถานะนี้"}>คำขอเบิกที่ส่งแล้วจะแสดงที่นี่</EmptyState>
+          ) : (
+            <div className="ck-hgrid">
+              {filtered.map((claim) => {
+                const status = STATUS[claim.status];
+                return (
+                  <button key={claim.id} type="button" className="ck-hcard ck-c-med" onClick={() => setDetail(claim)}>
+                    <span className="ck-hc-top">
+                      <span className="ck-chip">
+                        <Icon name="med" />
+                      </span>
+                      <span>
+                        <b>{currency.format(claim.amount)}</b>
+                        <small>ยื่นเมื่อ {thaiDateTime(claim.submittedAt)}</small>
+                      </span>
+                      <span className={"ck-pill " + status.tone}>{status.label}</span>
+                    </span>
+                    <dl className="ck-dl">
+                      <div>
+                        <dt>วันที่รักษา</dt>
+                        <dd>{thaiDate(claim.sicknessDate)}</dd>
+                      </div>
+                      <div>
+                        <dt>รายละเอียด</dt>
+                        <dd>{claim.description || "—"}</dd>
+                      </div>
+                      <div>
+                        <dt>ใบเสร็จ</dt>
+                        <dd>{claim.attachments.length} ไฟล์</dd>
+                      </div>
+                    </dl>
+                    <span className="ck-hc-foot">
+                      <span className="ck-more">
+                        ดูรายละเอียด
+                        <Icon name="chevron" size={14} />
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </div>
 
-        {filteredVisibleClaims.length === 0 ? (
-          <div className="empty-state">
-            <h3>
-              {workspaceView === "pending"
-                ? "ไม่มีคำขอค่ารักษาที่กำลังดำเนินการ"
-                : "ยังไม่มีประวัติค่ารักษาพยาบาล"}
-            </h3>
-            <p>
-              {workspaceView === "pending"
-                ? "คำขอที่รอการพิจารณาจะแสดงที่นี่"
-                : "คำขอที่สิ้นสุดแล้วจะแสดงที่นี่"}
-            </p>
-          </div>
-        ) : (
-          <div className="medical-history-list">
-            {filteredVisibleClaims.map((claim) => (
-              <article
-                className="medical-claim-card"
-                key={claim.id}
+      {detail ? (
+        <DetailDialog
+          tone="med"
+          icon="med"
+          kicker="รายละเอียดคำขอเบิกค่ารักษา"
+          title={currency.format(detail.amount)}
+          status={STATUS[detail.status]}
+          onClose={() => setDetail(null)}
+          footer={
+            detail.status === "PENDING" ? (
+              <button
+                type="button"
+                className="ck-btn no"
+                disabled={busy !== null}
+                onClick={() => {
+                  void cancelClaim(detail).then(() => setDetail(null));
+                }}
               >
-                <div className="medical-claim-head">
-                  <div>
-                    <strong>
-                      {currency.format(claim.amount)}
-                    </strong>
-                    <small>
-                      รักษา {formatDate(claim.sicknessDate)} · ส่งเมื่อ{" "}
-                      {formatDateTime(claim.submittedAt)}
-                    </small>
-                  </div>
-                  <span className={medicalStatusClass(claim.status)}>
-                    {medicalStatusLabel(claim.status)}
-                  </span>
-                </div>
-
-                <p className="medical-description">
-                  {claim.description}
-                </p>
-
-                <div className="medical-claim-meta">
-                  <span>
-                    เอกสาร {claim.attachments.length} ไฟล์
-                  </span>
-                  <span>
-                    {claim.leaveRequestId
-                      ? "เชื่อมคำขอลาแล้ว"
-                      : "ไม่เชื่อมคำขอลา"}
-                  </span>
-                </div>
-
-                {claim.attachments.length > 0 ? (
-                  <div className="medical-attachments">
-                    {claim.attachments.map((attachment) => (
-                      <button
-                        key={attachment.attachmentId}
-                        type="button"
-                        className="medical-attachment-button"
-                        disabled={Boolean(busy)}
-                        onClick={() =>
-                          void downloadReceipt(
-                            attachment.attachmentId,
-                          )
-                        }
-                      >
-                        <span>
-                          {attachment.fileName ?? "เอกสารแนบ"}
-                        </span>
-                        <small>
-                          {formatMedicalBytes(
-                            attachment.sizeBytes,
-                          )}
-                        </small>
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-
-                {claim.decisionReason ? (
-                  <div className="decision-note">
-                    <strong>เหตุผลผลพิจารณา</strong>
-                    <span>{claim.decisionReason}</span>
-                  </div>
-                ) : null}
-
-                {claim.status === "PENDING" ? (
-                  <div className="approval-actions">
-                    <button
-                      className="danger-button"
-                      type="button"
-                      disabled={Boolean(busy)}
-                      onClick={() => void cancelClaim(claim)}
-                    >
-                      {busy === claim.id
-                        ? "กำลังยกเลิก..."
-                        : "ยกเลิกคำขอ"}
-                    </button>
-                  </div>
-                ) : null}
-              </article>
-            ))}
+                ยกเลิกคำขอ
+              </button>
+            ) : null
+          }
+        >
+          <dl className="ck-dlg-grid">
+            <div>
+              <dt>วันที่รักษา</dt>
+              <dd>{thaiDate(detail.sicknessDate)}</dd>
+            </div>
+            <div>
+              <dt>ยื่นเมื่อ</dt>
+              <dd>{thaiDateTime(detail.submittedAt)}</dd>
+            </div>
+          </dl>
+          <div className="ck-dlg-sec">
+            <h3>รายละเอียด</h3>
+            <p>{detail.description || "—"}</p>
           </div>
-        )}
-      </section>
+          <div className="ck-dlg-sec">
+            <h3>ใบเสร็จ</h3>
+            {detail.attachments.length === 0 ? (
+              <p className="ck-muted">ไม่มีไฟล์แนบ</p>
+            ) : (
+              <div className="ck-files">
+                {detail.attachments.map((attachment) => (
+                  <button key={attachment.attachmentId} type="button" disabled={busy !== null} onClick={() => void downloadReceipt(attachment.attachmentId)}>
+                    <Icon name="clip" size={14} />
+                    {attachment.fileName ?? "เอกสารแนบ"} {attachment.sizeBytes ? `(${formatMedicalBytes(attachment.sizeBytes)})` : ""}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="ck-dlg-sec">
+            <h3>ผลการพิจารณา</h3>
+            <p>{detail.decisionReason || (detail.status === "PENDING" ? "รอผู้อนุมัติพิจารณา" : "—")}</p>
+          </div>
+        </DetailDialog>
       ) : null}
-    </div>
+    </>
   );
 }

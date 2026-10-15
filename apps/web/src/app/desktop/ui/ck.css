@@ -691,3 +691,18 @@ button.ck-hcard:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgb
 @media (prefers-reduced-motion: reduce) {
   .ck-app *, .ck-app *::before { animation: none !important; transition: none !important; }
 }
+
+/* medical: file picker, file chips, quota strip */
+.ck-muted{color:var(--ck-ink2)}
+.ck-file{position:relative;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--ck-ink2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ck-file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ck-files{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ck-files>span,.ck-files>button{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--ck-line);background:#fff;font:inherit;font-size:13px;color:inherit}
+.ck-files>button{cursor:pointer;color:var(--tc,#2563eb)}
+.ck-files>button:hover{background:var(--tb,#eff6ff)}
+.ck-quota{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ck-quota>div{border:1px solid var(--ck-line);border-top:3px solid var(--tc,#2563eb);border-radius:12px;padding:12px 14px;background:#fff;text-align:center}
+.ck-quota small{display:block;color:var(--ck-ink2);font-size:13px}
+.ck-quota b{font-size:20px}
+.ck-quota b.hl{color:var(--tc,#2563eb)}
+@media (max-width:760px){.ck-quota{grid-template-columns:repeat(2,minmax(0,1fr))}}

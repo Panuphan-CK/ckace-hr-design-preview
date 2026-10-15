@@ -87,5 +87,5 @@ export function attendanceLinkLabel(
 ): string {
   return attendanceRecordId
     ? "เชื่อมข้อมูลเวลาเข้างานแล้ว"
-    : "ยังไม่มี Attendance linkage";
+    : "ยังไม่พบบันทึกเวลาเข้างานของวันนั้น";
 }

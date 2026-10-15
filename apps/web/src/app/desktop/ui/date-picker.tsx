@@ -54,6 +54,7 @@ export function DatePicker({
   onChange,
   label,
   min,
+  max,
 }: {
   readonly mode: "single" | "range";
   readonly start: string;
@@ -61,6 +62,7 @@ export function DatePicker({
   readonly onChange: (start: string, end: string) => void;
   readonly label: string;
   readonly min?: string | undefined;
+  readonly max?: string | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const [picking, setPicking] = useState<string | null>(null);
@@ -168,7 +170,7 @@ export function DatePicker({
             ))}
             {monthGrid(view.year, view.month).map((iso, index) => {
               if (!iso) return <span key={"pad" + index} />;
-              const disabled = Boolean(min && iso < min);
+              const disabled = Boolean((min && iso < min) || (max && iso > max));
               const weekend = index % 7 >= 5;
               const inRange = Boolean(lo && hi && iso >= lo && iso <= hi);
               const edge = iso === lo || iso === hi;

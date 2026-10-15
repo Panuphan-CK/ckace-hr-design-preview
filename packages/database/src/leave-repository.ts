@@ -23,6 +23,8 @@ import {
   type PrismaClient,
 } from "@prisma/client";
 
+import { resolveCompanyApprovalRoute } from "./approval-route-loader";
+
 /** Request states whose days count against the entitlement when a new request is checked. */
 export const QUOTA_RESERVING_STATUSES = ["APPROVED", "PENDING", "REVISION_REQUESTED"] as const;
 
@@ -244,7 +246,7 @@ export function buildLeaveApproverScopeWhere(
 async function approvalOptionsFor(
   prisma: Pick<
     Prisma.TransactionClient,
-    "employee" | "approvalPolicy"
+    "employee" | "approvalPolicy" | "agency"
   >,
   employeeId: string,
 ): Promise<{
@@ -253,6 +255,44 @@ async function approvalOptionsFor(
 }> {
   const requester = await requesterContext(prisma, employeeId);
   const policy = await activeLeavePolicy(prisma, requester.agencyId);
+
+  // Company-aware routing (owner organisation 2026-10-15). Requesters whose
+  // team is not attached to a company keep the legacy behaviour below.
+  const routed = await resolveCompanyApprovalRoute(
+    prisma,
+    employeeId,
+    policy.steps.map((step) => ({
+      kind: "ROLE" as const,
+      roleKey: step.requiredRole.key,
+      peerFallback: true,
+    })),
+  );
+
+  if (routed) {
+    if (routed.route.steps.length === 0) {
+      throw new Error("No eligible approver for leave");
+    }
+
+    return {
+      policyId: policy.id,
+      options: routed.route.steps.map((resolved) => {
+        const policyStep = policy.steps[resolved.policyStepIndex];
+
+        return {
+          stepOrder: resolved.stepOrder,
+          requiredRoleKey:
+            resolved.source.kind === "ROLE"
+              ? resolved.source.roleKey
+              : (policyStep?.requiredRole.key ?? ""),
+          scope: policyStep?.scope ?? "GLOBAL",
+          candidates: resolved.candidateIds.map((id) => ({
+            employeeId: id,
+            displayName: routed.displayNames.get(id) ?? "",
+          })),
+        };
+      }),
+    };
+  }
 
   const options: LeaveApprovalStepOptions[] = [];
 

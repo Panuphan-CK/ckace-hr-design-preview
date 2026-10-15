@@ -3,3 +3,6 @@ export * from "./attendance";
 export * from "./leave";
 export * from "./medical";
 export * from "./overtime";
+export * from "./overtime-allowance";
+export * from "./leave-entitlement";
+export * from "./approval-route";

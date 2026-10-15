@@ -20,6 +20,13 @@ enum ApprovalScope {
   GLOBAL
 }
 
+enum RoleScopeType {
+  PLATFORM
+  COMPANY
+  TEAM_SET
+  SELF
+}
+
 enum RequestKind {
   LEAVE
   TIME_CORRECTION
@@ -109,18 +116,37 @@ enum ReconciliationStatus {
   FAIL
 }
 
-model Agency {
+/// A legal entity (e.g. the accounting firm, the audit firm). Agencies are its teams.
+model Company {
   id        String   @id @default(uuid()) @db.Uuid
   name      String
   active    Boolean  @default(true)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
+  agencies  Agency[]
+  employees Employee[]
+  roleScopes UserRole[]
+
+  @@index([name])
+  @@map("companies")
+}
+
+model Agency {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  active    Boolean  @default(true)
+  companyId String?  @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  company          Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull)
   employees        Employee[]
   approvalPolicies ApprovalPolicy[]
   announcements    Announcement[]
 
   @@index([name])
+  @@index([companyId])
   @@map("agencies")
 }
 
@@ -147,9 +173,16 @@ model Employee {
   resignationDate DateTime? @db.Date
   agencyId        String?   @db.Uuid
   departmentId    String?   @db.Uuid
+  /// Employing company (contract); the team (agency) belongs to a company too.
+  companyId       String?   @db.Uuid
+  /// Direct manager; used by DIRECT_MANAGER approval steps.
+  managerEmployeeId String? @db.Uuid
   createdAt       DateTime  @default(now()) @db.Timestamptz(3)
   updatedAt       DateTime  @updatedAt @db.Timestamptz(3)
 
+  company           Company?                @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  manager           Employee?               @relation("EmployeeManager", fields: [managerEmployeeId], references: [id], onDelete: SetNull)
+  directReports     Employee[]              @relation("EmployeeManager")
   agency            Agency?                 @relation(fields: [agencyId], references: [id], onDelete: SetNull)
   department        Department?             @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   userAccount       UserAccount?
@@ -169,6 +202,8 @@ model Employee {
 
   @@index([agencyId])
   @@index([departmentId])
+  @@index([companyId])
+  @@index([managerEmployeeId])
   @@index([resignationDate])
   @@map("employees")
 }
@@ -230,12 +265,17 @@ model Permission {
 }
 
 model UserRole {
-  userAccountId String   @db.Uuid
-  roleId        String   @db.Uuid
-  assignedAt    DateTime @default(now()) @db.Timestamptz(3)
+  userAccountId String        @db.Uuid
+  roleId        String        @db.Uuid
+  assignedAt    DateTime      @default(now()) @db.Timestamptz(3)
+  /// Approve scope of this role. PLATFORM keeps the pre-existing global meaning.
+  scopeType      RoleScopeType @default(PLATFORM)
+  scopeCompanyId String?       @db.Uuid
+  scopeAgencyIds String[]      @default([]) @db.Uuid
 
-  userAccount UserAccount @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
-  role        Role        @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  userAccount  UserAccount @relation(fields: [userAccountId], references: [id], onDelete: Cascade)
+  role         Role        @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  scopeCompany Company?    @relation(fields: [scopeCompanyId], references: [id], onDelete: SetNull)
 
   @@id([userAccountId, roleId])
   @@index([roleId])

@@ -16,6 +16,7 @@ import {
   shouldDiscardSubmissionIntent,
   type SubmissionIntent,
 } from "../submission-intent";
+import { DateInput } from "../ui/date-input";
 import { addHours, thaiDate, thaiDateRange, thaiDateTime, weekdaysBetween } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
 
@@ -171,6 +172,10 @@ export default function LeaveDesktopPage() {
     const data = new FormData(form);
     if (!entitlementId) {
       setActionMessage({ kind: "error", text: "กรุณาเลือกประเภทการลา" });
+      return;
+    }
+    if (!startDate) {
+      setActionMessage({ kind: "error", text: "กรุณาระบุวันที่ลาในรูปแบบ วว/ดด/ปปปป" });
       return;
     }
     if (duration === "HOURLY" && !endTime) {
@@ -337,15 +342,15 @@ export default function LeaveDesktopPage() {
               )}
             </div>
 
-            <label className="ck-field">
+            <div className="ck-field">
               <span>{duration === "HOURLY" ? "วันที่ลา" : "ตั้งแต่วันที่"}</span>
-              <input className="ck-in" name="startDate" type="date" required value={startDate} onChange={(event) => setStartDate(event.currentTarget.value)} />
-            </label>
+              <DateInput label={duration === "HOURLY" ? "วันที่ลา" : "วันที่เริ่มลา"} required value={startDate} onChange={setStartDate} />
+            </div>
             {duration === "HOURLY" ? null : (
-              <label className="ck-field">
+              <div className="ck-field">
                 <span>ถึงวันที่</span>
-                <input className="ck-in" name="endDate" type="date" min={startDate || undefined} value={endDate} onChange={(event) => setEndDate(event.currentTarget.value)} />
-              </label>
+                <DateInput label="วันที่สิ้นสุด" min={startDate || undefined} value={endDate} onChange={setEndDate} />
+              </div>
             )}
             <div className={duration === "HOURLY" ? "ck-field span3" : "ck-field span2"}>
               <span>ช่วงเวลา</span>

@@ -58,6 +58,38 @@ export function weekdaysBetween(start: string, end: string): number {
   return days;
 }
 
+/** "2026-10-23" -> "23/10/2569" (DD/MM/YYYY, Buddhist year). "" for anything that is not an ISO date. */
+export function isoToDmy(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return "";
+  return `${match[3]}/${match[2]}/${Number(match[1]) + 543}`;
+}
+
+/**
+ * "23/10/2569" or "23/10/2026" -> "2026-10-23". Years from 2400 are read as Buddhist years.
+ * Returns "" unless the text is a complete, real calendar date.
+ */
+export function dmyToIso(value: string): string {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+  if (!match) return "";
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  let year = Number(match[3]);
+  if (year >= 2400) year -= 543;
+  if (year < 1900 || year > 2200 || month < 1 || month > 12 || day < 1) return "";
+  const check = new Date(Date.UTC(year, month - 1, day));
+  if (check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day) return "";
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+/** Keeps digits only and inserts the slashes while the user types: "2310256" -> "23/10/256". */
+export function maskDmy(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
 /** "13:00" + 3 hours -> "16:00"; returns "" when the input is invalid or crosses midnight. */
 export function addHours(startTime: string, hours: number): string {
   const match = /^(\d{2}):(\d{2})$/.exec(startTime);

@@ -455,6 +455,25 @@ body:has(.ck-app) {
 textarea.ck-in { height: auto; padding: 12px 14px; resize: vertical; }
 .ck-in:focus { outline: none; border-color: var(--tc, var(--ck-accent)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--tc, var(--ck-accent)) 15%, #fff); }
 .ck-in[readonly] { background: #fafbfc; color: var(--ck-ink2); }
+.ck-date { position: relative; display: block; }
+.ck-date .ck-in { padding-right: 46px; letter-spacing: 0.3px; }
+.ck-date.invalid .ck-in { border-color: var(--ck-bad); }
+.ck-date-btn {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--tc, var(--ck-accent));
+  display: grid;
+  place-items: center;
+}
+.ck-date-btn:hover { background: color-mix(in srgb, var(--tc, var(--ck-accent)) 10%, #fff); }
+.ck-date-native { position: absolute; right: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; border: 0; padding: 0; }
+.ck-date-err { display: block; margin-top: 4px; color: var(--ck-bad); font-size: 12.5px; }
 .ck-seg { display: flex; flex-wrap: wrap; gap: 8px; }
 .ck-seg button {
   height: 46px;

@@ -13,8 +13,8 @@ function prismaWith(options: {
   return {
     overtimeAllowancePolicy: {
       findMany: vi.fn().mockResolvedValue([
-        { kind: "MEAL", amountSatang: 5000, paidWhenEndsAtOrAfter: "20:00" },
-        { kind: "TRANSPORT", amountSatang: 0, paidWhenEndsAtOrAfter: "21:30" },
+        { kind: "MEAL", amountSatang: 5000, paidWhenEndsAtOrAfter: "20:00", active: true },
+        { kind: "TRANSPORT", amountSatang: 0, paidWhenEndsAtOrAfter: "21:30", active: true },
       ]),
     },
     weeklyWorkRule: {

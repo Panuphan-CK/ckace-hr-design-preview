@@ -1,11 +1,14 @@
 import type {
   ApprovalHistoryOverview,
   RequestStatusOverview,
+  RequestTimeline,
 } from "@ckace/contracts";
 import {
+  BadRequestException,
   Controller,
   Get,
   Inject,
+  Param,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -43,6 +46,19 @@ export class RequestStatusController {
       request.actor.employeeId,
       request.actor.permissions,
     );
+  }
+
+  @Get("timeline/:requestId")
+  @ModuleRoute("REQUEST_STATUS_READ")
+  getTimeline(
+    @Req() request: SecurityRequest,
+    @Param("requestId") requestId: string,
+  ): Promise<RequestTimeline> {
+    if (!request.actor) throw new UnauthorizedException();
+    if (!/^[0-9a-f-]{36}$/i.test(requestId)) {
+      throw new BadRequestException("Invalid request ID");
+    }
+    return this.service.getTimeline(request.actor.employeeId, requestId);
   }
 
   @Get("assigned/history")

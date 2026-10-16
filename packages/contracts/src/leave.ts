@@ -25,8 +25,20 @@ export interface LeaveEntitlementView {
   readonly remaining: number;
 }
 
+export interface LeaveRequestStepView {
+  readonly stepOrder: number;
+  readonly approverName: string | null;
+  readonly status: "PENDING" | "APPROVED" | "REJECTED" | "REVISION_REQUESTED" | "SKIPPED" | "CANCELLED";
+  readonly decidedAt: string | null;
+  readonly comment: string | null;
+}
+
 export interface LeaveRequestView {
   readonly requestId: string;
+  /** Running number such as LEV-0001. */
+  readonly requestNo: string;
+  /** Approval chain with approver names, for the request detail card. */
+  readonly steps: readonly LeaveRequestStepView[];
   readonly leaveTypeKey: string;
   readonly leaveTypeName: string;
   readonly description: string;

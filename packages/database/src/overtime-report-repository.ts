@@ -57,7 +57,7 @@ export async function loadOvertimeReportRows(
   filters: OvertimeReportFilters,
 ): Promise<readonly OvertimeReportRow[]> {
   const [policies, weeklyRules, holidays] = await Promise.all([
-    prisma.overtimeAllowancePolicy.findMany({ where: { active: true } }),
+    prisma.overtimeAllowancePolicy.findMany(),
     prisma.weeklyWorkRule.findMany({ select: { isoWeekday: true, isWorking: true } }),
     prisma.holiday.findMany({
       where: { active: true, holidayDate: { gte: filters.from, lte: filters.to } },
@@ -70,7 +70,7 @@ export async function loadOvertimeReportRows(
     ? {
         kind: "MEAL",
         paidWhenEndsAtOrAfter: meal.paidWhenEndsAtOrAfter,
-        amountSatang: meal.amountSatang,
+        amountSatang: meal.active ? meal.amountSatang : 0,
       }
     : DEFAULT_MEAL_ALLOWANCE_RULE;
   const workingWeekdays = new Set(

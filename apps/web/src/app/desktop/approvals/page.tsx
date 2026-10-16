@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { thaiDate, thaiDateTime } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
+import { RequestTimelineSection } from "../ui/request-timeline";
 import {
   decideErrorMessage,
   decisionEndpoint,
@@ -215,7 +216,7 @@ export default function DesktopApprovalsPage() {
                         <Icon name={KIND_ICON[request.kind]} />
                       </span>
                       <div className="ck-ac-t">
-                        <b>{KIND_LABEL[request.kind]}</b>
+                        <b>{KIND_LABEL[request.kind]} · {request.requestNo}</b>
                         <small>{request.summary}</small>
                       </div>
                       <span className="ck-ac-when">{thaiDate(request.submittedAt)}</span>
@@ -286,7 +287,7 @@ export default function DesktopApprovalsPage() {
                       <span className="ck-av">{initials(row.employeeDisplayName)}</span>
                       <span>
                         <b>{row.employeeDisplayName ?? "ไม่ระบุชื่อ"}</b>
-                        <small>{KIND_LABEL[row.kind]}</small>
+                        <small>{KIND_LABEL[row.kind]} · {row.requestNo}</small>
                       </span>
                       <span className={"ck-pill " + decision.tone}>{decision.label}</span>
                     </span>
@@ -322,7 +323,7 @@ export default function DesktopApprovalsPage() {
         <DetailDialog
           tone={KIND_TONE[detail.kind]}
           icon={KIND_ICON[detail.kind]}
-          kicker={"รายละเอียด" + KIND_LABEL[detail.kind]}
+          kicker={"รายละเอียด" + KIND_LABEL[detail.kind] + " " + detail.requestNo}
           title={detail.employeeDisplayName ?? "ไม่ระบุชื่อ"}
           status={DECISION[detail.decision]}
           onClose={() => setDetail(null)}
@@ -356,6 +357,7 @@ export default function DesktopApprovalsPage() {
               </button>
             </div>
           ) : null}
+          <RequestTimelineSection requestId={detail.requestId} />
         </DetailDialog>
       ) : null}
     </>

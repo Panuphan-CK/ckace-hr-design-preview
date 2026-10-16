@@ -15,6 +15,7 @@ import {
 function pending(overrides: Partial<RequestStatusItem> = {}): RequestStatusItem {
   return {
     id: "r 1",
+    requestNo: "LEV-0001",
     kind: "LEAVE",
     status: "PENDING",
     submittedAt: "2026-10-10T00:00:00.000Z",
@@ -33,6 +34,7 @@ function history(overrides: Partial<ApprovalHistoryItem> = {}): ApprovalHistoryI
   return {
     id: "h1",
     requestId: "r1",
+    requestNo: "OT-0001",
     kind: "OVERTIME",
     decision: "APPROVED",
     submittedAt: "2026-10-01T00:00:00.000Z",

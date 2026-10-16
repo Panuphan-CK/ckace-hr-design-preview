@@ -371,6 +371,53 @@ export class ManagementController {
     );
   }
 
+  @Get("overtime-allowance-policies")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("organization.admin.read", "GLOBAL")
+  overtimeAllowancePolicies() {
+    return this.service.overtimeAllowancePolicies();
+  }
+
+  @Put("overtime-allowance-policies")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("organization.admin.write", "GLOBAL")
+  saveOvertimeAllowancePolicy(
+    @Req() request: SecurityRequest,
+    @Body() body: unknown,
+  ) {
+    const value = objectBody(body);
+    if (value.kind !== "MEAL" && value.kind !== "TRANSPORT") {
+      throw new BadRequestException("Invalid kind");
+    }
+    const amount = value.amountSatang;
+    if (
+      typeof amount !== "number" ||
+      !Number.isInteger(amount) ||
+      amount < 0 ||
+      amount > 10_000_000
+    ) {
+      throw new BadRequestException("Invalid amountSatang");
+    }
+    if (
+      typeof value.paidWhenEndsAtOrAfter !== "string" ||
+      !/^([01]\d|2[0-3]):[0-5]\d$/.test(value.paidWhenEndsAtOrAfter)
+    ) {
+      throw new BadRequestException("paidWhenEndsAtOrAfter must use HH:mm");
+    }
+    if (typeof value.active !== "boolean") {
+      throw new BadRequestException("active must be boolean");
+    }
+    return this.service.saveOvertimeAllowancePolicy(
+      {
+        kind: value.kind,
+        amountSatang: amount,
+        paidWhenEndsAtOrAfter: value.paidWhenEndsAtOrAfter,
+        active: value.active,
+      },
+      actorId(request),
+    );
+  }
+
   @Get("approval-policies")
   @ModuleRoute("ADMIN_READ")
   @RequirePermission("rbac.admin.read", "GLOBAL")

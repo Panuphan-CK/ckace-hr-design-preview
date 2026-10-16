@@ -103,6 +103,11 @@ export interface LeaveRepository {
   }): Promise<LeaveWithdrawResult>;
 }
 
+/** LEV-0001 style number; grows past four digits when needed. */
+export function formatLeaveRequestNo(value: number): string {
+  return "LEV-" + String(value).padStart(4, "0");
+}
+
 function dateOnly(value: Date): string {
   return value.toISOString().slice(0, 10);
 }
@@ -438,6 +443,21 @@ export class PrismaLeaveRepository implements LeaveRepository {
         where: { requesterEmployeeId: employeeId },
         select: {
           id: true,
+          requestNo: true,
+          approvalInstance: {
+            select: {
+              steps: {
+                select: {
+                  stepOrder: true,
+                  status: true,
+                  decidedAt: true,
+                  comment: true,
+                  approver: { select: { fullName: true } },
+                },
+                orderBy: { stepOrder: "asc" },
+              },
+            },
+          },
           description: true,
           startDate: true,
           endDate: true,
@@ -466,6 +486,14 @@ export class PrismaLeaveRepository implements LeaveRepository {
     const requestViews: LeaveRequestView[] = requests.map(
       (request) => ({
         requestId: request.id,
+        requestNo: formatLeaveRequestNo(request.requestNo),
+        steps: (request.approvalInstance?.steps ?? []).map((step) => ({
+          stepOrder: step.stepOrder,
+          approverName: step.approver?.fullName ?? null,
+          status: step.status,
+          decidedAt: step.decidedAt ? step.decidedAt.toISOString() : null,
+          comment: step.comment,
+        })),
         leaveTypeKey: request.leaveType.key,
         leaveTypeName: request.leaveType.name,
         description: request.description,

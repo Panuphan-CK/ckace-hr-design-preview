@@ -4,6 +4,7 @@ import type {
   LeaveEntitlementOptions,
   ApprovalPolicyInput,
   ApprovalPolicyItem,
+  OvertimeAllowancePolicyItem,
   OvertimeReportRow,
   ProfessionalRoleItem,
   VacationGenerationResult,
@@ -151,6 +152,17 @@ export class ManagementService {
 
   entitlementOptions(): Promise<LeaveEntitlementOptions> {
     return this.repository.entitlementOptions();
+  }
+
+  overtimeAllowancePolicies(): Promise<readonly OvertimeAllowancePolicyItem[]> {
+    return this.repository.listOvertimeAllowancePolicies();
+  }
+
+  saveOvertimeAllowancePolicy(
+    input: OvertimeAllowancePolicyItem,
+    actorEmployeeId: string,
+  ): Promise<OvertimeAllowancePolicyItem> {
+    return this.repository.saveOvertimeAllowancePolicy(input, actorEmployeeId);
   }
 
   approvalPolicies(): Promise<readonly ApprovalPolicyItem[]> {

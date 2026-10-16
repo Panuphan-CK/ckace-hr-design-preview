@@ -9,6 +9,7 @@ import { DatePicker } from "../ui/date-picker";
 import { thaiDateRange, thaiDateTime, weekdaysBetween } from "../ui/format";
 import { Icon } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
+import { RequestTimelineSection } from "../ui/request-timeline";
 import { attendanceLinkLabel, OVERTIME_BREAK_OPTIONS, overtimeBreakDeduction, overtimeMetrics, overtimeRequestMinutes } from "./overtime-view";
 
 type State = { status: "loading" } | { status: "ready"; overview: OvertimeSelfOverview } | { status: "error"; message: string };
@@ -372,6 +373,7 @@ export default function DesktopOvertimePage() {
             <h3>ผลการพิจารณา</h3>
             <p>{detail.decisionReason || (detail.status === "PENDING" ? "รอผู้อนุมัติพิจารณา" : "—")}</p>
           </div>
+          <RequestTimelineSection requestId={detail.id} />
         </DetailDialog>
       ) : null}
     </>

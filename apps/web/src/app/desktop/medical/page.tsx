@@ -26,6 +26,7 @@ import { DatePicker } from "../ui/date-picker";
 import { thaiDate, thaiDateRange, thaiDateTime } from "../ui/format";
 import { Icon } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
+import { RequestTimelineSection } from "../ui/request-timeline";
 import {
   completeMedicalReceiptUploads,
   errorMessage,
@@ -634,6 +635,7 @@ export default function DesktopMedicalPage() {
             <h3>ผลการพิจารณา</h3>
             <p>{detail.decisionReason || (detail.status === "PENDING" ? "รอผู้อนุมัติพิจารณา" : "—")}</p>
           </div>
+          <RequestTimelineSection requestId={detail.id} />
         </DetailDialog>
       ) : null}
     </>

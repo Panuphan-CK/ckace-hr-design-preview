@@ -9,6 +9,7 @@ import { RequestStatusService } from "./request-status.service";
 
 const repository = {
   async getSelf() { return { requests: [] }; },
+  async getTimeline() { return null; },
   async getAssigned() { return { requests: [] }; },
   async getApprovalHistory() { return { decisions: [] }; },
 } as RequestStatusRepository;
@@ -27,17 +28,18 @@ describe("RequestStatus API", () => {
   it("filters assigned requests by the actor's module-specific approve permissions", async () => {
     const service = new RequestStatusService({
       async getSelf() { return { requests: [] }; },
+      async getTimeline() { return null; },
       async getAssigned() {
         return {
           requests: [
             {
-              id: "leave-1", kind: "LEAVE", status: "PENDING",
+              id: "leave-1", requestNo: "X-0001", kind: "LEAVE", status: "PENDING",
               submittedAt: "2026-10-07T00:00:00.000Z", summary: "Leave",
               decisionReason: null, employeeId: "employee-1", canDecide: true,
               approvalStepId: "step-1", stepOrder: 1,
             },
             {
-              id: "ot-1", kind: "OVERTIME", status: "PENDING",
+              id: "ot-1", requestNo: "X-0001", kind: "OVERTIME", status: "PENDING",
               submittedAt: "2026-10-07T00:00:00.000Z", summary: "OT",
               decisionReason: null, employeeId: "employee-1", canDecide: true,
               approvalStepId: "step-2", stepOrder: 1,
@@ -65,6 +67,7 @@ describe("RequestStatus API", () => {
   it("filters approval history by the actor's module-specific approve permissions", async () => {
     const service = new RequestStatusService({
       async getSelf() { return { requests: [] }; },
+      async getTimeline() { return null; },
       async getAssigned() { return { requests: [] }; },
       async getApprovalHistory() {
         return {
@@ -72,6 +75,7 @@ describe("RequestStatus API", () => {
             {
               id: "step-leave",
               requestId: "leave-1",
+              requestNo: "X-0001",
               kind: "LEAVE",
               decision: "APPROVED",
               submittedAt: "2026-10-07T00:00:00.000Z",
@@ -84,6 +88,7 @@ describe("RequestStatus API", () => {
             {
               id: "step-ot",
               requestId: "ot-1",
+              requestNo: "X-0001",
               kind: "OVERTIME",
               decision: "REJECTED",
               submittedAt: "2026-10-07T00:00:00.000Z",
@@ -114,5 +119,23 @@ describe("RequestStatus API", () => {
     const service = new RequestStatusService(repository);
     await expect(service.getSelf("00000000-0000-4000-8000-000000000001"))
       .resolves.toEqual({ requests: [] });
+  });
+});
+
+describe("RequestStatus timeline", () => {
+  it("returns 404 when the request is unknown or not visible to the actor", async () => {
+    const service = new RequestStatusService(repository);
+    await expect(service.getTimeline("e1", "00000000-0000-4000-8000-000000000001")).rejects.toThrow("Request not found");
+  });
+
+  it("returns the approval chain for a visible request", async () => {
+    const timeline = {
+      requestId: "00000000-0000-4000-8000-000000000002",
+      kind: "LEAVE" as const,
+      requestNo: "LEV-0001",
+      steps: [{ stepOrder: 1, approverName: "ผู้ดูแล", status: "APPROVED" as const, decidedAt: null, comment: null }],
+    };
+    const service = new RequestStatusService({ ...repository, async getTimeline() { return timeline; } } as RequestStatusRepository);
+    await expect(service.getTimeline("e1", timeline.requestId)).resolves.toEqual(timeline);
   });
 });

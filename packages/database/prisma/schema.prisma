@@ -445,6 +445,8 @@ model LeaveRequest {
   decisionReason      String?
   submittedAt         DateTime          @default(now()) @db.Timestamptz(3)
   updatedAt           DateTime          @updatedAt @db.Timestamptz(3)
+  /// Human readable running number (LEV-0001); the UUID stays the canonical id.
+  requestNo           Int               @unique @default(autoincrement())
 
   requester           Employee                 @relation(fields: [requesterEmployeeId], references: [id], onDelete: Restrict)
   leaveType           LeaveType                @relation(fields: [leaveTypeId], references: [id], onDelete: Restrict)
@@ -535,6 +537,8 @@ model TimeCorrectionRequest {
   requestedAt        DateTime      @default(now()) @db.Timestamptz(3)
   decidedAt          DateTime?     @db.Timestamptz(3)
   updatedAt          DateTime      @updatedAt @db.Timestamptz(3)
+  /// Human readable running number (TC-0001).
+  requestNo          Int           @unique @default(autoincrement())
 
   employee         Employee          @relation(fields: [employeeId], references: [id], onDelete: Restrict)
   attendanceRecord AttendanceRecord? @relation(fields: [attendanceRecordId], references: [id], onDelete: SetNull)
@@ -554,6 +558,8 @@ model OvertimeRequest {
   decisionReason     String?
   submittedAt        DateTime      @default(now()) @db.Timestamptz(3)
   updatedAt          DateTime      @updatedAt @db.Timestamptz(3)
+  /// Human readable running number (OT-0001).
+  requestNo          Int           @unique @default(autoincrement())
 
   employee         Employee                    @relation(fields: [employeeId], references: [id], onDelete: Restrict)
   approvalInstance ApprovalInstance?           @relation(fields: [approvalInstanceId], references: [id], onDelete: SetNull)
@@ -656,6 +662,8 @@ model MedicalClaim {
   decisionReason     String?
   submittedAt        DateTime      @default(now()) @db.Timestamptz(3)
   updatedAt          DateTime      @updatedAt @db.Timestamptz(3)
+  /// Human readable running number (MED-0001).
+  requestNo          Int           @unique @default(autoincrement())
 
   employee         Employee                 @relation(fields: [employeeId], references: [id], onDelete: Restrict)
   leaveRequest     LeaveRequest?            @relation(fields: [leaveRequestId], references: [id], onDelete: SetNull)

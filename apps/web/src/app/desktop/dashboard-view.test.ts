@@ -30,6 +30,7 @@ function item(overrides: Partial<LeaveCalendarItem> = {}): LeaveCalendarItem {
 function request(overrides: Partial<RequestStatusItem> = {}): RequestStatusItem {
   return {
     id: "r1",
+    requestNo: "LEV-0001",
     kind: "LEAVE",
     status: "PENDING",
     submittedAt: "2026-10-10T00:00:00.000Z",

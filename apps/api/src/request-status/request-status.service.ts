@@ -1,10 +1,11 @@
 import type {
   ApprovalHistoryOverview,
   RequestStatusOverview,
+  RequestTimeline,
   UnifiedRequestKind,
 } from "@ckace/contracts";
 import type { RequestStatusRepository } from "@ckace/database";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 export const REQUEST_STATUS_REPOSITORY = "CKACE_REQUEST_STATUS_REPOSITORY";
 
@@ -36,6 +37,12 @@ export class RequestStatusService {
 
   getSelf(employeeId: string): Promise<RequestStatusOverview> {
     return this.repository.getSelf(employeeId);
+  }
+
+  async getTimeline(employeeId: string, requestId: string): Promise<RequestTimeline> {
+    const timeline = await this.repository.getTimeline(employeeId, requestId);
+    if (!timeline) throw new NotFoundException("Request not found");
+    return timeline;
   }
 
   async getAssigned(

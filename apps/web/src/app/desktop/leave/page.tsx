@@ -100,6 +100,15 @@ async function getJson<T>(url: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+const STEP_LABEL: Readonly<Record<LeaveRequestView["steps"][number]["status"], string>> = {
+  PENDING: "รอพิจารณา",
+  APPROVED: "อนุมัติแล้ว",
+  REJECTED: "ไม่อนุมัติ",
+  REVISION_REQUESTED: "ส่งกลับให้แก้ไข",
+  SKIPPED: "ข้ามขั้น",
+  CANCELLED: "ยกเลิก",
+};
+
 function amountLabel(request: LeaveRequestView): string {
   if (request.durationCode === "HOURLY" && request.startTime && request.endTime) {
     return `${request.startTime} ถึง ${request.endTime}`;
@@ -580,7 +589,9 @@ export default function LeaveDesktopPage() {
                       </span>
                       <span>
                         <b>{request.leaveTypeName}</b>
-                        <small>ยื่นเมื่อ {thaiDateTime(request.submittedAt)}</small>
+                        <small>
+                          {request.requestNo} · ยื่นเมื่อ {thaiDateTime(request.submittedAt)}
+                        </small>
                       </span>
                       <span className={"ck-pill " + status.tone}>{status.label}</span>
                     </span>
@@ -625,7 +636,7 @@ export default function LeaveDesktopPage() {
                 <Icon name={TONE_ICON[toneOf(detail.leaveTypeKey)]} />
               </span>
               <div>
-                <small>รายละเอียดคำขอลา</small>
+                <small>รายละเอียดคำขอลา {detail.requestNo}</small>
                 <h2 id="leave-detail-title">
                   {detail.leaveTypeName} {amountLabel(detail)}
                 </h2>
@@ -670,6 +681,23 @@ export default function LeaveDesktopPage() {
                   <div className="ck-track">
                     <i style={{ width: `${detailEntitlement.quota > 0 ? Math.min((detailEntitlement.used / detailEntitlement.quota) * 100, 100) : 0}%` }} />
                   </div>
+                </div>
+              ) : null}
+              {detail.steps.length > 0 ? (
+                <div className="ck-dlg-sec">
+                  <h3>ลำดับผู้อนุมัติ</h3>
+                  <ol style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 4 }}>
+                    {detail.steps.map((step) => (
+                      <li key={step.stepOrder}>
+                        <b>{step.approverName ?? "รอระบบกำหนดผู้อนุมัติ"}</b>{" "}
+                        <span>
+                          {STEP_LABEL[step.status]}
+                          {step.decidedAt ? " · " + thaiDateTime(step.decidedAt) : ""}
+                        </span>
+                        {step.comment ? <div style={{ opacity: 0.75 }}>ความเห็น: {step.comment}</div> : null}
+                      </li>
+                    ))}
+                  </ol>
                 </div>
               ) : null}
               <div className="ck-dlg-sec">

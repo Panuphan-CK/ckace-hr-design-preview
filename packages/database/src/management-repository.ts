@@ -8,6 +8,7 @@ import type {
   LeaveEntitlementOptions,
   ApprovalPolicyInput,
   ApprovalPolicyItem,
+  OvertimeAllowancePolicyItem,
   OvertimeReportRow,
   ProfessionalRoleItem,
   VacationGenerationResult,
@@ -52,6 +53,11 @@ export interface ManagementRepository {
     assignments: readonly RoleAssignmentInput[],
     actorEmployeeId: string,
   ): Promise<ManagedEmployeeItem>;
+  listOvertimeAllowancePolicies(): Promise<readonly OvertimeAllowancePolicyItem[]>;
+  saveOvertimeAllowancePolicy(
+    input: OvertimeAllowancePolicyItem,
+    actorEmployeeId: string,
+  ): Promise<OvertimeAllowancePolicyItem>;
   listApprovalPolicies(): Promise<readonly ApprovalPolicyItem[]>;
   saveApprovalPolicy(
     input: ApprovalPolicyInput,
@@ -680,6 +686,74 @@ export class PrismaManagementRepository implements ManagementRepository {
       });
 
       return loadManagedEmployee(tx, employeeId);
+    });
+  }
+
+  async listOvertimeAllowancePolicies(): Promise<readonly OvertimeAllowancePolicyItem[]> {
+    const rows = await this.prisma.overtimeAllowancePolicy.findMany({
+      orderBy: { kind: "asc" },
+    });
+    return rows.map((row) => ({
+      kind: row.kind as OvertimeAllowancePolicyItem["kind"],
+      amountSatang: row.amountSatang,
+      paidWhenEndsAtOrAfter: row.paidWhenEndsAtOrAfter,
+      active: row.active,
+    }));
+  }
+
+  async saveOvertimeAllowancePolicy(
+    input: OvertimeAllowancePolicyItem,
+    actorEmployeeId: string,
+  ): Promise<OvertimeAllowancePolicyItem> {
+    if (input.kind !== "MEAL" && input.kind !== "TRANSPORT") {
+      throw new Error("Unsupported allowance kind");
+    }
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(input.paidWhenEndsAtOrAfter)) {
+      throw new Error("Threshold must use HH:mm");
+    }
+    if (
+      !Number.isInteger(input.amountSatang) ||
+      input.amountSatang < 0 ||
+      input.amountSatang > 10_000_000
+    ) {
+      throw new Error("Amount must be a non-negative whole number of satang");
+    }
+    // The transport amount is per person (Employee.overtimeTransportSatang); keep the company row at 0.
+    const amountSatang = input.kind === "TRANSPORT" ? 0 : input.amountSatang;
+    return this.prisma.$transaction(async (tx) => {
+      const row = await tx.overtimeAllowancePolicy.upsert({
+        where: { kind: input.kind },
+        update: {
+          amountSatang,
+          paidWhenEndsAtOrAfter: input.paidWhenEndsAtOrAfter,
+          active: input.active,
+        },
+        create: {
+          kind: input.kind,
+          amountSatang,
+          paidWhenEndsAtOrAfter: input.paidWhenEndsAtOrAfter,
+          active: input.active,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId,
+          action: "OVERTIME_ALLOWANCE_POLICY_UPDATED",
+          entityType: "OvertimeAllowancePolicy",
+          entityId: input.kind,
+          metadata: {
+            amountSatang,
+            paidWhenEndsAtOrAfter: input.paidWhenEndsAtOrAfter,
+            active: input.active,
+          },
+        },
+      });
+      return {
+        kind: row.kind as OvertimeAllowancePolicyItem["kind"],
+        amountSatang: row.amountSatang,
+        paidWhenEndsAtOrAfter: row.paidWhenEndsAtOrAfter,
+        active: row.active,
+      };
     });
   }
 

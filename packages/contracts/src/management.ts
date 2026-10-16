@@ -117,6 +117,15 @@ export interface ApprovalPolicyInput {
   readonly steps: readonly { readonly roleKey: string; readonly scope: ApprovalPolicyScope }[];
 }
 
+/** Company-wide overtime allowance rule. TRANSPORT amount is set per person, only its threshold lives here. */
+export interface OvertimeAllowancePolicyItem {
+  readonly kind: "MEAL" | "TRANSPORT";
+  readonly amountSatang: number;
+  /** HH:mm; paid when the real overtime end is at or after this time. */
+  readonly paidWhenEndsAtOrAfter: string;
+  readonly active: boolean;
+}
+
 export interface ProfessionalRoleItem {
   readonly id: string;
   readonly key: string;

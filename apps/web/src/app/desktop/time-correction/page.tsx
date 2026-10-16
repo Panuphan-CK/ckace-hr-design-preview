@@ -8,6 +8,7 @@ import { resolveSubmissionIntent, shouldDiscardSubmissionIntent, type Submission
 import { thaiDate, thaiDateTime } from "../ui/format";
 import { Icon } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
+import { RequestTimelineSection } from "../ui/request-timeline";
 import {
   bangkokMonthKey,
   CORRECTION_STATUS,
@@ -362,6 +363,7 @@ export default function DesktopTimeCorrectionPage() {
               {detail.decidedAt ? ` (${thaiDateTime(detail.decidedAt)})` : ""}
             </p>
           </div>
+          <RequestTimelineSection requestId={detail.requestId} />
         </DetailDialog>
       ) : null}
     </>

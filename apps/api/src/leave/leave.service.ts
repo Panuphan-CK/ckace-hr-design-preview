@@ -37,6 +37,17 @@ const durations = new Set<LeaveDurationCode>([
   "AFTERNOON",
 ]);
 
+const UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function requiredUuid(value: unknown, name: string): string {
+  if (typeof value !== "string" || !UUID.test(value.trim())) {
+    throw new BadRequestException(`${name} must be a valid ID`);
+  }
+
+  return value.trim();
+}
+
 function requiredString(
   value: unknown,
   name: string,
@@ -165,11 +176,7 @@ function parseDecisionBody(
   }
 
   const source = body as Record<string, unknown>;
-  const approvalStepId = requiredString(
-    source.approvalStepId,
-    "approvalStepId",
-    128,
-  );
+  const approvalStepId = requiredUuid(source.approvalStepId, "approvalStepId");
   const decision = source.decision;
 
   if (
@@ -394,15 +401,16 @@ export class LeaveService {
     readonly body: unknown;
   }): Promise<LeaveResubmitResult> {
     const request = parseResubmitBody(input.body);
+    const requestId = requiredUuid(input.requestId, "requestId");
 
     try {
       return await this.repository.resubmitLeave({
         employeeId: input.employeeId,
         correlationId: input.correlationId,
-        requestId: input.requestId,
+        requestId,
         request,
         canonicalPayload: JSON.stringify({
-          requestId: input.requestId,
+          requestId,
           description: request.description,
           startDate: request.startDate,
           endDate: request.endDate,
@@ -423,12 +431,13 @@ export class LeaveService {
     readonly body: unknown;
   }): Promise<LeaveWithdrawResult> {
     const reason = parseWithdrawBody(input.body);
+    const requestId = requiredUuid(input.requestId, "requestId");
 
     try {
       return await this.repository.withdrawApprovedLeave({
         actorEmployeeId: input.actorEmployeeId,
         correlationId: input.correlationId,
-        requestId: input.requestId,
+        requestId,
         reason,
       });
     } catch (error) {
@@ -448,8 +457,10 @@ export class LeaveService {
     readonly correlationId: string;
     readonly requestId: string;
   }): Promise<LeaveCancelResult> {
+    const requestId = requiredUuid(input.requestId, "requestId");
+
     try {
-      return await this.repository.cancelSelfLeave(input);
+      return await this.repository.cancelSelfLeave({ ...input, requestId });
     } catch (error) {
       return translateRepositoryError(error);
     }
@@ -467,11 +478,7 @@ export class LeaveService {
       return await this.repository.decideLeave({
         approverEmployeeId: input.approverEmployeeId,
         correlationId: input.correlationId,
-        requestId: requiredString(
-          input.requestId,
-          "requestId",
-          128,
-        ),
+        requestId: requiredUuid(input.requestId, "requestId"),
         decision,
       });
     } catch (error) {

@@ -690,6 +690,7 @@ export default function LeaveDesktopPage() {
                     {detail.steps.map((step) => (
                       <li key={step.stepOrder}>
                         <b>{step.approverName ?? "รอระบบกำหนดผู้อนุมัติ"}</b>{" "}
+                        {step.decidedByName ? <i>(อนุมัติแทนโดย {step.decidedByName}) </i> : null}
                         <span>
                           {STEP_LABEL[step.status]}
                           {step.decidedAt ? " · " + thaiDateTime(step.decidedAt) : ""}

@@ -40,7 +40,8 @@ function requestView(
     | "PENDING"
     | "APPROVED"
     | "REJECTED"
-    | "CANCELLED" = "PENDING",
+    | "CANCELLED"
+    | "REVISION_REQUESTED" = "PENDING",
 ): OvertimeRequestView {
   return {
     id: requestId,
@@ -57,6 +58,8 @@ function requestView(
 class FakeOvertimeRepository
   implements OvertimeRepository
 {
+  lastResubmit: { employeeId: string; requestId: string; request: { reason: string } } | undefined;
+  lastWithdraw: { actorEmployeeId: string; requestId: string; reason: string } | undefined;
   lastCreate:
     | {
         employeeId: string;
@@ -109,6 +112,33 @@ class FakeOvertimeRepository
       requestId: input.requestId,
       status: "CANCELLED" as const,
     };
+  }
+
+  async previewApprovalChain() {
+    return { autoApproved: false, steps: [] };
+  }
+
+  async resubmitOvertime(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly request: { readonly clientKey: string; readonly startTime: string; readonly endTime: string; readonly reason: string };
+    readonly canonicalPayload: string;
+  }) {
+    this.lastResubmit = input;
+
+    return { requestId: input.requestId, returnedToStep: 1, replayed: false };
+  }
+
+  async withdrawApprovedOvertime(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly reason: string;
+  }) {
+    this.lastWithdraw = input;
+
+    return { requestId: input.requestId, status: "CANCELLED" as const };
   }
 
   async decideAssignedOvertime(input: {

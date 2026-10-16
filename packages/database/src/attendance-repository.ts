@@ -17,6 +17,7 @@ import {
   type AttendancePolicyRule,
 } from "@ckace/business-rules";
 import type {
+  ApprovalChainPreview,
   AttendanceCheckInInput,
   AttendanceCheckOutInput,
   AttendanceRadiusState,
@@ -28,15 +29,41 @@ import type {
   TimeCorrectionDecisionInput,
   TimeCorrectionDecisionResult,
   TimeCorrectionRequestView,
+  TimeCorrectionResubmitInput,
+  TimeCorrectionResubmitResult,
+  TimeCorrectionWithdrawResult,
 } from "@ckace/contracts";
 import {
   Prisma,
   type PrismaClient,
 } from "@prisma/client";
 
-import { resolveCompanyApprovalRoute } from "./approval-route-loader";
+import { delegatorIdsFor } from "./approval-delegation";
+import {
+  actorHasRoleOverEmployee,
+  resolveCompanyApprovalRoute,
+} from "./approval-route-loader";
+import { LEAVE_WITHDRAW_ROLE_KEY } from "./leave-revision-repository";
+import { resubmitSentBackTimeCorrection } from "./time-correction-revision-repository";
 
 export interface AttendanceRepository {
+  previewTimeCorrectionApprover(employeeId: string): Promise<ApprovalChainPreview>;
+
+  resubmitTimeCorrection(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly request: TimeCorrectionResubmitInput;
+    readonly canonicalPayload: string;
+  }): Promise<TimeCorrectionResubmitResult>;
+
+  withdrawApprovedTimeCorrection(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly reason: string;
+  }): Promise<TimeCorrectionWithdrawResult>;
+
   getSelfOverview(
     employeeId: string,
   ): Promise<AttendanceSelfOverview>;
@@ -676,12 +703,6 @@ function correctionView(input: {
   if (!original || !corrected) {
     throw new Error(
       "Stored time correction is missing original/corrected time",
-    );
-  }
-
-  if (input.row.status === "REVISION_REQUESTED") {
-    throw new Error(
-      "Unsupported Time Correction persistence status",
     );
   }
 
@@ -1338,6 +1359,7 @@ export class PrismaAttendanceRepository
       approverEmployeeId,
     );
 
+    const delegators = await delegatorIdsFor(this.prisma, approverEmployeeId);
     const rows =
       await this.prisma.timeCorrectionRequest.findMany({
         where: {
@@ -1346,7 +1368,7 @@ export class PrismaAttendanceRepository
             is: {
               steps: {
                 some: {
-                  approverEmployeeId,
+                  approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
                   status: "PENDING",
                 },
               },
@@ -1477,7 +1499,7 @@ export class PrismaAttendanceRepository
               where: {
                 employeeId: input.employeeId,
                 attendanceDate: record.workDate,
-                status: { in: ["PENDING", "APPROVED"] },
+                status: { in: ["PENDING", "APPROVED", "REVISION_REQUESTED"] },
                 ...(normalized.correctionType === "CHECK_IN"
                   ? {
                       correctedCheckIn: { not: null },
@@ -1652,7 +1674,7 @@ export class PrismaAttendanceRepository
           };
         }
 
-        if (request.status !== "PENDING") {
+        if (request.status !== "PENDING" && request.status !== "REVISION_REQUESTED") {
           throw new Error(
             "Only pending time correction requests can be cancelled",
           );
@@ -1789,11 +1811,15 @@ export class PrismaAttendanceRepository
           );
         }
 
+        const delegators = await delegatorIdsFor(tx, input.approverEmployeeId);
         const step =
           request.approvalInstance.steps.find(
             (candidate) =>
               candidate.approverEmployeeId ===
-              input.approverEmployeeId,
+                input.approverEmployeeId ||
+              (request.employeeId !== input.approverEmployeeId &&
+                candidate.approverEmployeeId !== null &&
+                delegators.includes(candidate.approverEmployeeId)),
           );
 
         if (!step) {
@@ -1801,6 +1827,11 @@ export class PrismaAttendanceRepository
             "Time correction is not assigned to this approver",
           );
         }
+
+        await tx.approvalStep.update({
+          where: { id: step.id },
+          data: { decidedByEmployeeId: input.approverEmployeeId },
+        });
 
         if (
           request.status === normalized.decision &&
@@ -1819,6 +1850,43 @@ export class PrismaAttendanceRepository
           throw new Error(
             "Time correction request has already been decided",
           );
+        }
+
+        if (normalized.decision === "REVISION_REQUESTED") {
+          await Promise.all([
+            tx.timeCorrectionRequest.update({
+              where: { id: request.id },
+              data: { status: "REVISION_REQUESTED", decisionComment: normalized.comment },
+            }),
+            tx.approvalStep.update({
+              where: { id: step.id },
+              data: { status: "REVISION_REQUESTED", comment: normalized.comment, decidedAt },
+            }),
+            tx.approvalInstance.update({
+              where: { id: request.approvalInstance.id },
+              data: { status: "REVISION_REQUESTED", decidedAt: null },
+            }),
+            tx.auditLog.create({
+              data: {
+                actorEmployeeId: input.approverEmployeeId,
+                action: "TIME_CORRECTION_REVISION_REQUEST",
+                entityType: "TimeCorrectionRequest",
+                entityId: request.id,
+                correlationId: input.correlationId,
+                metadata: { requesterEmployeeId: request.employeeId },
+              },
+            }),
+            tx.notificationOutbox.create({
+              data: {
+                aggregateType: "TIME_CORRECTION",
+                aggregateId: request.id,
+                eventType: "TIME_CORRECTION_REVISION_REQUESTED",
+                payload: { requestId: request.id, requesterEmployeeId: request.employeeId },
+              },
+            }),
+          ]);
+
+          return { requestId: request.id, status: "REVISION_REQUESTED" as const };
         }
 
         if (normalized.decision === "APPROVED") {
@@ -2012,6 +2080,205 @@ export class PrismaAttendanceRepository
         isolationLevel:
           Prisma.TransactionIsolationLevel.Serializable,
       },
+    );
+  }
+
+  async previewTimeCorrectionApprover(employeeId: string): Promise<ApprovalChainPreview> {
+    const requester = await activeEmployeeContext(this.prisma, employeeId);
+    const approverId = await resolveCorrectionApprover(this.prisma, requester);
+    const approver = await this.prisma.employee.findUnique({
+      where: { id: approverId },
+      select: { fullName: true },
+    });
+
+    return {
+      autoApproved: false,
+      steps: [{ stepOrder: 1, approverEmployeeId: approverId, approverName: approver?.fullName ?? null }],
+    };
+  }
+
+  resubmitTimeCorrection(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly request: TimeCorrectionResubmitInput;
+    readonly canonicalPayload: string;
+  }): Promise<TimeCorrectionResubmitResult> {
+    return resubmitSentBackTimeCorrection(this.prisma, input);
+  }
+
+  async withdrawApprovedTimeCorrection(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly reason: string;
+  }): Promise<TimeCorrectionWithdrawResult> {
+    const reason = input.reason.trim();
+
+    if (!reason || reason.length > 1000) {
+      throw new Error("A withdrawal reason of 1 to 1000 characters is required");
+    }
+
+    const decidedAt = this.clock();
+
+    return this.prisma.$transaction(
+      async (tx) => {
+        const request = await tx.timeCorrectionRequest.findUnique({
+          where: { id: input.requestId },
+          select: {
+            id: true,
+            employeeId: true,
+            status: true,
+            approvalInstanceId: true,
+            originalCheckIn: true,
+            originalCheckOut: true,
+            correctedCheckIn: true,
+            correctedCheckOut: true,
+            attendanceRecord: {
+              select: {
+                id: true,
+                workDate: true,
+                checkInAt: true,
+                checkOutAt: true,
+                calculation: { select: { overtimeMinutes: true } },
+              },
+            },
+          },
+        });
+
+        if (!request) {
+          throw new Error("Time correction request is unavailable for this employee");
+        }
+
+        if (request.status === "CANCELLED") {
+          return { requestId: request.id, status: "CANCELLED" as const };
+        }
+
+        if (request.status !== "APPROVED") {
+          throw new Error("Only an approved time correction can be withdrawn");
+        }
+
+        const allowed = await actorHasRoleOverEmployee(
+          tx,
+          input.actorEmployeeId,
+          LEAVE_WITHDRAW_ROLE_KEY,
+          request.employeeId,
+        );
+
+        if (!allowed) {
+          throw new Error("Not allowed to withdraw time correction of this employee");
+        }
+
+        const record = request.attendanceRecord;
+
+        if (!record || !record.checkOutAt) {
+          throw new Error("Time correction attendance record is unavailable");
+        }
+
+        const workDateKey = dateOnly(record.workDate);
+        const currentIn = attendanceBusinessParts(record.checkInAt).time;
+        const currentOut = attendanceBusinessParts(record.checkOutAt).time;
+        const correctedIn = dbTime(request.correctedCheckIn);
+        const correctedOut = dbTime(request.correctedCheckOut);
+
+        if (
+          (correctedIn && correctedIn !== currentIn) ||
+          (correctedOut && correctedOut !== currentOut)
+        ) {
+          throw new Error(
+            "Approved time correction cannot be withdrawn because the attendance record changed afterwards",
+          );
+        }
+
+        const originalIn = dbTime(request.originalCheckIn);
+        const originalOut = dbTime(request.originalCheckOut);
+        const restoredCheckIn =
+          correctedIn && originalIn ? bangkokTimestamp(workDateKey, originalIn) : record.checkInAt;
+        const restoredCheckOut =
+          correctedOut && originalOut ? bangkokTimestamp(workDateKey, originalOut) : record.checkOutAt;
+        const policy = await attendancePolicyFor(tx, record.workDate);
+        const overtimeSegments = await approvedOvertimeSegments(tx, request.employeeId, record.workDate);
+        const checkInTime = attendanceBusinessParts(restoredCheckIn).time;
+        const checkOutTime = attendanceBusinessParts(restoredCheckOut).time;
+        const workMinutes = calculateCorrectedWorkMinutes({
+          checkInTime,
+          checkOutTime,
+          policy: policy.rule,
+        });
+        const timing = classifyAttendanceTiming({
+          checkInTime,
+          checkOutTime,
+          policy: policy.rule,
+          hasApprovedOvertime: overtimeSegments.length > 0,
+        });
+
+        await tx.attendanceRecord.update({
+          where: { id: record.id },
+          data: {
+            checkInAt: restoredCheckIn,
+            checkOutAt: restoredCheckOut,
+            calculation: {
+              upsert: {
+                create: {
+                  workMinutes,
+                  lateMinutes: timing.lateMinutes,
+                  earlyMinutes: timing.earlyMinutes,
+                  overtimeMinutes: record.calculation?.overtimeMinutes ?? null,
+                  checkInRadius: "UNKNOWN",
+                  checkOutRadius: "UNKNOWN",
+                  policyVersion: policy.id,
+                  calculatedAt: decidedAt,
+                },
+                update: {
+                  workMinutes,
+                  lateMinutes: timing.lateMinutes,
+                  earlyMinutes: timing.earlyMinutes,
+                  policyVersion: policy.id,
+                  calculatedAt: decidedAt,
+                },
+              },
+            },
+          },
+        });
+        await tx.timeCorrectionRequest.update({
+          where: { id: request.id },
+          data: { status: "CANCELLED", decisionComment: reason, decidedAt },
+        });
+
+        await Promise.all([
+          request.approvalInstanceId
+            ? tx.approvalInstance.update({
+                where: { id: request.approvalInstanceId },
+                data: { status: "CANCELLED", decidedAt },
+              })
+            : Promise.resolve(null),
+          tx.notificationOutbox.create({
+            data: {
+              aggregateType: "TIME_CORRECTION",
+              aggregateId: request.id,
+              eventType: "TIME_CORRECTION_WITHDRAWN",
+              payload: {
+                requestId: request.id,
+                requesterEmployeeId: request.employeeId,
+                actorEmployeeId: input.actorEmployeeId,
+              },
+            },
+          }),
+          tx.auditLog.create({
+            data: {
+              actorEmployeeId: input.actorEmployeeId,
+              action: "TIME_CORRECTION_WITHDRAW_APPROVED",
+              entityType: "TimeCorrectionRequest",
+              entityId: request.id,
+              correlationId: input.correlationId,
+              metadata: { reason },
+            },
+          }),
+        ]);
+
+        return { requestId: request.id, status: "CANCELLED" as const };
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
   }
 }

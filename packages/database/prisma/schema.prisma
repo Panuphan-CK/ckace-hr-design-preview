@@ -193,25 +193,28 @@ model Employee {
   createdAt               DateTime                   @default(now()) @db.Timestamptz(3)
   updatedAt               DateTime                   @updatedAt @db.Timestamptz(3)
 
-  company           Company?                @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  manager           Employee?               @relation("EmployeeManager", fields: [managerEmployeeId], references: [id], onDelete: SetNull)
-  directReports     Employee[]              @relation("EmployeeManager")
-  agency            Agency?                 @relation(fields: [agencyId], references: [id], onDelete: SetNull)
-  department        Department?             @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  userAccount       UserAccount?
-  lineAccount       LineAccount?
-  media             EmployeeMedia[]
-  entitlements      LeaveEntitlement[]
-  leaveRequests     LeaveRequest[]
-  attendanceRecords AttendanceRecord[]
-  timeCorrections   TimeCorrectionRequest[]
-  overtimeRequests  OvertimeRequest[]
-  medicalClaims     MedicalClaim[]
-  approvalInstances ApprovalInstance[]      @relation("ApprovalRequester")
-  approvalSteps     ApprovalStep[]          @relation("ApprovalStepApprover")
-  attachments       Attachment[]            @relation("AttachmentOwner")
-  idempotencyKeys   IdempotencyKey[]
-  auditLogs         AuditLog[]
+  company             Company?                @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  manager             Employee?               @relation("EmployeeManager", fields: [managerEmployeeId], references: [id], onDelete: SetNull)
+  directReports       Employee[]              @relation("EmployeeManager")
+  agency              Agency?                 @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+  department          Department?             @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  userAccount         UserAccount?
+  lineAccount         LineAccount?
+  media               EmployeeMedia[]
+  entitlements        LeaveEntitlement[]
+  leaveRequests       LeaveRequest[]
+  attendanceRecords   AttendanceRecord[]
+  timeCorrections     TimeCorrectionRequest[]
+  overtimeRequests    OvertimeRequest[]
+  medicalClaims       MedicalClaim[]
+  approvalInstances   ApprovalInstance[]      @relation("ApprovalRequester")
+  approvalSteps       ApprovalStep[]          @relation("ApprovalStepApprover")
+  decidedSteps        ApprovalStep[]          @relation("ApprovalStepDecider")
+  delegationsGiven    ApprovalDelegation[]    @relation("DelegationDelegator")
+  delegationsReceived ApprovalDelegation[]    @relation("DelegationDelegate")
+  attachments         Attachment[]            @relation("AttachmentOwner")
+  idempotencyKeys     IdempotencyKey[]
+  auditLogs           AuditLog[]
 
   @@index([agencyId])
   @@index([departmentId])
@@ -340,6 +343,25 @@ model ApprovalPolicyStep {
   @@map("approval_policy_steps")
 }
 
+/// An approver hands their approvals to a delegate for a date range (inclusive, Bangkok dates).
+model ApprovalDelegation {
+  id                  String    @id @default(uuid()) @db.Uuid
+  delegatorEmployeeId String    @db.Uuid
+  delegateEmployeeId  String    @db.Uuid
+  startDate           DateTime  @db.Date
+  endDate             DateTime  @db.Date
+  active              Boolean   @default(true)
+  createdAt           DateTime  @default(now()) @db.Timestamptz(3)
+  cancelledAt         DateTime? @db.Timestamptz(3)
+
+  delegator Employee @relation("DelegationDelegator", fields: [delegatorEmployeeId], references: [id], onDelete: Cascade)
+  delegate  Employee @relation("DelegationDelegate", fields: [delegateEmployeeId], references: [id], onDelete: Cascade)
+
+  @@index([delegateEmployeeId, active, startDate, endDate])
+  @@index([delegatorEmployeeId, active])
+  @@map("approval_delegations")
+}
+
 model ApprovalInstance {
   id                  String        @id @default(uuid()) @db.Uuid
   requestKind         RequestKind
@@ -366,19 +388,22 @@ model ApprovalInstance {
 }
 
 model ApprovalStep {
-  id                 String             @id @default(uuid()) @db.Uuid
-  approvalInstanceId String             @db.Uuid
-  stepOrder          Int
-  approverEmployeeId String?            @db.Uuid
-  status             ApprovalStepStatus @default(PENDING)
-  assignedAt         DateTime?          @db.Timestamptz(3)
-  decidedAt          DateTime?          @db.Timestamptz(3)
-  comment            String?
-  legacyRawStatus    String?
-  createdAt          DateTime           @default(now()) @db.Timestamptz(3)
+  id                  String             @id @default(uuid()) @db.Uuid
+  approvalInstanceId  String             @db.Uuid
+  stepOrder           Int
+  approverEmployeeId  String?            @db.Uuid
+  status              ApprovalStepStatus @default(PENDING)
+  assignedAt          DateTime?          @db.Timestamptz(3)
+  decidedAt           DateTime?          @db.Timestamptz(3)
+  /// Who actually decided (differs from approverEmployeeId when a delegate decided).
+  decidedByEmployeeId String?            @db.Uuid
+  comment             String?
+  legacyRawStatus     String?
+  createdAt           DateTime           @default(now()) @db.Timestamptz(3)
 
   approvalInstance ApprovalInstance @relation(fields: [approvalInstanceId], references: [id], onDelete: Cascade)
   approver         Employee?        @relation("ApprovalStepApprover", fields: [approverEmployeeId], references: [id], onDelete: SetNull)
+  decidedBy        Employee?        @relation("ApprovalStepDecider", fields: [decidedByEmployeeId], references: [id], onDelete: SetNull)
 
   @@unique([approvalInstanceId, stepOrder])
   @@index([approverEmployeeId, status])
@@ -635,6 +660,8 @@ model BenefitPolicy {
   key           String
   name          String
   annualLimit   Decimal?  @db.Decimal(12, 2)
+  /// Most that is paid for one claim; null = company default of 1,000.
+  perClaimLimit Decimal?  @db.Decimal(12, 2)
   effectiveFrom DateTime  @db.Date
   effectiveTo   DateTime? @db.Date
   active        Boolean   @default(true)

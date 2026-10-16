@@ -203,7 +203,24 @@ describe("overtime business rules", () => {
       normalizeOvertimeDecision({
         decision: "revise",
       }),
-    ).toThrow("APPROVED or REJECTED");
+    ).toThrow("APPROVED, REJECTED or REVISION_REQUESTED");
+
+    expect(
+      normalizeOvertimeDecision({
+        decision: "revision_requested",
+        comment: " แก้เวลา ",
+      }),
+    ).toEqual({ decision: "REVISION_REQUESTED", comment: "แก้เวลา" });
+
+    expect(() =>
+      normalizeOvertimeDecision({ decision: "REVISION_REQUESTED" }),
+    ).toThrow("requires a comment");
+  });
+
+  it("allows cancelling pending and sent-back overtime only", () => {
+    expect(() => assertOvertimeCancelable("PENDING")).not.toThrow();
+    expect(() => assertOvertimeCancelable("REVISION_REQUESTED")).not.toThrow();
+    expect(() => assertOvertimeCancelable("APPROVED")).toThrow("only pending");
   });
 });
 

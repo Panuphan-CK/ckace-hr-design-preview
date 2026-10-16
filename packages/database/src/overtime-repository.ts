@@ -15,6 +15,7 @@ import {
   type OvertimeCalendarDay,
 } from "@ckace/business-rules";
 import type {
+  ApprovalChainPreview,
   OvertimeApprovalQueueItem,
   OvertimeCancelResult,
   OvertimeCreateInput,
@@ -22,19 +23,29 @@ import type {
   OvertimeDecisionInput,
   OvertimeDecisionResult,
   OvertimeRequestView,
+  OvertimeResubmitInput,
+  OvertimeResubmitResult,
   OvertimeSelfOverview,
+  OvertimeWithdrawResult,
 } from "@ckace/contracts";
 import {
   Prisma,
   type PrismaClient,
 } from "@prisma/client";
 
+import { actorMayDecideStep, delegatorIdsFor } from "./approval-delegation";
+import {
+  resubmitSentBackOvertime,
+  withdrawApprovedOvertime,
+} from "./overtime-revision-repository";
 import {
   resolveCompanyApprovalRoute,
   systemSelectedApprovals,
 } from "./approval-route-loader";
 
 export interface OvertimeRepository {
+  previewApprovalChain(employeeId: string): Promise<ApprovalChainPreview>;
+
   getSelfOverview(
     employeeId: string,
   ): Promise<OvertimeSelfOverview>;
@@ -62,6 +73,21 @@ export interface OvertimeRepository {
     readonly requestId: string;
     readonly decision: OvertimeDecisionInput;
   }): Promise<OvertimeDecisionResult>;
+
+  resubmitOvertime(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly request: OvertimeResubmitInput;
+    readonly canonicalPayload: string;
+  }): Promise<OvertimeResubmitResult>;
+
+  withdrawApprovedOvertime(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly reason: string;
+  }): Promise<OvertimeWithdrawResult>;
 }
 
 interface ActiveEmployeeContext {
@@ -76,6 +102,18 @@ interface OvertimeApprovalResolution {
     readonly stepOrder: number;
     readonly approverEmployeeId: string;
   }[];
+}
+
+async function approverNames(
+  prisma: Pick<PrismaClient, "employee">,
+  ids: readonly string[],
+): Promise<Map<string, string>> {
+  const rows = await prisma.employee.findMany({
+    where: { id: { in: [...ids] } },
+    select: { id: true, fullName: true },
+  });
+
+  return new Map(rows.map((row) => [row.id, row.fullName]));
 }
 
 function dateOnly(value: Date): string {
@@ -430,12 +468,6 @@ function requestView(
     }[];
   },
 ): OvertimeRequestView {
-  if (request.status === "REVISION_REQUESTED") {
-    throw new Error(
-      "Unsupported overtime request status REVISION_REQUESTED",
-    );
-  }
-
   return {
     id: request.id,
     employeeId: request.employeeId,
@@ -619,9 +651,10 @@ export class PrismaOvertimeRepository
       approverEmployeeId,
     );
 
+    const delegators = await delegatorIdsFor(this.prisma, approverEmployeeId);
     const steps = await this.prisma.approvalStep.findMany({
       where: {
-        approverEmployeeId,
+        approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
         status: "PENDING",
         approvalInstance: {
           is: {
@@ -1149,15 +1182,24 @@ export class PrismaOvertimeRepository
                 ?.currentStepOrder,
           );
 
-        if (
-          !currentStep ||
-          currentStep.approverEmployeeId !==
-            input.approverEmployeeId
-        ) {
+        const mayDecide = currentStep
+          ? await actorMayDecideStep(tx, {
+              stepApproverId: currentStep.approverEmployeeId,
+              actorEmployeeId: input.approverEmployeeId,
+              requesterEmployeeId: request.employeeId,
+            })
+          : false;
+
+        if (!currentStep || !mayDecide) {
           throw new Error(
             "Overtime request is not assigned to this approver",
           );
         }
+
+        await tx.approvalStep.update({
+          where: { id: currentStep.id },
+          data: { decidedByEmployeeId: input.approverEmployeeId },
+        });
 
         if (
           request.status === normalized.decision &&
@@ -1177,6 +1219,84 @@ export class PrismaOvertimeRepository
           throw new Error(
             "Overtime request has already been decided",
           );
+        }
+
+        if (normalized.decision === "REVISION_REQUESTED") {
+          await Promise.all([
+            tx.approvalStep.update({
+              where: { id: currentStep.id },
+              data: {
+                status: "REVISION_REQUESTED",
+                comment: normalized.comment,
+                decidedAt,
+              },
+            }),
+            tx.overtimeRequest.update({
+              where: { id: request.id },
+              data: {
+                status: "REVISION_REQUESTED",
+                decisionReason: normalized.comment,
+              },
+            }),
+            tx.approvalInstance.update({
+              where: { id: request.approvalInstance.id },
+              data: { status: "REVISION_REQUESTED", decidedAt: null },
+            }),
+            tx.notificationOutbox.create({
+              data: {
+                aggregateType: "OVERTIME_REQUEST",
+                aggregateId: request.id,
+                eventType: "OVERTIME_REQUEST_REVISION_REQUESTED",
+                payload: {
+                  requestId: request.id,
+                  requesterEmployeeId: request.employeeId,
+                  stepOrder: currentStep.stepOrder,
+                },
+              },
+            }),
+            tx.auditLog.create({
+              data: {
+                actorEmployeeId: input.approverEmployeeId,
+                action: "OVERTIME_REQUEST_REVISION",
+                entityType: "OvertimeRequest",
+                entityId: request.id,
+                correlationId: input.correlationId,
+                metadata: {
+                  requesterEmployeeId: request.employeeId,
+                  stepOrder: currentStep.stepOrder,
+                },
+              },
+            }),
+          ]);
+
+          const sentBack = await tx.overtimeRequest.findUniqueOrThrow({
+            where: { id: request.id },
+            select: {
+              id: true,
+              employeeId: true,
+              reason: true,
+              status: true,
+              decisionReason: true,
+              submittedAt: true,
+              segments: {
+                select: {
+                  id: true,
+                  workDate: true,
+                  startTime: true,
+                  endTime: true,
+                  requestedMinutes: true,
+                  attendanceRecordId: true,
+                },
+                orderBy: [{ workDate: "asc" }, { startTime: "asc" }, { id: "asc" }],
+              },
+            },
+          });
+
+          return {
+            request: requestView(sentBack),
+            completed: false,
+            warnings: [],
+          };
         }
 
         const nextStep =
@@ -1315,5 +1435,39 @@ export class PrismaOvertimeRepository
           Prisma.TransactionIsolationLevel.Serializable,
       },
     );
+  }
+
+  async previewApprovalChain(employeeId: string): Promise<ApprovalChainPreview> {
+    const requester = await activeEmployeeContext(this.prisma, employeeId);
+    const approval = await resolveOvertimeApproval(this.prisma, requester);
+    const names = await approverNames(this.prisma, approval.steps.map((step) => step.approverEmployeeId));
+
+    return {
+      autoApproved: false,
+      steps: approval.steps.map((step) => ({
+        stepOrder: step.stepOrder,
+        approverEmployeeId: step.approverEmployeeId,
+        approverName: names.get(step.approverEmployeeId) ?? null,
+      })),
+    };
+  }
+
+  resubmitOvertime(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly request: OvertimeResubmitInput;
+    readonly canonicalPayload: string;
+  }): Promise<OvertimeResubmitResult> {
+    return resubmitSentBackOvertime(this.prisma, input);
+  }
+
+  withdrawApprovedOvertime(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly reason: string;
+  }): Promise<OvertimeWithdrawResult> {
+    return withdrawApprovedOvertime(this.prisma, input);
   }
 }

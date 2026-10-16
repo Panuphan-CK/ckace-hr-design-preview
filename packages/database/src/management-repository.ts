@@ -8,6 +8,9 @@ import type {
   LeaveEntitlementOptions,
   ApprovalPolicyInput,
   ApprovalPolicyItem,
+  AttendancePolicyItem,
+  MissingCheckOutItem,
+  MedicalPolicyItem,
   OvertimeAllowancePolicyItem,
   OvertimeReportRow,
   ProfessionalRoleItem,
@@ -58,6 +61,11 @@ export interface ManagementRepository {
     input: OvertimeAllowancePolicyItem,
     actorEmployeeId: string,
   ): Promise<OvertimeAllowancePolicyItem>;
+  missingCheckOuts(from: Date, to: Date): Promise<readonly MissingCheckOutItem[]>;
+  getMedicalPolicy(): Promise<MedicalPolicyItem | null>;
+  saveMedicalPolicy(input: Omit<MedicalPolicyItem, "effectiveFrom">, actorEmployeeId: string): Promise<MedicalPolicyItem>;
+  getAttendancePolicy(): Promise<AttendancePolicyItem | null>;
+  saveAttendancePolicy(input: Omit<AttendancePolicyItem, "effectiveFrom">, actorEmployeeId: string): Promise<AttendancePolicyItem>;
   listApprovalPolicies(): Promise<readonly ApprovalPolicyItem[]>;
   saveApprovalPolicy(
     input: ApprovalPolicyInput,
@@ -157,6 +165,31 @@ export interface ManagementRepository {
 
 function dateOnly(value: Date): string {
   return value.toISOString().slice(0, 10);
+}
+
+function attendancePolicyView(row: {
+  name: string;
+  officeLatitude: Prisma.Decimal;
+  officeLongitude: Prisma.Decimal;
+  radiusKm: Prisma.Decimal;
+  lateAfter: Date;
+  workEnd: Date;
+  breakStart: Date | null;
+  breakEnd: Date | null;
+  effectiveFrom: Date;
+}): AttendancePolicyItem {
+  const clock = (value: Date) => value.toISOString().slice(11, 16);
+  return {
+    name: row.name,
+    officeLatitude: row.officeLatitude.toNumber(),
+    officeLongitude: row.officeLongitude.toNumber(),
+    radiusKm: row.radiusKm.toNumber(),
+    lateAfter: clock(row.lateAfter),
+    workEnd: clock(row.workEnd),
+    breakStart: row.breakStart ? clock(row.breakStart) : null,
+    breakEnd: row.breakEnd ? clock(row.breakEnd) : null,
+    effectiveFrom: dateOnly(row.effectiveFrom),
+  };
 }
 
 const APPROVAL_POLICY_KINDS = ["LEAVE", "TIME_CORRECTION", "OVERTIME", "MEDICAL"] as const;
@@ -754,6 +787,170 @@ export class PrismaManagementRepository implements ManagementRepository {
         paidWhenEndsAtOrAfter: row.paidWhenEndsAtOrAfter,
         active: row.active,
       };
+    });
+  }
+
+  /**
+   * Past working days (before today in Bangkok) with a check-in and no check-out. Replaces the
+   * legacy nightly job that only flagged these rows; Project B lists them and the employee fixes
+   * them through a time correction, so no record is silently rewritten.
+   */
+  async missingCheckOuts(from: Date, to: Date): Promise<readonly MissingCheckOutItem[]> {
+    const todayBangkok = new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const lastDay = new Date(Math.min(to.getTime(), new Date(todayBangkok + "T00:00:00.000Z").getTime() - 86_400_000));
+
+    if (lastDay < from) {
+      return [];
+    }
+
+    const rows = await this.prisma.attendanceRecord.findMany({
+      where: {
+        workDate: { gte: from, lte: lastDay },
+        checkOutAt: null,
+        employee: { is: ATTENDANCE_STATS_EMPLOYEE_FILTER },
+      },
+      select: {
+        employeeId: true,
+        workDate: true,
+        checkInAt: true,
+        employee: {
+          select: {
+            fullName: true,
+            agency: { select: { name: true, company: { select: { name: true } } } },
+            company: { select: { name: true } },
+          },
+        },
+      },
+      orderBy: [{ workDate: "desc" }, { id: "asc" }],
+      take: 1000,
+    });
+
+    return rows.map((row) => ({
+      employeeId: row.employeeId,
+      employeeName: row.employee.fullName,
+      teamName: row.employee.agency?.name ?? "",
+      companyName: row.employee.company?.name ?? row.employee.agency?.company?.name ?? "",
+      workDate: dateOnly(row.workDate),
+      checkIn: new Date(row.checkInAt.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(11, 16),
+    }));
+  }
+
+  async getMedicalPolicy(): Promise<MedicalPolicyItem | null> {
+    const row = await this.prisma.benefitPolicy.findFirst({
+      where: { key: "MEDICAL", active: true },
+      orderBy: [{ effectiveFrom: "desc" }, { id: "asc" }],
+    });
+    return row && row.annualLimit
+      ? {
+          annualLimit: row.annualLimit.toNumber(),
+          perClaimLimit: row.perClaimLimit ? row.perClaimLimit.toNumber() : 1000,
+          effectiveFrom: dateOnly(row.effectiveFrom),
+        }
+      : null;
+  }
+
+  async saveMedicalPolicy(
+    input: Omit<MedicalPolicyItem, "effectiveFrom">,
+    actorEmployeeId: string,
+  ): Promise<MedicalPolicyItem> {
+    if (!(input.annualLimit > 0) || !(input.perClaimLimit > 0) || input.perClaimLimit > input.annualLimit) {
+      throw new Error("Medical limits must be positive and the per-claim limit cannot exceed the annual limit");
+    }
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.benefitPolicy.findFirst({
+        where: { key: "MEDICAL", active: true },
+        orderBy: [{ effectiveFrom: "desc" }, { id: "asc" }],
+      });
+      const effectiveFrom = current?.effectiveFrom ?? new Date(Date.UTC(new Date().getUTCFullYear(), 0, 1));
+      const row = current
+        ? await tx.benefitPolicy.update({
+            where: { id: current.id },
+            data: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit },
+          })
+        : await tx.benefitPolicy.create({
+            data: {
+              key: "MEDICAL",
+              name: "ค่ารักษาพยาบาล",
+              annualLimit: input.annualLimit,
+              perClaimLimit: input.perClaimLimit,
+              effectiveFrom,
+            },
+          });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId,
+          action: "MEDICAL_POLICY_UPDATED",
+          entityType: "BenefitPolicy",
+          entityId: row.id,
+          metadata: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit },
+        },
+      });
+      return {
+        annualLimit: input.annualLimit,
+        perClaimLimit: input.perClaimLimit,
+        effectiveFrom: dateOnly(row.effectiveFrom),
+      };
+    });
+  }
+
+  async getAttendancePolicy(): Promise<AttendancePolicyItem | null> {
+    const row = await this.prisma.attendancePolicy.findFirst({
+      where: { active: true },
+      orderBy: [{ effectiveFrom: "desc" }, { id: "asc" }],
+    });
+    return row ? attendancePolicyView(row) : null;
+  }
+
+  async saveAttendancePolicy(
+    input: Omit<AttendancePolicyItem, "effectiveFrom">,
+    actorEmployeeId: string,
+  ): Promise<AttendancePolicyItem> {
+    const clockValue = /^([01]\d|2[0-3]):[0-5]\d$/;
+    for (const value of [input.lateAfter, input.workEnd, input.breakStart, input.breakEnd]) {
+      if (value !== null && !clockValue.test(value)) throw new Error("Attendance times must use HH:mm");
+    }
+    if (
+      Math.abs(input.officeLatitude) > 90 ||
+      Math.abs(input.officeLongitude) > 180 ||
+      !(input.radiusKm > 0) ||
+      input.radiusKm > 100 ||
+      input.workEnd <= input.lateAfter ||
+      (input.breakStart === null) !== (input.breakEnd === null) ||
+      (input.breakStart !== null && input.breakEnd !== null && input.breakEnd <= input.breakStart)
+    ) {
+      throw new Error("Attendance policy values are invalid");
+    }
+    const toTime = (value: string) => new Date("1970-01-01T" + value + ":00.000Z");
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.attendancePolicy.findFirst({
+        where: { active: true },
+        orderBy: [{ effectiveFrom: "desc" }, { id: "asc" }],
+      });
+      const data = {
+        name: input.name,
+        officeLatitude: input.officeLatitude,
+        officeLongitude: input.officeLongitude,
+        radiusKm: input.radiusKm,
+        lateAfter: toTime(input.lateAfter),
+        workEnd: toTime(input.workEnd),
+        breakStart: input.breakStart ? toTime(input.breakStart) : null,
+        breakEnd: input.breakEnd ? toTime(input.breakEnd) : null,
+      };
+      const row = current
+        ? await tx.attendancePolicy.update({ where: { id: current.id }, data })
+        : await tx.attendancePolicy.create({
+            data: { ...data, effectiveFrom: new Date(Date.UTC(new Date().getUTCFullYear(), 0, 1)) },
+          });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId,
+          action: "ATTENDANCE_POLICY_UPDATED",
+          entityType: "AttendancePolicy",
+          entityId: row.id,
+          metadata: { lateAfter: input.lateAfter, workEnd: input.workEnd, radiusKm: input.radiusKm },
+        },
+      });
+      return attendancePolicyView(row);
     });
   }
 

@@ -135,6 +135,29 @@ class FakeAttendanceRepository
     };
   }
 
+  async previewTimeCorrectionApprover() {
+    return { autoApproved: false, steps: [] };
+  }
+
+  async resubmitTimeCorrection(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly request: { readonly clientKey: string; readonly correctedTime: string; readonly reason: string };
+    readonly canonicalPayload: string;
+  }) {
+    return { requestId: input.requestId, returnedToStep: 1, replayed: false };
+  }
+
+  async withdrawApprovedTimeCorrection(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly reason: string;
+  }) {
+    return { requestId: input.requestId, status: "CANCELLED" as const };
+  }
+
   async decideAssignedTimeCorrection(input: {
     readonly approverEmployeeId: string;
     readonly correlationId: string;

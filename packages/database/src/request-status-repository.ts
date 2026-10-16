@@ -7,6 +7,7 @@ import type {
 } from "@ckace/contracts";
 import type { PrismaClient } from "@prisma/client";
 
+import { delegatorIdsFor } from "./approval-delegation";
 import { formatLeaveRequestNo } from "./leave-repository";
 
 /** OT-0001 / MED-0001 / TC-0001 style numbers; grows past four digits when needed. */
@@ -140,9 +141,10 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
 
   async getAssigned(approverEmployeeId: string): Promise<RequestStatusOverview> {
     await assertActive(this.prisma, approverEmployeeId);
+    const delegators = await delegatorIdsFor(this.prisma, approverEmployeeId);
     const steps = await this.prisma.approvalStep.findMany({
       where: {
-        approverEmployeeId,
+        approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
         status: "PENDING",
         approvalInstance: { is: { status: "PENDING" } },
       },
@@ -264,6 +266,8 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
             comment: true,
             approverEmployeeId: true,
             approver: { select: { fullName: true } },
+            decidedByEmployeeId: true,
+            decidedBy: { select: { fullName: true } },
           },
           orderBy: { stepOrder: "asc" },
         },
@@ -292,6 +296,10 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
       steps: instance.steps.map((step) => ({
         stepOrder: step.stepOrder,
         approverName: step.approver?.fullName ?? null,
+        decidedByName:
+          step.decidedByEmployeeId && step.decidedByEmployeeId !== step.approverEmployeeId
+            ? step.decidedBy?.fullName ?? null
+            : null,
         status: step.status,
         decidedAt: step.decidedAt ? step.decidedAt.toISOString() : null,
         comment: step.comment,
@@ -305,7 +313,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
     await assertActive(this.prisma, approverEmployeeId);
     const steps = await this.prisma.approvalStep.findMany({
       where: {
-        approverEmployeeId,
+        OR: [{ approverEmployeeId }, { decidedByEmployeeId: approverEmployeeId }],
         status: { in: ["APPROVED", "REJECTED"] },
         decidedAt: { not: null },
       },

@@ -2,9 +2,10 @@ export type OvertimeRequestStatus =
   | "PENDING"
   | "APPROVED"
   | "REJECTED"
-  | "CANCELLED";
+  | "CANCELLED"
+  | "REVISION_REQUESTED";
 
-export type OvertimeDecision = "APPROVED" | "REJECTED";
+export type OvertimeDecision = "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
 
 export type OvertimeBreakCode =
   | "LUNCH"
@@ -94,4 +95,34 @@ export interface OvertimeDecisionResult {
   readonly request: OvertimeRequestView;
   readonly completed: boolean;
   readonly warnings: readonly string[];
+}
+
+/** Employee edits an overtime request that the approver sent back (date stays fixed), then submits it again. */
+export interface OvertimeResubmitInput {
+  readonly clientKey: string;
+  readonly startTime: string;
+  readonly endTime: string;
+  readonly reason: string;
+  readonly breaks?: readonly OvertimeBreakCode[];
+}
+
+export interface OvertimeResubmitResult {
+  readonly requestId: string;
+  readonly returnedToStep: number;
+  readonly replayed: boolean;
+}
+
+/** Highest-level user withdraws an overtime request that is already approved. */
+export interface OvertimeWithdrawInput {
+  readonly reason: string;
+}
+
+export interface OvertimeWithdrawResult {
+  readonly requestId: string;
+  readonly status: "CANCELLED";
+}
+
+export interface OvertimeBulkApproveResult {
+  readonly approved: number;
+  readonly failed: readonly { readonly requestId: string; readonly reason: string }[];
 }

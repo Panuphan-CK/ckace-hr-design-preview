@@ -320,14 +320,14 @@ describe("LeaveController / LeaveService", () => {
     const approver = { ...actor, permissions: ["leave.approve"] };
 
     await expect(
-      controller.decide({ actor: approver }, "req-1", {
-        approvalStepId: "step-1",
+      controller.decide({ actor: approver }, "00000000-0000-4000-8000-0000000000a1", {
+        approvalStepId: "00000000-0000-4000-8000-0000000000b1",
         decision: "REVISION_REQUESTED",
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
 
-    const result = await controller.decide({ actor: approver }, "req-1", {
-      approvalStepId: "step-1",
+    const result = await controller.decide({ actor: approver }, "00000000-0000-4000-8000-0000000000a1", {
+      approvalStepId: "00000000-0000-4000-8000-0000000000b1",
       decision: "REVISION_REQUESTED",
       comment: "แนบใบรับรองแพทย์เพิ่ม",
     });
@@ -341,10 +341,10 @@ describe("LeaveController / LeaveService", () => {
     const controller = new LeaveController(new LeaveService(repository));
 
     await expect(
-      controller.resubmit({ actor }, "req-1", { description: "x" }),
+      controller.resubmit({ actor }, "00000000-0000-4000-8000-0000000000a1", { description: "x" }),
     ).rejects.toBeInstanceOf(BadRequestException);
 
-    const result = await controller.resubmit({ actor }, "req-1", {
+    const result = await controller.resubmit({ actor }, "00000000-0000-4000-8000-0000000000a1", {
       clientKey: "resubmit-key-0001",
       description: "แก้ไขแล้ว",
       startDate: "2026-10-20",
@@ -355,7 +355,7 @@ describe("LeaveController / LeaveService", () => {
 
     expect(result.returnedToStep).toBe(1);
     expect(repository.lastResubmit?.employeeId).toBe(actor.employeeId);
-    expect(repository.lastResubmit?.requestId).toBe("req-1");
+    expect(repository.lastResubmit?.requestId).toBe("00000000-0000-4000-8000-0000000000a1");
   });
 
   it("withdraws approved leave only through the dedicated permission with a reason", async () => {
@@ -371,17 +371,17 @@ describe("LeaveController / LeaveService", () => {
     ).toEqual({ permission: "leave.approved.withdraw", scope: "GLOBAL" });
 
     await expect(
-      controller.withdraw({ actor: top }, "req-1", {}),
+      controller.withdraw({ actor: top }, "00000000-0000-4000-8000-0000000000a1", {}),
     ).rejects.toBeInstanceOf(BadRequestException);
 
-    await controller.withdraw({ actor: top }, "req-1", {
+    await controller.withdraw({ actor: top }, "00000000-0000-4000-8000-0000000000a1", {
       reason: "ผู้ขอแจ้งยกเลิกการลา",
     });
 
     expect(repository.lastWithdraw).toEqual({
       actorEmployeeId: actor.employeeId,
       correlationId: "corr-leave",
-      requestId: "req-1",
+      requestId: "00000000-0000-4000-8000-0000000000a1",
       reason: "ผู้ขอแจ้งยกเลิกการลา",
     });
   });

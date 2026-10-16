@@ -3,11 +3,18 @@ import type {
   DatabaseSelfProfile,
   SelfProfileRepository,
 } from "@ckace/database";
+import { createHash } from "node:crypto";
+
 import {
+  BadRequestException,
+  ForbiddenException,
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { describe, expect, it } from "vitest";
+
+import { hashProjectPassword, verifyProjectPassword } from "../onboarding/onboarding-auth";
+import { REQUIRE_PERMISSION_KEY } from "../security/require-permission.decorator";
 
 import { ProfileController } from "./profile.controller";
 import { ProfileService } from "./profile.service";
@@ -22,6 +29,14 @@ class FakeProfileRepository implements SelfProfileRepository {
   ): Promise<DatabaseSelfProfile | null> {
     void employeeId;
     return this.profile;
+  }
+
+  async readCredentials() {
+    return null;
+  }
+
+  async setPassword() {
+    return;
   }
 }
 
@@ -143,5 +158,72 @@ describe("ProfileController", () => {
     await expect(
       controller.getSelf({}),
     ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+});
+
+describe("Profile password change", () => {
+  class CredentialRepository implements SelfProfileRepository {
+    saved: { employeeId: string; passwordHash: string } | undefined;
+
+    constructor(private readonly passwordHash: string | null, private readonly legacy: string | null = null) {}
+
+    async findSelfProfile(): Promise<DatabaseSelfProfile | null> {
+      return null;
+    }
+
+    async readCredentials() {
+      return { passwordHash: this.passwordHash, legacyPasswordHash: this.legacy };
+    }
+
+    async setPassword(input: { employeeId: string; passwordHash: string }) {
+      this.saved = input;
+    }
+  }
+
+  const employeeId = "00000000-0000-4000-8000-000000000001";
+
+  it("requires the current password and stores a new scrypt hash", async () => {
+    const repository = new CredentialRepository(hashProjectPassword("OldPassword#1"));
+    const service = new ProfileService(repository);
+
+    await expect(
+      service.changePassword({ employeeId, correlationId: "c", body: { currentPassword: "wrong-password", newPassword: "NewPassword#2" } }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(repository.saved).toBeUndefined();
+
+    await expect(
+      service.changePassword({ employeeId, correlationId: "c", body: { currentPassword: "OldPassword#1", newPassword: "NewPassword#2" } }),
+    ).resolves.toEqual({ changed: true });
+    expect(repository.saved?.passwordHash.startsWith("scrypt-v1$")).toBe(true);
+    expect(verifyProjectPassword("NewPassword#2", repository.saved?.passwordHash ?? "")).toBe(true);
+  });
+
+  it("rejects short, unchanged or malformed passwords before touching the database", async () => {
+    const repository = new CredentialRepository(hashProjectPassword("OldPassword#1"));
+    const service = new ProfileService(repository);
+    const run = (body: unknown) => service.changePassword({ employeeId, correlationId: "c", body });
+
+    await expect(run({ currentPassword: "OldPassword#1", newPassword: "short" })).rejects.toBeInstanceOf(BadRequestException);
+    await expect(run({ currentPassword: "OldPassword#1", newPassword: "OldPassword#1" })).rejects.toBeInstanceOf(BadRequestException);
+    await expect(run({ currentPassword: 1, newPassword: "NewPassword#2" })).rejects.toBeInstanceOf(BadRequestException);
+    await expect(run(null)).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.saved).toBeUndefined();
+  });
+
+  it("accepts the legacy hash as the current password and the route needs profile.self.write", async () => {
+    process.env.CKACE_LEGACY_PASSWORD_SALT = "unit-test-salt";
+    const legacy = createHash("sha256").update("LegacyPass#1" + "unit-test-salt", "utf8").digest("base64");
+    const repository = new CredentialRepository(null, legacy);
+    const service = new ProfileService(repository);
+
+    await expect(
+      service.changePassword({ employeeId, correlationId: "c", body: { currentPassword: "LegacyPass#1", newPassword: "NewPassword#2" } }),
+    ).resolves.toEqual({ changed: true });
+
+    expect(Reflect.getMetadata(REQUIRE_PERMISSION_KEY, ProfileController.prototype.changePassword)).toEqual({
+      permission: "profile.self.write",
+      scope: "SELF",
+    });
+    delete process.env.CKACE_LEGACY_PASSWORD_SALT;
   });
 });

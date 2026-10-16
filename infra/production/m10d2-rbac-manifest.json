@@ -22,7 +22,8 @@
       "storage.attachment.self.delete",
       "medical.attachment.self.read",
       "medical.attachment.self.write",
-      "medical.attachment.self.delete"
+      "medical.attachment.self.delete",
+      "profile.self.write"
     ],
     "SUPERUSER": [
       "profile.self.read",
@@ -51,7 +52,9 @@
       "overtime.approve",
       "medical.approve",
       "storage.attachment.global.read",
-      "medical.attachment.global.read"
+      "medical.attachment.global.read",
+      "profile.self.write",
+      "delegation.self.manage"
     ],
     "ADMIN": [
       "profile.self.read",
@@ -91,7 +94,9 @@
       "storage.attachment.internal.delete",
       "storage.attachment.admin.read",
       "storage.attachment.admin.write",
-      "storage.attachment.admin.delete"
+      "storage.attachment.admin.delete",
+      "profile.self.write",
+      "delegation.self.manage"
     ],
     "SUPERADMIN": [
       "profile.self.read",
@@ -132,7 +137,12 @@
       "storage.attachment.admin.read",
       "storage.attachment.admin.write",
       "storage.attachment.admin.delete",
-      "leave.approved.withdraw"
+      "leave.approved.withdraw",
+      "overtime.approved.withdraw",
+      "medical.approved.withdraw",
+      "time_correction.approved.withdraw",
+      "profile.self.write",
+      "delegation.self.manage"
     ]
   },
   "ungrantedByDefault": [
@@ -184,14 +194,19 @@
     "time_correction.approve",
     "time_correction.self.read",
     "time_correction.self.write",
-    "leave.approved.withdraw"
+    "leave.approved.withdraw",
+    "overtime.approved.withdraw",
+    "medical.approved.withdraw",
+    "time_correction.approved.withdraw",
+    "profile.self.write",
+    "delegation.self.manage"
   ],
   "counts": {
-    "catalog": 43,
-    "EMPLOYEE": 20,
-    "SUPERUSER": 27,
-    "ADMIN": 38,
-    "SUPERADMIN": 39
+    "catalog": 48,
+    "EMPLOYEE": 21,
+    "SUPERUSER": 29,
+    "ADMIN": 40,
+    "SUPERADMIN": 44
   },
   "security": {
     "roleNameAloneIsAuthority": false,

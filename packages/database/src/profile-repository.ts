@@ -23,10 +23,24 @@ export interface DatabaseSelfProfile {
   readonly signatureAttachmentId: string | null;
 }
 
+export interface SelfCredentials {
+  readonly passwordHash: string | null;
+  readonly legacyPasswordHash: string | null;
+}
+
 export interface SelfProfileRepository {
   findSelfProfile(
     employeeId: string,
   ): Promise<DatabaseSelfProfile | null>;
+
+  readCredentials(employeeId: string): Promise<SelfCredentials | null>;
+
+  /** Stores the new hash and retires the legacy hash; audited. */
+  setPassword(input: {
+    readonly employeeId: string;
+    readonly passwordHash: string;
+    readonly correlationId: string;
+  }): Promise<void>;
 }
 
 const selfProfileSelect = {
@@ -124,7 +138,7 @@ function toDatabaseSelfProfile(
 
 type SelfProfilePrismaClient = Pick<
   PrismaClient,
-  "employee"
+  "employee" | "userAccount" | "auditLog"
 >;
 
 export class PrismaSelfProfileRepository
@@ -142,5 +156,36 @@ implements SelfProfileRepository {
     });
 
     return employee ? toDatabaseSelfProfile(employee) : null;
+  }
+
+  async readCredentials(employeeId: string): Promise<SelfCredentials | null> {
+    const account = await this.prisma.userAccount.findUnique({
+      where: { employeeId },
+      select: { passwordHash: true, legacyPasswordHash: true, state: true },
+    });
+
+    return account && account.state === "ACTIVE"
+      ? { passwordHash: account.passwordHash, legacyPasswordHash: account.legacyPasswordHash }
+      : null;
+  }
+
+  async setPassword(input: {
+    readonly employeeId: string;
+    readonly passwordHash: string;
+    readonly correlationId: string;
+  }): Promise<void> {
+    await this.prisma.userAccount.update({
+      where: { employeeId: input.employeeId },
+      data: { passwordHash: input.passwordHash, legacyPasswordHash: null },
+    });
+    await this.prisma.auditLog.create({
+      data: {
+        actorEmployeeId: input.employeeId,
+        action: "PASSWORD_CHANGED_BY_OWNER",
+        entityType: "Employee",
+        entityId: input.employeeId,
+        correlationId: input.correlationId,
+      },
+    });
   }
 }

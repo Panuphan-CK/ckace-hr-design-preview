@@ -245,4 +245,10 @@ describe("medical business rules", () => {
       }),
     ).toThrow("requires a comment");
   });
+
+  it("uses a configured per-claim limit instead of the default 1,000", () => {
+    expect(normalizeMedicalAmount(1500, 2000)).toMatchObject({ effectiveAmount: 1500, capped: false });
+    expect(normalizeMedicalAmount(2500, 2000)).toMatchObject({ effectiveAmount: 2000, capped: true });
+    expect(() => normalizeMedicalAmount(100, 0)).toThrow("per-claim limit");
+  });
 });

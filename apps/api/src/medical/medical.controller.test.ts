@@ -48,7 +48,8 @@ function claimView(
     | "PENDING"
     | "APPROVED"
     | "REJECTED"
-    | "CANCELLED" = "PENDING",
+    | "CANCELLED"
+    | "REVISION_REQUESTED" = "PENDING",
 ): MedicalClaimView {
   return {
     id: claimId,
@@ -143,6 +144,29 @@ class FakeMedicalRepository
       claimId: input.claimId,
       status: "CANCELLED" as const,
     };
+  }
+
+  async previewApprovalChain() {
+    return { autoApproved: false, steps: [] };
+  }
+
+  async resubmitMedical(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly claimId: string;
+    readonly request: { readonly clientKey: string; readonly sicknessDate: string; readonly amount: number; readonly description: string };
+    readonly canonicalPayload: string;
+  }) {
+    return { claimId: input.claimId, returnedToStep: 1, replayed: false, capped: false };
+  }
+
+  async withdrawApprovedMedical(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly claimId: string;
+    readonly reason: string;
+  }) {
+    return { claimId: input.claimId, status: "CANCELLED" as const };
   }
 
   async decideAssignedMedical(input: {

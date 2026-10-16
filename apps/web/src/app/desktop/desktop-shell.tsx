@@ -141,6 +141,8 @@ const SECTIONS: readonly FlySection[] = [
       { id: "professional-roles", label: "บทบาทวิชาชีพ", href: "/desktop/admin/professional-roles", icon: "users", tone: "biz", capability: "usersAdmin", group: "พนักงานและสิทธิ์" },
       { id: "approval-policies", label: "สายอนุมัติ", href: "/desktop/admin/approval-policies", icon: "lock", tone: "ot", capability: "rbacAdmin", group: "พนักงานและสิทธิ์" },
       { id: "ot-allowance", label: "ค่าข้าว/ค่ารถ OT", href: "/desktop/admin/overtime-allowance", icon: "ot", tone: "ot", capability: "organizationAdmin", group: "การลา" },
+      { id: "medical-policy", label: "วงเงินค่ารักษา", href: "/desktop/admin/medical-policy", icon: "med", tone: "med", capability: "organizationAdmin", group: "การลา" },
+      { id: "attendance-policy", label: "นโยบายลงเวลา", href: "/desktop/admin/attendance-policy", icon: "clock", tone: "time", capability: "organizationAdmin", group: "การลา" },
       { id: "access-control", label: "สิทธิ์และการเข้าถึง", href: "/desktop/admin/management#roles", icon: "lock", tone: "ot", capability: "rbacAdmin", group: "พนักงานและสิทธิ์" },
       { id: "announcements", label: "ประกาศ", href: "/desktop/announcements", icon: "megaphone", tone: "med", capability: "announcementAdmin", group: "อื่น ๆ" },
       { id: "platform-settings", label: "ตั้งค่าระบบ", href: "/desktop/admin", icon: "gear", tone: "gray", capability: "adminSettings", group: "อื่น ๆ" },

@@ -20,6 +20,7 @@ import { MedicalController } from "../medical/medical.controller";
 import { ManagementController } from "../management/management.controller";
 import { OnboardingController } from "../onboarding/onboarding.controller";
 import { OvertimeController } from "../overtime/overtime.controller";
+import { DelegationController } from "../delegation/delegation.controller";
 import { ProfileController } from "../profile/profile.controller";
 import { RequestStatusController } from "../request-status/request-status.controller";
 import { AuthorizationGuard } from "../security/authorization.guard";
@@ -140,6 +141,10 @@ describe("M9.1 module route coverage", () => {
 
   it.each([
     [ProfileController.prototype, "getSelf", "IDENTITY_READ"],
+    [ProfileController.prototype, "changePassword", "IDENTITY_WRITE"],
+    [DelegationController.prototype, "overview", "IDENTITY_READ"],
+    [DelegationController.prototype, "create", "IDENTITY_WRITE"],
+    [DelegationController.prototype, "cancel", "IDENTITY_WRITE"],
     [SecurityController.prototype, "getSession", "IDENTITY_READ"],
     [LeaveController.prototype, "getSelf", "LEAVE_READ"],
     [LeaveController.prototype, "getApprovalOptions", "LEAVE_READ"],
@@ -154,16 +159,26 @@ describe("M9.1 module route coverage", () => {
     [AttendanceController.prototype, "getAssignedTimeCorrections", "TIME_CORRECTION_READ"],
     [AttendanceController.prototype, "createTimeCorrection", "TIME_CORRECTION_WRITE"],
     [AttendanceController.prototype, "cancelTimeCorrection", "TIME_CORRECTION_WRITE"],
+    [AttendanceController.prototype, "resubmitTimeCorrection", "TIME_CORRECTION_WRITE"],
+    [AttendanceController.prototype, "timeCorrectionApprovalChain", "TIME_CORRECTION_READ"],
+    [AttendanceController.prototype, "withdrawTimeCorrection", "TIME_CORRECTION_WRITE"],
     [AttendanceController.prototype, "decideTimeCorrection", "TIME_CORRECTION_WRITE"],
     [OvertimeController.prototype, "getSelf", "OT_READ"],
     [OvertimeController.prototype, "getAssigned", "OT_READ"],
     [OvertimeController.prototype, "create", "OT_WRITE"],
     [OvertimeController.prototype, "cancel", "OT_WRITE"],
     [OvertimeController.prototype, "decide", "OT_WRITE"],
+    [OvertimeController.prototype, "resubmit", "OT_WRITE"],
+    [OvertimeController.prototype, "approvalChain", "OT_READ"],
+    [OvertimeController.prototype, "approveAll", "OT_WRITE"],
+    [OvertimeController.prototype, "withdraw", "OT_WRITE"],
     [MedicalController.prototype, "getSelf", "MEDICAL_READ"],
     [MedicalController.prototype, "getAssigned", "MEDICAL_READ"],
     [MedicalController.prototype, "create", "MEDICAL_WRITE"],
     [MedicalController.prototype, "cancel", "MEDICAL_WRITE"],
+    [MedicalController.prototype, "resubmit", "MEDICAL_WRITE"],
+    [MedicalController.prototype, "approvalChain", "MEDICAL_READ"],
+    [MedicalController.prototype, "withdraw", "MEDICAL_WRITE"],
     [MedicalController.prototype, "decide", "MEDICAL_WRITE"],
     [BenefitsController.prototype, "getSelf", "BENEFITS_READ"],
     [RequestStatusController.prototype, "getSelf", "REQUEST_STATUS_READ"],
@@ -202,6 +217,11 @@ describe("M9.1 module route coverage", () => {
     [ManagementController.prototype, "overtimeReport", "ADMIN_READ"],
     [ManagementController.prototype, "professionalRoles", "ADMIN_READ"],
     [ManagementController.prototype, "approvalPolicies", "ADMIN_READ"],
+    [ManagementController.prototype, "medicalPolicy", "ADMIN_READ"],
+    [ManagementController.prototype, "missingCheckOuts", "ADMIN_READ"],
+    [ManagementController.prototype, "saveMedicalPolicy", "ADMIN_WRITE"],
+    [ManagementController.prototype, "attendancePolicy", "ADMIN_READ"],
+    [ManagementController.prototype, "saveAttendancePolicy", "ADMIN_WRITE"],
     [ManagementController.prototype, "overtimeAllowancePolicies", "ADMIN_READ"],
     [ManagementController.prototype, "saveOvertimeAllowancePolicy", "ADMIN_WRITE"],
     [ManagementController.prototype, "saveApprovalPolicy", "ADMIN_WRITE"],

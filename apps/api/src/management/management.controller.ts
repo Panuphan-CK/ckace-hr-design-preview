@@ -166,6 +166,17 @@ export class ManagementController {
     return this.service.reports(range.from, range.to);
   }
 
+  @Get("reports/missing-checkouts")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  missingCheckOuts(
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+  ) {
+    const range = dateRange(from, to);
+    return this.service.missingCheckOuts(range.from, range.to);
+  }
+
   @Get("reports/overtime.xlsx")
   @ModuleRoute("ADMIN_READ")
   @RequirePermission("reports.management.read", "GLOBAL")
@@ -416,6 +427,82 @@ export class ManagementController {
       },
       actorId(request),
     );
+  }
+
+  @Get("medical-policy")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("organization.admin.read", "GLOBAL")
+  medicalPolicy() {
+    return this.service.medicalPolicy();
+  }
+
+  @Put("medical-policy")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("organization.admin.write", "GLOBAL")
+  saveMedicalPolicy(
+    @Req() request: SecurityRequest,
+    @Body() body: unknown,
+  ) {
+    const value = objectBody(body);
+    const annualLimit = value.annualLimit;
+    const perClaimLimit = value.perClaimLimit;
+    if (
+      typeof annualLimit !== "number" ||
+      typeof perClaimLimit !== "number" ||
+      !(annualLimit > 0) ||
+      !(perClaimLimit > 0) ||
+      annualLimit > 10_000_000 ||
+      perClaimLimit > annualLimit
+    ) {
+      throw new BadRequestException("Invalid medical limits");
+    }
+    return this.service.saveMedicalPolicy({ annualLimit, perClaimLimit }, actorId(request));
+  }
+
+  @Get("attendance-policy")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("organization.admin.read", "GLOBAL")
+  attendancePolicy() {
+    return this.service.attendancePolicy();
+  }
+
+  @Put("attendance-policy")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("organization.admin.write", "GLOBAL")
+  saveAttendancePolicy(
+    @Req() request: SecurityRequest,
+    @Body() body: unknown,
+  ) {
+    const value = objectBody(body);
+    const clock = (raw: unknown, label: string): string => {
+      if (typeof raw !== "string" || !/^([01]\d|2[0-3]):[0-5]\d$/.test(raw)) {
+        throw new BadRequestException(label + " must use HH:mm");
+      }
+      return raw;
+    };
+    const optionalClock = (raw: unknown, label: string): string | null =>
+      raw === undefined || raw === null || raw === "" ? null : clock(raw, label);
+    const number = (raw: unknown, label: string): number => {
+      if (typeof raw !== "number" || !Number.isFinite(raw)) {
+        throw new BadRequestException(label + " must be a number");
+      }
+      return raw;
+    };
+    return this.service.saveAttendancePolicy(
+      {
+        name: requiredText(value.name, "name", 120),
+        officeLatitude: number(value.officeLatitude, "officeLatitude"),
+        officeLongitude: number(value.officeLongitude, "officeLongitude"),
+        radiusKm: number(value.radiusKm, "radiusKm"),
+        lateAfter: clock(value.lateAfter, "lateAfter"),
+        workEnd: clock(value.workEnd, "workEnd"),
+        breakStart: optionalClock(value.breakStart, "breakStart"),
+        breakEnd: optionalClock(value.breakEnd, "breakEnd"),
+      },
+      actorId(request),
+    ).catch((error: unknown) => {
+      throw new BadRequestException(error instanceof Error ? error.message : "Invalid attendance policy");
+    });
   }
 
   @Get("approval-policies")

@@ -77,6 +77,7 @@ const STATUS: Readonly<Record<MedicalClaimStatus, { label: string; tone: string 
   APPROVED: { label: "อนุมัติ", tone: "ok" },
   REJECTED: { label: "ไม่อนุมัติ", tone: "bad" },
   CANCELLED: { label: "ยกเลิก", tone: "muted" },
+  REVISION_REQUESTED: { label: "ส่งกลับให้แก้ไข", tone: "wait" },
 };
 
 const FILTERS: readonly { id: Filter; label: string }[] = [

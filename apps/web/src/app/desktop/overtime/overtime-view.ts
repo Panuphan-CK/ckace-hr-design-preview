@@ -74,6 +74,8 @@ export function overtimeStatusLabel(
       return "ไม่อนุมัติ";
     case "CANCELLED":
       return "ยกเลิก";
+    case "REVISION_REQUESTED":
+      return "ส่งกลับให้แก้ไข";
   }
 }
 

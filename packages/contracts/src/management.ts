@@ -126,6 +126,39 @@ export interface OvertimeAllowancePolicyItem {
   readonly active: boolean;
 }
 
+/** Company medical benefit rule. perClaimLimit null means the default of 1,000 baht. */
+export interface MedicalPolicyItem {
+  readonly annualLimit: number;
+  readonly perClaimLimit: number;
+  readonly effectiveFrom: string;
+}
+
+/** Office location and working hours used by clocking in and out. */
+export interface AttendancePolicyItem {
+  readonly name: string;
+  readonly officeLatitude: number;
+  readonly officeLongitude: number;
+  readonly radiusKm: number;
+  /** HH:mm — check-in after this time is late. */
+  readonly lateAfter: string;
+  /** HH:mm — check-out before this time is early. */
+  readonly workEnd: string;
+  readonly breakStart: string | null;
+  readonly breakEnd: string | null;
+  readonly effectiveFrom: string;
+}
+
+/** A working day with a check-in but no check-out (employees who do not clock in are excluded). */
+export interface MissingCheckOutItem {
+  readonly employeeId: string;
+  readonly employeeName: string;
+  readonly teamName: string;
+  readonly companyName: string;
+  readonly workDate: string;
+  /** Bangkok time HH:mm of the check-in. */
+  readonly checkIn: string;
+}
+
 export interface ProfessionalRoleItem {
   readonly id: string;
   readonly key: string;

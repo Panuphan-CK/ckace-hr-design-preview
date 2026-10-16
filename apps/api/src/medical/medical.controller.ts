@@ -1,9 +1,12 @@
 import type {
+  ApprovalChainPreview,
   MedicalApprovalQueueItem,
   MedicalCancelResult,
   MedicalCreateResult,
   MedicalDecisionResult,
+  MedicalResubmitResult,
   MedicalSelfOverview,
+  MedicalWithdrawResult,
 } from "@ckace/contracts";
 import {
   Body,
@@ -70,6 +73,15 @@ export class MedicalController {
     );
   }
 
+  @Get("approval-chain")
+  @ModuleRoute("MEDICAL_READ")
+  @RequireSelfPermission("medical.self.read")
+  async approvalChain(@Req() request: SecurityRequest): Promise<ApprovalChainPreview> {
+    const actor = this.requireActor(request);
+
+    return this.service.previewApprovalChain(actor.employeeId);
+  }
+
   @Post("claims")
   @ModuleRoute("MEDICAL_WRITE")
   @RequireSelfPermission(
@@ -88,6 +100,42 @@ export class MedicalController {
       correlationId:
         request.correlationId ??
         actor.correlationId,
+      body,
+    });
+  }
+
+  @Post("claims/:claimId/resubmit")
+  @ModuleRoute("MEDICAL_WRITE")
+  @RequireSelfPermission("medical.self.write")
+  async resubmit(
+    @Req() request: SecurityRequest,
+    @Param("claimId") claimId: string,
+    @Body() body: unknown,
+  ): Promise<MedicalResubmitResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.resubmitMedical({
+      employeeId: actor.employeeId,
+      correlationId: request.correlationId ?? actor.correlationId,
+      claimId,
+      body,
+    });
+  }
+
+  @Post("claims/:claimId/withdraw")
+  @ModuleRoute("MEDICAL_WRITE")
+  @RequirePermission("medical.approved.withdraw", "GLOBAL")
+  async withdraw(
+    @Req() request: SecurityRequest,
+    @Param("claimId") claimId: string,
+    @Body() body: unknown,
+  ): Promise<MedicalWithdrawResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.withdrawApprovedMedical({
+      actorEmployeeId: actor.employeeId,
+      correlationId: request.correlationId ?? actor.correlationId,
+      claimId,
       body,
     });
   }

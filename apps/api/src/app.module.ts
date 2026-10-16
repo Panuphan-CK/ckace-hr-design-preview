@@ -15,6 +15,7 @@ import { MedicalModule } from "./medical/medical.module";
 import { ManagementModule } from "./management/management.module";
 import { OnboardingModule } from "./onboarding/onboarding.module";
 import { OvertimeModule } from "./overtime/overtime.module";
+import { DelegationModule } from "./delegation/delegation.module";
 import { ProfileModule } from "./profile/profile.module";
 import { RequestStatusModule } from "./request-status/request-status.module";
 import { ModuleRoutingModule } from "./routing/module-routing.module";
@@ -31,6 +32,7 @@ import { Task34R2Module } from "./task34/task34-r2.module";
     SecurityModule,
     ModuleRoutingModule,
     ProfileModule,
+    DelegationModule,
     LeaveModule,
     AttendanceModule,
     OvertimeModule,

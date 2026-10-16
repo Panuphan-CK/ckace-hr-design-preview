@@ -29,6 +29,7 @@ import {
 } from "@prisma/client";
 
 import { resolveCompanyApprovalRoute } from "./approval-route-loader";
+import { actorMayDecideStep } from "./approval-delegation";
 import {
   overlapPeriodOf,
   resubmitSentBackLeave,
@@ -452,6 +453,9 @@ export class PrismaLeaveRepository implements LeaveRepository {
                   status: true,
                   decidedAt: true,
                   comment: true,
+                  approverEmployeeId: true,
+                  decidedByEmployeeId: true,
+                  decidedBy: { select: { fullName: true } },
                   approver: { select: { fullName: true } },
                 },
                 orderBy: { stepOrder: "asc" },
@@ -490,6 +494,10 @@ export class PrismaLeaveRepository implements LeaveRepository {
         steps: (request.approvalInstance?.steps ?? []).map((step) => ({
           stepOrder: step.stepOrder,
           approverName: step.approver?.fullName ?? null,
+          decidedByName:
+            step.decidedByEmployeeId && step.decidedByEmployeeId !== step.approverEmployeeId
+              ? step.decidedBy?.fullName ?? null
+              : null,
           status: step.status,
           decidedAt: step.decidedAt ? step.decidedAt.toISOString() : null,
           comment: step.comment,
@@ -979,6 +987,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
           select: {
             id: true,
             status: true,
+            requesterEmployeeId: true,
             approvalInstanceId: true,
             approvalInstance: {
               select: {
@@ -1014,12 +1023,19 @@ export class PrismaLeaveRepository implements LeaveRepository {
           },
         });
 
+        const mayDecide = step
+          ? await actorMayDecideStep(tx, {
+              stepApproverId: step.approverEmployeeId,
+              actorEmployeeId: input.approverEmployeeId,
+              requesterEmployeeId: request.requesterEmployeeId,
+            })
+          : false;
+
         if (
           !step ||
           step.approvalInstanceId !==
             request.approvalInstanceId ||
-          step.approverEmployeeId !==
-            input.approverEmployeeId ||
+          !mayDecide ||
           step.status !== "PENDING" ||
           step.stepOrder !==
             request.approvalInstance.currentStepOrder
@@ -1032,6 +1048,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
         await tx.approvalStep.update({
           where: { id: step.id },
           data: {
+            decidedByEmployeeId: input.approverEmployeeId,
             status: input.decision.decision,
             decidedAt: new Date(),
             comment: input.decision.comment?.trim() || null,

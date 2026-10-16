@@ -7,6 +7,7 @@ import {
   normalizeTimeCorrectionDecision,
 } from "@ckace/business-rules";
 import type {
+  ApprovalChainPreview,
   AttendanceCheckInInput,
   AttendanceCheckOutInput,
   AttendanceSelfOverview,
@@ -17,6 +18,9 @@ import type {
   TimeCorrectionDecisionInput,
   TimeCorrectionDecisionResult,
   TimeCorrectionRequestView,
+  TimeCorrectionResubmitInput,
+  TimeCorrectionResubmitResult,
+  TimeCorrectionWithdrawResult,
 } from "@ckace/contracts";
 import type { AttendanceRepository } from "@ckace/database";
 import {
@@ -228,7 +232,8 @@ function parseDecisionBody(
 
   if (
     decision !== "APPROVED" &&
-    decision !== "REJECTED"
+    decision !== "REJECTED" &&
+    decision !== "REVISION_REQUESTED"
   ) {
     throw new BadRequestException(
       "Time correction decision is invalid",
@@ -309,7 +314,8 @@ function translateRepositoryError(error: unknown): never {
 
   if (
     error.message ===
-      "Time correction is not assigned to this approver"
+      "Time correction is not assigned to this approver" ||
+    error.message.startsWith("Not allowed to withdraw")
   ) {
     throw new ForbiddenException(error.message);
   }
@@ -332,6 +338,8 @@ function translateRepositoryError(error: unknown): never {
     "Duplicate attendance business day ",
     "Time correction request has already ",
     "Only pending time correction ",
+    "Only an approved time correction ",
+    "Time correction request is not waiting ",
     "Approved time correction ",
     "An active time correction ",
     "Idempotency record ",
@@ -461,6 +469,64 @@ export class AttendanceService {
         canonicalPayload:
           canonicalCorrectionPayload(request),
       });
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  async resubmitTimeCorrection(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly body: unknown;
+  }): Promise<TimeCorrectionResubmitResult> {
+    const source = objectBody(input.body);
+    const request: TimeCorrectionResubmitInput = {
+      clientKey: requiredString(source.clientKey, "clientKey", 120),
+      correctedTime: requiredString(source.correctedTime, "correctedTime", 5),
+      reason: requiredString(source.reason, "reason", 1000),
+    };
+
+    try {
+      return await this.repository.resubmitTimeCorrection({
+        employeeId: input.employeeId,
+        correlationId: input.correlationId,
+        requestId: input.requestId,
+        request,
+        canonicalPayload: JSON.stringify({
+          requestId: input.requestId,
+          correctedTime: request.correctedTime,
+          reason: request.reason,
+        }),
+      });
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  async withdrawApprovedTimeCorrection(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly body: unknown;
+  }): Promise<TimeCorrectionWithdrawResult> {
+    const reason = requiredString(objectBody(input.body).reason, "reason", 1000);
+
+    try {
+      return await this.repository.withdrawApprovedTimeCorrection({
+        actorEmployeeId: input.actorEmployeeId,
+        correlationId: input.correlationId,
+        requestId: input.requestId,
+        reason,
+      });
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  async previewTimeCorrectionApprover(employeeId: string): Promise<ApprovalChainPreview> {
+    try {
+      return await this.repository.previewTimeCorrectionApprover(employeeId);
     } catch (error) {
       return translateRepositoryError(error);
     }

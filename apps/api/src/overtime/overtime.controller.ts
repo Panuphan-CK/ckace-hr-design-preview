@@ -1,8 +1,12 @@
 import type {
+  ApprovalChainPreview,
+  OvertimeBulkApproveResult,
   OvertimeApprovalQueueItem,
   OvertimeCancelResult,
   OvertimeCreateResult,
   OvertimeDecisionResult,
+  OvertimeResubmitResult,
+  OvertimeWithdrawResult,
   OvertimeSelfOverview,
 } from "@ckace/contracts";
 import {
@@ -65,6 +69,27 @@ export class OvertimeController {
     );
   }
 
+  @Get("approval-chain")
+  @ModuleRoute("OT_READ")
+  @RequireSelfPermission("overtime.self.read")
+  async approvalChain(@Req() request: SecurityRequest): Promise<ApprovalChainPreview> {
+    const actor = this.requireActor(request);
+
+    return this.service.previewApprovalChain(actor.employeeId);
+  }
+
+  @Post("approve-all")
+  @ModuleRoute("OT_WRITE")
+  @RequirePermission("overtime.approve", "GLOBAL")
+  async approveAll(@Req() request: SecurityRequest): Promise<OvertimeBulkApproveResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.approveAllAssignedOvertime({
+      approverEmployeeId: actor.employeeId,
+      correlationId: request.correlationId ?? actor.correlationId,
+    });
+  }
+
   @Post("requests")
   @ModuleRoute("OT_WRITE")
   @RequireSelfPermission("overtime.self.write")
@@ -79,6 +104,42 @@ export class OvertimeController {
       correlationId:
         request.correlationId ??
         actor.correlationId,
+      body,
+    });
+  }
+
+  @Post("requests/:requestId/resubmit")
+  @ModuleRoute("OT_WRITE")
+  @RequireSelfPermission("overtime.self.write")
+  async resubmit(
+    @Req() request: SecurityRequest,
+    @Param("requestId") requestId: string,
+    @Body() body: unknown,
+  ): Promise<OvertimeResubmitResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.resubmitOvertime({
+      employeeId: actor.employeeId,
+      correlationId: request.correlationId ?? actor.correlationId,
+      requestId,
+      body,
+    });
+  }
+
+  @Post("requests/:requestId/withdraw")
+  @ModuleRoute("OT_WRITE")
+  @RequirePermission("overtime.approved.withdraw", "GLOBAL")
+  async withdraw(
+    @Req() request: SecurityRequest,
+    @Param("requestId") requestId: string,
+    @Body() body: unknown,
+  ): Promise<OvertimeWithdrawResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.withdrawApprovedOvertime({
+      actorEmployeeId: actor.employeeId,
+      correlationId: request.correlationId ?? actor.correlationId,
+      requestId,
       body,
     });
   }

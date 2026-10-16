@@ -5,7 +5,7 @@ export interface BenefitAttachmentSummary { readonly attachmentId: string; reado
 export interface BenefitRequestSummary {
   readonly id: string; readonly kind: BenefitRequestKind; readonly date: string;
   readonly startTime: string | null; readonly endTime: string | null; readonly value: number;
-  readonly reason: string; readonly status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+  readonly reason: string; readonly status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" | "REVISION_REQUESTED";
   readonly comment: string | null; readonly submittedAt: string;
   readonly attachments: readonly BenefitAttachmentSummary[];
 }

@@ -10,6 +10,7 @@ export const CORRECTION_STATUS: Readonly<Record<TimeCorrectionStatus, { label: s
   APPROVED: { label: "อนุมัติ", tone: "ok" },
   REJECTED: { label: "ไม่อนุมัติ", tone: "bad" },
   CANCELLED: { label: "ยกเลิก", tone: "muted" },
+  REVISION_REQUESTED: { label: "ส่งกลับให้แก้ไข", tone: "wait" },
 };
 
 const bangkokClock = new Intl.DateTimeFormat("en-GB", {

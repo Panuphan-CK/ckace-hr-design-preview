@@ -2,7 +2,8 @@ export type MedicalClaimStatus =
   | "PENDING"
   | "APPROVED"
   | "REJECTED"
-  | "CANCELLED";
+  | "CANCELLED"
+  | "REVISION_REQUESTED";
 
 export interface MedicalAttachmentView {
   readonly attachmentId: string;
@@ -65,7 +66,7 @@ export interface MedicalCancelResult {
 }
 
 export interface MedicalDecisionInput {
-  readonly decision: "APPROVED" | "REJECTED";
+  readonly decision: "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
   readonly comment?: string | null;
 }
 
@@ -73,4 +74,30 @@ export interface MedicalDecisionResult {
   readonly claim: MedicalClaimView;
   readonly completed: boolean;
   readonly warnings: readonly string[];
+}
+
+/** Employee edits a medical claim that the approver sent back, then submits it again (receipts stay as attached). */
+export interface MedicalResubmitInput {
+  readonly clientKey: string;
+  readonly sicknessDate: string;
+  readonly amount: number;
+  readonly description: string;
+}
+
+export interface MedicalResubmitResult {
+  readonly claimId: string;
+  readonly returnedToStep: number;
+  readonly replayed: boolean;
+  /** The amount was reduced to the per-claim limit. */
+  readonly capped: boolean;
+}
+
+/** Highest-level user withdraws a medical claim that is already approved. */
+export interface MedicalWithdrawInput {
+  readonly reason: string;
+}
+
+export interface MedicalWithdrawResult {
+  readonly claimId: string;
+  readonly status: "CANCELLED";
 }

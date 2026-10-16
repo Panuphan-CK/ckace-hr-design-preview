@@ -407,7 +407,9 @@ export function expandOvertimeDays(
 export function assertOvertimeCancelable(
   status: string,
 ): void {
-  if (status.trim().toUpperCase() !== "PENDING") {
+  const normalized = status.trim().toUpperCase();
+
+  if (normalized !== "PENDING" && normalized !== "REVISION_REQUESTED") {
     throw new Error(
       "only pending overtime requests can be cancelled",
     );
@@ -418,14 +420,18 @@ export function normalizeOvertimeDecision(input: {
   readonly decision: string;
   readonly comment?: string | null;
 }): {
-  readonly decision: "APPROVED" | "REJECTED";
+  readonly decision: "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
   readonly comment: string | null;
 } {
   const decision = input.decision.trim().toUpperCase();
 
-  if (decision !== "APPROVED" && decision !== "REJECTED") {
+  if (
+    decision !== "APPROVED" &&
+    decision !== "REJECTED" &&
+    decision !== "REVISION_REQUESTED"
+  ) {
     throw new Error(
-      "overtime decision must be APPROVED or REJECTED",
+      "overtime decision must be APPROVED, REJECTED or REVISION_REQUESTED",
     );
   }
 
@@ -440,6 +446,12 @@ export function normalizeOvertimeDecision(input: {
   if (decision === "REJECTED" && !comment) {
     throw new Error(
       "rejected overtime decision requires a comment",
+    );
+  }
+
+  if (decision === "REVISION_REQUESTED" && !comment) {
+    throw new Error(
+      "overtime revision request requires a comment",
     );
   }
 

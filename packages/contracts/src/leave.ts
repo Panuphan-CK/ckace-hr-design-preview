@@ -28,6 +28,8 @@ export interface LeaveEntitlementView {
 export interface LeaveRequestStepView {
   readonly stepOrder: number;
   readonly approverName: string | null;
+  /** Set when a delegate decided on behalf of the approver. */
+  readonly decidedByName?: string | null;
   readonly status: "PENDING" | "APPROVED" | "REJECTED" | "REVISION_REQUESTED" | "SKIPPED" | "CANCELLED";
   readonly decidedAt: string | null;
   readonly comment: string | null;

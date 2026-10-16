@@ -100,7 +100,12 @@ export function assertMedicalDateNotFuture(input: {
 
 export function normalizeMedicalAmount(
   value: number,
+  perClaimLimit: number = MEDICAL_PER_CLAIM_LIMIT,
 ): MedicalAmountEvaluation {
+  if (!Number.isFinite(perClaimLimit) || perClaimLimit <= 0) {
+    throw new Error("medical per-claim limit must be positive");
+  }
+
   if (
     !Number.isFinite(value) ||
     value <= 0 ||
@@ -115,7 +120,7 @@ export function normalizeMedicalAmount(
   const requestedAmount = cents(value) / 100;
   const effectiveAmount =
     Math.min(
-      cents(MEDICAL_PER_CLAIM_LIMIT),
+      cents(perClaimLimit),
       cents(requestedAmount),
     ) / 100;
 
@@ -264,9 +269,11 @@ export function assertMedicalReceiptMetadata(
 
 export function normalizeMedicalCreate(
   input: MedicalCreateInput,
+  perClaimLimit: number = MEDICAL_PER_CLAIM_LIMIT,
 ): NormalizedMedicalCreate {
   const amount = normalizeMedicalAmount(
     input.amount,
+    perClaimLimit,
   );
 
   return {
@@ -304,7 +311,8 @@ export function isMedicalCommittedStatus(
 ): boolean {
   return (
     status === "PENDING" ||
-    status === "APPROVED"
+    status === "APPROVED" ||
+    status === "REVISION_REQUESTED"
   );
 }
 
@@ -413,7 +421,7 @@ export function isMedicalAutoApprovalRole(
 export function assertMedicalCancelable(
   status: MedicalClaimStatus,
 ): void {
-  if (status !== "PENDING") {
+  if (status !== "PENDING" && status !== "REVISION_REQUESTED") {
     throw new Error(
       "only pending medical claims can be cancelled",
     );
@@ -423,7 +431,7 @@ export function assertMedicalCancelable(
 export function normalizeMedicalDecision(
   input: MedicalDecisionInput,
 ): {
-  readonly decision: "APPROVED" | "REJECTED";
+  readonly decision: "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
   readonly comment: string | null;
 } {
   const decision = input.decision;
@@ -432,10 +440,11 @@ export function normalizeMedicalDecision(
 
   if (
     decision !== "APPROVED" &&
-    decision !== "REJECTED"
+    decision !== "REJECTED" &&
+    decision !== "REVISION_REQUESTED"
   ) {
     throw new Error(
-      "medical decision must be APPROVED or REJECTED",
+      "medical decision must be APPROVED, REJECTED or REVISION_REQUESTED",
     );
   }
 
@@ -454,6 +463,12 @@ export function normalizeMedicalDecision(
   ) {
     throw new Error(
       "rejected medical decision requires a comment",
+    );
+  }
+
+  if (decision === "REVISION_REQUESTED" && !comment) {
+    throw new Error(
+      "medical revision request requires a comment",
     );
   }
 

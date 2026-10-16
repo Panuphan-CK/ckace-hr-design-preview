@@ -4,6 +4,9 @@ import type {
   LeaveEntitlementOptions,
   ApprovalPolicyInput,
   ApprovalPolicyItem,
+  AttendancePolicyItem,
+  MedicalPolicyItem,
+  MissingCheckOutItem,
   OvertimeAllowancePolicyItem,
   OvertimeReportRow,
   ProfessionalRoleItem,
@@ -163,6 +166,32 @@ export class ManagementService {
     actorEmployeeId: string,
   ): Promise<OvertimeAllowancePolicyItem> {
     return this.repository.saveOvertimeAllowancePolicy(input, actorEmployeeId);
+  }
+
+  missingCheckOuts(from: Date, to: Date): Promise<readonly MissingCheckOutItem[]> {
+    return this.repository.missingCheckOuts(from, to);
+  }
+
+  medicalPolicy(): Promise<MedicalPolicyItem | null> {
+    return this.repository.getMedicalPolicy();
+  }
+
+  saveMedicalPolicy(
+    input: Omit<MedicalPolicyItem, "effectiveFrom">,
+    actorEmployeeId: string,
+  ): Promise<MedicalPolicyItem> {
+    return this.repository.saveMedicalPolicy(input, actorEmployeeId);
+  }
+
+  attendancePolicy(): Promise<AttendancePolicyItem | null> {
+    return this.repository.getAttendancePolicy();
+  }
+
+  saveAttendancePolicy(
+    input: Omit<AttendancePolicyItem, "effectiveFrom">,
+    actorEmployeeId: string,
+  ): Promise<AttendancePolicyItem> {
+    return this.repository.saveAttendancePolicy(input, actorEmployeeId);
   }
 
   approvalPolicies(): Promise<readonly ApprovalPolicyItem[]> {

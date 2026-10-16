@@ -1,10 +1,13 @@
 import type {
+  ApprovalChainPreview,
   AttendanceSelfOverview,
   AttendanceWriteResult,
   TimeCorrectionCancelResult,
   TimeCorrectionCreateResult,
   TimeCorrectionDecisionResult,
   TimeCorrectionRequestView,
+  TimeCorrectionResubmitResult,
+  TimeCorrectionWithdrawResult,
 } from "@ckace/contracts";
 import {
   Body,
@@ -103,6 +106,15 @@ export class AttendanceController {
     );
   }
 
+  @Get("time-corrections/approval-chain")
+  @ModuleRoute("TIME_CORRECTION_READ")
+  @RequireSelfPermission("time_correction.self.read")
+  async timeCorrectionApprovalChain(@Req() request: SecurityRequest): Promise<ApprovalChainPreview> {
+    const actor = this.requireActor(request);
+
+    return this.service.previewTimeCorrectionApprover(actor.employeeId);
+  }
+
   @Post("time-corrections")
   @ModuleRoute("TIME_CORRECTION_WRITE")
   @RequireSelfPermission("time_correction.self.write")
@@ -116,6 +128,42 @@ export class AttendanceController {
       employeeId: actor.employeeId,
       correlationId:
         request.correlationId ?? actor.correlationId,
+      body,
+    });
+  }
+
+  @Post("time-corrections/:requestId/resubmit")
+  @ModuleRoute("TIME_CORRECTION_WRITE")
+  @RequireSelfPermission("time_correction.self.write")
+  async resubmitTimeCorrection(
+    @Req() request: SecurityRequest,
+    @Param("requestId") requestId: string,
+    @Body() body: unknown,
+  ): Promise<TimeCorrectionResubmitResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.resubmitTimeCorrection({
+      employeeId: actor.employeeId,
+      correlationId: request.correlationId ?? actor.correlationId,
+      requestId,
+      body,
+    });
+  }
+
+  @Post("time-corrections/:requestId/withdraw")
+  @ModuleRoute("TIME_CORRECTION_WRITE")
+  @RequirePermission("time_correction.approved.withdraw", "GLOBAL")
+  async withdrawTimeCorrection(
+    @Req() request: SecurityRequest,
+    @Param("requestId") requestId: string,
+    @Body() body: unknown,
+  ): Promise<TimeCorrectionWithdrawResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.withdrawApprovedTimeCorrection({
+      actorEmployeeId: actor.employeeId,
+      correlationId: request.correlationId ?? actor.correlationId,
+      requestId,
       body,
     });
   }

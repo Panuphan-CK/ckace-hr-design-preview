@@ -4,13 +4,17 @@ import {
   normalizeMedicalDecision,
 } from "@ckace/business-rules";
 import type {
+  ApprovalChainPreview,
   MedicalApprovalQueueItem,
   MedicalCancelResult,
   MedicalCreateInput,
   MedicalCreateResult,
   MedicalDecisionInput,
   MedicalDecisionResult,
+  MedicalResubmitInput,
+  MedicalResubmitResult,
   MedicalSelfOverview,
+  MedicalWithdrawResult,
 } from "@ckace/contracts";
 import type { MedicalRepository } from "@ckace/database";
 import {
@@ -224,7 +228,8 @@ function parseDecisionBody(
 
   if (
     decision !== "APPROVED" &&
-    decision !== "REJECTED"
+    decision !== "REJECTED" &&
+    decision !== "REVISION_REQUESTED"
   ) {
     throw new BadRequestException(
       "Medical decision is invalid",
@@ -303,7 +308,8 @@ function translateRepositoryError(
 
   if (
     error.message ===
-    "Medical claim is not assigned to this approver"
+      "Medical claim is not assigned to this approver" ||
+    error.message.startsWith("Not allowed to withdraw")
   ) {
     throw new ForbiddenException(
       error.message,
@@ -327,6 +333,8 @@ function translateRepositoryError(
     "medical annual committed limit exceeded",
     "Medical receipt attachment is already linked",
     "Medical idempotency record is incomplete and requires review",
+    "Medical claim is not waiting for revision",
+    "Only an approved medical claim can be withdrawn",
   ];
 
   if (
@@ -362,6 +370,8 @@ function translateRepositoryError(
     "Medical receipt ",
     "Medical linked leave ",
     "Unsupported medical ",
+    "Medical approval chain ",
+    "A withdrawal reason ",
   ];
 
   if (
@@ -441,6 +451,69 @@ export class MedicalService {
       return translateRepositoryError(
         error,
       );
+    }
+  }
+
+  async resubmitMedical(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly claimId: string;
+    readonly body: unknown;
+  }): Promise<MedicalResubmitResult> {
+    const claimId = requiredUuid(input.claimId, "claimId");
+    const source = objectBody(input.body);
+    const amount = source.amount;
+
+    if (typeof amount !== "number") {
+      throw new BadRequestException("amount is required");
+    }
+
+    const request: MedicalResubmitInput = {
+      clientKey: requiredString(source.clientKey, "clientKey", 120),
+      sicknessDate: requiredString(source.sicknessDate, "sicknessDate", 10),
+      amount,
+      description: requiredString(source.description, "description", 1000),
+    };
+
+    try {
+      return await this.repository.resubmitMedical({
+        employeeId: input.employeeId,
+        correlationId: input.correlationId,
+        claimId,
+        request,
+        canonicalPayload: JSON.stringify({ claimId, ...request, clientKey: undefined }),
+      });
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  async withdrawApprovedMedical(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly claimId: string;
+    readonly body: unknown;
+  }): Promise<MedicalWithdrawResult> {
+    const claimId = requiredUuid(input.claimId, "claimId");
+    const reason = requiredString(objectBody(input.body).reason, "reason", 1000);
+
+    try {
+      return await this.repository.withdrawApprovedMedical({
+        actorEmployeeId: input.actorEmployeeId,
+        correlationId: input.correlationId,
+        claimId,
+        reason,
+      });
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  async previewApprovalChain(employeeId: string): Promise<ApprovalChainPreview> {
+    try {
+      return await this.repository.previewApprovalChain(employeeId);
+    } catch (error) {
+      return translateRepositoryError(error);
     }
   }
 

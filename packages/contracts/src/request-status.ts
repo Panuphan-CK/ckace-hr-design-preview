@@ -55,6 +55,8 @@ export interface ApprovalHistoryOverview {
 export interface RequestTimelineStep {
   readonly stepOrder: number;
   readonly approverName: string | null;
+  /** Set when a delegate decided on behalf of the approver. */
+  readonly decidedByName?: string | null;
   readonly status: "PENDING" | "APPROVED" | "REJECTED" | "REVISION_REQUESTED" | "SKIPPED" | "CANCELLED";
   readonly decidedAt: string | null;
   readonly comment: string | null;
@@ -66,4 +68,35 @@ export interface RequestTimeline {
   readonly kind: UnifiedRequestKind;
   readonly requestNo: string;
   readonly steps: readonly RequestTimelineStep[];
+}
+
+/** Who will approve a request if the employee submits it now (shown on the submit form). */
+export interface ApprovalChainPreview {
+  /** Admin-level requesters are approved automatically (medical). */
+  readonly autoApproved: boolean;
+  readonly steps: readonly {
+    readonly stepOrder: number;
+    readonly approverEmployeeId: string;
+    readonly approverName: string | null;
+  }[];
+}
+
+export interface ApprovalDelegationItem {
+  readonly id: string;
+  readonly delegatorEmployeeId: string;
+  readonly delegatorName: string;
+  readonly delegateEmployeeId: string;
+  readonly delegateName: string;
+  readonly startDate: string;
+  readonly endDate: string;
+  readonly active: boolean;
+}
+
+export interface ApprovalDelegationOverview {
+  /** Delegations the caller created (current and future). */
+  readonly given: readonly ApprovalDelegationItem[];
+  /** Delegations handed to the caller. */
+  readonly received: readonly ApprovalDelegationItem[];
+  /** Employees the caller may delegate to (they can approve requests). */
+  readonly candidates: readonly { readonly employeeId: string; readonly name: string }[];
 }

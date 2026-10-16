@@ -67,7 +67,8 @@ export type TimeCorrectionStatus =
   | "PENDING"
   | "APPROVED"
   | "REJECTED"
-  | "CANCELLED";
+  | "CANCELLED"
+  | "REVISION_REQUESTED";
 
 export interface TimeCorrectionCreateInput {
   readonly clientKey: string;
@@ -104,11 +105,34 @@ export interface TimeCorrectionCancelResult {
 }
 
 export interface TimeCorrectionDecisionInput {
-  readonly decision: "APPROVED" | "REJECTED";
+  readonly decision: "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
   readonly comment: string;
 }
 
 export interface TimeCorrectionDecisionResult {
   readonly requestId: string;
-  readonly status: "APPROVED" | "REJECTED";
+  readonly status: "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
+}
+
+/** Employee edits the corrected time and reason of a sent-back time correction (type and date stay fixed). */
+export interface TimeCorrectionResubmitInput {
+  readonly clientKey: string;
+  readonly correctedTime: string;
+  readonly reason: string;
+}
+
+export interface TimeCorrectionResubmitResult {
+  readonly requestId: string;
+  readonly returnedToStep: number;
+  readonly replayed: boolean;
+}
+
+/** Highest-level user withdraws an approved time correction; the attendance record is restored. */
+export interface TimeCorrectionWithdrawInput {
+  readonly reason: string;
+}
+
+export interface TimeCorrectionWithdrawResult {
+  readonly requestId: string;
+  readonly status: "CANCELLED";
 }

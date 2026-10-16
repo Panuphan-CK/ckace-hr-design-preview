@@ -15,6 +15,7 @@ import {
   normalizeMedicalDecision,
 } from "@ckace/business-rules";
 import type {
+  ApprovalChainPreview,
   MedicalApprovalQueueItem,
   MedicalCancelResult,
   MedicalClaimView,
@@ -22,19 +23,29 @@ import type {
   MedicalCreateResult,
   MedicalDecisionInput,
   MedicalDecisionResult,
+  MedicalResubmitInput,
+  MedicalResubmitResult,
   MedicalSelfOverview,
+  MedicalWithdrawResult,
 } from "@ckace/contracts";
 import {
   Prisma,
   type PrismaClient,
 } from "@prisma/client";
 
+import { actorMayDecideStep, delegatorIdsFor } from "./approval-delegation";
+import {
+  resubmitSentBackMedical,
+  withdrawApprovedMedical,
+} from "./medical-revision-repository";
 import {
   resolveCompanyApprovalRoute,
   systemSelectedApprovals,
 } from "./approval-route-loader";
 
 export interface MedicalRepository {
+  previewApprovalChain(employeeId: string): Promise<ApprovalChainPreview>;
+
   getSelfOverview(
     employeeId: string,
   ): Promise<MedicalSelfOverview>;
@@ -62,6 +73,21 @@ export interface MedicalRepository {
     readonly claimId: string;
     readonly decision: MedicalDecisionInput;
   }): Promise<MedicalDecisionResult>;
+
+  resubmitMedical(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly claimId: string;
+    readonly request: MedicalResubmitInput;
+    readonly canonicalPayload: string;
+  }): Promise<MedicalResubmitResult>;
+
+  withdrawApprovedMedical(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly claimId: string;
+    readonly reason: string;
+  }): Promise<MedicalWithdrawResult>;
 }
 
 interface ActiveMedicalEmployee {
@@ -109,6 +135,7 @@ interface MedicalAttachmentRow {
 }
 
 const MEDICAL_BENEFIT_POLICY_KEY = "MEDICAL";
+const MEDICAL_PER_CLAIM_LIMIT_DEFAULT = 1_000;
 
 function asNumber(
   value: Prisma.Decimal,
@@ -123,6 +150,18 @@ function asNumber(
   }
 
   return numberValue;
+}
+
+async function approverNames(
+  prisma: Pick<PrismaClient, "employee">,
+  ids: readonly string[],
+): Promise<Map<string, string>> {
+  const rows = await prisma.employee.findMany({
+    where: { id: { in: [...ids] } },
+    select: { id: true, fullName: true },
+  });
+
+  return new Map(rows.map((row) => [row.id, row.fullName]));
 }
 
 function dateOnly(value: Date): string {
@@ -404,6 +443,26 @@ async function resolveMedicalApproval(
   };
 }
 
+/** Per-claim limit of the active medical policy; falls back to the company default of 1,000. */
+async function perClaimLimitFor(
+  prisma: Pick<Prisma.TransactionClient, "benefitPolicy">,
+  today: string,
+): Promise<number> {
+  const effectiveDate = dateValue(today);
+  const policy = await prisma.benefitPolicy.findFirst({
+    where: {
+      key: MEDICAL_BENEFIT_POLICY_KEY,
+      active: true,
+      effectiveFrom: { lte: effectiveDate },
+      OR: [{ effectiveTo: null }, { effectiveTo: { gte: effectiveDate } }],
+    },
+    select: { perClaimLimit: true },
+    orderBy: [{ effectiveFrom: "desc" }, { id: "asc" }],
+  });
+
+  return policy?.perClaimLimit ? policy.perClaimLimit.toNumber() : MEDICAL_PER_CLAIM_LIMIT_DEFAULT;
+}
+
 async function activeMedicalBenefitPolicy(
   prisma: Pick<
     Prisma.TransactionClient,
@@ -649,15 +708,6 @@ function medicalClaimView(
     }[];
   },
 ): MedicalClaimView {
-  if (
-    claim.status ===
-    "REVISION_REQUESTED"
-  ) {
-    throw new Error(
-      "Unsupported medical claim status REVISION_REQUESTED",
-    );
-  }
-
   return {
     id: claim.id,
     employeeId: claim.employeeId,
@@ -934,9 +984,7 @@ export class PrismaMedicalRepository
           claim.claimDate >=
             year.start &&
           claim.claimDate <
-            year.endExclusive &&
-          claim.status !==
-            "REVISION_REQUESTED",
+            year.endExclusive,
       );
 
     return {
@@ -952,7 +1000,8 @@ export class PrismaMedicalRepository
                     | "PENDING"
                     | "APPROVED"
                     | "REJECTED"
-                    | "CANCELLED",
+                    | "CANCELLED"
+                    | "REVISION_REQUESTED",
                 amount: asNumber(
                   claim.amount,
                   "Medical claim amount",
@@ -976,10 +1025,11 @@ export class PrismaMedicalRepository
       approverEmployeeId,
     );
 
+    const delegators = await delegatorIdsFor(this.prisma, approverEmployeeId);
     const steps =
       await this.prisma.approvalStep.findMany({
         where: {
-          approverEmployeeId,
+          approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
           status: "PENDING",
           approvalInstance: {
             is: {
@@ -1051,9 +1101,14 @@ export class PrismaMedicalRepository
     readonly request: MedicalCreateInput;
     readonly canonicalPayload: string;
   }): Promise<MedicalCreateResult> {
+    const perClaimLimit = await perClaimLimitFor(
+      this.prisma,
+      bangkokDateKey(this.clock()),
+    );
     const normalized =
       normalizeMedicalCreate(
         input.request,
+        perClaimLimit,
       );
     const idempotency =
       createIdempotencyClaim({
@@ -1081,7 +1136,7 @@ export class PrismaMedicalRepository
     const cappedWarnings =
       normalized.capped
         ? [
-            "MEDICAL_AMOUNT_CAPPED_TO_1000",
+            `MEDICAL_AMOUNT_CAPPED_TO_${perClaimLimit}`,
           ]
         : [];
 
@@ -1154,6 +1209,7 @@ export class PrismaMedicalRepository
                     in: [
                       "PENDING",
                       "APPROVED",
+                      "REVISION_REQUESTED",
                     ],
                   },
                 },
@@ -1449,15 +1505,6 @@ export class PrismaMedicalRepository
           };
         }
 
-        if (
-          claim.status ===
-          "REVISION_REQUESTED"
-        ) {
-          throw new Error(
-            "Unsupported medical claim status REVISION_REQUESTED",
-          );
-        }
-
         assertMedicalCancelable(
           claim.status,
         );
@@ -1620,15 +1667,24 @@ export class PrismaMedicalRepository
                 ?.currentStepOrder,
           );
 
-        if (
-          !currentStep ||
-          currentStep.approverEmployeeId !==
-            input.approverEmployeeId
-        ) {
+        const mayDecide = currentStep
+          ? await actorMayDecideStep(tx, {
+              stepApproverId: currentStep.approverEmployeeId,
+              actorEmployeeId: input.approverEmployeeId,
+              requesterEmployeeId: claim.employeeId,
+            })
+          : false;
+
+        if (!currentStep || !mayDecide) {
           throw new Error(
             "Medical claim is not assigned to this approver",
           );
         }
+
+        await tx.approvalStep.update({
+          where: { id: currentStep.id },
+          data: { decidedByEmployeeId: input.approverEmployeeId },
+        });
 
         if (
           claim.status !==
@@ -1639,6 +1695,66 @@ export class PrismaMedicalRepository
           throw new Error(
             "Medical claim has already been decided",
           );
+        }
+
+        if (normalized.decision === "REVISION_REQUESTED") {
+          await Promise.all([
+            tx.approvalStep.update({
+              where: { id: currentStep.id },
+              data: {
+                status: "REVISION_REQUESTED",
+                comment: normalized.comment,
+                decidedAt,
+              },
+            }),
+            tx.medicalClaim.update({
+              where: { id: claim.id },
+              data: {
+                status: "REVISION_REQUESTED",
+                decisionReason: normalized.comment,
+              },
+            }),
+            tx.approvalInstance.update({
+              where: { id: claim.approvalInstance.id },
+              data: { status: "REVISION_REQUESTED", decidedAt: null },
+            }),
+            tx.notificationOutbox.create({
+              data: {
+                aggregateType: "MEDICAL_CLAIM",
+                aggregateId: claim.id,
+                eventType: "MEDICAL_CLAIM_REVISION_REQUESTED",
+                payload: {
+                  claimId: claim.id,
+                  requesterEmployeeId: claim.employeeId,
+                  stepOrder: currentStep.stepOrder,
+                },
+              },
+            }),
+            tx.auditLog.create({
+              data: {
+                actorEmployeeId: input.approverEmployeeId,
+                action: "MEDICAL_REVISION_REQUEST",
+                entityType: "MedicalClaim",
+                entityId: claim.id,
+                correlationId: input.correlationId,
+                metadata: {
+                  requesterEmployeeId: claim.employeeId,
+                  stepOrder: currentStep.stepOrder,
+                },
+              },
+            }),
+          ]);
+
+          const sentBack = await tx.medicalClaim.findUniqueOrThrow({
+            where: { id: claim.id },
+            select: medicalClaimSelection,
+          });
+
+          return {
+            claim: medicalClaimView(sentBack),
+            completed: false,
+            warnings: [],
+          };
         }
 
         const nextStep =
@@ -1788,5 +1904,44 @@ export class PrismaMedicalRepository
             .Serializable,
       },
     );
+  }
+
+  async previewApprovalChain(employeeId: string): Promise<ApprovalChainPreview> {
+    const requester = await activeMedicalEmployee(this.prisma, employeeId);
+
+    if (isMedicalAutoApprovalRole(requester.roleKeys)) {
+      return { autoApproved: true, steps: [] };
+    }
+
+    const approval = await resolveMedicalApproval(this.prisma, requester);
+    const names = await approverNames(this.prisma, approval.steps.map((step) => step.approverEmployeeId));
+
+    return {
+      autoApproved: false,
+      steps: approval.steps.map((step) => ({
+        stepOrder: step.stepOrder,
+        approverEmployeeId: step.approverEmployeeId,
+        approverName: names.get(step.approverEmployeeId) ?? null,
+      })),
+    };
+  }
+
+  resubmitMedical(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly claimId: string;
+    readonly request: MedicalResubmitInput;
+    readonly canonicalPayload: string;
+  }): Promise<MedicalResubmitResult> {
+    return resubmitSentBackMedical(this.prisma, { ...input, now: this.clock() });
+  }
+
+  withdrawApprovedMedical(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly claimId: string;
+    readonly reason: string;
+  }): Promise<MedicalWithdrawResult> {
+    return withdrawApprovedMedical(this.prisma, input);
   }
 }

@@ -464,7 +464,7 @@ export function assertNoActiveTimeCorrection(
   if (
     statuses.some(
       (status) =>
-        status === "PENDING" || status === "APPROVED",
+        status === "PENDING" || status === "APPROVED" || status === "REVISION_REQUESTED",
     )
   ) {
     throw new Error(
@@ -474,15 +474,16 @@ export function assertNoActiveTimeCorrection(
 }
 
 export function normalizeTimeCorrectionDecision(input: {
-  readonly decision: "APPROVED" | "REJECTED";
+  readonly decision: "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
   readonly comment?: string | null;
 }): {
-  readonly decision: "APPROVED" | "REJECTED";
+  readonly decision: "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
   readonly comment: string;
 } {
   if (
     input.decision !== "APPROVED" &&
-    input.decision !== "REJECTED"
+    input.decision !== "REJECTED" &&
+    input.decision !== "REVISION_REQUESTED"
   ) {
     throw new Error("Time correction decision is invalid");
   }
@@ -498,6 +499,12 @@ export function normalizeTimeCorrectionDecision(input: {
   if (input.decision === "REJECTED" && !comment) {
     throw new Error(
       "Rejected time correction requires a comment",
+    );
+  }
+
+  if (input.decision === "REVISION_REQUESTED" && !comment) {
+    throw new Error(
+      "Time correction revision request requires a comment",
     );
   }
 

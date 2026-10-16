@@ -4,6 +4,8 @@ import {
   normalizeOvertimeDecision,
 } from "@ckace/business-rules";
 import type {
+  ApprovalChainPreview,
+  OvertimeBulkApproveResult,
   OvertimeApprovalQueueItem,
   OvertimeCancelResult,
   OvertimeBreakCode,
@@ -11,7 +13,10 @@ import type {
   OvertimeCreateResult,
   OvertimeDecisionInput,
   OvertimeDecisionResult,
+  OvertimeResubmitInput,
+  OvertimeResubmitResult,
   OvertimeSelfOverview,
+  OvertimeWithdrawResult,
 } from "@ckace/contracts";
 import type { OvertimeRepository } from "@ckace/database";
 import {
@@ -147,7 +152,8 @@ function parseDecisionBody(
 
   if (
     decision !== "APPROVED" &&
-    decision !== "REJECTED"
+    decision !== "REJECTED" &&
+    decision !== "REVISION_REQUESTED"
   ) {
     throw new BadRequestException(
       "Overtime decision is invalid",
@@ -215,7 +221,8 @@ function translateRepositoryError(
 
   if (
     error.message ===
-    "Overtime request is not assigned to this approver"
+      "Overtime request is not assigned to this approver" ||
+    error.message.startsWith("Not allowed to withdraw")
   ) {
     throw new ForbiddenException(error.message);
   }
@@ -234,6 +241,8 @@ function translateRepositoryError(
     "only pending overtime ",
     "Overtime request has already ",
     "Overtime idempotency ",
+    "Overtime request is not waiting ",
+    "Only an approved overtime ",
   ];
 
   if (
@@ -313,6 +322,101 @@ export class OvertimeService {
     } catch (error) {
       return translateRepositoryError(error);
     }
+  }
+
+  async resubmitOvertime(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly body: unknown;
+  }): Promise<OvertimeResubmitResult> {
+    const requestId = requiredUuid(input.requestId, "requestId");
+    const source = objectBody(input.body);
+    const request: OvertimeResubmitInput = {
+      clientKey: requiredString(source.clientKey, "clientKey", 120),
+      startTime: requiredString(source.startTime, "startTime", 5),
+      endTime: requiredString(source.endTime, "endTime", 5),
+      reason: requiredString(source.reason, "reason", 1000),
+      ...(Array.isArray(source.breaks)
+        ? { breaks: source.breaks as OvertimeBreakCode[] }
+        : {}),
+    };
+
+    try {
+      return await this.repository.resubmitOvertime({
+        employeeId: input.employeeId,
+        correlationId: input.correlationId,
+        requestId,
+        request,
+        canonicalPayload: JSON.stringify({
+          requestId,
+          startTime: request.startTime,
+          endTime: request.endTime,
+          reason: request.reason,
+          breaks: request.breaks ?? null,
+        }),
+      });
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  async withdrawApprovedOvertime(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly body: unknown;
+  }): Promise<OvertimeWithdrawResult> {
+    const requestId = requiredUuid(input.requestId, "requestId");
+    const reason = requiredString(objectBody(input.body).reason, "reason", 1000);
+
+    try {
+      return await this.repository.withdrawApprovedOvertime({
+        actorEmployeeId: input.actorEmployeeId,
+        correlationId: input.correlationId,
+        requestId,
+        reason,
+      });
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  async previewApprovalChain(employeeId: string): Promise<ApprovalChainPreview> {
+    try {
+      return await this.repository.previewApprovalChain(employeeId);
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  /** Approves every request currently waiting for this approver, one transaction each. */
+  async approveAllAssignedOvertime(input: {
+    readonly approverEmployeeId: string;
+    readonly correlationId: string;
+  }): Promise<OvertimeBulkApproveResult> {
+    const queue = await this.getAssignedApprovals(input.approverEmployeeId);
+    const failed: { requestId: string; reason: string }[] = [];
+    let approved = 0;
+
+    for (const item of queue.slice(0, 200)) {
+      try {
+        await this.repository.decideAssignedOvertime({
+          approverEmployeeId: input.approverEmployeeId,
+          correlationId: input.correlationId,
+          requestId: item.id,
+          decision: { decision: "APPROVED", comment: null },
+        });
+        approved += 1;
+      } catch (error) {
+        failed.push({
+          requestId: item.id,
+          reason: error instanceof Error ? error.message : "Approval failed",
+        });
+      }
+    }
+
+    return { approved, failed };
   }
 
   async cancelSelfOvertime(input: {

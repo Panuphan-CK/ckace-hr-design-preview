@@ -58,6 +58,10 @@ export interface LeaveRequestView {
 export interface LeaveSelfOverview {
   readonly entitlements: readonly LeaveEntitlementView[];
   readonly requests: readonly LeaveRequestView[];
+  /** Company holiday dates (YYYY-MM-DD) that cannot be picked for leave. */
+  readonly holidays: readonly string[];
+  /** ISO weekdays (1 = Monday ... 7 = Sunday) that are working days. */
+  readonly workingWeekdays: readonly number[];
 }
 
 export interface LeaveApproverCandidate {

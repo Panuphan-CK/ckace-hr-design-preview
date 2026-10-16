@@ -16,8 +16,8 @@ import {
   shouldDiscardSubmissionIntent,
   type SubmissionIntent,
 } from "../submission-intent";
-import { DatePicker } from "../ui/date-picker";
-import { addHours, isoToDmy, thaiDateRange, thaiDateTime, weekdaysBetween } from "../ui/format";
+import { DateField, DatePicker } from "../ui/date-picker";
+import { addHours, isoToDmy, thaiDateRange, thaiDateTime } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
 
 type PageState =
@@ -137,7 +137,7 @@ export default function LeaveDesktopPage() {
     try {
       const [overview, approvalOptions] = await Promise.all([
         getJson<LeaveSelfOverview>("/api/leave/me"),
-        getJson<readonly LeaveApprovalStepOptions[]>("/api/leave/approval-options"),
+        getJson<readonly LeaveApprovalStepOptions[]>("/api/leave/approval-options").catch(() => [] as readonly LeaveApprovalStepOptions[]),
       ]);
       setState({ status: "ready", overview, approvalOptions });
     } catch (error) {
@@ -165,6 +165,26 @@ export default function LeaveDesktopPage() {
 
   const entitlements = state.status === "ready" ? state.overview.entitlements : [];
   const selected: LeaveEntitlementView | undefined = entitlements.find((item) => item.entitlementId === entitlementId);
+  const holidaySet = useMemo(() => new Set(state.status === "ready" ? state.overview.holidays : []), [state]);
+  const workingWeekdays = useMemo(
+    () => new Set(state.status === "ready" ? state.overview.workingWeekdays : [1, 2, 3, 4, 5]),
+    [state],
+  );
+  const isNonWorkingDay = useCallback(
+    (iso: string) => {
+      const weekday = new Date(iso + "T00:00:00.000Z").getUTCDay() || 7;
+      return !workingWeekdays.has(weekday) || holidaySet.has(iso);
+    },
+    [holidaySet, workingWeekdays],
+  );
+  function workingDaysBetween(from: string, to: string): number {
+    if (!from) return 0;
+    let count = 0;
+    for (let cursor = new Date(from + "T00:00:00.000Z"); cursor <= new Date((to || from) + "T00:00:00.000Z"); cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+      if (!isNonWorkingDay(cursor.toISOString().slice(0, 10))) count += 1;
+    }
+    return count;
+  }
   const endTime = duration === "HOURLY" ? addHours(startTime, hours) : "";
   // Client-side estimate matching the server rule (8 hours = 1 day; half day = 0.5 per working day).
   // The server still re-checks with company holidays and rejects anything over quota.
@@ -174,8 +194,8 @@ export default function LeaveDesktopPage() {
         ? Math.round((hours / 8) * 1000) / 1000
         : 0
       : duration === "FULL_DAY"
-        ? weekdaysBetween(startDate, endDate || startDate)
-        : weekdaysBetween(startDate, startDate) * 0.5;
+        ? workingDaysBetween(startDate, endDate || startDate)
+        : workingDaysBetween(startDate, startDate) * 0.5;
   const overQuota = Boolean(selected && startDate && estimateDays > selected.remaining + 1e-9);
 
   const requests = useMemo(() => {
@@ -423,6 +443,7 @@ export default function LeaveDesktopPage() {
               <DatePicker
                 mode={duration === "FULL_DAY" ? "range" : "single"}
                 label="วันที่ลา"
+                blocked={isNonWorkingDay}
                 start={startDate}
                 end={endDate}
                 onChange={(from, to) => {
@@ -712,7 +733,7 @@ export default function LeaveDesktopPage() {
                 {revision ? (
                   <div style={{ display: "grid", gap: 8 }}>
                     <textarea
-                      className="ck-input"
+                      className="ck-in"
                       rows={3}
                       maxLength={2000}
                       aria-label="เหตุผลการลา"
@@ -721,23 +742,12 @@ export default function LeaveDesktopPage() {
                     />
                     <label>
                       วันที่เริ่มลา
-                      <input
-                        type="date"
-                        className="ck-input"
-                        value={revision.startDate}
-                        onChange={(event) => setRevision({ ...revision, startDate: event.currentTarget.value })}
-                      />
+                      <DateField label="วันที่เริ่มลา" value={revision.startDate} onChange={(next) => setRevision({ ...revision, startDate: next })} />
                     </label>
                     {detail.durationCode === "FULL_DAY" ? (
                       <label>
                         วันที่สิ้นสุด
-                        <input
-                          type="date"
-                          className="ck-input"
-                          min={revision.startDate}
-                          value={revision.endDate}
-                          onChange={(event) => setRevision({ ...revision, endDate: event.currentTarget.value })}
-                        />
+                        <DateField label="วันที่สิ้นสุด" min={revision.startDate} value={revision.endDate} onChange={(next) => setRevision({ ...revision, endDate: next })} />
                       </label>
                     ) : null}
                     <div>

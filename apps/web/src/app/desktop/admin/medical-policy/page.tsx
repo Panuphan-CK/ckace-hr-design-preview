@@ -52,7 +52,7 @@ export default function MedicalPolicyPage() {
   if (policy === undefined) return <p role="status">กำลังโหลด…</p>;
 
   return (
-    <div className="module-panel fade-in">
+    <div className="module-panel fade-in ck-admin">
       <h1>วงเงินเบิกค่ารักษาพยาบาล</h1>
       <p>
         วงเงินต่อใบที่เบิกได้ และวงเงินรวมต่อปีปฏิทิน ถ้ายื่นเกินวงเงินต่อใบ ระบบจะตัดเหลือเท่าวงเงินต่อใบ

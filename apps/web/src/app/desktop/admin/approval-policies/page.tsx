@@ -129,7 +129,7 @@ export default function ApprovalPoliciesPage() {
   }
 
   return (
-    <div className="module-panel fade-in">
+    <div className="module-panel fade-in ck-admin">
       <h1>สายอนุมัติ</h1>
       <p>
         กำหนดลำดับผู้อนุมัติของแต่ละประเภทคำขอ เลือกได้ทั้งแบบใช้กับทุกทีม หรือเฉพาะบางทีม

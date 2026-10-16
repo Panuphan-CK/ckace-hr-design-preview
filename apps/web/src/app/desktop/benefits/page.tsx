@@ -11,12 +11,14 @@ import {
   useState,
 } from "react";
 
+import { thaiDate, thaiDateTime } from "../ui/format";
+import { EmptyState, ErrorState, Filters, LoadingState, SectionHead } from "../ui/kit";
+import { Icon } from "../ui/icons";
 import {
   benefitKindLabel,
   benefitSourceHref,
   benefitStatusLabel,
   benefitValueLabel,
-  benefitsMetrics,
   filterBenefitsRequests,
   type BenefitKindFilter,
   type BenefitStatusFilter,
@@ -30,46 +32,6 @@ type State =
     }
   | { status: "error"; message: string };
 
-const dateFormatter = new Intl.DateTimeFormat("th-TH", {
-  timeZone: "Asia/Bangkok",
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
-
-const dateTimeFormatter = new Intl.DateTimeFormat(
-  "th-TH",
-  {
-    timeZone: "Asia/Bangkok",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  },
-);
-
-const moneyFormatter = new Intl.NumberFormat("th-TH", {
-  style: "currency",
-  currency: "THB",
-  maximumFractionDigits: 2,
-});
-
-function formatDate(value: string): string {
-  const date = new Date(`${value}T00:00:00+07:00`);
-  return Number.isNaN(date.getTime())
-    ? value
-    : dateFormatter.format(date);
-}
-
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : dateTimeFormatter.format(date);
-}
-
 function errorMessage(status: number): string {
   if (status === 401) {
     return "หมดเวลาการเข้าใช้งาน กรุณาเข้าสู่ระบบใหม่";
@@ -82,6 +44,29 @@ function errorMessage(status: number): string {
   }
   return "ไม่สามารถโหลดข้อมูลสวัสดิการได้ กรุณาลองใหม่อีกครั้ง";
 }
+
+const money = new Intl.NumberFormat("th-TH", { style: "currency", currency: "THB", maximumFractionDigits: 2 });
+
+const STATUS_TONE: Readonly<Record<string, string>> = {
+  PENDING: "wait",
+  APPROVED: "ok",
+  REJECTED: "bad",
+  CANCELLED: "muted",
+  REVISION_REQUESTED: "wait",
+};
+
+const KIND_FILTERS: readonly { id: BenefitKindFilter; label: string }[] = [
+  { id: "ALL", label: "ทั้งหมด" },
+  { id: "OVERTIME", label: "โอที" },
+  { id: "MEDICAL", label: "ค่ารักษา" },
+];
+
+const STATUS_FILTERS: readonly { id: BenefitStatusFilter; label: string }[] = [
+  { id: "ALL", label: "ทุกสถานะ" },
+  { id: "PENDING", label: "รออนุมัติ" },
+  { id: "APPROVED", label: "อนุมัติ" },
+  { id: "REJECTED", label: "ไม่อนุมัติ" },
+];
 
 function percent(
   value: number,
@@ -135,14 +120,6 @@ export default function DesktopBenefitsPage() {
     void load();
   }, [load]);
 
-  const metrics = useMemo(
-    () =>
-      state.status === "ready"
-        ? benefitsMetrics(state.overview)
-        : null,
-    [state],
-  );
-
   const visibleRequests = useMemo(
     () =>
       state.status === "ready"
@@ -155,354 +132,112 @@ export default function DesktopBenefitsPage() {
     [kindFilter, state, statusFilter],
   );
 
-  if (state.status === "loading") {
-    return (
-      <section
-        className="module-state"
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-      >
-        <div className="spinner" aria-hidden="true" />
-        <h1>กำลังโหลดข้อมูลสวัสดิการ</h1>
-        <p>
-          กำลังรวมข้อมูลโอทีและค่ารักษาพยาบาลจาก Project B
-        </p>
-      </section>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <section className="module-state" role="alert">
-        <div className="status-badge error">
-          BENEFITS ERROR
-        </div>
-        <h1>เปิดข้อมูลสวัสดิการไม่สำเร็จ</h1>
-        <p>{state.message}</p>
-        <button
-          className="primary-button"
-          type="button"
-          onClick={() => void load()}
-        >
-          ลองใหม่
-        </button>
-      </section>
-    );
-  }
+  if (state.status === "loading") return <LoadingState title="กำลังโหลดข้อมูลสวัสดิการ" />;
+  if (state.status === "error") return <ErrorState title="เปิดข้อมูลสวัสดิการไม่สำเร็จ" message={state.message} onRetry={() => void load()} />;
 
   const { overview } = state;
   const entitlement = overview.medicalEntitlement;
-  const committedPercent = percent(
-    entitlement.committed,
-    entitlement.annualLimit,
-  );
-  const approvedPercent = percent(
-    entitlement.approved,
-    entitlement.annualLimit,
-  );
+  const committedPercent = percent(entitlement.committed, entitlement.annualLimit);
+  const approvedPercent = percent(entitlement.approved, entitlement.annualLimit);
 
   return (
-    <div className="module-stack">
-      <section className="module-heading">
-        <div>
-          <p className="eyebrow">BENEFITS DESKTOP</p>
-          <h1>สวัสดิการพนักงาน</h1>
-          <p>
-            ภาพรวมสิทธิค่ารักษาพยาบาลและประวัติคำขอ OT /
-            Medical ที่ Project B รองรับในปัจจุบัน
-          </p>
-        </div>
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={() => void load()}
-        >
-          รีเฟรช
-        </button>
-      </section>
-
-      <section className="benefits-source-note">
-        <strong>ข้อมูลที่รองรับใน M9D.8</strong>
-        <span>
-          หน้านี้เป็น read-only projection จาก OT และ Medical
-          เท่านั้น ไม่ได้สร้างนโยบายสวัสดิการประเภทอื่นเพิ่มเอง
-        </span>
-      </section>
-
-      <section className="medical-metric-grid">
-        <article className="metric-card">
-          <span>วงเงินค่ารักษารายปี</span>
-          <strong>
-            {moneyFormatter.format(
-              entitlement.annualLimit,
-            )}
-          </strong>
-        </article>
-        <article className="metric-card">
-          <span>อนุมัติแล้ว</span>
-          <strong>
-            {moneyFormatter.format(
-              entitlement.approved,
-            )}
-          </strong>
-        </article>
-        <article className="metric-card">
-          <span>ยอดผูกพัน</span>
-          <strong>
-            {moneyFormatter.format(
-              entitlement.committed,
-            )}
-          </strong>
-        </article>
-        <article className="metric-card">
-          <span>คงเหลือ</span>
-          <strong>
-            {moneyFormatter.format(
-              entitlement.remaining,
-            )}
-          </strong>
-        </article>
-      </section>
-
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">
-              MEDICAL ENTITLEMENT
-            </p>
-            <h2>การใช้วงเงินค่ารักษา</h2>
-          </div>
-          <Link
-            className="secondary-button"
-            href="/desktop/medical"
-          >
-            ไปหน้าค่ารักษา
+    <div className="ck-stack">
+      <section className="ck-panel ck-c-med" aria-labelledby="ben-quota">
+        <SectionHead title="วงเงินค่ารักษาปีนี้" id="ben-quota">
+          <Link className="ck-btn sm tone" href="/desktop/medical">
+            ไปหน้าเบิกค่ารักษา
           </Link>
-        </div>
-
-        <div className="benefits-progress-list">
+        </SectionHead>
+        <div className="ck-quota">
           <div>
-            <div className="benefits-progress-label">
-              <span>อนุมัติแล้ว</span>
-              <strong>
-                {approvedPercent.toFixed(0)}%
-              </strong>
-            </div>
-            <div className="benefits-progress-track">
-              <span
-                style={{
-                  width: `${approvedPercent}%`,
-                }}
-              />
-            </div>
+            <small>วงเงินทั้งปี</small>
+            <b>{money.format(entitlement.annualLimit)}</b>
           </div>
           <div>
-            <div className="benefits-progress-label">
-              <span>
-                ยอดผูกพันรวม Pending + Approved
-              </span>
-              <strong>
-                {committedPercent.toFixed(0)}%
-              </strong>
-            </div>
-            <div className="benefits-progress-track committed">
-              <span
-                style={{
-                  width: `${committedPercent}%`,
-                }}
-              />
-            </div>
+            <small>อนุมัติแล้ว</small>
+            <b>{money.format(entitlement.approved)}</b>
           </div>
-        </div>
-      </section>
-
-      <section className="metric-grid">
-        <article className="metric-card">
-          <span>คำขอทั้งหมด</span>
-          <strong>
-            {metrics?.totalRequests ?? 0}
-          </strong>
-        </article>
-        <article className="metric-card">
-          <span>โอที</span>
-          <strong>
-            {metrics?.overtimeRequests ?? 0}
-          </strong>
-        </article>
-        <article className="metric-card">
-          <span>ค่ารักษา</span>
-          <strong>
-            {metrics?.medicalRequests ?? 0}
-          </strong>
-        </article>
-        <article className="metric-card">
-          <span>รออนุมัติ</span>
-          <strong>
-            {metrics?.pendingRequests ?? 0}
-          </strong>
-        </article>
-      </section>
-
-      <section
-        className="module-panel request-filter-panel"
-        aria-label="ตัวกรองสวัสดิการ"
-      >
-        <label>
-          <span>ประเภท</span>
-          <select
-            value={kindFilter}
-            onChange={(event) =>
-              setKindFilter(
-                event.currentTarget
-                  .value as BenefitKindFilter,
-              )
-            }
-          >
-            <option value="ALL">ทุกประเภท</option>
-            <option value="OVERTIME">โอที</option>
-            <option value="MEDICAL">
-              ค่ารักษาพยาบาล
-            </option>
-          </select>
-        </label>
-        <label>
-          <span>สถานะ</span>
-          <select
-            value={statusFilter}
-            onChange={(event) =>
-              setStatusFilter(
-                event.currentTarget
-                  .value as BenefitStatusFilter,
-              )
-            }
-          >
-            <option value="ALL">ทุกสถานะ</option>
-            <option value="PENDING">
-              รออนุมัติ
-            </option>
-            <option value="APPROVED">
-              อนุมัติแล้ว
-            </option>
-            <option value="REJECTED">
-              ไม่อนุมัติ
-            </option>
-            <option value="CANCELLED">
-              ยกเลิก
-            </option>
-          </select>
-        </label>
-      </section>
-
-      <section className="module-panel">
-        <div className="panel-heading">
           <div>
-            <p className="eyebrow">
-              BENEFIT ACTIVITY
-            </p>
-            <h2>ประวัติรายการ</h2>
+            <small>รออนุมัติ</small>
+            <b>{money.format(Math.max(entitlement.committed - entitlement.approved, 0))}</b>
           </div>
-          <span className="panel-note">
-            {visibleRequests.length} รายการ
-          </span>
+          <div>
+            <small>คงเหลือ</small>
+            <b className="hl">{money.format(entitlement.remaining)}</b>
+          </div>
         </div>
+        <div className="ck-track" style={{ marginTop: 14 }} title={"อนุมัติแล้ว " + approvedPercent.toFixed(0) + "%"}>
+          <i style={{ width: committedPercent + "%" }} />
+        </div>
+        <p className="ck-hint" style={{ margin: "8px 0 0" }}>
+          ใช้ไปแล้วรวมรออนุมัติ {committedPercent.toFixed(0)}% (อนุมัติแล้ว {approvedPercent.toFixed(0)}%)
+        </p>
+      </section>
 
+      <section className="ck-panel ck-c-ot" aria-labelledby="ben-history">
+        <SectionHead title="ประวัติ OT และค่ารักษา" id="ben-history" count={visibleRequests.length}>
+          <Filters value={kindFilter} options={KIND_FILTERS} onChange={setKindFilter} />
+          <Filters value={statusFilter} options={STATUS_FILTERS} onChange={setStatusFilter} />
+        </SectionHead>
         {visibleRequests.length === 0 ? (
-          <div className="empty-state">
-            <h3>ไม่พบรายการตามตัวกรอง</h3>
-            <p>
-              {overview.requests.length === 0
-                ? "เมื่อมีคำขอ OT หรือ Medical รายการจะปรากฏที่นี่"
-                : "ลองเปลี่ยนประเภทหรือสถานะที่เลือก"}
-            </p>
-          </div>
+          <EmptyState title="ไม่พบรายการ">
+            {overview.requests.length === 0 ? "เมื่อมีคำขอ OT หรือเบิกค่ารักษา รายการจะแสดงที่นี่" : "ลองเปลี่ยนประเภทหรือสถานะที่เลือก"}
+          </EmptyState>
         ) : (
-          <div className="benefits-history-list">
-            {visibleRequests.map((request) => (
-              <article
-                className="benefits-request-card"
-                key={request.id}
-              >
-                <div className="benefits-request-head">
-                  <div>
-                    <span
-                      className={
-                        "request-kind kind-" +
-                        request.kind.toLowerCase()
-                      }
-                    >
-                      {benefitKindLabel(request.kind)}
+          <div className="ck-hgrid">
+            {visibleRequests.map((request) => {
+              const isOt = request.kind === "OVERTIME";
+              return (
+                <Link key={request.id} href={benefitSourceHref(request.kind)} className={"ck-hcard " + (isOt ? "ck-c-ot" : "ck-c-med")}>
+                  <span className="ck-hc-top">
+                    <span className="ck-chip">
+                      <Icon name={isOt ? "ot" : "med"} />
                     </span>
-                    <strong>{request.reason}</strong>
-                  </div>
-                  <span
-                    className={
-                      "request-status status-" +
-                      request.status.toLowerCase()
-                    }
-                  >
-                    {benefitStatusLabel(
-                      request.status,
-                    )}
+                    <span>
+                      <b>{benefitValueLabel(request)}</b>
+                      <small>
+                        {benefitKindLabel(request.kind)} · ส่งเมื่อ {thaiDateTime(request.submittedAt)}
+                      </small>
+                    </span>
+                    <span className={"ck-pill " + (STATUS_TONE[request.status] ?? "muted")}>{benefitStatusLabel(request.status)}</span>
                   </span>
-                </div>
-
-                <div className="benefits-request-grid">
-                  <div>
-                    <span>วันที่</span>
-                    <strong>
-                      {formatDate(request.date)}
-                    </strong>
-                  </div>
-                  <div>
-                    <span>มูลค่า</span>
-                    <strong>
-                      {benefitValueLabel(request)}
-                    </strong>
-                  </div>
-                  <div>
-                    <span>ส่งเมื่อ</span>
-                    <strong>
-                      {formatDateTime(
-                        request.submittedAt,
-                      )}
-                    </strong>
-                  </div>
-                  <div>
-                    <span>เอกสารแนบ</span>
-                    <strong>
-                      {request.attachments.length}
-                    </strong>
-                  </div>
-                </div>
-
-                {request.startTime &&
-                request.endTime ? (
-                  <p className="panel-description">
-                    เวลา {request.startTime}–
-                    {request.endTime}
-                  </p>
-                ) : null}
-
-                {request.comment ? (
-                  <div className="decision-note">
-                    <strong>หมายเหตุผลพิจารณา</strong>
-                    <span>{request.comment}</span>
-                  </div>
-                ) : null}
-
-                <div className="benefits-request-actions">
-                  <Link
-                    className="secondary-button"
-                    href={benefitSourceHref(
-                      request.kind,
-                    )}
-                  >
-                    เปิดโมดูลต้นทาง
-                  </Link>
-                </div>
-              </article>
-            ))}
+                  <dl className="ck-dl">
+                    <div>
+                      <dt>วันที่</dt>
+                      <dd>{thaiDate(request.date)}</dd>
+                    </div>
+                    {request.startTime && request.endTime ? (
+                      <div>
+                        <dt>เวลา</dt>
+                        <dd>
+                          {request.startTime}–{request.endTime}
+                        </dd>
+                      </div>
+                    ) : null}
+                    <div>
+                      <dt>รายละเอียด</dt>
+                      <dd>{request.reason || "—"}</dd>
+                    </div>
+                    {request.comment ? (
+                      <div>
+                        <dt>หมายเหตุผู้อนุมัติ</dt>
+                        <dd>{request.comment}</dd>
+                      </div>
+                    ) : null}
+                    <div>
+                      <dt>เอกสารแนบ</dt>
+                      <dd>{request.attachments.length} ไฟล์</dd>
+                    </div>
+                  </dl>
+                  <span className="ck-hc-foot">
+                    <span className="ck-more">
+                      เปิดหน้ารายการ
+                      <Icon name="chevron" size={14} />
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>

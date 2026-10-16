@@ -779,3 +779,158 @@ button.ck-hcard:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgb
 .ck-anno small { color: var(--ck-ink3); margin-top: auto; }
 @media (max-width: 1100px) { .ck-qgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ck-two { grid-template-columns: 1fr; } .ck-agrid3, .ck-rgrid { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .ck-qgrid { grid-template-columns: 1fr; } }
+
+/* Admin settings pages (v18 look): white card, tinted header strip, soft navy controls. */
+.ck-admin.module-panel {
+  background: #fff;
+  border: 1px solid var(--ck-line);
+  border-radius: 14px;
+  padding: 0 26px 26px;
+  max-width: 980px;
+  box-shadow: none;
+}
+.ck-admin > h1,
+.ck-admin > h2:first-child {
+  margin: 0 -26px 20px;
+  padding: 16px 26px 14px;
+  font-size: 19px;
+  font-weight: 600;
+  background: var(--ck-accent-soft);
+  border-bottom: 1px solid var(--ck-line);
+  border-left: 4px solid var(--ck-accent);
+  border-radius: 14px 14px 0 0;
+  color: var(--ck-ink);
+}
+.ck-admin label { display: grid; gap: 6px; font-size: 14px; color: var(--ck-ink2); }
+.ck-admin input,
+.ck-admin select,
+.ck-admin textarea {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--ck-line);
+  border-radius: 10px;
+  font: inherit;
+  color: var(--ck-ink);
+  background: #fff;
+}
+.ck-admin textarea { height: auto; padding: 10px 12px; }
+.ck-admin input:focus,
+.ck-admin select:focus,
+.ck-admin textarea:focus { outline: 2px solid var(--ck-accent-soft); border-color: var(--ck-accent); }
+.ck-admin .primary-button,
+.ck-admin .secondary-button {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--ck-accent-soft);
+  color: var(--ck-accent);
+  border: 1px solid #c9d4ea;
+}
+.ck-admin .primary-button:hover,
+.ck-admin .secondary-button:hover { background: #dfe7f5; }
+.ck-admin .primary-button:disabled,
+.ck-admin .secondary-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.ck-admin table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ck-admin th { text-align: left; padding: 10px 12px; background: var(--ck-hover); color: var(--ck-ink2); font-weight: 600; border-bottom: 1px solid var(--ck-line); }
+.ck-admin td { padding: 10px 12px; border-bottom: 1px solid var(--ck-line2); }
+
+/* Remaining legacy pages (calendar, reports, profile, announcements...) pick up the v18 look inside the shell. */
+.ck-legacy { background: #fff; color: var(--ck-ink); font-family: inherit; }
+.ck-legacy .module-panel,
+.ck-legacy .production-calendar-panel {
+  background: #fff;
+  border: 1px solid var(--ck-line);
+  border-radius: 14px;
+  box-shadow: none;
+}
+.ck-legacy .module-panel > h2:first-child,
+.ck-legacy .production-report-heading,
+.ck-legacy .production-calendar-toolbar {
+  background: var(--ck-accent-soft);
+  border-bottom: 1px solid var(--ck-line);
+  border-left: 4px solid var(--ck-accent);
+  border-radius: 14px 14px 0 0;
+}
+.ck-legacy .module-heading h1 { font-size: 22px; font-weight: 600; color: var(--ck-ink); }
+.ck-legacy .eyebrow { color: var(--ck-gold); }
+.ck-legacy input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.ck-legacy select,
+.ck-legacy textarea {
+  border: 1px solid var(--ck-line);
+  border-radius: 10px;
+  font: inherit;
+  color: var(--ck-ink);
+  background: #fff;
+}
+.ck-legacy input:focus,
+.ck-legacy select:focus,
+.ck-legacy textarea:focus { outline: 2px solid var(--ck-accent-soft); border-color: var(--ck-accent); }
+.ck-legacy .primary-button,
+.ck-legacy .secondary-button,
+.ck-legacy .success-button {
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--ck-accent-soft);
+  color: var(--ck-accent);
+  border: 1px solid #c9d4ea;
+}
+.ck-legacy .success-button { background: var(--ck-ok-bg); color: var(--ck-ok); border-color: #bfe6cc; }
+.ck-legacy .primary-button:hover,
+.ck-legacy .secondary-button:hover { background: #dfe7f5; }
+.ck-legacy .data-table th { background: var(--ck-hover); color: var(--ck-ink2); font-weight: 600; border-bottom: 1px solid var(--ck-line); }
+.ck-legacy .data-table td { border-bottom: 1px solid var(--ck-line2); }
+.ck-legacy .production-report-card { background: #fff; border: 1px solid var(--ck-line); border-radius: 14px; box-shadow: none; }
+.ck-legacy .production-report-card:hover { border-color: var(--ck-accent); background: var(--ck-accent-soft); }
+.ck-legacy .production-calendar-toolbar,
+.ck-legacy .production-report-heading { padding: 16px 22px 14px; }
+.ck-legacy .production-calendar-nav-button {
+  background: var(--ck-accent-soft);
+  color: var(--ck-accent);
+  border: 1px solid #c9d4ea;
+  border-radius: 10px;
+}
+.ck-legacy .production-calendar-nav-button:hover { background: #dfe7f5; }
+.ck-legacy .production-calendar-panel { padding-bottom: 20px; }
+.ck-legacy .production-calendar-main { padding: 0 22px; }
+.ck-dp-sel { display: flex; gap: 6px; }
+.ck-dp-sel select { border: 1px solid var(--ck-line); border-radius: 8px; padding: 4px 6px; font: inherit; font-weight: 600; background: #fff; color: var(--ck-ink); }
+.ck-dp-day:disabled { color: #c3c8d2; background: repeating-linear-gradient(135deg, #f6f7f9, #f6f7f9 4px, #eef0f3 4px, #eef0f3 8px); cursor: not-allowed; }
+
+/* One page header for the whole system: the shell draws it, legacy page titles are hidden. */
+.ck-legacy .module-heading { display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 0; margin: 0 0 16px; background: none; border: 0; box-shadow: none; min-height: 0; }
+.ck-legacy .module-heading > div:first-child { display: none; }
+.ck-legacy .module-heading:not(:has(button, a, select, input)) { display: none; }
+.ck-legacy .ck-admin.module-panel > h1:first-child,
+.ck-legacy .ck-admin.module-panel > h2:first-child { display: none; }
+.ck-legacy .ck-admin.module-panel { padding: 26px; max-width: 980px; }
+.ck-legacy .module-panel { padding: 22px 26px; }
+.ck-legacy .module-stack { display: flex; flex-direction: column; gap: 24px; }
+.ck-legacy .module-panel h2,
+.ck-legacy .production-management-panel-head h1,
+.ck-legacy .production-report-heading h2 {
+  display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 600; margin: 0 0 4px; color: var(--ck-ink);
+}
+.ck-legacy .module-panel h2::before,
+.ck-legacy .production-management-panel-head h1::before,
+.ck-legacy .production-report-heading h2::before {
+  content: ""; width: 4px; height: 20px; border-radius: 3px; background: var(--ck-accent); flex: none;
+}
+.ck-legacy .module-panel > h2:first-child,
+.ck-legacy .production-report-heading,
+.ck-legacy .production-calendar-toolbar { background: none; border: 0; border-radius: 0; padding: 0 0 12px; }
+.ck-legacy .production-management-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.ck-legacy .summary-card,
+.ck-legacy .production-report-summary article,
+.ck-legacy .task396-report-overview-summary article {
+  background: #fff; border: 1px solid var(--ck-line); border-top: 3px solid var(--ck-accent); border-radius: 14px; box-shadow: none;
+}
+.ck-legacy .production-calendar-toolbar { padding: 0 0 14px; border-bottom: 1px solid var(--ck-line2); }
+.ck-legacy .production-calendar-panel { padding: 22px 26px; }
+.ck-legacy .production-calendar-main { padding: 0; }
+.ck-legacy .status-badge,
+.ck-legacy .request-status { border-radius: 999px; font-weight: 600; }

@@ -17,6 +17,7 @@ import {
   decideErrorMessage,
   decisionEndpoint,
   decisionPayload,
+  withdrawEndpoint,
   initials,
   KIND_LABEL,
   KIND_TONE,
@@ -60,7 +61,7 @@ export default function DesktopApprovalsPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [detail, setDetail] = useState<ApprovalHistoryItem | null>(null);
-  const [canWithdraw, setCanWithdraw] = useState(false);
+  const [withdrawKinds, setWithdrawKinds] = useState<ReadonlySet<string>>(new Set());
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -91,10 +92,27 @@ export default function DesktopApprovalsPage() {
   useEffect(() => {
     void fetch("/api/security/session", { credentials: "same-origin", cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
-      .then((session: { navigation?: { leaveWithdraw?: boolean } } | null) => {
-        setCanWithdraw(session?.navigation?.leaveWithdraw === true);
-      })
-      .catch(() => setCanWithdraw(false));
+      .then(
+        (
+          session: {
+            navigation?: {
+              leaveWithdraw?: boolean;
+              overtimeWithdraw?: boolean;
+              medicalWithdraw?: boolean;
+              timeCorrectionWithdraw?: boolean;
+            };
+          } | null,
+        ) => {
+          const nav = session?.navigation;
+          const kinds = new Set<string>();
+          if (nav?.leaveWithdraw) kinds.add("LEAVE");
+          if (nav?.overtimeWithdraw) kinds.add("OVERTIME");
+          if (nav?.medicalWithdraw) kinds.add("MEDICAL");
+          if (nav?.timeCorrectionWithdraw) kinds.add("TIME_CORRECTION");
+          setWithdrawKinds(kinds);
+        },
+      )
+      .catch(() => setWithdrawKinds(new Set()));
   }, []);
 
   // each approval type is its own page, selected by the menu link hash
@@ -117,14 +135,35 @@ export default function DesktopApprovalsPage() {
     [state, kind, decisionFilter],
   );
 
+  async function approveAllOvertime() {
+    if (busyId || !window.confirm("อนุมัติคำขอ OT ที่รอคุณทั้งหมดในครั้งเดียว?")) return;
+    setBusyId("bulk-ot");
+    setMessage(null);
+    try {
+      const response = await fetch("/api/overtime/approve-all", { method: "POST", credentials: "same-origin" });
+      if (!response.ok) throw new Error(decideErrorMessage(response.status));
+      const result = (await response.json()) as { approved: number; failed: readonly { requestId: string; reason: string }[] };
+      setMessage(
+        result.failed.length === 0
+          ? { kind: "success", text: "อนุมัติ OT เรียบร้อย " + result.approved + " รายการ" }
+          : { kind: "error", text: "อนุมัติได้ " + result.approved + " รายการ ไม่สำเร็จ " + result.failed.length + " รายการ (" + result.failed[0]?.reason + ")" },
+      );
+      await load();
+    } catch (error) {
+      setMessage({ kind: "error", text: error instanceof Error ? error.message : "อนุมัติ OT ทั้งหมดไม่สำเร็จ" });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   async function withdrawApproved(item: ApprovalHistoryItem) {
     if (busyId) return;
-    const reason = window.prompt("ระบุเหตุผลที่ถอนใบลาที่อนุมัติแล้ว (จำเป็น)")?.trim();
+    const reason = window.prompt("ระบุเหตุผลที่ถอน" + KIND_LABEL[item.kind] + "ที่อนุมัติแล้ว (จำเป็น)")?.trim();
     if (!reason) return;
     setBusyId(item.requestId);
     setMessage(null);
     try {
-      const response = await fetch("/api/leave/requests/" + encodeURIComponent(item.requestId) + "/withdraw", {
+      const response = await fetch(withdrawEndpoint(item), {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
@@ -201,7 +240,13 @@ export default function DesktopApprovalsPage() {
         <Message value={message} />
 
         <section className={"ck-panel ck-c-" + headTone} aria-labelledby="ap-pending">
-          <SectionHead title="รออนุมัติ" id="ap-pending" count={pendingRows.length} />
+          <SectionHead title="รออนุมัติ" id="ap-pending" count={pendingRows.length}>
+            {kind === "OVERTIME" && pendingRows.length > 1 ? (
+              <button type="button" className="ck-btn ok" disabled={busyId !== null} onClick={() => void approveAllOvertime()}>
+                อนุมัติ OT ทั้งหมด ({pendingRows.length})
+              </button>
+            ) : null}
+          </SectionHead>
           {pendingRows.length === 0 ? (
             <EmptyState title="ไม่มีคำขอที่รออนุมัติ">คำขอที่ส่งถึงคุณจะแสดงที่นี่</EmptyState>
           ) : (
@@ -257,11 +302,9 @@ export default function DesktopApprovalsPage() {
                       <button type="button" className="ck-btn no" disabled={busyId !== null} onClick={() => void decide(request, "REJECTED")}>
                         ไม่อนุมัติ
                       </button>
-                      {request.kind === "LEAVE" ? (
-                        <button type="button" className="ck-btn" disabled={busyId !== null} onClick={() => void decide(request, "REVISION_REQUESTED")}>
-                          ส่งกลับให้แก้ไข
-                        </button>
-                      ) : null}
+                      <button type="button" className="ck-btn" disabled={busyId !== null} onClick={() => void decide(request, "REVISION_REQUESTED")}>
+                        ส่งกลับให้แก้ไข
+                      </button>
                     </div>
                   </article>
                 );
@@ -350,7 +393,7 @@ export default function DesktopApprovalsPage() {
             <h3>ความเห็นของผู้อนุมัติ</h3>
             <p>{detail.comment || "—"}</p>
           </div>
-          {canWithdraw && detail.kind === "LEAVE" && detail.decision === "APPROVED" ? (
+          {withdrawKinds.has(detail.kind) && detail.decision === "APPROVED" ? (
             <div className="ck-dlg-sec">
               <button type="button" className="ck-btn no" disabled={busyId !== null} onClick={() => void withdrawApproved(detail)}>
                 ถอนใบลาที่อนุมัติแล้ว

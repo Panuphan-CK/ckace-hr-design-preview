@@ -58,6 +58,8 @@ class FakeLeaveRepository implements LeaveRepository {
     return {
       entitlements: [],
       requests: [],
+      holidays: [],
+      workingWeekdays: [1, 2, 3, 4, 5],
     };
   }
 

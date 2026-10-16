@@ -125,6 +125,8 @@ function clip(value: string, max: number): string {
 
 export function notificationText(input: NotificationTextInput): NotificationText {
   const label = input.requestLabel ?? "คำขอ";
+  // Thai text does not use spaces, but a Latin label such as "คำขอ OT" must be separated from what follows.
+  const spaced = /[A-Za-z0-9]$/.test(label) ? label + " " : label;
   const no = input.requestNo ? ` ${input.requestNo}` : "";
   const who = input.requesterName ? ` ของ ${input.requesterName}` : "";
   const summary = input.summary ? `\n${clip(input.summary, 160)}` : "";
@@ -132,24 +134,24 @@ export function notificationText(input: NotificationTextInput): NotificationText
 
   switch (input.kind) {
     case "REQUEST_WAITING":
-      return { title: `มี${label}รออนุมัติ${no}`, body: `มี${label}${no}${who} รอคุณพิจารณา${summary}` };
+      return { title: `มี${spaced}รออนุมัติ${no}`, body: `มี${label}${no}${who} รอคุณพิจารณา${summary}` };
     case "REQUEST_APPROVED":
-      return { title: `${label}อนุมัติแล้ว${no}`, body: `${label}${no}ของคุณได้รับการอนุมัติแล้ว${summary}` };
+      return { title: `${spaced}อนุมัติแล้ว${no}`, body: `${label}${no} ของคุณได้รับการอนุมัติแล้ว${summary}` };
     case "REQUEST_REJECTED":
-      return { title: `${label}ไม่ได้รับอนุมัติ${no}`, body: `${label}${no}ของคุณไม่ได้รับอนุมัติ${summary}${comment}` };
+      return { title: `${spaced}ไม่ได้รับอนุมัติ${no}`, body: `${label}${no} ของคุณไม่ได้รับอนุมัติ${summary}${comment}` };
     case "REQUEST_REVISION":
       return {
-        title: `${label}ถูกส่งกลับให้แก้ไข${no}`,
-        body: `${label}${no}ของคุณถูกส่งกลับให้แก้ไข กรุณาแก้ไขแล้วส่งใหม่${summary}${comment}`,
+        title: `${spaced}ถูกส่งกลับให้แก้ไข${no}`,
+        body: `${label}${no} ของคุณถูกส่งกลับให้แก้ไข กรุณาแก้ไขแล้วส่งใหม่${summary}${comment}`,
       };
     case "REQUEST_WITHDRAWN":
       return {
-        title: `${label}ถูกถอนการอนุมัติ${no}`,
-        body: `${label}${no}ของคุณถูกถอนการอนุมัติโดยผู้ดูแลระดับสูง${summary}${comment}`,
+        title: `${spaced}ถูกถอนการอนุมัติ${no}`,
+        body: `${label}${no} ของคุณถูกถอนการอนุมัติโดยผู้ดูแลระดับสูง${summary}${comment}`,
       };
     case "APPROVAL_REMINDER":
       return {
-        title: `เตือน: ${label}ค้างอนุมัติ${no}`,
+        title: `เตือน: ${spaced}ค้างอนุมัติ${no}`,
         body: `${label}${no}${who} ค้างรอคุณพิจารณามาแล้ว ${Math.max(1, Math.floor(input.hoursPending ?? 24))} ชั่วโมง${summary}`,
       };
     case "DELEGATION_RECEIVED":

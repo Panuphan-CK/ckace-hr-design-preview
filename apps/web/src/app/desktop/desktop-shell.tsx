@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  InboxOverview,
   RequestStatusOverview,
   SelfProfileResponse,
 } from "@ckace/contracts";
@@ -11,6 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { requestDesktopLogout } from "./logout-request";
 import { Icon, type IconName } from "./ui/icons";
+import { PageHead, type Tone as PageTone } from "./ui/kit";
 import "./ui/ck.css";
 
 interface NavigationCapabilities {
@@ -19,6 +21,10 @@ interface NavigationCapabilities {
   approvals: boolean;
   leaveApprovals: boolean;
   leaveWithdraw: boolean;
+  overtimeWithdraw: boolean;
+  medicalWithdraw: boolean;
+  timeCorrectionWithdraw: boolean;
+  delegation: boolean;
   timeCorrectionApprovals: boolean;
   overtimeApprovals: boolean;
   medicalApprovals: boolean;
@@ -99,7 +105,6 @@ const SECTIONS: readonly FlySection[] = [
       { id: "time-correction", label: "แก้ไขเวลา", href: "/desktop/time-correction", icon: "time", tone: "time", capability: "attendance" },
       { id: "medical", label: "เบิกค่ารักษา", href: "/desktop/medical", icon: "med", tone: "med", capability: "medical" },
       { id: "attendance", label: "ลงเวลาเข้าออก", href: "/desktop/attendance", icon: "clock", tone: "time", capability: "attendance", group: "บันทึกเวลาและสิทธิ" },
-      { id: "benefits", label: "สิทธิและสวัสดิการ", href: "/desktop/benefits", icon: "med", tone: "med", capability: "benefits", group: "บันทึกเวลาและสิทธิ" },
     ],
   },
   {
@@ -112,6 +117,7 @@ const SECTIONS: readonly FlySection[] = [
       { id: "approval-overtime", label: "ทำงานล่วงเวลา", href: "/desktop/approvals#overtime", icon: "ot", tone: "ot", capability: "overtimeApprovals", countKey: "OVERTIME" },
       { id: "approval-time", label: "แก้ไขเวลา", href: "/desktop/approvals#time-correction", icon: "time", tone: "time", capability: "timeCorrectionApprovals", countKey: "TIME_CORRECTION" },
       { id: "approval-medical", label: "เบิกค่ารักษา", href: "/desktop/approvals#medical", icon: "med", tone: "med", capability: "medicalApprovals", countKey: "MEDICAL" },
+      { id: "delegation", label: "ผู้อนุมัติแทน", href: "/desktop/delegation", icon: "users", tone: "biz", capability: "delegation" },
       { id: "onboarding", label: "สมาชิกใหม่รออนุมัติ", href: "/desktop/onboarding", icon: "users", tone: "biz", capability: "onboarding", group: "บัญชีผู้ใช้" },
     ],
   },
@@ -151,7 +157,27 @@ const SECTIONS: readonly FlySection[] = [
 ];
 
 /** Pages already rebuilt on the ck- design system render edge to edge; the rest keep their legacy padding. */
-const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop", "/desktop/leave", "/desktop/overtime", "/desktop/medical", "/desktop/time-correction", "/desktop/attendance", "/desktop/approvals"]);
+const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop", "/desktop/delegation", "/desktop/leave", "/desktop/overtime", "/desktop/medical", "/desktop/time-correction", "/desktop/attendance", "/desktop/approvals"]);
+
+/** Page header for pages that are not yet rebuilt: one consistent band across the whole system. */
+const LEGACY_HEADS: readonly { readonly path: string; readonly tone: PageTone; readonly icon: IconName; readonly title: string; readonly subtitle: string }[] = [
+  { path: "/desktop/admin/management", tone: "gray", icon: "building", title: "จัดการข้อมูลองค์กร", subtitle: "พนักงาน บริษัท ทีม แผนก วันหยุด และสิทธิ์" },
+  { path: "/desktop/admin/professional-roles", tone: "gray", icon: "audit", title: "บทบาทวิชาชีพ", subtitle: "ผู้ทำบัญชี ผู้รับผิดชอบงาน ผู้สอบบัญชี และการยกเว้นลงเวลา" },
+  { path: "/desktop/admin/approval-policies", tone: "gray", icon: "flow", title: "สายอนุมัติ", subtitle: "กำหนดลำดับผู้อนุมัติของคำขอแต่ละประเภท" },
+  { path: "/desktop/admin/overtime-allowance", tone: "ot", icon: "ot", title: "ค่าข้าวและค่ารถ OT", subtitle: "เงื่อนไขและจำนวนเงินที่จ่ายเมื่อเลิกงานดึก" },
+  { path: "/desktop/admin/medical-policy", tone: "med", icon: "med", title: "วงเงินค่ารักษา", subtitle: "วงเงินต่อปีและต่อครั้งของการเบิกค่ารักษา" },
+  { path: "/desktop/admin/attendance-policy", tone: "time", icon: "clock", title: "นโยบายลงเวลา", subtitle: "ที่ตั้งสำนักงาน เวลาเข้า-เลิกงาน และเวลาพัก" },
+  { path: "/desktop/admin", tone: "gray", icon: "gear", title: "ตั้งค่าระบบ", subtitle: "การตั้งค่าและประชาสัมพันธ์ของระบบ" },
+  { path: "/desktop/announcements", tone: "ot", icon: "megaphone", title: "ข่าวประกาศ", subtitle: "ข่าวสารและประกาศของบริษัท" },
+  { path: "/desktop/calendar", tone: "leave", icon: "calendar", title: "ปฏิทินการลา", subtitle: "ดูวันลาของพนักงานทั้งเดือน" },
+  { path: "/desktop/reports", tone: "accent", icon: "chart", title: "รายงาน", subtitle: "วิเคราะห์เฉพาะข้อมูลที่อนุมัติหรือบันทึกครบแล้ว" },
+  { path: "/desktop/benefits", tone: "med", icon: "med", title: "สิทธิและสวัสดิการ", subtitle: "วงเงินค่ารักษาและประวัติการใช้สิทธิ" },
+  { path: "/desktop/profile", tone: "biz", icon: "user", title: "โปรไฟล์ของฉัน", subtitle: "ข้อมูลส่วนตัว บัญชี และลายเซ็น" },
+  { path: "/desktop/requests", tone: "gray", icon: "document", title: "สถานะคำขอ", subtitle: "คำขอทุกประเภทของคุณในที่เดียว" },
+  { path: "/desktop/notifications", tone: "gray", icon: "bell", title: "การส่งแจ้งเตือน", subtitle: "สถานะการส่งข้อความผ่าน LINE และอีเมล" },
+  { path: "/desktop/inbox", tone: "gray", icon: "bell", title: "กล่องแจ้งเตือน", subtitle: "ข้อความแจ้งเตือนถึงคุณ" },
+  { path: "/desktop/onboarding", tone: "biz", icon: "users", title: "สมาชิกใหม่รออนุมัติ", subtitle: "อนุมัติบัญชีพนักงานที่สมัครเข้ามา" },
+];
 
 function isActive(href: string, pathname: string, hash: string): boolean {
   const [path = href, hashPart] = href.split("#", 2);
@@ -180,11 +206,23 @@ const TONE_CLASS: Record<Tone, string> = {
   accent: "ck-c-accent",
 };
 
+/** "5 นาทีที่แล้ว" style age for the bell list. */
+function thaiAgo(iso: string): string {
+  const minutes = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000));
+
+  if (minutes < 1) return "เมื่อสักครู่";
+  if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
+  if (minutes < 24 * 60) return `${Math.floor(minutes / 60)} ชั่วโมงที่แล้ว`;
+
+  return `${Math.floor(minutes / (24 * 60))} วันที่แล้ว`;
+}
+
 export function DesktopShell({ children }: { readonly children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [state, setState] = useState<SessionState>({ status: "loading" });
   const [profile, setProfile] = useState<SelfProfileResponse | null>(null);
+  const [inbox, setInbox] = useState<InboxOverview | null>(null);
   const [pendingByKind, setPendingByKind] = useState<Readonly<Record<string, number>>>({});
   const [hash, setHash] = useState("");
   const [openSection, setOpenSection] = useState<SectionId | null>(null);
@@ -241,6 +279,43 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
       cancelled = true;
     };
   }, [navigation?.profile]);
+
+  // In-app inbox (bell): refreshed on navigation and every minute while the tab is open.
+  useEffect(() => {
+    if (!navigation?.profile) return;
+    let cancelled = false;
+    const load = () =>
+      void fetch("/api/inbox/me", { credentials: "same-origin", cache: "no-store" })
+        .then((response) => (response.ok ? (response.json() as Promise<InboxOverview>) : null))
+        .then((value) => {
+          if (!cancelled && value) setInbox(value);
+        })
+        .catch(() => undefined);
+    load();
+    const timer = window.setInterval(load, 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [navigation?.profile, pathname]);
+
+  async function markInboxRead() {
+    try {
+      const response = await fetch("/api/inbox/read", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (response.ok) {
+        setInbox((current) =>
+          current ? { unread: 0, items: current.items.map((item) => ({ ...item, read: true })) } : current,
+        );
+      }
+    } catch {
+      /* the next refresh shows the real state */
+    }
+  }
 
   useEffect(() => {
     if (!navigation?.approvals) return;
@@ -369,7 +444,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
           onClick={() => setPopover((current) => (current === "me" ? null : "me"))}
         >
           <span className="ck-av">{initials(profile?.fullName)}</span>
-          {totalPending > 0 ? <span className="ck-badge">{totalPending}</span> : null}
+          {(inbox?.unread ?? 0) > 0 ? <span className="ck-badge">{inbox?.unread}</span> : null}
           <span className="ck-tip">{displayName}</span>
         </button>
         <div className="ck-rail-gap" />
@@ -448,7 +523,36 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
             </span>
           </div>
           <div className="ck-pop-hr" />
-          <div className="ck-pop-t">การแจ้งเตือน</div>
+          <div className="ck-pop-t" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>การแจ้งเตือน{(inbox?.unread ?? 0) > 0 ? ` (${inbox?.unread} ใหม่)` : ""}</span>
+            {(inbox?.unread ?? 0) > 0 ? (
+              <button type="button" className="ck-btn quiet" style={{ padding: "2px 8px", fontSize: 12 }} onClick={() => void markInboxRead()}>
+                อ่านทั้งหมด
+              </button>
+            ) : null}
+          </div>
+          {(inbox?.items ?? []).slice(0, 5).map((item) => (
+            <Link
+              key={item.id}
+              className="ck-pop-link"
+              href="/desktop/inbox"
+              onClick={() => setPopover(null)}
+              style={{ alignItems: "flex-start", fontWeight: item.read ? 400 : 600 }}
+            >
+              <Icon name="bell" size={17} />
+              <span style={{ display: "grid" }}>
+                <span>{item.title}</span>
+                <small style={{ opacity: 0.7, fontWeight: 400 }}>{thaiAgo(item.createdAt)}</small>
+              </span>
+            </Link>
+          ))}
+          {inbox && inbox.items.length === 0 ? (
+            <div className="ck-pop-t" style={{ paddingTop: 0 }}>ยังไม่มีการแจ้งเตือน</div>
+          ) : null}
+          <Link className="ck-pop-link" href="/desktop/inbox" onClick={() => setPopover(null)}>
+            <Icon name="bell" size={17} />
+            กล่องแจ้งเตือนทั้งหมด
+          </Link>
           {totalPending > 0 ? (
             <Link className="ck-pop-link" href="/desktop/approvals" onClick={() => setPopover(null)}>
               <Icon name="check" size={17} />
@@ -500,7 +604,13 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
         {REDESIGNED_PATHS.has(pathname) ? (
           children
         ) : (
-          <div className="ck-legacy desktop-content main-content task396-content">{children}</div>
+          <>
+            {(() => {
+              const head = LEGACY_HEADS.find((item) => pathname === item.path || pathname.startsWith(item.path + "/"));
+              return head ? <PageHead tone={head.tone} icon={head.icon} title={head.title} subtitle={head.subtitle} /> : null;
+            })()}
+            <div className="ck-legacy ck-wrap desktop-content main-content task396-content">{children}</div>
+          </>
         )}
       </main>
     </div>

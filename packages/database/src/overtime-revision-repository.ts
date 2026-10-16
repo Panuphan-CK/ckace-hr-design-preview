@@ -6,6 +6,7 @@ import {
   type ExistingOvertimeWindow,
 } from "@ckace/business-rules";
 import type {
+  OvertimeBreakCode,
   OvertimeResubmitInput,
   OvertimeResubmitResult,
   OvertimeWithdrawResult,
@@ -102,7 +103,7 @@ export async function resubmitSentBackOvertime(
           status: true,
           approvalInstanceId: true,
           segments: {
-            select: { id: true, workDate: true },
+            select: { id: true, workDate: true, breakCodes: true },
             orderBy: { id: "asc" },
           },
         },
@@ -146,6 +147,11 @@ export async function resubmitSentBackOvertime(
       }
 
       const date = dateOnly(segment.workDate);
+      // Breaks that are not re-sent keep the employee's earlier choice (null = legacy default).
+      const storedBreaks = Array.isArray(segment.breakCodes)
+        ? (segment.breakCodes as OvertimeBreakCode[])
+        : undefined;
+      const effectiveBreaks = input.request.breaks ?? storedBreaks;
       const normalized = normalizeOvertimeCreate({
         startDate: date,
         endDate: date,
@@ -153,7 +159,7 @@ export async function resubmitSentBackOvertime(
         endTime: input.request.endTime,
         reason: input.request.reason,
         clientKey: input.request.clientKey,
-        ...(input.request.breaks ? { breaks: input.request.breaks } : {}),
+        ...(effectiveBreaks ? { breaks: effectiveBreaks } : {}),
       });
       const [day] = expandOvertimeDays(normalized, [{ date, isWorkday: await isWorkday(tx, date) }]);
 
@@ -191,7 +197,7 @@ export async function resubmitSentBackOvertime(
           startTime: new Date(`1970-01-01T${day.startTime}:00.000Z`),
           endTime: new Date(`1970-01-01T${day.endTime}:00.000Z`),
           requestedMinutes: day.requestedMinutes,
-          ...(normalized.breaks ? { breakCodes: [...normalized.breaks] } : { breakCodes: Prisma.JsonNull }),
+          ...(input.request.breaks && normalized.breaks ? { breakCodes: [...normalized.breaks] } : {}),
         },
       });
       await tx.overtimeRequest.update({

@@ -54,6 +54,11 @@ describe("notification text", () => {
     expect(text.body).toContain("…");
   });
 
+  it("separates a Latin request label from the Thai text that follows", () => {
+    expect(notificationText({ kind: "REQUEST_WAITING", requestNo: "OT-0001", requestLabel: "คำขอ OT" }).title).toBe("มีคำขอ OT รออนุมัติ OT-0001");
+    expect(notificationText({ kind: "REQUEST_APPROVED", requestNo: "OT-0001", requestLabel: "คำขอ OT" }).body).toContain("OT-0001 ของคุณ");
+  });
+
   it("states how long a reminder has been waiting", () => {
     expect(notificationText({ kind: "APPROVAL_REMINDER", requestNo: "MED-0001", requestLabel: "คำขอเบิกค่ารักษา", hoursPending: 49.7 }).body).toContain("49 ชั่วโมง");
   });

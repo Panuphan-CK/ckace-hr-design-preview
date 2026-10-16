@@ -55,6 +55,7 @@ export function DatePicker({
   label,
   min,
   max,
+  blocked,
 }: {
   readonly mode: "single" | "range";
   readonly start: string;
@@ -63,6 +64,8 @@ export function DatePicker({
   readonly label: string;
   readonly min?: string | undefined;
   readonly max?: string | undefined;
+  /** Days that cannot be picked (e.g. weekends and company holidays). */
+  readonly blocked?: ((iso: string) => boolean) | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const [picking, setPicking] = useState<string | null>(null);
@@ -155,9 +158,30 @@ export function DatePicker({
             <button type="button" aria-label="เดือนก่อนหน้า" onClick={() => shift(-1)}>
               <Icon name="back" size={18} />
             </button>
-            <b>
-              {MONTHS_FULL[view.month]} {view.year + 543}
-            </b>
+            <span className="ck-dp-sel">
+              <select
+                aria-label="เดือน"
+                value={view.month}
+                onChange={(event) => setView({ ...view, month: Number(event.currentTarget.value) })}
+              >
+                {MONTHS_FULL.map((name, index) => (
+                  <option key={name} value={index}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <select
+                aria-label="ปี พ.ศ."
+                value={view.year}
+                onChange={(event) => setView({ ...view, year: Number(event.currentTarget.value) })}
+              >
+                {Array.from({ length: 111 }, (_, index) => new Date().getFullYear() + 10 - index).map((year) => (
+                  <option key={year} value={year}>
+                    {year + 543}
+                  </option>
+                ))}
+              </select>
+            </span>
             <button type="button" aria-label="เดือนถัดไป" onClick={() => shift(1)}>
               <Icon name="chevron" size={18} />
             </button>
@@ -170,7 +194,7 @@ export function DatePicker({
             ))}
             {monthGrid(view.year, view.month).map((iso, index) => {
               if (!iso) return <span key={"pad" + index} />;
-              const disabled = Boolean((min && iso < min) || (max && iso > max));
+              const disabled = Boolean((min && iso < min) || (max && iso > max) || blocked?.(iso));
               const weekend = index % 7 >= 5;
               const inRange = Boolean(lo && hi && iso >= lo && iso <= hi);
               const edge = iso === lo || iso === hi;
@@ -209,5 +233,47 @@ export function DatePicker({
         </div>
       ) : null}
     </span>
+  );
+}
+
+/** Drop-in replacement for <input type="date">: click-only calendar, shown as DD/MM/YYYY (Buddhist year). */
+export function DateField({
+  name,
+  form,
+  value,
+  defaultValue,
+  onChange,
+  label,
+  min,
+  max,
+}: {
+  readonly name?: string | undefined;
+  readonly form?: string | undefined;
+  readonly value?: string | undefined;
+  readonly defaultValue?: string | undefined;
+  readonly onChange?: ((value: string) => void) | undefined;
+  readonly label: string;
+  readonly min?: string | undefined;
+  readonly max?: string | undefined;
+}) {
+  const [inner, setInner] = useState(defaultValue ?? "");
+  const current = value ?? inner;
+
+  return (
+    <>
+      <DatePicker
+        mode="single"
+        label={label}
+        start={current}
+        end={current}
+        min={min}
+        max={max}
+        onChange={(next) => {
+          setInner(next);
+          onChange?.(next);
+        }}
+      />
+      {name ? <input type="hidden" name={name} form={form} value={current} /> : null}
+    </>
   );
 }

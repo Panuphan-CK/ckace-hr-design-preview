@@ -1,5 +1,6 @@
 "use client";
 
+import { DateField } from "../../ui/date-picker";
 import type {
   LeaveEntitlementAdminItem,
   LeaveEntitlementOptions,
@@ -1464,8 +1465,8 @@ export default function DesktopManagementPage() {
               required
               placeholder="จำนวน"
             />
-            <input className="form-input" name="validFrom" type="date" />
-            <input className="form-input" name="validTo" type="date" />
+            <DateField label="เริ่มมีผล" name="validFrom" />
+            <DateField label="สิ้นสุด" name="validTo" />
             <button
               className="success-button"
               disabled={
@@ -1540,7 +1541,7 @@ export default function DesktopManagementPage() {
                 className="production-inline-create production-holiday-create"
                 onSubmit={(event) => void upsertHoliday(event)}
               >
-                <input className="form-input" name="holidayDate" type="date" required />
+                <DateField label="วันหยุด" name="holidayDate" />
                 <input
                   className="form-input"
                   name="description"
@@ -1577,14 +1578,7 @@ export default function DesktopManagementPage() {
                     <tr key={item.id}>
                       <td title={item.id}>{compactId(item.id)}</td>
                       <td>
-                        <input
-                          className="production-table-input"
-                          form={formId}
-                          name="holidayDate"
-                          type="date"
-                          defaultValue={item.holidayDate}
-                          required
-                        />
+                        <DateField label="วันหยุด" name="holidayDate" form={formId} defaultValue={item.holidayDate} />
                       </td>
                       <td>
                         <input

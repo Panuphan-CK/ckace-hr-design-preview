@@ -18,6 +18,7 @@ import {
   profileInitials,
   type ProfileNavigationCapabilities,
 } from "./profile-view";
+import { PasswordChangeCard } from "./password-change-card";
 
 interface SessionSnapshot {
   readonly authenticated: true;
@@ -498,11 +499,13 @@ export default function DesktopProfilePage() {
         </p>
       </section>
 
+      <PasswordChangeCard />
+
       <section className="profile-readonly-note">
-        <strong>ขอบเขต M9D.11</strong>
+        <strong>ขอบเขตของหน้านี้</strong>
         <span>
-          หน้า Profile เป็น read-only ตาม contract ปัจจุบัน
-          ยังไม่มีการแก้ชื่อ บัญชี รหัสผ่าน รูปโปรไฟล์ หรือลายเซ็นจากหน้านี้
+          เปลี่ยนรหัสผ่านของตัวเองได้จากหน้านี้ ส่วนชื่อ บัญชี รูปโปรไฟล์ และลายเซ็น
+          ยังแก้ไขจากหน้านี้ไม่ได้ในตอนนี้
         </span>
       </section>
     </div>

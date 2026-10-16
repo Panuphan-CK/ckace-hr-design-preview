@@ -59,7 +59,7 @@ export default function AttendancePolicyPage() {
   if (policy === undefined) return <p role="status">กำลังโหลด…</p>;
 
   return (
-    <div className="module-panel fade-in">
+    <div className="module-panel fade-in ck-admin">
       <h1>นโยบายลงเวลาเข้า-ออกงาน</h1>
       <p>
         พิกัดและรัศมีของสำนักงาน เวลาเข้างานที่นับว่าสาย เวลาเลิกงานที่นับว่าออกก่อน และเวลาพักที่หักจากเวลาทำงาน

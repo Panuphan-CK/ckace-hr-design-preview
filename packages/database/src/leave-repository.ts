@@ -29,7 +29,7 @@ import {
 } from "@prisma/client";
 
 import { resolveCompanyApprovalRoute } from "./approval-route-loader";
-import { actorMayDecideStep } from "./approval-delegation";
+import { actorMayDecideStep, bangkokToday } from "./approval-delegation";
 import {
   overlapPeriodOf,
   resubmitSentBackLeave,
@@ -422,7 +422,14 @@ export class PrismaLeaveRepository implements LeaveRepository {
 
     const [entitlements, requests, calendar] = await Promise.all([
       this.prisma.leaveEntitlement.findMany({
-        where: { employeeId },
+        // Balance cards show only entitlements valid today (calendar-year grants do not pile up).
+        where: {
+          employeeId,
+          AND: [
+            { OR: [{ validFrom: null }, { validFrom: { lte: bangkokToday() } }] },
+            { OR: [{ validTo: null }, { validTo: { gte: bangkokToday() } }] },
+          ],
+        },
         select: {
           id: true,
           quota: true,
@@ -539,6 +546,8 @@ export class PrismaLeaveRepository implements LeaveRepository {
         };
       }),
       requests: requestViews,
+      holidays: [...calendar.holidayDates].sort(),
+      workingWeekdays: [...calendar.workingIsoWeekdays].sort((a, b) => a - b),
     };
   }
 

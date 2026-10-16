@@ -8,7 +8,9 @@ import { resolveSubmissionIntent, shouldDiscardSubmissionIntent, type Submission
 import { thaiDate, thaiDateTime } from "../ui/format";
 import { Icon } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
+import { ApproverChainNotice } from "../ui/approver-chain";
 import { RequestTimelineSection } from "../ui/request-timeline";
+import { ResubmitPanel, type ResubmitOutcome } from "../ui/resubmit-panel";
 import {
   bangkokMonthKey,
   CORRECTION_STATUS,
@@ -122,8 +124,26 @@ export default function DesktopTimeCorrectionPage() {
     }
   }
 
+  async function resubmit(request: TimeCorrectionRequestView, values: Record<string, string>, clientKey: string): Promise<ResubmitOutcome> {
+    try {
+      const response = await fetch(`/api/attendance/time-corrections/${encodeURIComponent(request.requestId)}/resubmit`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ clientKey, correctedTime: values.correctedTime, reason: values.reason }),
+      });
+      if (!response.ok) return { ok: false, status: response.status, message: correctionErrorMessage(response.status, "create") };
+      setDetail(null);
+      setMessage({ kind: "success", text: "ส่งคำขอแก้ไขเวลาที่แก้ไขแล้วกลับไปให้ผู้อนุมัติเรียบร้อยแล้ว" });
+      await load();
+      return { ok: true };
+    } catch {
+      return { ok: false, status: 503, message: "ส่งไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" };
+    }
+  }
+
   async function cancel(request: TimeCorrectionRequestView) {
-    if (busy || request.status !== "PENDING" || !window.confirm("ยืนยันยกเลิกคำขอแก้ไขเวลานี้?")) return;
+    if (busy || (request.status !== "PENDING" && request.status !== "REVISION_REQUESTED") || !window.confirm("ยืนยันยกเลิกคำขอแก้ไขเวลานี้?")) return;
     setBusy(request.requestId);
     setMessage(null);
     try {
@@ -227,20 +247,7 @@ export default function DesktopTimeCorrectionPage() {
                 </label>
               </div>
 
-              <div className="ck-aprbox">
-                <div className="ck-aprh">
-                  <Icon name="flow" size={18} style={{ color: "var(--tc)" }} />
-                  ผู้อนุมัติคำขอนี้
-                  <span className="ck-hint">ระบบส่งให้หัวหน้าตามสายอนุมัติแก้ไขเวลาของบริษัทโดยอัตโนมัติ</span>
-                </div>
-                <div className="ck-aprrow">
-                  <div className="ck-apr">
-                    <span className="ck-apr-n">1</span>
-                    <small>ผู้อนุมัติขั้นที่ 1</small>
-                    <b>หัวหน้าตามสายงาน</b>
-                  </div>
-                </div>
-              </div>
+              <ApproverChainNotice url="/api/attendance/time-corrections/approval-chain" />
 
               <div className="ck-fbar">
                 <span className="ck-sumline">
@@ -327,7 +334,7 @@ export default function DesktopTimeCorrectionPage() {
           status={CORRECTION_STATUS[detail.status]}
           onClose={() => setDetail(null)}
           footer={
-            detail.status === "PENDING" ? (
+            detail.status === "PENDING" || detail.status === "REVISION_REQUESTED" ? (
               <button type="button" className="ck-btn no" disabled={busy !== null} onClick={() => void cancel(detail)}>
                 ยกเลิกคำขอ
               </button>
@@ -363,6 +370,16 @@ export default function DesktopTimeCorrectionPage() {
               {detail.decidedAt ? ` (${thaiDateTime(detail.decidedAt)})` : ""}
             </p>
           </div>
+          {detail.status === "REVISION_REQUESTED" ? (
+            <ResubmitPanel
+              key={detail.requestId}
+              fields={[
+                { name: "correctedTime", label: "เวลาที่ขอแก้", type: "time", value: detail.correctedTime },
+                { name: "reason", label: "เหตุผล", type: "textarea", value: detail.reason },
+              ]}
+              onSubmit={(values, clientKey) => resubmit(detail, values, clientKey)}
+            />
+          ) : null}
           <RequestTimelineSection requestId={detail.requestId} />
         </DetailDialog>
       ) : null}

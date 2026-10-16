@@ -154,6 +154,7 @@ function ResetPasswordForm() {
 
         {message?.kind !== "success" ? (
           <form
+            method="post"
             className="production-login-form"
             onSubmit={(event) => void submit(event)}
           >

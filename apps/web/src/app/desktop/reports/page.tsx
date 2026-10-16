@@ -1,7 +1,9 @@
 "use client";
 
+import { DateField } from "../ui/date-picker";
 import type {
   ManagementReportRow,
+  MissingCheckOutItem,
   ManagementReportView,
 } from "@ckace/contracts";
 import {
@@ -142,6 +144,22 @@ export default function DesktopReportsPage() {
   const [to, setTo] = useState(initial.to);
   const [selectedKind, setSelectedKind] = useState<ReportKind | null>(null);
   const [state, setState] = useState<State>({ status: "loading" });
+  const [missing, setMissing] = useState<readonly MissingCheckOutItem[]>([]);
+
+  const loadMissing = useCallback(async () => {
+    try {
+      const response = await fetch(
+        "/api/management/reports/missing-checkouts?from=" +
+          encodeURIComponent(from) +
+          "&to=" +
+          encodeURIComponent(to),
+        { credentials: "same-origin", cache: "no-store" },
+      );
+      setMissing(response.ok ? ((await response.json()) as MissingCheckOutItem[]) : []);
+    } catch {
+      setMissing([]);
+    }
+  }, [from, to]);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -179,7 +197,8 @@ export default function DesktopReportsPage() {
 
   useEffect(() => {
     void load();
-  }, [load]);
+    void loadMissing();
+  }, [load, loadMissing]);
 
   useEffect(() => {
     const syncHash = () => {
@@ -246,21 +265,11 @@ export default function DesktopReportsPage() {
           <div className="production-report-filters task396-report-overview-filters">
             <label>
               <span>วันที่เริ่ม</span>
-              <input
-                className="form-input"
-                type="date"
-                value={from}
-                onChange={(event) => setFrom(event.currentTarget.value)}
-              />
+              <DateField label="วันที่เริ่ม" value={from} onChange={(next) => setFrom(next)} />
             </label>
             <label>
               <span>วันที่สิ้นสุด</span>
-              <input
-                className="form-input"
-                type="date"
-                value={to}
-                onChange={(event) => setTo(event.currentTarget.value)}
-              />
+              <DateField label="วันที่สิ้นสุด" value={to} onChange={(next) => setTo(next)} />
             </label>
             <div className="production-report-filter-actions">
               <button
@@ -373,21 +382,11 @@ export default function DesktopReportsPage() {
         <div className="production-report-filters">
           <label>
             <span>วันที่เริ่ม</span>
-            <input
-              className="form-input"
-              type="date"
-              value={from}
-              onChange={(event) => setFrom(event.currentTarget.value)}
-            />
+            <DateField label="วันที่เริ่ม" value={from} onChange={(next) => setFrom(next)} />
           </label>
           <label>
             <span>วันที่สิ้นสุด</span>
-            <input
-              className="form-input"
-              type="date"
-              value={to}
-              onChange={(event) => setTo(event.currentTarget.value)}
-            />
+            <DateField label="วันที่สิ้นสุด" value={to} onChange={(next) => setTo(next)} />
           </label>
           <div className="production-report-filter-actions">
             <button
@@ -474,6 +473,36 @@ export default function DesktopReportsPage() {
           </>
         )}
       </section>
+
+      {selectedKind === "ATTENDANCE" && missing.length > 0 ? (
+        <section className="module-panel">
+          <h2>ลืมลงเวลาออก ({missing.length})</h2>
+          <div className="table-scroll production-report-table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>วันที่</th>
+                  <th>พนักงาน</th>
+                  <th>ทีม</th>
+                  <th>บริษัท</th>
+                  <th>เวลาเข้า</th>
+                </tr>
+              </thead>
+              <tbody>
+                {missing.map((item) => (
+                  <tr key={item.employeeId + "-" + item.workDate}>
+                    <td>{item.workDate}</td>
+                    <td>{item.employeeName}</td>
+                    <td>{item.teamName}</td>
+                    <td>{item.companyName}</td>
+                    <td>{item.checkIn}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
 
       {state.status === "ready" ? (
         <section className="module-panel production-report-summary">

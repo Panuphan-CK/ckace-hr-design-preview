@@ -9,7 +9,9 @@ import { DatePicker } from "../ui/date-picker";
 import { thaiDateRange, thaiDateTime, weekdaysBetween } from "../ui/format";
 import { Icon } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
+import { ApproverChainNotice } from "../ui/approver-chain";
 import { RequestTimelineSection } from "../ui/request-timeline";
+import { ResubmitPanel, type ResubmitOutcome } from "../ui/resubmit-panel";
 import { attendanceLinkLabel, OVERTIME_BREAK_OPTIONS, overtimeBreakDeduction, overtimeMetrics, overtimeRequestMinutes } from "./overtime-view";
 
 type State = { status: "loading" } | { status: "ready"; overview: OvertimeSelfOverview } | { status: "error"; message: string };
@@ -141,8 +143,31 @@ export default function DesktopOvertimePage() {
     }
   }
 
+  async function resubmit(request: OvertimeRequestView, values: Record<string, string>, clientKey: string): Promise<ResubmitOutcome> {
+    try {
+      const response = await fetch(`/api/overtime/requests/${encodeURIComponent(request.id)}/resubmit`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          clientKey,
+          startTime: values.startTime,
+          endTime: values.endTime,
+          reason: values.reason,
+        }),
+      });
+      if (!response.ok) return { ok: false, status: response.status, message: errorMessage(response.status) };
+      setDetail(null);
+      setMessage({ kind: "success", text: "ส่งคำขอ OT ที่แก้ไขแล้วกลับไปให้ผู้อนุมัติเรียบร้อยแล้ว" });
+      await load();
+      return { ok: true };
+    } catch {
+      return { ok: false, status: 503, message: "ส่งไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" };
+    }
+  }
+
   async function cancel(request: OvertimeRequestView) {
-    if (busy || request.status !== "PENDING" || !window.confirm("ยืนยันยกเลิกคำขอ OT นี้?")) return;
+    if (busy || (request.status !== "PENDING" && request.status !== "REVISION_REQUESTED") || !window.confirm("ยืนยันยกเลิกคำขอ OT นี้?")) return;
     setBusy(request.id);
     setMessage(null);
     try {
@@ -240,20 +265,7 @@ export default function DesktopOvertimePage() {
             </label>
           </div>
 
-          <div className="ck-aprbox">
-            <div className="ck-aprh">
-              <Icon name="flow" size={18} style={{ color: "var(--tc)" }} />
-              ผู้อนุมัติคำขอนี้
-              <span className="ck-hint">ระบบส่งให้หัวหน้าตามสายอนุมัติ OT ของบริษัทโดยอัตโนมัติ</span>
-            </div>
-            <div className="ck-aprrow">
-              <div className="ck-apr">
-                <span className="ck-apr-n">1</span>
-                <small>ผู้อนุมัติขั้นที่ 1</small>
-                <b>หัวหน้าตามสายงาน</b>
-              </div>
-            </div>
-          </div>
+          <ApproverChainNotice url="/api/overtime/approval-chain" />
 
           <div className="ck-fbar">
             <span className="ck-sumline">
@@ -336,7 +348,7 @@ export default function DesktopOvertimePage() {
           status={STATUS[detail.status]}
           onClose={() => setDetail(null)}
           footer={
-            detail.status === "PENDING" ? (
+            detail.status === "PENDING" || detail.status === "REVISION_REQUESTED" ? (
               <button type="button" className="ck-btn no" disabled={busy !== null} onClick={() => void cancel(detail)}>
                 ยกเลิกคำขอ
               </button>
@@ -374,6 +386,17 @@ export default function DesktopOvertimePage() {
             <h3>ผลการพิจารณา</h3>
             <p>{detail.decisionReason || (detail.status === "PENDING" ? "รอผู้อนุมัติพิจารณา" : "—")}</p>
           </div>
+          {detail.status === "REVISION_REQUESTED" && detail.segments[0] ? (
+            <ResubmitPanel
+              key={detail.id}
+              fields={[
+                { name: "startTime", label: "เวลาเริ่ม", type: "time", value: detail.segments[0].startTime },
+                { name: "endTime", label: "เวลาสิ้นสุด", type: "time", value: detail.segments[0].endTime },
+                { name: "reason", label: "งานที่ทำ", type: "textarea", value: detail.reason },
+              ]}
+              onSubmit={(values, clientKey) => resubmit(detail, values, clientKey)}
+            />
+          ) : null}
           <RequestTimelineSection requestId={detail.id} />
         </DetailDialog>
       ) : null}

@@ -26,7 +26,9 @@ import { DatePicker } from "../ui/date-picker";
 import { thaiDate, thaiDateRange, thaiDateTime } from "../ui/format";
 import { Icon } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
+import { ApproverChainNotice } from "../ui/approver-chain";
 import { RequestTimelineSection } from "../ui/request-timeline";
+import { ResubmitPanel, type ResubmitOutcome } from "../ui/resubmit-panel";
 import {
   completeMedicalReceiptUploads,
   errorMessage,
@@ -129,7 +131,11 @@ export default function DesktopMedicalPage() {
         cache: "no-store",
       });
       if (!medicalResponse.ok) {
-        throw new Error(errorMessage(medicalResponse.status));
+        throw new Error(
+          medicalResponse.status === 409
+            ? "ยังไม่ได้ตั้งวงเงินค่ารักษาพยาบาล ผู้ดูแลระบบตั้งได้ที่ ตั้งค่า > วงเงินค่ารักษา"
+            : errorMessage(medicalResponse.status),
+        );
       }
       const overview =
         (await medicalResponse.json()) as MedicalSelfOverview;
@@ -283,10 +289,39 @@ export default function DesktopMedicalPage() {
     }
   }
 
+  async function resubmitClaim(claim: MedicalClaimView, values: Record<string, string>, clientKey: string): Promise<ResubmitOutcome> {
+    const amount = Number(values.amount);
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return { ok: false, status: 400, message: "กรุณาระบุจำนวนเงินให้ถูกต้อง" };
+    }
+
+    try {
+      const response = await fetch(`/api/medical/claims/${encodeURIComponent(claim.id)}/resubmit`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          clientKey,
+          sicknessDate: values.sicknessDate,
+          amount,
+          description: values.description,
+        }),
+      });
+      if (!response.ok) return { ok: false, status: response.status, message: errorMessage(response.status) };
+      setDetail(null);
+      setMessage({ kind: "success", text: "ส่งคำขอเบิกที่แก้ไขแล้วกลับไปให้ผู้อนุมัติเรียบร้อยแล้ว" });
+      await load();
+      return { ok: true };
+    } catch {
+      return { ok: false, status: 503, message: "ส่งไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" };
+    }
+  }
+
   async function cancelClaim(claim: MedicalClaimView) {
     if (
       busy ||
-      claim.status !== "PENDING" ||
+      (claim.status !== "PENDING" && claim.status !== "REVISION_REQUESTED") ||
       !window.confirm("ยืนยันยกเลิกคำขอเบิกนี้?")
     ) {
       return;
@@ -461,20 +496,7 @@ export default function DesktopMedicalPage() {
             </div>
           ) : null}
 
-          <div className="ck-aprbox">
-            <div className="ck-aprh">
-              <Icon name="flow" size={18} style={{ color: "var(--tc)" }} />
-              ผู้อนุมัติคำขอนี้
-              <span className="ck-hint">ระบบส่งตามสายอนุมัติค่ารักษาของบริษัทโดยอัตโนมัติ</span>
-            </div>
-            <div className="ck-aprrow">
-              <div className="ck-apr">
-                <span className="ck-apr-n">1</span>
-                <small>ผู้อนุมัติ</small>
-                <b>ตามสายอนุมัติค่ารักษา</b>
-              </div>
-            </div>
-          </div>
+          <ApproverChainNotice url="/api/medical/approval-chain" />
 
           {overLimit ? (
             <p className="ck-msg error" role="alert" style={{ marginTop: 16 }}>
@@ -589,7 +611,7 @@ export default function DesktopMedicalPage() {
           status={STATUS[detail.status]}
           onClose={() => setDetail(null)}
           footer={
-            detail.status === "PENDING" ? (
+            detail.status === "PENDING" || detail.status === "REVISION_REQUESTED" ? (
               <button
                 type="button"
                 className="ck-btn no"
@@ -636,6 +658,17 @@ export default function DesktopMedicalPage() {
             <h3>ผลการพิจารณา</h3>
             <p>{detail.decisionReason || (detail.status === "PENDING" ? "รอผู้อนุมัติพิจารณา" : "—")}</p>
           </div>
+          {detail.status === "REVISION_REQUESTED" ? (
+            <ResubmitPanel
+              key={detail.id}
+              fields={[
+                { name: "sicknessDate", label: "วันที่รักษา", type: "date", value: detail.sicknessDate },
+                { name: "amount", label: "จำนวนเงิน (บาท)", type: "number", value: String(detail.amount), min: "1", step: "0.01" },
+                { name: "description", label: "รายละเอียด", type: "textarea", value: detail.description },
+              ]}
+              onSubmit={(values, clientKey) => resubmitClaim(detail, values, clientKey)}
+            />
+          ) : null}
           <RequestTimelineSection requestId={detail.id} />
         </DetailDialog>
       ) : null}

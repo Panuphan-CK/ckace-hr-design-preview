@@ -65,6 +65,22 @@ describe("leave business rules", () => {
     ).toBe(0.3125);
   });
 
+  it("counts no hourly leave on a weekend or company holiday", () => {
+    const hourly = (date: string) =>
+      normalizeLeavePeriod({
+        startDate: date,
+        endDate: date,
+        durationCode: "HOURLY",
+        startTime: "09:00",
+        endTime: "11:00",
+      });
+
+    expect(calculateLeaveUnits(hourly("2026-10-10"), defaultLeaveWorkingCalendar())).toBe(0);
+    expect(
+      calculateLeaveUnits(hourly("2026-10-13"), defaultLeaveWorkingCalendar(["2026-10-13"])),
+    ).toBe(0);
+  });
+
   it("requires hourly leave to remain within one day", () => {
     expect(() =>
       normalizeLeavePeriod({

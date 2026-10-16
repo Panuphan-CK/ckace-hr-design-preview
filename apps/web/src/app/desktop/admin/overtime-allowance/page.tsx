@@ -65,7 +65,7 @@ export default function OvertimeAllowancePage() {
   if (!rows) return <p role="status">กำลังโหลด…</p>;
 
   return (
-    <div className="module-panel fade-in">
+    <div className="module-panel fade-in ck-admin">
       <h1>ค่าข้าวและค่ารถ OT</h1>
       <p>
         จ่ายต่อวัน OT เมื่อเวลาออกงานจริงถึงเวลาที่กำหนด (คิดเฉพาะ OT ที่อนุมัติแล้วและมีเวลาออกงานจริง)

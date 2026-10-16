@@ -108,3 +108,19 @@ export function decideErrorMessage(status: number): string {
   if (status === 503) return "โมดูลนี้ยังไม่เปิดให้บันทึกผลอนุมัติในตอนนี้";
   return "บันทึกผลอนุมัติไม่สำเร็จ";
 }
+
+/** Withdrawal endpoint of an approved request (highest-level user only; the API re-checks the permission). */
+export function withdrawEndpoint(item: { readonly kind: string; readonly requestId: string }): string {
+  const id = encodeURIComponent(item.requestId);
+
+  switch (item.kind) {
+    case "LEAVE":
+      return "/api/leave/requests/" + id + "/withdraw";
+    case "OVERTIME":
+      return "/api/overtime/requests/" + id + "/withdraw";
+    case "MEDICAL":
+      return "/api/medical/claims/" + id + "/withdraw";
+    default:
+      return "/api/attendance/time-corrections/" + id + "/withdraw";
+  }
+}

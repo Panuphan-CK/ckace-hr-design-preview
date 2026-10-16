@@ -99,7 +99,7 @@ export default function ProfessionalRolesPage() {
   );
 
   return (
-    <div className="module-panel fade-in">
+    <div className="module-panel fade-in ck-admin">
       <h1>บทบาทวิชาชีพ</h1>
       <p>
         กำหนดบทบาท เช่น ผู้ทำบัญชี ผู้รับผิดชอบงาน ผู้สอบบัญชี และเลือกได้ว่าบทบาทใดไม่ต้องลงเวลา

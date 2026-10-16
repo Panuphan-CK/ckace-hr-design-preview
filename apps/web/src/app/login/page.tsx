@@ -1,5 +1,7 @@
 "use client";
 
+import "../desktop/ui/ck.css";
+import { DateField } from "../desktop/ui/date-picker";
 import type { FormEvent } from "react";
 import {
   useEffect,
@@ -279,7 +281,7 @@ export default function LoginPage() {
 
         {mode === "login" ? (
           <>
-            <form onSubmit={submit} className="production-login-form">
+            <form method="post" onSubmit={submit} className="production-login-form">
               <label>
                 <span>อีเมล / ชื่อผู้ใช้</span>
                 <input
@@ -405,6 +407,7 @@ export default function LoginPage() {
         ) : (
           <>
             <form
+              method="post"
               onSubmit={submitRegistration}
               className="production-login-form production-registration-form"
             >
@@ -516,35 +519,11 @@ export default function LoginPage() {
               <div className="production-registration-grid">
                 <label>
                   <span>วันเดือนปีเกิด</span>
-                  <input
-                    className="form-input"
-                    name="dateOfBirth"
-                    type="date"
-                    required
-                    value={registration.dateOfBirth}
-                    onChange={(event) =>
-                      updateRegistration(
-                        "dateOfBirth",
-                        event.currentTarget.value,
-                      )
-                    }
-                  />
+                  <DateField label="วันเดือนปีเกิด" name="dateOfBirth" value={registration.dateOfBirth} onChange={(next) => updateRegistration("dateOfBirth", next)} />
                 </label>
                 <label>
                   <span>วันที่เริ่มงาน</span>
-                  <input
-                    className="form-input"
-                    name="employmentStart"
-                    type="date"
-                    required
-                    value={registration.employmentStart}
-                    onChange={(event) =>
-                      updateRegistration(
-                        "employmentStart",
-                        event.currentTarget.value,
-                      )
-                    }
-                  />
+                  <DateField label="วันที่เริ่มงาน" name="employmentStart" value={registration.employmentStart} onChange={(next) => updateRegistration("employmentStart", next)} />
                 </label>
               </div>
 

@@ -152,6 +152,15 @@ export function calculateLeaveUnits(
   calendar: LeaveWorkingCalendar,
 ): number {
   if (period.durationCode === "HOURLY") {
+    // Hourly leave only counts on a working day (not a weekend or company holiday).
+    const day = new Date(`${period.startDate}T00:00:00.000Z`);
+    if (
+      !calendar.workingIsoWeekdays.has(isoWeekday(day)) ||
+      calendar.holidayDates.has(period.startDate)
+    ) {
+      return 0;
+    }
+
     const minutes =
       clockMinutes(period.endTime ?? "") -
       clockMinutes(period.startTime ?? "");

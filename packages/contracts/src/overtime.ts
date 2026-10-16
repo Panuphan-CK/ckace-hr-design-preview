@@ -23,6 +23,29 @@ export interface OvertimeCreateInput {
   readonly breaks?: readonly OvertimeBreakCode[];
 }
 
+/** One overtime day in the exported OT report. Money is in satang. */
+export interface OvertimeReportRow {
+  readonly requestId: string;
+  readonly workDate: string;
+  readonly employeeId: string;
+  readonly employeeName: string;
+  readonly teamName: string;
+  readonly companyName: string;
+  readonly approvedStart: string;
+  readonly approvedEnd: string;
+  readonly actualCheckIn: string | null;
+  readonly actualCheckOut: string | null;
+  readonly requestedMinutes: number;
+  readonly paidMinutes: number;
+  /** null = legacy default breaks (no explicit choice stored). */
+  readonly breaks: readonly OvertimeBreakCode[] | null;
+  readonly dayType: "WORKDAY" | "NON_WORKDAY";
+  readonly status: string;
+  readonly transportSatang: number;
+  readonly mealSatang: number;
+  readonly totalSatang: number;
+}
+
 export interface OvertimeSegmentView {
   readonly id: string;
   readonly workDate: string;

@@ -39,7 +39,7 @@ function person(
 
 function reader(
   agencyCompany: string | null,
-  people: ReturnType<typeof person>[],
+  people: (ReturnType<typeof person> & { approvalRouteMode?: string })[],
 ): ApprovalRouteReader {
   return {
     employee: {
@@ -89,6 +89,38 @@ describe("company approval route loader", () => {
       ["boss"],
     ]);
     expect(result?.displayNames.get("lead")).toBe("lead");
+  });
+
+  it("sends a manager-first employee to the manager and skips the team lead", async () => {
+    const people = [
+      {
+        ...person("clerk", TEAM_A, [], "boss-admin"),
+        approvalRouteMode: "MANAGER_FIRST",
+      },
+      person("lead", TEAM_A, [
+        { key: "SUPERUSER", scopeType: "TEAM_SET", scopeAgencyIds: [TEAM_A] },
+      ]),
+      person("boss-admin", TEAM_A, [
+        { key: "ADMIN", scopeType: "TEAM_SET", scopeAgencyIds: [TEAM_A] },
+      ]),
+      person("boss", TEAM_A, [
+        { key: "SUPERADMIN", scopeType: "COMPANY", scopeCompanyId: ACC },
+      ]),
+    ];
+    const result = await resolveCompanyApprovalRoute(
+      reader(ACC, people),
+      "clerk",
+      [
+        { kind: "ROLE", roleKey: "SUPERUSER" },
+        { kind: "ROLE", roleKey: "ADMIN" },
+        { kind: "ROLE", roleKey: "SUPERADMIN" },
+      ],
+    );
+
+    expect(result?.route.steps.map((step) => step.candidateIds)).toEqual([
+      ["boss-admin"],
+      ["boss"],
+    ]);
   });
 
   it("fails closed when a company scope has no company id", () => {

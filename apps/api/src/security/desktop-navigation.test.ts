@@ -21,6 +21,7 @@ describe("Desktop navigation capabilities", () => {
       requestStatus: false,
       approvals: true,
       leaveApprovals: true,
+      leaveWithdraw: false,
       timeCorrectionApprovals: false,
       overtimeApprovals: false,
       medicalApprovals: false,
@@ -152,6 +153,7 @@ describe("Desktop navigation capabilities", () => {
     ).toMatchObject({
       approvals: true,
       leaveApprovals: false,
+      leaveWithdraw: false,
       timeCorrectionApprovals: false,
       overtimeApprovals: true,
       medicalApprovals: false,

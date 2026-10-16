@@ -54,7 +54,7 @@ export function decisionEndpoint(request: Pick<RequestStatusItem, "id" | "kind">
 
 export function decisionPayload(
   request: Pick<RequestStatusItem, "kind" | "approvalStepId">,
-  decision: "APPROVED" | "REJECTED",
+  decision: "APPROVED" | "REJECTED" | "REVISION_REQUESTED",
   comment: string,
 ): Record<string, unknown> {
   return request.kind === "LEAVE"

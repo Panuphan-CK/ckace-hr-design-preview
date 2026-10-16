@@ -14,6 +14,7 @@ import {
   Put,
   Query,
   Req,
+  StreamableFile,
   UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
@@ -23,6 +24,7 @@ import { AuthorizationGuard } from "../security/authorization.guard";
 import { RequirePermission } from "../security/require-permission.decorator";
 import type { SecurityRequest } from "../security/security-request";
 import { ManagementService } from "./management.service";
+import { buildOvertimeWorkbook } from "./overtime-report-workbook";
 
 const UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -117,6 +119,18 @@ function dateRange(
   return { from, to };
 }
 
+const REPORT_STATUSES = new Set(["PENDING", "APPROVED", "REJECTED", "CANCELLED"]);
+
+function parseReportStatus(
+  value: string | undefined,
+): "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" | null {
+  if (value === undefined || value === "") return null;
+  if (!REPORT_STATUSES.has(value)) {
+    throw new BadRequestException("Invalid status");
+  }
+  return value as "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+}
+
 function actorId(request: SecurityRequest): string {
   if (!request.actor) throw new UnauthorizedException();
   return request.actor.employeeId;
@@ -150,6 +164,38 @@ export class ManagementController {
   ) {
     const range = dateRange(from, to);
     return this.service.reports(range.from, range.to);
+  }
+
+  @Get("reports/overtime.xlsx")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  async overtimeReport(
+    @Req() request: SecurityRequest,
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+    @Query("companyId") companyId: string | undefined,
+    @Query("agencyId") agencyId: string | undefined,
+    @Query("employeeId") employeeId: string | undefined,
+    @Query("status") status: string | undefined,
+  ): Promise<StreamableFile> {
+    const range = dateRange(from, to);
+    const filters = {
+      from: range.from,
+      to: range.to,
+      companyId: optionalUuid(companyId, "companyId") ?? null,
+      agencyId: optionalUuid(agencyId, "agencyId") ?? null,
+      employeeId: optionalUuid(employeeId, "employeeId") ?? null,
+      status: parseReportStatus(status),
+    };
+    const rows = await this.service.overtimeReport(filters, actorId(request));
+    const workbook = await buildOvertimeWorkbook(rows, {
+      from: range.from.toISOString().slice(0, 10),
+      to: range.to.toISOString().slice(0, 10),
+    });
+    return new StreamableFile(workbook, {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      disposition: `attachment; filename="overtime-${filters.from.toISOString().slice(0, 10)}_${filters.to.toISOString().slice(0, 10)}.xlsx"`,
+    });
   }
 
   @Get("users")
@@ -193,13 +239,46 @@ export class ManagementController {
       value.managerEmployeeId,
       "managerEmployeeId",
     );
+    let overtimeTransportSatang: number | undefined;
+    if (value.overtimeTransportSatang !== undefined) {
+      const amount = value.overtimeTransportSatang;
+      if (
+        typeof amount !== "number" ||
+        !Number.isInteger(amount) ||
+        amount < 0 ||
+        amount > 10_000_000
+      ) {
+        throw new BadRequestException("Invalid overtimeTransportSatang");
+      }
+      overtimeTransportSatang = amount;
+    }
+    let attendanceExempt: boolean | undefined;
+    if (value.attendanceExempt !== undefined) {
+      if (typeof value.attendanceExempt !== "boolean") {
+        throw new BadRequestException("Invalid attendanceExempt");
+      }
+      attendanceExempt = value.attendanceExempt;
+    }
+    let approvalRouteMode: "STANDARD" | "MANAGER_FIRST" | undefined;
+    if (value.approvalRouteMode !== undefined) {
+      if (
+        value.approvalRouteMode !== "STANDARD" &&
+        value.approvalRouteMode !== "MANAGER_FIRST"
+      ) {
+        throw new BadRequestException("Invalid approvalRouteMode");
+      }
+      approvalRouteMode = value.approvalRouteMode;
+    }
     if (
       fullName === undefined &&
       state === undefined &&
       agencyId === undefined &&
       departmentId === undefined &&
       companyId === undefined &&
-      managerEmployeeId === undefined
+      managerEmployeeId === undefined &&
+      approvalRouteMode === undefined &&
+      overtimeTransportSatang === undefined &&
+      attendanceExempt === undefined
     ) {
       throw new BadRequestException("No user fields supplied");
     }
@@ -212,6 +291,9 @@ export class ManagementController {
         ...(departmentId !== undefined ? { departmentId } : {}),
         ...(companyId !== undefined ? { companyId } : {}),
         ...(managerEmployeeId !== undefined ? { managerEmployeeId } : {}),
+        ...(approvalRouteMode !== undefined ? { approvalRouteMode } : {}),
+        ...(overtimeTransportSatang !== undefined ? { overtimeTransportSatang } : {}),
+        ...(attendanceExempt !== undefined ? { attendanceExempt } : {}),
       },
       actorId(request),
     );
@@ -287,6 +369,135 @@ export class ManagementController {
       value.roleIds as string[],
       actorId(request),
     );
+  }
+
+  @Get("approval-policies")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("rbac.admin.read", "GLOBAL")
+  approvalPolicies() {
+    return this.service.approvalPolicies();
+  }
+
+  @Put("approval-policies")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("rbac.admin.write", "GLOBAL")
+  saveApprovalPolicy(
+    @Req() request: SecurityRequest,
+    @Body() body: unknown,
+  ) {
+    const value = objectBody(body);
+    const kinds = ["LEAVE", "TIME_CORRECTION", "OVERTIME", "MEDICAL"] as const;
+    const scopes = ["SAME_AGENCY", "SAME_DEPARTMENT", "GLOBAL"] as const;
+    const requestKind = kinds.find((kind) => kind === value.requestKind);
+    if (!requestKind) throw new BadRequestException("Invalid requestKind");
+    if (typeof value.active !== "boolean") {
+      throw new BadRequestException("active must be boolean");
+    }
+    if (!Array.isArray(value.steps) || value.steps.length < 1 || value.steps.length > 5) {
+      throw new BadRequestException("steps must contain 1 to 5 items");
+    }
+    const steps = value.steps.map((raw: unknown) => {
+      const step = objectBody(raw);
+      const scope = scopes.find((item) => item === step.scope);
+      if (!scope) throw new BadRequestException("Invalid step scope");
+      return {
+        roleKey: requiredText(step.roleKey, "roleKey", 60).toUpperCase(),
+        scope,
+      };
+    });
+    return this.service.saveApprovalPolicy(
+      {
+        requestKind,
+        agencyId: optionalUuid(value.agencyId, "agencyId") ?? null,
+        name: requiredText(value.name, "name", 200),
+        active: value.active,
+        steps,
+      },
+      actorId(request),
+    );
+  }
+
+  @Get("professional-roles")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("users.admin.read", "GLOBAL")
+  professionalRoles() {
+    return this.service.professionalRoles();
+  }
+
+  @Post("professional-roles")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("users.admin.write", "GLOBAL")
+  createProfessionalRole(
+    @Req() request: SecurityRequest,
+    @Body() body: unknown,
+  ) {
+    const value = objectBody(body);
+    const key = requiredText(value.key, "key", 40)
+      .toUpperCase()
+      .replace(/[^A-Z0-9_]/g, "_");
+    if (value.attendanceExempt !== undefined && typeof value.attendanceExempt !== "boolean") {
+      throw new BadRequestException("attendanceExempt must be boolean");
+    }
+    return this.service.createProfessionalRole(
+      {
+        key,
+        name: requiredText(value.name, "name", 100),
+        attendanceExempt: value.attendanceExempt === true,
+      },
+      actorId(request),
+    );
+  }
+
+  @Patch("professional-roles/:id")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("users.admin.write", "GLOBAL")
+  updateProfessionalRole(
+    @Req() request: SecurityRequest,
+    @Param("id") id: string,
+    @Body() body: unknown,
+  ) {
+    requiredUuid(id, "professional role ID");
+    const value = objectBody(body);
+    for (const flag of ["attendanceExempt", "active"] as const) {
+      if (value[flag] !== undefined && typeof value[flag] !== "boolean") {
+        throw new BadRequestException(flag + " must be boolean");
+      }
+    }
+    const name =
+      value.name === undefined ? undefined : requiredText(value.name, "name", 100);
+    const attendanceExempt = value.attendanceExempt as boolean | undefined;
+    const active = value.active as boolean | undefined;
+    if (name === undefined && attendanceExempt === undefined && active === undefined) {
+      throw new BadRequestException("No professional role fields supplied");
+    }
+    return this.service.updateProfessionalRole(
+      id,
+      {
+        ...(name !== undefined ? { name } : {}),
+        ...(attendanceExempt !== undefined ? { attendanceExempt } : {}),
+        ...(active !== undefined ? { active } : {}),
+      },
+      actorId(request),
+    );
+  }
+
+  @Put("users/:id/professional-roles")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("users.admin.write", "GLOBAL")
+  setUserProfessionalRoles(
+    @Req() request: SecurityRequest,
+    @Param("id") id: string,
+    @Body() body: unknown,
+  ) {
+    requiredUuid(id, "employee ID");
+    const value = objectBody(body);
+    if (!Array.isArray(value.professionalRoleIds) || value.professionalRoleIds.length > 20) {
+      throw new BadRequestException("professionalRoleIds must be a list of up to 20 IDs");
+    }
+    const ids = value.professionalRoleIds.map((item) =>
+      requiredUuid(item, "professional role ID"),
+    );
+    return this.service.setEmployeeProfessionalRoles(id, ids, actorId(request));
   }
 
   @Get("companies")
@@ -471,6 +682,26 @@ export class ManagementController {
   @RequirePermission("leave.entitlements.admin.read", "GLOBAL")
   entitlementOptions() {
     return this.service.entitlementOptions();
+  }
+
+  @Post("entitlements/generate-vacation")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("leave.entitlements.admin.write", "GLOBAL")
+  generateVacationEntitlements(
+    @Req() request: SecurityRequest,
+    @Body() body: unknown,
+  ) {
+    const value = objectBody(body);
+    const year = value.year;
+    if (
+      typeof year !== "number" ||
+      !Number.isInteger(year) ||
+      year < 2000 ||
+      year > 2100
+    ) {
+      throw new BadRequestException("Invalid year");
+    }
+    return this.service.generateVacationEntitlements(year, actorId(request));
   }
 
   @Put("entitlements")

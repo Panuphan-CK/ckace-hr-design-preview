@@ -44,6 +44,8 @@ export interface ManagementReportView extends ManagementDateRange {
 
 export type ManagedAccountState = "ACTIVE" | "PENDING" | "INACTIVE" | "RESIGNED";
 
+export type ApprovalRouteModeKind = "STANDARD" | "MANAGER_FIRST";
+
 export type RoleScopeKind = "PLATFORM" | "COMPANY" | "TEAM_SET" | "SELF";
 
 export interface ManagedRoleAssignment {
@@ -74,8 +76,53 @@ export interface ManagedEmployeeItem {
   readonly companyName: string | null;
   readonly managerEmployeeId: string | null;
   readonly managerName: string | null;
+  readonly approvalRouteMode: ApprovalRouteModeKind;
+  /** Fixed transport allowance per overtime day, in satang. */
+  readonly overtimeTransportSatang: number;
+  /** Does not clock in (for example auditors); excluded from attendance statistics. */
+  readonly attendanceExempt: boolean;
+  /** Individual flag OR any active professional role that does not clock in. */
+  readonly attendanceExemptEffective: boolean;
+  readonly professionalRoles: readonly ProfessionalRoleItem[];
   readonly roles: readonly { readonly id: string; readonly key: string; readonly name: string }[];
   readonly roleAssignments: readonly ManagedRoleAssignment[];
+}
+
+export type ApprovalPolicyKind = "LEAVE" | "TIME_CORRECTION" | "OVERTIME" | "MEDICAL";
+export type ApprovalPolicyScope = "SAME_AGENCY" | "SAME_DEPARTMENT" | "GLOBAL";
+
+export interface ApprovalPolicyStepItem {
+  readonly stepOrder: number;
+  readonly roleKey: string;
+  readonly roleName: string;
+  readonly scope: ApprovalPolicyScope;
+}
+
+/** Approval chain of one request kind. agencyId null = company-wide default. */
+export interface ApprovalPolicyItem {
+  readonly id: string;
+  readonly requestKind: ApprovalPolicyKind;
+  readonly agencyId: string | null;
+  readonly agencyName: string | null;
+  readonly name: string;
+  readonly active: boolean;
+  readonly steps: readonly ApprovalPolicyStepItem[];
+}
+
+export interface ApprovalPolicyInput {
+  readonly requestKind: ApprovalPolicyKind;
+  readonly agencyId: string | null;
+  readonly name: string;
+  readonly active: boolean;
+  readonly steps: readonly { readonly roleKey: string; readonly scope: ApprovalPolicyScope }[];
+}
+
+export interface ProfessionalRoleItem {
+  readonly id: string;
+  readonly key: string;
+  readonly name: string;
+  readonly attendanceExempt: boolean;
+  readonly active: boolean;
 }
 
 export interface OrganizationUnitItem {
@@ -97,6 +144,12 @@ export interface LeaveEntitlementAdminItem {
   readonly quota: string;
   readonly validFrom: string | null;
   readonly validTo: string | null;
+}
+
+export interface VacationGenerationResult {
+  readonly year: number;
+  readonly created: number;
+  readonly skipped: number;
 }
 
 export interface LeaveEntitlementOptions {

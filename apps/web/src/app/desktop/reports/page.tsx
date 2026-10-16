@@ -274,6 +274,18 @@ export default function DesktopReportsPage() {
               >
                 เดือนนี้
               </button>
+              <a
+                className="secondary-button"
+                href={
+                  "/api/management/reports/overtime.xlsx?from=" +
+                  encodeURIComponent(from) +
+                  "&to=" +
+                  encodeURIComponent(to)
+                }
+                download
+              >
+                ดาวน์โหลดรายงาน OT (Excel)
+              </a>
               <button
                 className="primary-button"
                 type="button"

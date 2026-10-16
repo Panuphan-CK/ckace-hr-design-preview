@@ -85,7 +85,8 @@ export interface LeaveCancelResult {
 
 export type LeaveApprovalDecision =
   | "APPROVED"
-  | "REJECTED";
+  | "REJECTED"
+  | "REVISION_REQUESTED";
 
 export interface LeaveApprovalDecisionInput {
   readonly approvalStepId: string;
@@ -98,5 +99,34 @@ export interface LeaveApprovalDecisionResult {
   readonly status:
     | "PENDING"
     | "APPROVED"
-    | "REJECTED";
+    | "REJECTED"
+    | "REVISION_REQUESTED";
+}
+
+/** Employee edits a request that the approver sent back, then submits it again. */
+export interface LeaveResubmitInput {
+  readonly clientKey: string;
+  readonly description: string;
+  readonly startDate: string;
+  readonly endDate: string;
+  readonly durationCode: LeaveDurationCode;
+  readonly startTime?: string | null;
+  readonly endTime?: string | null;
+}
+
+export interface LeaveResubmitResult {
+  readonly requestId: string;
+  /** The approval step the request re-enters (the step that sent it back). */
+  readonly returnedToStep: number;
+  readonly replayed: boolean;
+}
+
+/** Highest-level user withdraws a leave request that is already approved. */
+export interface LeaveWithdrawInput {
+  readonly reason: string;
+}
+
+export interface LeaveWithdrawResult {
+  readonly requestId: string;
+  readonly status: "CANCELLED";
 }

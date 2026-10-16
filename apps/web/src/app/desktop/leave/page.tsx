@@ -120,6 +120,8 @@ export default function LeaveDesktopPage() {
   const [hours, setHours] = useState(1);
   const [filter, setFilter] = useState<HistoryFilter>("ALL");
   const [detail, setDetail] = useState<LeaveRequestView | null>(null);
+  const [revision, setRevision] = useState<{ description: string; startDate: string; endDate: string } | null>(null);
+  const resubmitIntent = useRef<SubmissionIntent | null>(null);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -142,6 +144,8 @@ export default function LeaveDesktopPage() {
   }, [load]);
 
   useEffect(() => {
+    setRevision(null);
+    resubmitIntent.current = null;
     if (!detail) return;
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape") setDetail(null);
@@ -234,6 +238,46 @@ export default function LeaveDesktopPage() {
       await load();
     } catch (error) {
       setActionMessage({ kind: "error", text: error instanceof Error ? error.message : "ส่งใบลาไม่สำเร็จ" });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function resubmitRequest(request: LeaveRequestView) {
+    if (!revision || submitting) return;
+    if (!revision.description.trim()) {
+      setActionMessage({ kind: "error", text: "กรุณาระบุเหตุผลการลา" });
+      return;
+    }
+    const payload = {
+      description: revision.description.trim(),
+      startDate: revision.startDate,
+      endDate: request.durationCode === "FULL_DAY" ? revision.endDate || revision.startDate : revision.startDate,
+      durationCode: request.durationCode,
+      startTime: request.startTime,
+      endTime: request.endTime,
+    };
+    resubmitIntent.current = resolveSubmissionIntent(resubmitIntent.current, { requestId: request.requestId, ...payload });
+    setSubmitting(true);
+    setActionMessage(null);
+    try {
+      const response = await fetch(`/api/leave/requests/${encodeURIComponent(request.requestId)}/resubmit`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ ...payload, clientKey: resubmitIntent.current.clientKey }),
+      });
+      if (!response.ok) {
+        if (shouldDiscardSubmissionIntent(response.status)) resubmitIntent.current = null;
+        throw new Error(await submitErrorMessage(response));
+      }
+      resubmitIntent.current = null;
+      setDetail(null);
+      setRevision(null);
+      setActionMessage({ kind: "success", text: "ส่งใบลาที่แก้ไขแล้วกลับไปให้ผู้อนุมัติเรียบร้อยแล้ว" });
+      await load();
+    } catch (error) {
+      setActionMessage({ kind: "error", text: error instanceof Error ? error.message : "ส่งใบลาที่แก้ไขไม่สำเร็จ" });
     } finally {
       setSubmitting(false);
     }
@@ -633,6 +677,63 @@ export default function LeaveDesktopPage() {
                 <p>{detail.decisionReason || (detail.status === "PENDING" ? "รอผู้อนุมัติพิจารณา" : "—")}</p>
               </div>
             </div>
+            {detail.status === "REVISION_REQUESTED" ? (
+              <div className="ck-dlg-sec">
+                <h3>แก้ไขและส่งใหม่</h3>
+                {revision ? (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    <textarea
+                      className="ck-input"
+                      rows={3}
+                      maxLength={2000}
+                      aria-label="เหตุผลการลา"
+                      value={revision.description}
+                      onChange={(event) => setRevision({ ...revision, description: event.currentTarget.value })}
+                    />
+                    <label>
+                      วันที่เริ่มลา
+                      <input
+                        type="date"
+                        className="ck-input"
+                        value={revision.startDate}
+                        onChange={(event) => setRevision({ ...revision, startDate: event.currentTarget.value })}
+                      />
+                    </label>
+                    {detail.durationCode === "FULL_DAY" ? (
+                      <label>
+                        วันที่สิ้นสุด
+                        <input
+                          type="date"
+                          className="ck-input"
+                          min={revision.startDate}
+                          value={revision.endDate}
+                          onChange={(event) => setRevision({ ...revision, endDate: event.currentTarget.value })}
+                        />
+                      </label>
+                    ) : null}
+                    <div>
+                      <button type="button" className="ck-btn ok" disabled={submitting} onClick={() => void resubmitRequest(detail)}>
+                        ส่งใบลาที่แก้ไขแล้ว
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="ck-btn ok"
+                    onClick={() =>
+                      setRevision({
+                        description: detail.description ?? "",
+                        startDate: detail.startDate.slice(0, 10),
+                        endDate: detail.endDate.slice(0, 10),
+                      })
+                    }
+                  >
+                    แก้ไขและส่งใหม่
+                  </button>
+                )}
+              </div>
+            ) : null}
             <div className="ck-dlg-f">
               {detail.status === "PENDING" || detail.status === "REVISION_REQUESTED" ? (
                 <button type="button" className="ck-btn no" disabled={submitting} onClick={() => void cancelRequest(detail.requestId)}>

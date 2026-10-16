@@ -131,7 +131,8 @@
       "storage.attachment.internal.delete",
       "storage.attachment.admin.read",
       "storage.attachment.admin.write",
-      "storage.attachment.admin.delete"
+      "storage.attachment.admin.delete",
+      "leave.approved.withdraw"
     ]
   },
   "ungrantedByDefault": [
@@ -182,14 +183,15 @@
     "storage.attachment.self.write",
     "time_correction.approve",
     "time_correction.self.read",
-    "time_correction.self.write"
+    "time_correction.self.write",
+    "leave.approved.withdraw"
   ],
   "counts": {
-    "catalog": 42,
+    "catalog": 43,
     "EMPLOYEE": 20,
     "SUPERUSER": 27,
     "ADMIN": 38,
-    "SUPERADMIN": 38
+    "SUPERADMIN": 39
   },
   "security": {
     "roleNameAloneIsAuthority": false,

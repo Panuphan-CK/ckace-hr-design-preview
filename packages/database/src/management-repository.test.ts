@@ -16,6 +16,10 @@ function managedRow() {
     departmentId: null,
     companyId: null,
     managerEmployeeId: null,
+    approvalRouteMode: "STANDARD",
+    attendanceExempt: false,
+    overtimeTransportSatang: 0,
+    professionalRoles: [],
     agency: { name: "Team", companyId: COMPANY, company: { name: "Co" } },
     department: null,
     company: null,
@@ -103,6 +107,7 @@ describe("management repository: scoped roles and managers", () => {
       scopeAgencyIds: [TEAM],
     });
     expect(result.companyId).toBe(COMPANY);
+    expect(result.approvalRouteMode).toBe("STANDARD");
   });
 
   it("refuses unknown companies, duplicate roles and broken scopes", async () => {

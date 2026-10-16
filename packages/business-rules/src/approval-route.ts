@@ -137,7 +137,7 @@ function homeTeamIds(
   return result;
 }
 
-function scopeCoversTeam(
+export function roleScopeCoversTeam(
   scope: RoleScope,
   teamId: string,
   teams: readonly RouteTeam[],
@@ -226,7 +226,7 @@ export function resolveApprovalRoute(
           (assignment) =>
             assignment.roleKey === step.roleKey &&
             [...requesterTeams].some((teamId) =>
-              scopeCoversTeam(assignment.scope, teamId, teams),
+              roleScopeCoversTeam(assignment.scope, teamId, teams),
             ),
         ),
       );
@@ -335,4 +335,43 @@ export function validateApprovalSelection(
   }
 
   return { ok: true, approverIds };
+}
+
+export type ApprovalRouteMode = "STANDARD" | "MANAGER_FIRST";
+
+/**
+ * Applies a per-employee route mode to the policy steps.
+ *
+ * MANAGER_FIRST (e.g. an administrative clerk who reports to the Admin only):
+ * the direct manager approves first and every policy step up to and including
+ * the manager's own level is skipped. Policy steps are ordered by ascending
+ * authority, so "the manager's level" is the last ROLE step whose role the
+ * manager holds. When the manager holds none of the policy roles all policy
+ * steps are kept (duplicates of the manager are removed by the resolver).
+ * Without a manager the standard steps are used.
+ */
+export function buildRouteSteps(input: {
+  readonly policySteps: readonly ApprovalRouteStep[];
+  readonly mode: ApprovalRouteMode;
+  readonly managerRoleKeys: readonly string[] | null;
+}): readonly ApprovalRouteStep[] {
+  if (input.mode !== "MANAGER_FIRST" || input.managerRoleKeys === null) {
+    return input.policySteps;
+  }
+
+  let managerLevel = -1;
+
+  input.policySteps.forEach((step, index) => {
+    if (
+      step.kind === "ROLE" &&
+      input.managerRoleKeys?.includes(step.roleKey)
+    ) {
+      managerLevel = index;
+    }
+  });
+
+  return [
+    { kind: "DIRECT_MANAGER" },
+    ...input.policySteps.slice(managerLevel + 1),
+  ];
 }

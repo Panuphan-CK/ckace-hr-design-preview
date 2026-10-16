@@ -59,6 +59,7 @@ export default function DesktopApprovalsPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [detail, setDetail] = useState<ApprovalHistoryItem | null>(null);
+  const [canWithdraw, setCanWithdraw] = useState(false);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -85,6 +86,16 @@ export default function DesktopApprovalsPage() {
     void load();
   }, [load]);
 
+  // Server-derived capability only controls whether the button is shown; the API re-checks it.
+  useEffect(() => {
+    void fetch("/api/security/session", { credentials: "same-origin", cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((session: { navigation?: { leaveWithdraw?: boolean } } | null) => {
+        setCanWithdraw(session?.navigation?.leaveWithdraw === true);
+      })
+      .catch(() => setCanWithdraw(false));
+  }, []);
+
   // each approval type is its own page, selected by the menu link hash
   useEffect(() => {
     const sync = () => setKind(kindFromHash(window.location.hash));
@@ -105,11 +116,43 @@ export default function DesktopApprovalsPage() {
     [state, kind, decisionFilter],
   );
 
-  async function decide(request: RequestStatusItem, decision: "APPROVED" | "REJECTED") {
+  async function withdrawApproved(item: ApprovalHistoryItem) {
+    if (busyId) return;
+    const reason = window.prompt("ระบุเหตุผลที่ถอนใบลาที่อนุมัติแล้ว (จำเป็น)")?.trim();
+    if (!reason) return;
+    setBusyId(item.requestId);
+    setMessage(null);
+    try {
+      const response = await fetch("/api/leave/requests/" + encodeURIComponent(item.requestId) + "/withdraw", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ reason }),
+      });
+      if (!response.ok) {
+        throw new Error(
+          response.status === 403
+            ? "ถอนได้เฉพาะผู้ดูแลระดับสูงสุดที่ดูแลพนักงานคนนี้"
+            : response.status === 409
+              ? "ใบลานี้ไม่อยู่ในสถานะอนุมัติแล้ว"
+              : "ถอนใบลาไม่สำเร็จ",
+        );
+      }
+      setDetail(null);
+      setMessage({ kind: "success", text: "ถอนใบลาที่อนุมัติแล้วเรียบร้อย ระบบคืนสิทธิ์วันลาให้พนักงาน" });
+      await load();
+    } catch (error) {
+      setMessage({ kind: "error", text: error instanceof Error ? error.message : "ถอนใบลาไม่สำเร็จ" });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function decide(request: RequestStatusItem, decision: "APPROVED" | "REJECTED" | "REVISION_REQUESTED") {
     if (!request.approvalStepId || busyId) return;
     const comment = comments[request.id]?.trim() ?? "";
-    if (decision === "REJECTED" && !comment) {
-      setMessage({ kind: "error", text: "กรุณาระบุเหตุผลก่อนเลือกไม่อนุมัติ" });
+    if (decision !== "APPROVED" && !comment) {
+      setMessage({ kind: "error", text: decision === "REJECTED" ? "กรุณาระบุเหตุผลก่อนเลือกไม่อนุมัติ" : "กรุณาระบุสิ่งที่ต้องแก้ไขก่อนส่งกลับ" });
       return;
     }
     setBusyId(request.id);
@@ -122,7 +165,7 @@ export default function DesktopApprovalsPage() {
         body: JSON.stringify(decisionPayload(request, decision, comment)),
       });
       if (!response.ok) throw new Error(decideErrorMessage(response.status));
-      setMessage({ kind: "success", text: decision === "APPROVED" ? "อนุมัติคำขอเรียบร้อยแล้ว" : "บันทึกไม่อนุมัติเรียบร้อยแล้ว" });
+      setMessage({ kind: "success", text: decision === "APPROVED" ? "อนุมัติคำขอเรียบร้อยแล้ว" : decision === "REJECTED" ? "บันทึกไม่อนุมัติเรียบร้อยแล้ว" : "ส่งกลับให้ผู้ขอแก้ไขเรียบร้อยแล้ว" });
       setComments((current) => {
         const next = { ...current };
         delete next[request.id];
@@ -197,7 +240,7 @@ export default function DesktopApprovalsPage() {
                       className="ck-in"
                       value={comments[request.id] ?? ""}
                       maxLength={1000}
-                      placeholder="ความคิดเห็น (จำเป็นเมื่อไม่อนุมัติ)"
+                      placeholder="ความคิดเห็น (จำเป็นเมื่อไม่อนุมัติหรือส่งกลับ)"
                       aria-label="ความคิดเห็นของผู้อนุมัติ"
                       disabled={busy}
                       onChange={(event) => {
@@ -213,6 +256,11 @@ export default function DesktopApprovalsPage() {
                       <button type="button" className="ck-btn no" disabled={busyId !== null} onClick={() => void decide(request, "REJECTED")}>
                         ไม่อนุมัติ
                       </button>
+                      {request.kind === "LEAVE" ? (
+                        <button type="button" className="ck-btn" disabled={busyId !== null} onClick={() => void decide(request, "REVISION_REQUESTED")}>
+                          ส่งกลับให้แก้ไข
+                        </button>
+                      ) : null}
                     </div>
                   </article>
                 );
@@ -301,6 +349,13 @@ export default function DesktopApprovalsPage() {
             <h3>ความเห็นของผู้อนุมัติ</h3>
             <p>{detail.comment || "—"}</p>
           </div>
+          {canWithdraw && detail.kind === "LEAVE" && detail.decision === "APPROVED" ? (
+            <div className="ck-dlg-sec">
+              <button type="button" className="ck-btn no" disabled={busyId !== null} onClick={() => void withdrawApproved(detail)}>
+                ถอนใบลาที่อนุมัติแล้ว
+              </button>
+            </div>
+          ) : null}
         </DetailDialog>
       ) : null}
     </>

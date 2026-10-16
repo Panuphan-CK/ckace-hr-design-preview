@@ -3,7 +3,9 @@ import {
   createIdempotencyClaim,
 } from "@ckace/auth";
 import {
+  CALENDAR_HOLDING_LEAVE_STATUSES,
   assertLeaveQuotaAvailable,
+  assertNoOverlappingLeave,
   calculateLeaveUnits,
   normalizeLeavePeriod,
   type LeaveWorkingCalendar,
@@ -16,7 +18,10 @@ import type {
   LeaveCreateInput,
   LeaveCreateResult,
   LeaveRequestView,
+  LeaveResubmitInput,
+  LeaveResubmitResult,
   LeaveSelfOverview,
+  LeaveWithdrawResult,
 } from "@ckace/contracts";
 import {
   Prisma,
@@ -24,6 +29,11 @@ import {
 } from "@prisma/client";
 
 import { resolveCompanyApprovalRoute } from "./approval-route-loader";
+import {
+  overlapPeriodOf,
+  resubmitSentBackLeave,
+  withdrawApprovedLeave,
+} from "./leave-revision-repository";
 
 /** Request states whose days count against the entitlement when a new request is checked. */
 export const QUOTA_RESERVING_STATUSES = ["APPROVED", "PENDING", "REVISION_REQUESTED"] as const;
@@ -76,6 +86,21 @@ export interface LeaveRepository {
     readonly requestId: string;
     readonly decision: LeaveApprovalDecisionInput;
   }): Promise<LeaveApprovalDecisionResult>;
+
+  resubmitLeave(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly request: LeaveResubmitInput;
+    readonly canonicalPayload: string;
+  }): Promise<LeaveResubmitResult>;
+
+  withdrawApprovedLeave(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly reason: string;
+  }): Promise<LeaveWithdrawResult>;
 }
 
 function dateOnly(value: Date): string {
@@ -629,6 +654,31 @@ export class PrismaLeaveRepository implements LeaveRepository {
             requested: requestedUsage,
           });
 
+          // The same employee cannot hold two requests for the same day or hours.
+          const holding = await tx.leaveRequest.findMany({
+            where: {
+              requesterEmployeeId: input.employeeId,
+              status: { in: [...CALENDAR_HOLDING_LEAVE_STATUSES] },
+            },
+            select: {
+              startDate: true,
+              endDate: true,
+              durationCode: true,
+              startTime: true,
+              endTime: true,
+            },
+          });
+          assertNoOverlappingLeave(
+            {
+              startDate: input.request.startDate,
+              endDate: input.request.endDate,
+              durationCode: input.request.durationCode,
+              startTime: input.request.startTime ?? null,
+              endTime: input.request.endTime ?? null,
+            },
+            holding.map(overlapPeriodOf),
+          );
+
           const approval = await approvalOptionsFor(
             tx,
             input.employeeId,
@@ -963,9 +1013,26 @@ export class PrismaLeaveRepository implements LeaveRepository {
         let status:
           | "PENDING"
           | "APPROVED"
-          | "REJECTED";
+          | "REJECTED"
+          | "REVISION_REQUESTED";
 
-        if (input.decision.decision === "REJECTED") {
+        if (input.decision.decision === "REVISION_REQUESTED") {
+          // Sent back: later steps stay PENDING and the request re-enters this step on resubmission.
+          status = "REVISION_REQUESTED";
+          await Promise.all([
+            tx.approvalInstance.update({
+              where: { id: request.approvalInstanceId },
+              data: { status: "REVISION_REQUESTED" },
+            }),
+            tx.leaveRequest.update({
+              where: { id: request.id },
+              data: {
+                status: "REVISION_REQUESTED",
+                decisionReason: input.decision.comment?.trim() || null,
+              },
+            }),
+          ]);
+        } else if (input.decision.decision === "REJECTED") {
           status = "REJECTED";
           await Promise.all([
             tx.approvalInstance.update({
@@ -1083,5 +1150,24 @@ export class PrismaLeaveRepository implements LeaveRepository {
           Prisma.TransactionIsolationLevel.Serializable,
       },
     );
+  }
+
+  async resubmitLeave(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly request: LeaveResubmitInput;
+    readonly canonicalPayload: string;
+  }): Promise<LeaveResubmitResult> {
+    return resubmitSentBackLeave(this.prisma, input);
+  }
+
+  async withdrawApprovedLeave(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly reason: string;
+  }): Promise<LeaveWithdrawResult> {
+    return withdrawApprovedLeave(this.prisma, input);
   }
 }

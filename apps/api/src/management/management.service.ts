@@ -2,6 +2,11 @@ import type {
   LeaveCalendarView,
   LeaveEntitlementAdminItem,
   LeaveEntitlementOptions,
+  ApprovalPolicyInput,
+  ApprovalPolicyItem,
+  OvertimeReportRow,
+  ProfessionalRoleItem,
+  VacationGenerationResult,
   ManagedAccountState,
   ManagedEmployeeItem,
   ManagementReportView,
@@ -10,7 +15,10 @@ import type {
   RoleAssignmentInput,
   WorkCalendarAdminView,
 } from "@ckace/contracts";
-import type { ManagementRepository } from "@ckace/database";
+import type {
+  ManagementRepository,
+  OvertimeReportFilters,
+} from "@ckace/database";
 import { Inject, Injectable } from "@nestjs/common";
 
 export const MANAGEMENT_REPOSITORY = "CKACE_MANAGEMENT_REPOSITORY";
@@ -43,6 +51,9 @@ export class ManagementService {
       readonly departmentId?: string | null;
       readonly companyId?: string | null;
       readonly managerEmployeeId?: string | null;
+      readonly approvalRouteMode?: "STANDARD" | "MANAGER_FIRST";
+      readonly overtimeTransportSatang?: number;
+      readonly attendanceExempt?: boolean;
     },
     actorEmployeeId: string,
   ): Promise<ManagedEmployeeItem> {
@@ -140,6 +151,66 @@ export class ManagementService {
 
   entitlementOptions(): Promise<LeaveEntitlementOptions> {
     return this.repository.entitlementOptions();
+  }
+
+  approvalPolicies(): Promise<readonly ApprovalPolicyItem[]> {
+    return this.repository.listApprovalPolicies();
+  }
+
+  saveApprovalPolicy(
+    input: ApprovalPolicyInput,
+    actorEmployeeId: string,
+  ): Promise<ApprovalPolicyItem> {
+    return this.repository.saveApprovalPolicy(input, actorEmployeeId);
+  }
+
+  professionalRoles(): Promise<readonly ProfessionalRoleItem[]> {
+    return this.repository.listProfessionalRoles();
+  }
+
+  createProfessionalRole(
+    input: { readonly key: string; readonly name: string; readonly attendanceExempt: boolean },
+    actorEmployeeId: string,
+  ): Promise<ProfessionalRoleItem> {
+    return this.repository.createProfessionalRole(input, actorEmployeeId);
+  }
+
+  updateProfessionalRole(
+    id: string,
+    input: {
+      readonly name?: string;
+      readonly attendanceExempt?: boolean;
+      readonly active?: boolean;
+    },
+    actorEmployeeId: string,
+  ): Promise<ProfessionalRoleItem> {
+    return this.repository.updateProfessionalRole(id, input, actorEmployeeId);
+  }
+
+  setEmployeeProfessionalRoles(
+    employeeId: string,
+    professionalRoleIds: readonly string[],
+    actorEmployeeId: string,
+  ) {
+    return this.repository.setEmployeeProfessionalRoles(
+      employeeId,
+      professionalRoleIds,
+      actorEmployeeId,
+    );
+  }
+
+  overtimeReport(
+    filters: OvertimeReportFilters,
+    actorEmployeeId: string,
+  ): Promise<readonly OvertimeReportRow[]> {
+    return this.repository.overtimeReport(filters, actorEmployeeId);
+  }
+
+  generateVacationEntitlements(
+    year: number,
+    actorEmployeeId: string,
+  ): Promise<VacationGenerationResult> {
+    return this.repository.generateVacationEntitlements(year, actorEmployeeId);
   }
 
   upsertEntitlement(

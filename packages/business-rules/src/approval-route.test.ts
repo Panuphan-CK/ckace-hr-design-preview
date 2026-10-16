@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildRouteSteps,
   resolveApprovalRoute,
   validateApprovalSelection,
   type ApprovalRouteStep,
@@ -243,5 +244,64 @@ describe("approval route for the Owner's organisation", () => {
     expect(
       validateApprovalSelection(resolved, userA.id, ["lead-b"]),
     ).toEqual({ ok: false, error: "NOT_A_CANDIDATE" });
+  });
+});
+
+describe("per-employee route mode", () => {
+  const policy: ApprovalRouteStep[] = [
+    { kind: "ROLE", roleKey: "SUPER_USER" },
+    { kind: "ROLE", roleKey: "ADMIN" },
+    { kind: "ROLE", roleKey: "SUPER_ADMIN", peerFallback: true },
+  ];
+
+  it("keeps the standard steps for STANDARD or when there is no manager", () => {
+    expect(
+      buildRouteSteps({
+        policySteps: policy,
+        mode: "STANDARD",
+        managerRoleKeys: ["ADMIN"],
+      }),
+    ).toEqual(policy);
+    expect(
+      buildRouteSteps({
+        policySteps: policy,
+        mode: "MANAGER_FIRST",
+        managerRoleKeys: null,
+      }),
+    ).toEqual(policy);
+  });
+
+  it("sends a manager-first employee to the manager, then only higher levels", () => {
+    expect(
+      buildRouteSteps({
+        policySteps: policy,
+        mode: "MANAGER_FIRST",
+        managerRoleKeys: ["ADMIN"],
+      }),
+    ).toEqual([{ kind: "DIRECT_MANAGER" }, policy[2]]);
+  });
+
+  it("keeps every policy step when the manager holds none of the roles", () => {
+    expect(
+      buildRouteSteps({
+        policySteps: policy,
+        mode: "MANAGER_FIRST",
+        managerRoleKeys: ["COORDINATOR"],
+      }),
+    ).toEqual([{ kind: "DIRECT_MANAGER" }, ...policy]);
+  });
+
+  it("resolves the clerk through the Admin and the company SuperAdmin", () => {
+    const steps = buildRouteSteps({
+      policySteps: policy,
+      mode: "MANAGER_FIRST",
+      managerRoleKeys: ["ADMIN"],
+    });
+    const result = route(clerk, [...steps]);
+
+    expect(result.steps.map((step) => step.candidateIds)).toEqual([
+      ["admin"],
+      ["sa-acc"],
+    ]);
   });
 });

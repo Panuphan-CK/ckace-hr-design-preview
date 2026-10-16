@@ -29,6 +29,11 @@ import {
   type PrismaClient,
 } from "@prisma/client";
 
+import {
+  resolveCompanyApprovalRoute,
+  systemSelectedApprovals,
+} from "./approval-route-loader";
+
 export interface OvertimeRepository {
   getSelfOverview(
     employeeId: string,
@@ -230,7 +235,7 @@ export function buildOvertimeApproverScopeWhere(
 async function resolveOvertimeApproval(
   prisma: Pick<
     Prisma.TransactionClient,
-    "approvalPolicy" | "employee"
+    "approvalPolicy" | "employee" | "agency"
   >,
   requester: ActiveEmployeeContext,
 ): Promise<OvertimeApprovalResolution> {
@@ -251,6 +256,7 @@ async function resolveOvertimeApproval(
           stepOrder: true,
           requiredRoleId: true,
           scope: true,
+          requiredRole: { select: { key: true } },
         },
         orderBy: { stepOrder: "asc" },
       },
@@ -270,6 +276,31 @@ async function resolveOvertimeApproval(
     throw new Error(
       "Overtime approval policy is unavailable",
     );
+  }
+
+  // Company-aware routing (Owner organisation). Teams that are not attached to
+  // a company keep the legacy per-agency lookup below.
+  const routed = await resolveCompanyApprovalRoute(
+    prisma,
+    requester.id,
+    policy.steps.map((step) => ({
+      kind: "ROLE" as const,
+      roleKey: step.requiredRole.key,
+      selection: "SYSTEM_PICKS_FIRST" as const,
+      peerFallback: true,
+    })),
+    { defaultSelection: "SYSTEM_PICKS_FIRST" },
+  );
+
+  if (routed) {
+    if (routed.route.steps.length === 0) {
+      throw new Error("No eligible approver for overtime");
+    }
+
+    return {
+      policyId: policy.id,
+      steps: [...systemSelectedApprovals(routed.route)],
+    };
   }
 
   const steps: {
@@ -820,6 +851,9 @@ export class PrismaOvertimeRepository
                       endTime: timeValue(day.endTime),
                       requestedMinutes:
                         day.requestedMinutes,
+                      ...(normalized.breaks
+                        ? { breakCodes: [...normalized.breaks] }
+                        : {}),
                     },
                   },
                 },

@@ -20,6 +20,11 @@ enum ApprovalScope {
   GLOBAL
 }
 
+enum ApprovalRouteMode {
+  STANDARD
+  MANAGER_FIRST
+}
+
 enum RoleScopeType {
   PLATFORM
   COMPANY
@@ -49,6 +54,7 @@ enum ApprovalStepStatus {
   REJECTED
   SKIPPED
   CANCELLED
+  REVISION_REQUESTED
 }
 
 enum LeaveDurationCode {
@@ -124,8 +130,8 @@ model Company {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  agencies  Agency[]
-  employees Employee[]
+  agencies   Agency[]
+  employees  Employee[]
   roleScopes UserRole[]
 
   @@index([name])
@@ -140,7 +146,7 @@ model Agency {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  company          Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  company          Company?         @relation(fields: [companyId], references: [id], onDelete: SetNull)
   employees        Employee[]
   approvalPolicies ApprovalPolicy[]
   announcements    Announcement[]
@@ -165,20 +171,27 @@ model Department {
 }
 
 model Employee {
-  id              String    @id @default(uuid()) @db.Uuid
-  fullName        String
-  nickname        String?
-  dateOfBirth     DateTime? @db.Date
-  employmentStart DateTime? @db.Date
-  resignationDate DateTime? @db.Date
-  agencyId        String?   @db.Uuid
-  departmentId    String?   @db.Uuid
+  id                      String                     @id @default(uuid()) @db.Uuid
+  fullName                String
+  nickname                String?
+  dateOfBirth             DateTime?                  @db.Date
+  employmentStart         DateTime?                  @db.Date
+  resignationDate         DateTime?                  @db.Date
+  agencyId                String?                    @db.Uuid
+  departmentId            String?                    @db.Uuid
   /// Employing company (contract); the team (agency) belongs to a company too.
-  companyId       String?   @db.Uuid
+  companyId               String?                    @db.Uuid
   /// Direct manager; used by DIRECT_MANAGER approval steps.
-  managerEmployeeId String? @db.Uuid
-  createdAt       DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime  @updatedAt @db.Timestamptz(3)
+  managerEmployeeId       String?                    @db.Uuid
+  /// STANDARD uses the policy as written; MANAGER_FIRST sends requests to the direct manager first.
+  approvalRouteMode       ApprovalRouteMode          @default(STANDARD)
+  /// Fixed transport allowance per overtime day in satang (differs per person); 0 = none.
+  overtimeTransportSatang Int                        @default(0)
+  /// True for people who do not clock in (for example auditors): excluded from attendance statistics.
+  attendanceExempt        Boolean                    @default(false)
+  professionalRoles       EmployeeProfessionalRole[]
+  createdAt               DateTime                   @default(now()) @db.Timestamptz(3)
+  updatedAt               DateTime                   @updatedAt @db.Timestamptz(3)
 
   company           Company?                @relation(fields: [companyId], references: [id], onDelete: SetNull)
   manager           Employee?               @relation("EmployeeManager", fields: [managerEmployeeId], references: [id], onDelete: SetNull)
@@ -265,9 +278,9 @@ model Permission {
 }
 
 model UserRole {
-  userAccountId String        @db.Uuid
-  roleId        String        @db.Uuid
-  assignedAt    DateTime      @default(now()) @db.Timestamptz(3)
+  userAccountId  String        @db.Uuid
+  roleId         String        @db.Uuid
+  assignedAt     DateTime      @default(now()) @db.Timestamptz(3)
   /// Approve scope of this role. PLATFORM keeps the pre-existing global meaning.
   scopeType      RoleScopeType @default(PLATFORM)
   scopeCompanyId String?       @db.Uuid
@@ -559,6 +572,8 @@ model OvertimeSegment {
   startTime          DateTime @db.Time(0)
   endTime            DateTime @db.Time(0)
   requestedMinutes   Int
+  /// Breaks the employee took inside the overtime window (list of OvertimeBreakCode); null = legacy default.
+  breakCodes         Json?
   createdAt          DateTime @default(now()) @db.Timestamptz(3)
 
   request          OvertimeRequest   @relation(fields: [overtimeRequestId], references: [id], onDelete: Cascade)
@@ -567,6 +582,46 @@ model OvertimeSegment {
   @@index([overtimeRequestId, workDate])
   @@index([attendanceRecordId])
   @@map("overtime_segments")
+}
+
+/// Professional role (bookkeeper, responsible person, auditor...). Whether the role needs to clock in is configurable.
+model ProfessionalRole {
+  id               String   @id @default(uuid()) @db.Uuid
+  key              String   @unique
+  name             String
+  /// People holding this role do not need to clock in and are left out of attendance statistics.
+  attendanceExempt Boolean  @default(false)
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(3)
+
+  assignments EmployeeProfessionalRole[]
+
+  @@map("professional_roles")
+}
+
+model EmployeeProfessionalRole {
+  employeeId         String   @db.Uuid
+  professionalRoleId String   @db.Uuid
+  assignedAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  employee         Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  professionalRole ProfessionalRole @relation(fields: [professionalRoleId], references: [id], onDelete: Cascade)
+
+  @@id([employeeId, professionalRoleId])
+  @@index([professionalRoleId])
+  @@map("employee_professional_roles")
+}
+
+/// Company-wide overtime allowance rule (one row per kind). Transport amount is per person on Employee.
+model OvertimeAllowancePolicy {
+  kind                  String   @id
+  amountSatang          Int      @default(0)
+  paidWhenEndsAtOrAfter String
+  active                Boolean  @default(true)
+  updatedAt             DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("overtime_allowance_policies")
 }
 
 model BenefitPolicy {

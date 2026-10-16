@@ -5,6 +5,7 @@ import {
   assertSingleAttendanceBusinessDayRecord,
   attendanceBusinessParts,
   calculateActualApprovedOvertimeMinutes,
+  companyCorrectionApproverRoles,
   correctionApproverPlan,
   formatAttendanceLocationText,
 } from "./attendance-repository";
@@ -121,5 +122,23 @@ describe("attendance repository guards", () => {
     expect(() =>
       assertSingleAttendanceBusinessDayRecord(0),
     ).toThrow("Attendance record is unavailable");
+  });
+});
+
+describe("company-aware time correction approver roles", () => {
+  it("only picks approvers above the requester", () => {
+    expect(companyCorrectionApproverRoles(["EMPLOYEE"])).toEqual([
+      "SUPERUSER",
+      "ADMIN",
+      "SUPERADMIN",
+    ]);
+    expect(companyCorrectionApproverRoles(["SUPERUSER"])).toEqual([
+      "ADMIN",
+      "SUPERADMIN",
+    ]);
+    expect(companyCorrectionApproverRoles(["admin"])).toEqual(["SUPERADMIN"]);
+    expect(companyCorrectionApproverRoles(["SUPERADMIN"])).toEqual([
+      "SUPERADMIN",
+    ]);
   });
 });

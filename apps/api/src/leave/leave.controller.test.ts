@@ -3,6 +3,7 @@ import type {
   LeaveApprovalDecisionInput,
   LeaveApprovalStepOptions,
   LeaveCreateInput,
+  LeaveResubmitInput,
   LeaveSelfOverview,
 } from "@ckace/contracts";
 import type { LeaveRepository } from "@ckace/database";
@@ -34,6 +35,22 @@ class FakeLeaveRepository implements LeaveRepository {
         correlationId: string;
         request: LeaveCreateInput;
         canonicalPayload: string;
+      }
+    | undefined;
+
+  lastResubmit:
+    | {
+        employeeId: string;
+        requestId: string;
+        request: LeaveResubmitInput;
+      }
+    | undefined;
+
+  lastWithdraw:
+    | {
+        actorEmployeeId: string;
+        requestId: string;
+        reason: string;
       }
     | undefined;
 
@@ -75,6 +92,36 @@ class FakeLeaveRepository implements LeaveRepository {
     };
   }
 
+  async resubmitLeave(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly request: LeaveResubmitInput;
+    readonly canonicalPayload: string;
+  }) {
+    this.lastResubmit = input;
+
+    return {
+      requestId: input.requestId,
+      returnedToStep: 1,
+      replayed: false,
+    };
+  }
+
+  async withdrawApprovedLeave(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly reason: string;
+  }) {
+    this.lastWithdraw = input;
+
+    return {
+      requestId: input.requestId,
+      status: "CANCELLED" as const,
+    };
+  }
+
   async decideLeave(input: {
     readonly approverEmployeeId: string;
     readonly correlationId: string;
@@ -87,7 +134,9 @@ class FakeLeaveRepository implements LeaveRepository {
       status:
         input.decision.decision === "REJECTED"
           ? ("REJECTED" as const)
-          : ("APPROVED" as const),
+          : input.decision.decision === "REVISION_REQUESTED"
+            ? ("REVISION_REQUESTED" as const)
+            : ("APPROVED" as const),
     };
   }
 }
@@ -265,4 +314,76 @@ describe("LeaveController / LeaveService", () => {
       status: "CANCELLED",
     });
   });
+  it("lets an approver send a leave request back only with a comment", async () => {
+    const repository = new FakeLeaveRepository();
+    const controller = new LeaveController(new LeaveService(repository));
+    const approver = { ...actor, permissions: ["leave.approve"] };
+
+    await expect(
+      controller.decide({ actor: approver }, "req-1", {
+        approvalStepId: "step-1",
+        decision: "REVISION_REQUESTED",
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    const result = await controller.decide({ actor: approver }, "req-1", {
+      approvalStepId: "step-1",
+      decision: "REVISION_REQUESTED",
+      comment: "แนบใบรับรองแพทย์เพิ่ม",
+    });
+
+    expect(result.status).toBe("REVISION_REQUESTED");
+    expect(repository.lastDecision?.decision.comment).toBe("แนบใบรับรองแพทย์เพิ่ม");
+  });
+
+  it("resubmits for the server actor and validates the body", async () => {
+    const repository = new FakeLeaveRepository();
+    const controller = new LeaveController(new LeaveService(repository));
+
+    await expect(
+      controller.resubmit({ actor }, "req-1", { description: "x" }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    const result = await controller.resubmit({ actor }, "req-1", {
+      clientKey: "resubmit-key-0001",
+      description: "แก้ไขแล้ว",
+      startDate: "2026-10-20",
+      endDate: "2026-10-20",
+      durationCode: "FULL_DAY",
+      employeeId: "someone-else",
+    });
+
+    expect(result.returnedToStep).toBe(1);
+    expect(repository.lastResubmit?.employeeId).toBe(actor.employeeId);
+    expect(repository.lastResubmit?.requestId).toBe("req-1");
+  });
+
+  it("withdraws approved leave only through the dedicated permission with a reason", async () => {
+    const repository = new FakeLeaveRepository();
+    const controller = new LeaveController(new LeaveService(repository));
+    const top = { ...actor, permissions: ["leave.approved.withdraw"] };
+
+    expect(
+      Reflect.getMetadata(
+        REQUIRE_PERMISSION_KEY,
+        LeaveController.prototype.withdraw,
+      ),
+    ).toEqual({ permission: "leave.approved.withdraw", scope: "GLOBAL" });
+
+    await expect(
+      controller.withdraw({ actor: top }, "req-1", {}),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    await controller.withdraw({ actor: top }, "req-1", {
+      reason: "ผู้ขอแจ้งยกเลิกการลา",
+    });
+
+    expect(repository.lastWithdraw).toEqual({
+      actorEmployeeId: actor.employeeId,
+      correlationId: "corr-leave",
+      requestId: "req-1",
+      reason: "ผู้ขอแจ้งยกเลิกการลา",
+    });
+  });
+
 });

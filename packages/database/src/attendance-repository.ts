@@ -34,6 +34,8 @@ import {
   type PrismaClient,
 } from "@prisma/client";
 
+import { resolveCompanyApprovalRoute } from "./approval-route-loader";
+
 export interface AttendanceRepository {
   getSelfOverview(
     employeeId: string,
@@ -223,6 +225,32 @@ export function correctionApproverPlan(
   throw new Error(
     "Time correction approver chain is unavailable for requester role",
   );
+}
+
+/**
+ * Company-aware plan: approvers must be above the requester. A top-level
+ * requester (SUPERADMIN) is approved by the other SUPERADMIN (peer).
+ */
+export function companyCorrectionApproverRoles(
+  roleKeys: readonly string[],
+): readonly string[] {
+  const normalized = new Set(
+    roleKeys.map((role) => role.trim().toUpperCase()),
+  );
+
+  if (normalized.has("SUPERADMIN")) {
+    return ["SUPERADMIN"];
+  }
+
+  if (normalized.has("ADMIN")) {
+    return ["SUPERADMIN"];
+  }
+
+  if (normalized.has("SUPERUSER")) {
+    return ["ADMIN", "SUPERADMIN"];
+  }
+
+  return ["SUPERUSER", "ADMIN", "SUPERADMIN"];
 }
 
 export function assertCorrectionAttendanceDateMatch(
@@ -520,13 +548,40 @@ async function attendanceDayContext(
 }
 
 async function resolveCorrectionApprover(
-  prisma: Pick<Prisma.TransactionClient, "employee">,
+  prisma: Pick<Prisma.TransactionClient, "employee" | "agency">,
   requester: ActiveEmployeeContext,
 ): Promise<string> {
   if (!requester.agencyId) {
     throw new Error(
       "Time correction requester agency is required",
     );
+  }
+
+  // Company-aware routing (Owner organisation); legacy plan below otherwise.
+  const routed = await resolveCompanyApprovalRoute(
+    prisma,
+    requester.id,
+    companyCorrectionApproverRoles(requester.roleKeys).map(
+      (roleKey) => ({
+        kind: "ROLE" as const,
+        roleKey,
+        selection: "SYSTEM_PICKS_FIRST" as const,
+        peerFallback: true,
+      }),
+    ),
+    { defaultSelection: "SYSTEM_PICKS_FIRST" },
+  );
+
+  if (routed) {
+    const first = routed.route.steps[0]?.selectedId;
+
+    if (!first) {
+      throw new Error(
+        "No eligible time correction approver is available",
+      );
+    }
+
+    return first;
   }
 
   for (const step of correctionApproverPlan(

@@ -40,6 +40,7 @@ describe("SecurityController session diagnostics", () => {
         requestStatus: false,
         approvals: false,
         leaveApprovals: false,
+        leaveWithdraw: false,
         timeCorrectionApprovals: false,
         overtimeApprovals: false,
         medicalApprovals: false,

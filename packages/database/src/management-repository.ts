@@ -6,6 +6,11 @@ import type {
   LeaveCalendarView,
   LeaveEntitlementAdminItem,
   LeaveEntitlementOptions,
+  ApprovalPolicyInput,
+  ApprovalPolicyItem,
+  OvertimeReportRow,
+  ProfessionalRoleItem,
+  VacationGenerationResult,
   ManagedAccountState,
   ManagedEmployeeItem,
   ManagementReportView,
@@ -15,6 +20,13 @@ import type {
   WorkCalendarAdminView,
 } from "@ckace/contracts";
 import type { Prisma, PrismaClient } from "@prisma/client";
+import { ATTENDANCE_STATS_EMPLOYEE_FILTER, isAttendanceExempt } from "./attendance-exemption";
+import {
+  loadOvertimeReportRows,
+  recordOvertimeReportExport,
+  type OvertimeReportFilters,
+} from "./overtime-report-repository";
+import { generateVacationEntitlementsForYear } from "./vacation-entitlement";
 
 export interface ManagementRepository {
   calendar(from: Date, to: Date): Promise<LeaveCalendarView>;
@@ -29,12 +41,39 @@ export interface ManagementRepository {
       readonly departmentId?: string | null;
       readonly companyId?: string | null;
       readonly managerEmployeeId?: string | null;
+      readonly approvalRouteMode?: "STANDARD" | "MANAGER_FIRST";
+      readonly overtimeTransportSatang?: number;
+      readonly attendanceExempt?: boolean;
     },
     actorEmployeeId: string,
   ): Promise<ManagedEmployeeItem>;
   setEmployeeRoleAssignments(
     employeeId: string,
     assignments: readonly RoleAssignmentInput[],
+    actorEmployeeId: string,
+  ): Promise<ManagedEmployeeItem>;
+  listApprovalPolicies(): Promise<readonly ApprovalPolicyItem[]>;
+  saveApprovalPolicy(
+    input: ApprovalPolicyInput,
+    actorEmployeeId: string,
+  ): Promise<ApprovalPolicyItem>;
+  listProfessionalRoles(): Promise<readonly ProfessionalRoleItem[]>;
+  createProfessionalRole(
+    input: { readonly key: string; readonly name: string; readonly attendanceExempt: boolean },
+    actorEmployeeId: string,
+  ): Promise<ProfessionalRoleItem>;
+  updateProfessionalRole(
+    id: string,
+    input: {
+      readonly name?: string;
+      readonly attendanceExempt?: boolean;
+      readonly active?: boolean;
+    },
+    actorEmployeeId: string,
+  ): Promise<ProfessionalRoleItem>;
+  setEmployeeProfessionalRoles(
+    employeeId: string,
+    professionalRoleIds: readonly string[],
     actorEmployeeId: string,
   ): Promise<ManagedEmployeeItem>;
   listCompanies(): Promise<readonly OrganizationUnitItem[]>;
@@ -69,6 +108,14 @@ export interface ManagementRepository {
   ): Promise<OrganizationUnitItem>;
   listEntitlements(): Promise<readonly LeaveEntitlementAdminItem[]>;
   entitlementOptions(): Promise<LeaveEntitlementOptions>;
+  generateVacationEntitlements(
+    year: number,
+    actorEmployeeId: string,
+  ): Promise<VacationGenerationResult>;
+  overtimeReport(
+    filters: OvertimeReportFilters,
+    actorEmployeeId: string,
+  ): Promise<readonly OvertimeReportRow[]>;
   upsertEntitlement(
     input: {
       readonly employeeId: string;
@@ -106,6 +153,62 @@ function dateOnly(value: Date): string {
   return value.toISOString().slice(0, 10);
 }
 
+const APPROVAL_POLICY_KINDS = ["LEAVE", "TIME_CORRECTION", "OVERTIME", "MEDICAL"] as const;
+
+const APPROVAL_POLICY_SELECT = {
+  id: true,
+  requestKind: true,
+  agencyId: true,
+  name: true,
+  active: true,
+  agency: { select: { name: true } },
+  steps: {
+    select: {
+      stepOrder: true,
+      scope: true,
+      requiredRole: { select: { key: true, name: true } },
+    },
+    orderBy: { stepOrder: "asc" },
+  },
+} as const;
+
+function approvalPolicyView(row: {
+  id: string;
+  requestKind: string;
+  agencyId: string | null;
+  name: string;
+  active: boolean;
+  agency: { name: string } | null;
+  steps: readonly {
+    stepOrder: number;
+    scope: "SAME_AGENCY" | "SAME_DEPARTMENT" | "GLOBAL";
+    requiredRole: { key: string; name: string };
+  }[];
+}): ApprovalPolicyItem {
+  return {
+    id: row.id,
+    requestKind: row.requestKind as ApprovalPolicyItem["requestKind"],
+    agencyId: row.agencyId,
+    agencyName: row.agency?.name ?? null,
+    name: row.name,
+    active: row.active,
+    steps: row.steps.map((step) => ({
+      stepOrder: step.stepOrder,
+      roleKey: step.requiredRole.key,
+      roleName: step.requiredRole.name,
+      scope: step.scope,
+    })),
+  };
+}
+
+const PROFESSIONAL_ROLE_SELECT = {
+  id: true,
+  key: true,
+  name: true,
+  attendanceExempt: true,
+  active: true,
+} as const;
+
 const MANAGED_EMPLOYEE_SELECT = {
   id: true,
   fullName: true,
@@ -113,6 +216,17 @@ const MANAGED_EMPLOYEE_SELECT = {
   departmentId: true,
   companyId: true,
   managerEmployeeId: true,
+  approvalRouteMode: true,
+  overtimeTransportSatang: true,
+  attendanceExempt: true,
+  professionalRoles: {
+    select: {
+      professionalRole: {
+        select: { id: true, key: true, name: true, attendanceExempt: true, active: true },
+      },
+    },
+    orderBy: { assignedAt: "asc" },
+  },
   agency: {
     select: {
       name: true,
@@ -160,6 +274,11 @@ function employeeView(row: ManagedEmployeeRow): ManagedEmployeeItem {
     companyName: row.company?.name ?? row.agency?.company?.name ?? null,
     managerEmployeeId: row.managerEmployeeId,
     managerName: row.manager?.fullName ?? null,
+    approvalRouteMode: row.approvalRouteMode,
+    overtimeTransportSatang: row.overtimeTransportSatang,
+    attendanceExempt: row.attendanceExempt,
+    attendanceExemptEffective: isAttendanceExempt(row),
+    professionalRoles: row.professionalRoles.map((item) => item.professionalRole),
     roles: roleRows.map(({ role }) => role),
     roleAssignments: roleRows.map((item) => ({
       roleId: item.role.id,
@@ -248,6 +367,7 @@ export class PrismaManagementRepository implements ManagementRepository {
         where: {
           workDate: { gte: from, lte: to },
           checkOutAt: { not: null },
+          employee: { is: ATTENDANCE_STATS_EMPLOYEE_FILTER },
         },
         select: {
           id: true,
@@ -372,6 +492,9 @@ export class PrismaManagementRepository implements ManagementRepository {
       readonly departmentId?: string | null;
       readonly companyId?: string | null;
       readonly managerEmployeeId?: string | null;
+      readonly approvalRouteMode?: "STANDARD" | "MANAGER_FIRST";
+      readonly overtimeTransportSatang?: number;
+      readonly attendanceExempt?: boolean;
     },
     actorEmployeeId: string,
   ): Promise<ManagedEmployeeItem> {
@@ -424,6 +547,15 @@ export class PrismaManagementRepository implements ManagementRepository {
           ...(input.managerEmployeeId !== undefined
             ? { managerEmployeeId: input.managerEmployeeId }
             : {}),
+          ...(input.approvalRouteMode !== undefined
+            ? { approvalRouteMode: input.approvalRouteMode }
+            : {}),
+          ...(input.overtimeTransportSatang !== undefined
+            ? { overtimeTransportSatang: input.overtimeTransportSatang }
+            : {}),
+          ...(input.attendanceExempt !== undefined
+            ? { attendanceExempt: input.attendanceExempt }
+            : {}),
         },
         select: { id: true },
       });
@@ -440,6 +572,9 @@ export class PrismaManagementRepository implements ManagementRepository {
             departmentChanged: input.departmentId !== undefined,
             companyChanged: input.companyId !== undefined,
             managerChanged: input.managerEmployeeId !== undefined,
+            approvalRouteMode: input.approvalRouteMode ?? null,
+            overtimeTransportChanged: input.overtimeTransportSatang !== undefined,
+            attendanceExempt: input.attendanceExempt ?? null,
           },
         },
       });
@@ -544,6 +679,186 @@ export class PrismaManagementRepository implements ManagementRepository {
         },
       });
 
+      return loadManagedEmployee(tx, employeeId);
+    });
+  }
+
+  async listApprovalPolicies(): Promise<readonly ApprovalPolicyItem[]> {
+    const rows = await this.prisma.approvalPolicy.findMany({
+      where: { requestKind: { in: [...APPROVAL_POLICY_KINDS] } },
+      select: APPROVAL_POLICY_SELECT,
+      orderBy: [{ requestKind: "asc" }, { agencyId: "asc" }, { id: "asc" }],
+    });
+    return rows.map(approvalPolicyView);
+  }
+
+  async saveApprovalPolicy(
+    input: ApprovalPolicyInput,
+    actorEmployeeId: string,
+  ): Promise<ApprovalPolicyItem> {
+    if (!APPROVAL_POLICY_KINDS.includes(input.requestKind)) {
+      throw new Error("Unsupported approval policy kind");
+    }
+    if (input.steps.length < 1 || input.steps.length > 5) {
+      throw new Error("An approval policy needs 1 to 5 steps");
+    }
+    return this.prisma.$transaction(async (tx) => {
+      if (input.agencyId) {
+        const agency = await tx.agency.findUnique({
+          where: { id: input.agencyId },
+          select: { id: true },
+        });
+        if (!agency) throw new Error("Agency was not found");
+      }
+      const roleKeys = [...new Set(input.steps.map((step) => step.roleKey))];
+      const roles = await tx.role.findMany({
+        where: { key: { in: roleKeys } },
+        select: { id: true, key: true },
+      });
+      if (roles.length !== roleKeys.length) throw new Error("Unknown approver role");
+      const roleId = new Map(roles.map((role) => [role.key, role.id]));
+      const existing = await tx.approvalPolicy.findFirst({
+        where: { requestKind: input.requestKind, agencyId: input.agencyId },
+        select: { id: true },
+        orderBy: { createdAt: "asc" },
+      });
+      const policyId = existing
+        ? (
+            await tx.approvalPolicy.update({
+              where: { id: existing.id },
+              data: { name: input.name, active: input.active },
+              select: { id: true },
+            })
+          ).id
+        : (
+            await tx.approvalPolicy.create({
+              data: {
+                requestKind: input.requestKind,
+                agencyId: input.agencyId,
+                name: input.name,
+                active: input.active,
+              },
+              select: { id: true },
+            })
+          ).id;
+      await tx.approvalPolicyStep.deleteMany({ where: { policyId } });
+      await tx.approvalPolicyStep.createMany({
+        data: input.steps.map((step, index) => ({
+          policyId,
+          stepOrder: index + 1,
+          requiredRoleId: roleId.get(step.roleKey) as string,
+          scope: step.scope,
+        })),
+      });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId,
+          action: existing ? "APPROVAL_POLICY_UPDATED" : "APPROVAL_POLICY_CREATED",
+          entityType: "ApprovalPolicy",
+          entityId: policyId,
+          metadata: {
+            requestKind: input.requestKind,
+            agencyId: input.agencyId,
+            active: input.active,
+            steps: input.steps.map((step) => step.roleKey + ":" + step.scope),
+          },
+        },
+      });
+      const row = await tx.approvalPolicy.findUniqueOrThrow({
+        where: { id: policyId },
+        select: APPROVAL_POLICY_SELECT,
+      });
+      return approvalPolicyView(row);
+    });
+  }
+
+  async listProfessionalRoles(): Promise<readonly ProfessionalRoleItem[]> {
+    return this.prisma.professionalRole.findMany({
+      select: PROFESSIONAL_ROLE_SELECT,
+      orderBy: [{ active: "desc" }, { name: "asc" }, { id: "asc" }],
+    });
+  }
+
+  async createProfessionalRole(
+    input: { readonly key: string; readonly name: string; readonly attendanceExempt: boolean },
+    actorEmployeeId: string,
+  ): Promise<ProfessionalRoleItem> {
+    return this.prisma.$transaction(async (tx) => {
+      const row = await tx.professionalRole.create({
+        data: input,
+        select: PROFESSIONAL_ROLE_SELECT,
+      });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId,
+          action: "PROFESSIONAL_ROLE_CREATED",
+          entityType: "ProfessionalRole",
+          entityId: row.id,
+          metadata: { key: row.key, attendanceExempt: row.attendanceExempt },
+        },
+      });
+      return row;
+    });
+  }
+
+  async updateProfessionalRole(
+    id: string,
+    input: {
+      readonly name?: string;
+      readonly attendanceExempt?: boolean;
+      readonly active?: boolean;
+    },
+    actorEmployeeId: string,
+  ): Promise<ProfessionalRoleItem> {
+    return this.prisma.$transaction(async (tx) => {
+      const row = await tx.professionalRole.update({
+        where: { id },
+        data: input,
+        select: PROFESSIONAL_ROLE_SELECT,
+      });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId,
+          action: "PROFESSIONAL_ROLE_UPDATED",
+          entityType: "ProfessionalRole",
+          entityId: id,
+          metadata: {
+            attendanceExempt: input.attendanceExempt ?? null,
+            active: input.active ?? null,
+          },
+        },
+      });
+      return row;
+    });
+  }
+
+  async setEmployeeProfessionalRoles(
+    employeeId: string,
+    professionalRoleIds: readonly string[],
+    actorEmployeeId: string,
+  ): Promise<ManagedEmployeeItem> {
+    const ids = [...new Set(professionalRoleIds)];
+    return this.prisma.$transaction(async (tx) => {
+      const found = await tx.professionalRole.count({
+        where: { id: { in: ids }, active: true },
+      });
+      if (found !== ids.length) throw new Error("Unknown or inactive professional role");
+      await tx.employeeProfessionalRole.deleteMany({
+        where: { employeeId, professionalRoleId: { notIn: ids } },
+      });
+      await tx.employeeProfessionalRole.createMany({
+        data: ids.map((professionalRoleId) => ({ employeeId, professionalRoleId })),
+        skipDuplicates: true,
+      });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId,
+          action: "EMPLOYEE_PROFESSIONAL_ROLES_SET",
+          entityType: "Employee",
+          entityId: employeeId,
+          metadata: { professionalRoleIds: ids },
+        },
+      });
       return loadManagedEmployee(tx, employeeId);
     });
   }
@@ -783,6 +1098,29 @@ export class PrismaManagementRepository implements ManagementRepository {
       employees: employees.map((row) => ({ id: row.id, name: row.fullName })),
       leaveTypes,
     };
+  }
+
+  async overtimeReport(
+    filters: OvertimeReportFilters,
+    actorEmployeeId: string,
+  ): Promise<readonly OvertimeReportRow[]> {
+    const rows = await loadOvertimeReportRows(this.prisma, filters);
+    await recordOvertimeReportExport(this.prisma, {
+      actorEmployeeId,
+      filters,
+      rowCount: rows.length,
+    });
+    return rows;
+  }
+
+  generateVacationEntitlements(
+    year: number,
+    actorEmployeeId: string,
+  ): Promise<VacationGenerationResult> {
+    return generateVacationEntitlementsForYear(this.prisma, {
+      year,
+      actorEmployeeId,
+    });
   }
 
   async upsertEntitlement(

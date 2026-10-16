@@ -7,6 +7,11 @@ import type {
   PendingLineBindingResult,
 } from "@ckace/contracts";
 import type { AccountState, PrismaClient } from "@prisma/client";
+import {
+  currentLeaveYear,
+  ensureVacationEntitlement,
+  VACATION_LEAVE_TYPE_KEY,
+} from "./vacation-entitlement";
 
 export interface OnboardingCredentialRecord {
   readonly employeeId: string;
@@ -381,7 +386,13 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
       for (const rule of DEFAULT_ENTITLEMENTS) {
         const leaveType = leaveTypes.find((item) => item.key === rule.leaveTypeKey);
         if (!leaveType) throw new Error("Default leave type resolution failed");
-        if (!currentIds.has(leaveType.id)) {
+        if (rule.leaveTypeKey === VACATION_LEAVE_TYPE_KEY) {
+          await ensureVacationEntitlement(tx, {
+            employeeId,
+            year: currentLeaveYear(),
+            actorEmployeeId,
+          });
+        } else if (!currentIds.has(leaveType.id)) {
           await tx.leaveEntitlement.create({
             data: {
               employeeId,

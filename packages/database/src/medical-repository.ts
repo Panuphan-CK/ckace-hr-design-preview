@@ -29,6 +29,11 @@ import {
   type PrismaClient,
 } from "@prisma/client";
 
+import {
+  resolveCompanyApprovalRoute,
+  systemSelectedApprovals,
+} from "./approval-route-loader";
+
 export interface MedicalRepository {
   getSelfOverview(
     employeeId: string,
@@ -269,7 +274,7 @@ export function buildMedicalApproverScopeWhere(
 async function resolveMedicalApproval(
   prisma: Pick<
     Prisma.TransactionClient,
-    "approvalPolicy" | "employee"
+    "approvalPolicy" | "employee" | "agency"
   >,
   requester: ActiveMedicalEmployee,
 ): Promise<MedicalApprovalResolution> {
@@ -291,6 +296,7 @@ async function resolveMedicalApproval(
             stepOrder: true,
             requiredRoleId: true,
             scope: true,
+            requiredRole: { select: { key: true } },
           },
           orderBy: {
             stepOrder: "asc",
@@ -317,6 +323,31 @@ async function resolveMedicalApproval(
     throw new Error(
       "Medical approval policy is unavailable",
     );
+  }
+
+  // Company-aware routing (Owner organisation). Teams that are not attached to
+  // a company keep the legacy per-agency lookup below.
+  const routed = await resolveCompanyApprovalRoute(
+    prisma,
+    requester.id,
+    policy.steps.map((step) => ({
+      kind: "ROLE" as const,
+      roleKey: step.requiredRole.key,
+      selection: "SYSTEM_PICKS_FIRST" as const,
+      peerFallback: true,
+    })),
+    { defaultSelection: "SYSTEM_PICKS_FIRST" },
+  );
+
+  if (routed) {
+    if (routed.route.steps.length === 0) {
+      throw new Error("No eligible approver for medical");
+    }
+
+    return {
+      policyId: policy.id,
+      steps: [...systemSelectedApprovals(routed.route)],
+    };
   }
 
   const steps: {

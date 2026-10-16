@@ -3,7 +3,9 @@ import type {
   LeaveApprovalStepOptions,
   LeaveCancelResult,
   LeaveCreateResult,
+  LeaveResubmitResult,
   LeaveSelfOverview,
+  LeaveWithdrawResult,
 } from "@ckace/contracts";
 import {
   Body,
@@ -83,6 +85,44 @@ export class LeaveController {
 
     return this.service.decideLeave({
       approverEmployeeId: actor.employeeId,
+      correlationId:
+        request.correlationId ?? actor.correlationId,
+      requestId,
+      body,
+    });
+  }
+
+  @Post("requests/:requestId/resubmit")
+  @ModuleRoute("LEAVE_WRITE")
+  @RequireSelfPermission("leave.self.write")
+  async resubmit(
+    @Req() request: SecurityRequest,
+    @Param("requestId") requestId: string,
+    @Body() body: unknown,
+  ): Promise<LeaveResubmitResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.resubmitLeave({
+      employeeId: actor.employeeId,
+      correlationId:
+        request.correlationId ?? actor.correlationId,
+      requestId,
+      body,
+    });
+  }
+
+  @Post("requests/:requestId/withdraw")
+  @ModuleRoute("LEAVE_WRITE")
+  @RequirePermission("leave.approved.withdraw", "GLOBAL")
+  async withdraw(
+    @Req() request: SecurityRequest,
+    @Param("requestId") requestId: string,
+    @Body() body: unknown,
+  ): Promise<LeaveWithdrawResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.withdrawApprovedLeave({
+      actorEmployeeId: actor.employeeId,
       correlationId:
         request.correlationId ?? actor.correlationId,
       requestId,

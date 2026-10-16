@@ -18,6 +18,7 @@ interface NavigationCapabilities {
   requestStatus: boolean;
   approvals: boolean;
   leaveApprovals: boolean;
+  leaveWithdraw: boolean;
   timeCorrectionApprovals: boolean;
   overtimeApprovals: boolean;
   medicalApprovals: boolean;
@@ -137,6 +138,8 @@ const SECTIONS: readonly FlySection[] = [
       { id: "work-calendar", label: "วันหยุดและวันทำงาน", href: "/desktop/admin/management#work-calendar", icon: "calendar", tone: "sick", capability: "workCalendarAdmin", group: "การลา" },
       { id: "employee-master", label: "ฐานข้อมูลพนักงาน", href: "/desktop/admin/management#users", icon: "users", tone: "biz", capability: "usersAdmin", group: "พนักงานและสิทธิ์" },
       { id: "organization", label: "โครงสร้างและสังกัด", href: "/desktop/admin/management#organization", icon: "building", tone: "time", capability: "organizationAdmin", group: "พนักงานและสิทธิ์" },
+      { id: "professional-roles", label: "บทบาทวิชาชีพ", href: "/desktop/admin/professional-roles", icon: "users", tone: "biz", capability: "usersAdmin", group: "พนักงานและสิทธิ์" },
+      { id: "approval-policies", label: "สายอนุมัติ", href: "/desktop/admin/approval-policies", icon: "lock", tone: "ot", capability: "rbacAdmin", group: "พนักงานและสิทธิ์" },
       { id: "access-control", label: "สิทธิ์และการเข้าถึง", href: "/desktop/admin/management#roles", icon: "lock", tone: "ot", capability: "rbacAdmin", group: "พนักงานและสิทธิ์" },
       { id: "announcements", label: "ประกาศ", href: "/desktop/announcements", icon: "megaphone", tone: "med", capability: "announcementAdmin", group: "อื่น ๆ" },
       { id: "platform-settings", label: "ตั้งค่าระบบ", href: "/desktop/admin", icon: "gear", tone: "gray", capability: "adminSettings", group: "อื่น ๆ" },

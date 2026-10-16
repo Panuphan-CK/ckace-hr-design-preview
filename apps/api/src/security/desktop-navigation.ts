@@ -3,6 +3,7 @@ export interface DesktopNavigationCapabilities {
   readonly requestStatus: boolean;
   readonly approvals: boolean;
   readonly leaveApprovals: boolean;
+  readonly leaveWithdraw: boolean;
   readonly timeCorrectionApprovals: boolean;
   readonly overtimeApprovals: boolean;
   readonly medicalApprovals: boolean;
@@ -56,6 +57,7 @@ export function desktopNavigationForPermissions(
       has("overtime.approve") ||
       has("medical.approve"),
     leaveApprovals: has("leave.approve"),
+    leaveWithdraw: has("leave.approved.withdraw"),
     timeCorrectionApprovals: has("time_correction.approve"),
     overtimeApprovals: has("overtime.approve"),
     medicalApprovals: has("medical.approve"),

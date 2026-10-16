@@ -298,6 +298,14 @@ export default function DesktopManagementPage() {
             companyId: String(data.get("companyId") ?? "") || null,
             managerEmployeeId:
               String(data.get("managerEmployeeId") ?? "") || null,
+            approvalRouteMode:
+              String(data.get("approvalRouteMode") ?? "") === "MANAGER_FIRST"
+                ? "MANAGER_FIRST"
+                : "STANDARD",
+            overtimeTransportSatang: Math.round(
+              Math.max(0, Number(data.get("overtimeTransportBaht") ?? 0) || 0) * 100,
+            ),
+            attendanceExempt: data.get("attendanceExempt") === "on",
           },
         ),
       "บันทึกข้อมูลพนักงานแล้ว",
@@ -845,6 +853,49 @@ export default function DesktopManagementPage() {
                                 </option>
                               ))}
                           </select>
+                          <select
+                            className="production-table-select"
+                            name="approvalRouteMode"
+                            form={formId}
+                            defaultValue={user.approvalRouteMode}
+                            disabled={
+                              !capabilities.usersAdminWrite || Boolean(busy)
+                            }
+                            aria-label={"รูปแบบสายอนุมัติของ " + user.fullName}
+                          >
+                            <option value="STANDARD">สายตามนโยบาย</option>
+                            <option value="MANAGER_FIRST">
+                              ผู้บังคับบัญชาก่อน (ข้ามหัวหน้าทีม)
+                            </option>
+                          </select>
+                          <label>
+                            ค่ารถ OT (บาท/วัน)
+                            <input
+                              className="production-table-select"
+                              type="number"
+                              min="0"
+                              step="1"
+                              name="overtimeTransportBaht"
+                              form={formId}
+                              defaultValue={user.overtimeTransportSatang / 100}
+                              disabled={
+                                !capabilities.usersAdminWrite || Boolean(busy)
+                              }
+                              aria-label={"ค่ารถ OT ของ " + user.fullName}
+                            />
+                          </label>
+                          <label>
+                            <input
+                              type="checkbox"
+                              name="attendanceExempt"
+                              form={formId}
+                              defaultChecked={user.attendanceExempt}
+                              disabled={
+                                !capabilities.usersAdminWrite || Boolean(busy)
+                              }
+                            />{" "}
+                            ไม่ต้องลงเวลา (เช่น ผู้ตรวจสอบบัญชี)
+                          </label>
                         </td>
                         <td>
                           {data.rbac && capabilities.rbacAdminWrite ? (

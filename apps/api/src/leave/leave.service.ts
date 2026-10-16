@@ -12,7 +12,10 @@ import type {
   LeaveCreateInput,
   LeaveCreateResult,
   LeaveDurationCode,
+  LeaveResubmitInput,
+  LeaveResubmitResult,
   LeaveSelfOverview,
+  LeaveWithdrawResult,
 } from "@ckace/contracts";
 import type { LeaveRepository } from "@ckace/database";
 import {
@@ -171,7 +174,8 @@ function parseDecisionBody(
 
   if (
     decision !== "APPROVED" &&
-    decision !== "REJECTED"
+    decision !== "REJECTED" &&
+    decision !== "REVISION_REQUESTED"
   ) {
     throw new BadRequestException(
       "Leave decision is invalid",
@@ -191,11 +195,73 @@ function parseDecisionBody(
     );
   }
 
+  if (decision === "REVISION_REQUESTED" && !comment) {
+    throw new BadRequestException(
+      "Leave revision comment is required",
+    );
+  }
+
   return {
     approvalStepId,
     decision,
     comment,
   };
+}
+
+function parseResubmitBody(body: unknown): LeaveResubmitInput {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    throw new BadRequestException("Leave resubmission body is invalid");
+  }
+
+  const source = body as Record<string, unknown>;
+  const durationCode = source.durationCode;
+
+  if (
+    typeof durationCode !== "string" ||
+    !durations.has(durationCode as LeaveDurationCode)
+  ) {
+    throw new BadRequestException("Leave duration code is invalid");
+  }
+
+  try {
+    const period = normalizeLeavePeriod({
+      startDate: requiredString(source.startDate, "startDate", 10),
+      endDate: requiredString(source.endDate, "endDate", 10),
+      durationCode: durationCode as LeaveDurationCode,
+      startTime: optionalTime(source.startTime),
+      endTime: optionalTime(source.endTime),
+    });
+
+    return {
+      clientKey: normalizeClientKey(
+        requiredString(source.clientKey, "clientKey", 120),
+      ),
+      description: normalizeLeaveDescription(
+        requiredString(source.description, "description", 2000),
+      ),
+      startDate: period.startDate,
+      endDate: period.endDate,
+      durationCode: period.durationCode,
+      startTime: period.startTime,
+      endTime: period.endTime,
+    };
+  } catch (error) {
+    if (error instanceof BadRequestException) {
+      throw error;
+    }
+
+    throw new BadRequestException(
+      error instanceof Error ? error.message : "Leave resubmission body is invalid",
+    );
+  }
+}
+
+function parseWithdrawBody(body: unknown): string {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    throw new BadRequestException("Leave withdrawal body is invalid");
+  }
+
+  return requiredString((body as Record<string, unknown>).reason, "reason", 1000);
 }
 
 function canonicalCreatePayload(
@@ -254,6 +320,12 @@ function translateRepositoryError(error: unknown): never {
     "Idempotency record ",
     "Leave request is not pending approval",
     "Leave request is not assigned to this approver",
+    "Only a leave request sent back",
+    "Only an approved leave request",
+    "The step that sent",
+    "The approval chain of this request",
+    "A withdrawal reason",
+    "leave request overlaps",
   ];
 
   if (
@@ -311,6 +383,62 @@ export class LeaveService {
         canonicalPayload: canonicalCreatePayload(request),
       });
     } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  async resubmitLeave(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly body: unknown;
+  }): Promise<LeaveResubmitResult> {
+    const request = parseResubmitBody(input.body);
+
+    try {
+      return await this.repository.resubmitLeave({
+        employeeId: input.employeeId,
+        correlationId: input.correlationId,
+        requestId: input.requestId,
+        request,
+        canonicalPayload: JSON.stringify({
+          requestId: input.requestId,
+          description: request.description,
+          startDate: request.startDate,
+          endDate: request.endDate,
+          durationCode: request.durationCode,
+          startTime: request.startTime ?? null,
+          endTime: request.endTime ?? null,
+        }),
+      });
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
+  async withdrawApprovedLeave(input: {
+    readonly actorEmployeeId: string;
+    readonly correlationId: string;
+    readonly requestId: string;
+    readonly body: unknown;
+  }): Promise<LeaveWithdrawResult> {
+    const reason = parseWithdrawBody(input.body);
+
+    try {
+      return await this.repository.withdrawApprovedLeave({
+        actorEmployeeId: input.actorEmployeeId,
+        correlationId: input.correlationId,
+        requestId: input.requestId,
+        reason,
+      });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.startsWith("Not allowed to withdraw")
+      ) {
+        throw new ForbiddenException(error.message);
+      }
+
       return translateRepositoryError(error);
     }
   }

@@ -32,6 +32,14 @@ function createService() {
     entitlements: vi.fn(),
     entitlementOptions: vi.fn(),
     upsertEntitlement: vi.fn(),
+    generateVacationEntitlements: vi.fn(),
+    overtimeReport: vi.fn(),
+    professionalRoles: vi.fn(),
+    approvalPolicies: vi.fn(),
+    saveApprovalPolicy: vi.fn(),
+    createProfessionalRole: vi.fn(),
+    updateProfessionalRole: vi.fn(),
+    setEmployeeProfessionalRoles: vi.fn(),
     workCalendar: vi.fn(),
     upsertHoliday: vi.fn(),
     setWeeklyWorkday: vi.fn(),
@@ -103,6 +111,18 @@ describe("ManagementController", () => {
     ],
     [
       "upsertEntitlement",
+      "leave.entitlements.admin.write",
+      "ADMIN_WRITE",
+    ],
+    ["overtimeReport", "reports.management.read", "ADMIN_READ"],
+    ["professionalRoles", "users.admin.read", "ADMIN_READ"],
+    ["approvalPolicies", "rbac.admin.read", "ADMIN_READ"],
+    ["saveApprovalPolicy", "rbac.admin.write", "ADMIN_WRITE"],
+    ["createProfessionalRole", "users.admin.write", "ADMIN_WRITE"],
+    ["updateProfessionalRole", "users.admin.write", "ADMIN_WRITE"],
+    ["setUserProfessionalRoles", "users.admin.write", "ADMIN_WRITE"],
+    [
+      "generateVacationEntitlements",
       "leave.entitlements.admin.write",
       "ADMIN_WRITE",
     ],
@@ -293,6 +313,26 @@ describe("ManagementController", () => {
     expect(service.updateCompany).toHaveBeenCalledWith(
       ROLE_ID,
       { active: false },
+      EMPLOYEE_ID,
+    );
+  });
+
+  it("validates the per-employee approval route mode", async () => {
+    const { controller: value, service } = controller();
+    service.updateEmployee.mockResolvedValue({});
+
+    expect(() =>
+      value.updateUser(actorRequest(), EMPLOYEE_ID, {
+        approvalRouteMode: "SOMETHING",
+      }),
+    ).toThrow(BadRequestException);
+
+    await value.updateUser(actorRequest(), EMPLOYEE_ID, {
+      approvalRouteMode: "MANAGER_FIRST",
+    });
+    expect(service.updateEmployee).toHaveBeenCalledWith(
+      EMPLOYEE_ID,
+      { approvalRouteMode: "MANAGER_FIRST" },
       EMPLOYEE_ID,
     );
   });

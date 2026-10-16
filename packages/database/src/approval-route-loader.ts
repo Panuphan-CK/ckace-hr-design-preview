@@ -1,5 +1,9 @@
 import {
+  buildRouteSteps,
   resolveApprovalRoute,
+  roleScopeCoversTeam,
+  type ApprovalRouteMode,
+  type ApprovalSelectionMode,
   type ApprovalRouteStep,
   type ResolvedApprovalRoute,
   type RoleScope,
@@ -62,6 +66,7 @@ export async function resolveCompanyApprovalRoute(
   prisma: ApprovalRouteReader,
   requesterEmployeeId: string,
   steps: readonly ApprovalRouteStep[],
+  options: { readonly defaultSelection?: ApprovalSelectionMode } = {},
 ): Promise<CompanyApprovalRoute | null> {
   const requesterRow = await prisma.employee.findUnique({
     where: { id: requesterEmployeeId },
@@ -88,6 +93,7 @@ export async function resolveCompanyApprovalRoute(
         fullName: true,
         agencyId: true,
         managerEmployeeId: true,
+        approvalRouteMode: true,
         userAccount: {
           select: {
             state: true,
@@ -121,11 +127,28 @@ export async function resolveCompanyApprovalRoute(
     return null;
   }
 
+  const requesterMode: ApprovalRouteMode =
+    people.find((person) => person.id === requesterEmployeeId)
+      ?.approvalRouteMode ?? "STANDARD";
+  const manager = requester.managerId
+    ? employees.find((person) => person.id === requester.managerId)
+    : undefined;
+  const effectiveSteps = buildRouteSteps({
+    policySteps: steps,
+    mode: requesterMode,
+    managerRoleKeys: manager
+      ? manager.assignments.map((assignment) => assignment.roleKey)
+      : null,
+  });
+
   const route = resolveApprovalRoute({
     requester,
     employees,
     teams: agencies,
-    steps,
+    steps: effectiveSteps,
+    ...(options.defaultSelection
+      ? { defaultSelection: options.defaultSelection }
+      : {}),
   });
 
   return {
@@ -134,4 +157,78 @@ export async function resolveCompanyApprovalRoute(
       employees.map((person) => [person.id, person.displayName]),
     ),
   };
+}
+
+/**
+ * Steps the system fully decided (every step has a selected approver).
+ * Used by modules where the requester does not choose (overtime, medical,
+ * time correction).
+ */
+export function systemSelectedApprovals(
+  route: ResolvedApprovalRoute,
+): readonly { readonly stepOrder: number; readonly approverEmployeeId: string }[] {
+  return route.steps.map((step) => {
+    if (!step.selectedId) {
+      throw new Error("Approval step has no selected approver");
+    }
+
+    return {
+      stepOrder: step.stepOrder,
+      approverEmployeeId: step.selectedId,
+    };
+  });
+}
+
+/**
+ * Does the actor hold `roleKey` with an approve scope that covers the target
+ * employee? PLATFORM covers everyone; COMPANY/TEAM_SET cover the target's
+ * team; SELF covers nobody else. Fails closed on missing data.
+ */
+export async function actorHasRoleOverEmployee(
+  prisma: ApprovalRouteReader,
+  actorEmployeeId: string,
+  roleKey: string,
+  targetEmployeeId: string,
+): Promise<boolean> {
+  const [actor, target, agencies] = await Promise.all([
+    prisma.employee.findUnique({
+      where: { id: actorEmployeeId },
+      select: {
+        userAccount: {
+          select: {
+            state: true,
+            roles: {
+              select: {
+                scopeType: true,
+                scopeCompanyId: true,
+                scopeAgencyIds: true,
+                role: { select: { key: true } },
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.employee.findUnique({
+      where: { id: targetEmployeeId },
+      select: { agencyId: true },
+    }),
+    prisma.agency.findMany({ select: { id: true, companyId: true } }),
+  ]);
+
+  if (!actor?.userAccount || actor.userAccount.state !== "ACTIVE" || !target) {
+    return false;
+  }
+
+  return toRouteAssignments(actor.userAccount.roles)
+    .filter((assignment) => assignment.roleKey === roleKey)
+    .some((assignment) => {
+      if (assignment.scope.type === "PLATFORM") {
+        return true;
+      }
+
+      return target.agencyId
+        ? roleScopeCoversTeam(assignment.scope, target.agencyId, agencies)
+        : false;
+    });
 }

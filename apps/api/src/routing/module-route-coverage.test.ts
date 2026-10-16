@@ -21,6 +21,7 @@ import { ManagementController } from "../management/management.controller";
 import { OnboardingController } from "../onboarding/onboarding.controller";
 import { OvertimeController } from "../overtime/overtime.controller";
 import { DelegationController } from "../delegation/delegation.controller";
+import { InboxController } from "../inbox/inbox.controller";
 import { ProfileController } from "../profile/profile.controller";
 import { RequestStatusController } from "../request-status/request-status.controller";
 import { AuthorizationGuard } from "../security/authorization.guard";
@@ -142,6 +143,8 @@ describe("M9.1 module route coverage", () => {
   it.each([
     [ProfileController.prototype, "getSelf", "IDENTITY_READ"],
     [ProfileController.prototype, "changePassword", "IDENTITY_WRITE"],
+    [InboxController.prototype, "overview", "IDENTITY_READ"],
+    [InboxController.prototype, "markRead", "IDENTITY_WRITE"],
     [DelegationController.prototype, "overview", "IDENTITY_READ"],
     [DelegationController.prototype, "create", "IDENTITY_WRITE"],
     [DelegationController.prototype, "cancel", "IDENTITY_WRITE"],

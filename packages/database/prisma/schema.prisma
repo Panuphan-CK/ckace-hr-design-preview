@@ -210,6 +210,7 @@ model Employee {
   approvalInstances   ApprovalInstance[]      @relation("ApprovalRequester")
   approvalSteps       ApprovalStep[]          @relation("ApprovalStepApprover")
   decidedSteps        ApprovalStep[]          @relation("ApprovalStepDecider")
+  inAppNotifications  InAppNotification[]     @relation("InAppNotificationRecipient")
   delegationsGiven    ApprovalDelegation[]    @relation("DelegationDelegator")
   delegationsReceived ApprovalDelegation[]    @relation("DelegationDelegate")
   attachments         Attachment[]            @relation("AttachmentOwner")
@@ -396,6 +397,8 @@ model ApprovalStep {
   assignedAt          DateTime?          @db.Timestamptz(3)
   decidedAt           DateTime?          @db.Timestamptz(3)
   /// Who actually decided (differs from approverEmployeeId when a delegate decided).
+  /// Last overdue reminder sent for this step (reminders repeat every 24 hours).
+  lastReminderAt      DateTime?          @db.Timestamptz(3)
   decidedByEmployeeId String?            @db.Uuid
   comment             String?
   legacyRawStatus     String?
@@ -856,20 +859,44 @@ model NotificationOutbox {
 }
 
 model NotificationDelivery {
-  id          String              @id @default(uuid()) @db.Uuid
-  outboxId    String              @db.Uuid
-  channel     NotificationChannel
-  status      NotificationStatus  @default(PENDING)
-  providerRef String?
-  error       String?
-  attemptedAt DateTime?           @db.Timestamptz(3)
-  createdAt   DateTime            @default(now()) @db.Timestamptz(3)
+  id                  String              @id @default(uuid()) @db.Uuid
+  outboxId            String              @db.Uuid
+  /// Employee the message was sent to (one delivery per outbox event, channel and recipient).
+  recipientEmployeeId String?             @db.Uuid
+  channel             NotificationChannel
+  status              NotificationStatus  @default(PENDING)
+  providerRef         String?
+  error               String?
+  attemptedAt         DateTime?           @db.Timestamptz(3)
+  createdAt           DateTime            @default(now()) @db.Timestamptz(3)
 
   outbox NotificationOutbox @relation(fields: [outboxId], references: [id], onDelete: Cascade)
 
+  @@unique([outboxId, channel, recipientEmployeeId])
   @@index([outboxId, channel])
   @@index([status, attemptedAt])
   @@map("notification_deliveries")
+}
+
+/// Message shown in the employee's in-app inbox (bell); created for every notification, whatever the channels.
+model InAppNotification {
+  id             String    @id @default(uuid()) @db.Uuid
+  employeeId     String    @db.Uuid
+  kind           String
+  title          String
+  body           String
+  requestNo      String?
+  aggregateType  String
+  aggregateId    String
+  sourceOutboxId String?   @db.Uuid
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  readAt         DateTime? @db.Timestamptz(3)
+
+  employee Employee @relation("InAppNotificationRecipient", fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceOutboxId, employeeId])
+  @@index([employeeId, readAt, createdAt])
+  @@map("in_app_notifications")
 }
 
 model AuditLog {

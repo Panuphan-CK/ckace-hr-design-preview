@@ -15,6 +15,8 @@ export * from "./profile-repository";
 export * from "./password-recovery-repository";
 export * from "./vacation-entitlement";
 export * from "./approval-delegation";
+export * from "./notification-dispatcher";
+export * from "./inbox-repository";
 export * from "./delegation-repository";
 export * from "./attendance-exemption";
 export * from "./overtime-report-repository";

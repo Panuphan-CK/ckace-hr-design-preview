@@ -100,3 +100,20 @@ export interface ApprovalDelegationOverview {
   /** Employees the caller may delegate to (they can approve requests). */
   readonly candidates: readonly { readonly employeeId: string; readonly name: string }[];
 }
+
+export interface InAppNotificationItem {
+  readonly id: string;
+  readonly kind: string;
+  readonly title: string;
+  readonly body: string;
+  readonly requestNo: string | null;
+  readonly aggregateType: string;
+  readonly aggregateId: string;
+  readonly createdAt: string;
+  readonly read: boolean;
+}
+
+export interface InboxOverview {
+  readonly unread: number;
+  readonly items: readonly InAppNotificationItem[];
+}

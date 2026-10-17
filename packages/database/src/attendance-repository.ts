@@ -815,9 +815,10 @@ function correctionView(input: {
       ? input.row.correctedCheckIn
       : input.row.correctedCheckOut;
 
-  if (!original || !corrected) {
+  // A check-out that was never scanned has no original time; the view shows it as empty.
+  if (!corrected) {
     throw new Error(
-      "Stored time correction is missing original/corrected time",
+      "Stored time correction is missing corrected time",
     );
   }
 
@@ -826,7 +827,7 @@ function correctionView(input: {
     attendanceRecordId: input.row.attendanceRecordId,
     attendanceDate: dateOnly(input.row.attendanceDate),
     correctionType,
-    originalTime: dbTime(original) ?? "",
+    originalTime: original ? (dbTime(original) ?? "") : "",
     correctedTime: dbTime(corrected) ?? "",
     reason: input.row.reason,
     status: input.row.status,

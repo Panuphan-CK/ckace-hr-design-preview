@@ -383,7 +383,6 @@ export class PrismaManagementRepository implements ManagementRepository {
   }
 
   async reports(from: Date, to: Date): Promise<ManagementReportView> {
-    const endExclusive = new Date(to.getTime() + 86_400_000);
     const [leave, attendance, overtime, medical] = await Promise.all([
       this.prisma.leaveRequest.findMany({
         where: {
@@ -421,8 +420,8 @@ export class PrismaManagementRepository implements ManagementRepository {
       }),
       this.prisma.overtimeRequest.findMany({
         where: {
-          submittedAt: { gte: from, lt: endExclusive },
           status: "APPROVED",
+          segments: { some: { workDate: { gte: from, lte: to } } },
         },
         select: {
           id: true,
@@ -431,6 +430,10 @@ export class PrismaManagementRepository implements ManagementRepository {
           status: true,
           reason: true,
           employee: { select: { fullName: true } },
+          segments: {
+            select: { workDate: true, startTime: true, endTime: true },
+            orderBy: [{ workDate: "asc" }, { startTime: "asc" }],
+          },
         },
         orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
         take: 1000,
@@ -480,15 +483,24 @@ export class PrismaManagementRepository implements ManagementRepository {
           row.checkInAt.toISOString() +
           (row.checkOutAt ? " · ออก " + row.checkOutAt.toISOString() : ""),
       })),
-      ...overtime.map((row) => ({
-        id: row.id,
-        employeeId: row.employeeId,
-        employeeName: row.employee.fullName,
-        kind: "OVERTIME" as const,
-        date: dateOnly(row.submittedAt),
-        status: row.status,
-        summary: row.reason,
-      })),
+      ...overtime.map((row) => {
+        const first = row.segments[0];
+        const last = row.segments[row.segments.length - 1];
+        const clock = (value: Date) => value.toISOString().slice(11, 16);
+        return {
+          id: row.id,
+          employeeId: row.employeeId,
+          employeeName: row.employee.fullName,
+          kind: "OVERTIME" as const,
+          // Report on the day the overtime is worked, not the day it was requested.
+          date: first ? dateOnly(first.workDate) : dateOnly(row.submittedAt),
+          status: row.status,
+          summary:
+            (first && last
+              ? "OT " + clock(first.startTime) + "-" + clock(last.endTime) + ": "
+              : "") + row.reason,
+        };
+      }),
       ...medical.map((row) => ({
         id: row.id,
         employeeId: row.employeeId,

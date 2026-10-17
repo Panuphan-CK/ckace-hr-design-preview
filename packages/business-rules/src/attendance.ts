@@ -4,6 +4,7 @@ export interface AttendancePolicyRule {
   readonly officeLongitude: number;
   readonly radiusKm: number;
   readonly lateAfter: string;
+  readonly workStart: string;
   readonly workEnd: string;
   readonly breakStart: string | null;
   readonly breakEnd: string | null;
@@ -154,6 +155,7 @@ export function normalizeAttendancePolicy(
   const lateAfter = normalizeAttendanceClock(
     policy.lateAfter,
   );
+  const workStart = normalizeAttendanceClock(policy.workStart);
   const workEnd = normalizeAttendanceClock(policy.workEnd);
   const breakStart =
     policy.breakStart === null
@@ -184,6 +186,7 @@ export function normalizeAttendancePolicy(
     ...policy,
     timezone: policy.timezone.trim(),
     lateAfter,
+    workStart,
     workEnd,
     breakStart,
     breakEnd,
@@ -343,7 +346,29 @@ export function calculateCorrectedWorkMinutes(input: {
     );
   }
 
-  return Math.min(450, Math.max(0, minutes));
+  return Math.min(
+    standardWorkdayMinutes(policy),
+    Math.max(0, minutes),
+  );
+}
+
+/** Length of a normal working day: work start to work end minus the break. */
+export function standardWorkdayMinutes(
+  policy: AttendancePolicyRule,
+): number {
+  const normalized = normalizeAttendancePolicy(policy);
+  const breakMinutes =
+    normalized.breakStart && normalized.breakEnd
+      ? clockMinutes(normalized.breakEnd) -
+        clockMinutes(normalized.breakStart)
+      : 0;
+
+  return Math.max(
+    0,
+    clockMinutes(normalized.workEnd) -
+      clockMinutes(normalized.workStart) -
+      breakMinutes,
+  );
 }
 
 export function normalizeAttendanceIsoDate(

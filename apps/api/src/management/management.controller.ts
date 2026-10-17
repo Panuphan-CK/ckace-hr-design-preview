@@ -506,6 +506,7 @@ export class ManagementController {
         officeLongitude: number(value.officeLongitude, "officeLongitude"),
         radiusKm: number(value.radiusKm, "radiusKm"),
         lateAfter: clock(value.lateAfter, "lateAfter"),
+        workStart: clock(value.workStart, "workStart"),
         workEnd: clock(value.workEnd, "workEnd"),
         breakStart: optionalClock(value.breakStart, "breakStart"),
         breakEnd: optionalClock(value.breakEnd, "breakEnd"),

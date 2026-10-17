@@ -1,6 +1,7 @@
 "use client";
 
 import { DateField } from "../ui/date-picker";
+import { thaiDateRange } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
 import { ErrorState, LoadingState, PageHead, SectionHead, type Tone } from "../ui/kit";
 import { DonutChart, MonthlyChart, seriesColor } from "./report-charts";
@@ -272,7 +273,7 @@ export default function DesktopReportsPage() {
   if (selectedKind === null || selectedOption === null) {
     return (
       <>
-        <PageHead tone="accent" icon="chart" title="รายงาน" subtitle={"ข้อมูลที่อนุมัติหรือบันทึกครบแล้ว · " + from + " ถึง " + to} />
+        <PageHead tone="accent" icon="chart" title="รายงาน" subtitle={"ข้อมูลที่อนุมัติหรือบันทึกครบแล้ว · " + thaiDateRange(from, to)} />
         <div className="ck-wrap ck-stack">
           {filterBar}
           {stateBlock}

@@ -143,6 +143,8 @@ export interface AttendancePolicyItem {
   readonly radiusKm: number;
   /** HH:mm — check-in after this time is late. */
   readonly lateAfter: string;
+  /** HH:mm — start of the normal working day; with workEnd and the break it sets the correction work-hour cap. */
+  readonly workStart: string;
   /** HH:mm — check-out before this time is early. */
   readonly workEnd: string;
   readonly breakStart: string | null;

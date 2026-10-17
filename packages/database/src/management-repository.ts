@@ -173,6 +173,7 @@ function attendancePolicyView(row: {
   officeLongitude: Prisma.Decimal;
   radiusKm: Prisma.Decimal;
   lateAfter: Date;
+  workStart: Date;
   workEnd: Date;
   breakStart: Date | null;
   breakEnd: Date | null;
@@ -185,6 +186,7 @@ function attendancePolicyView(row: {
     officeLongitude: row.officeLongitude.toNumber(),
     radiusKm: row.radiusKm.toNumber(),
     lateAfter: clock(row.lateAfter),
+    workStart: clock(row.workStart),
     workEnd: clock(row.workEnd),
     breakStart: row.breakStart ? clock(row.breakStart) : null,
     breakEnd: row.breakEnd ? clock(row.breakEnd) : null,
@@ -922,7 +924,7 @@ export class PrismaManagementRepository implements ManagementRepository {
     actorEmployeeId: string,
   ): Promise<AttendancePolicyItem> {
     const clockValue = /^([01]\d|2[0-3]):[0-5]\d$/;
-    for (const value of [input.lateAfter, input.workEnd, input.breakStart, input.breakEnd]) {
+    for (const value of [input.lateAfter, input.workStart, input.workEnd, input.breakStart, input.breakEnd]) {
       if (value !== null && !clockValue.test(value)) throw new Error("Attendance times must use HH:mm");
     }
     if (
@@ -931,6 +933,7 @@ export class PrismaManagementRepository implements ManagementRepository {
       !(input.radiusKm > 0) ||
       input.radiusKm > 100 ||
       input.workEnd <= input.lateAfter ||
+      input.workEnd <= input.workStart ||
       (input.breakStart === null) !== (input.breakEnd === null) ||
       (input.breakStart !== null && input.breakEnd !== null && input.breakEnd <= input.breakStart)
     ) {
@@ -948,6 +951,7 @@ export class PrismaManagementRepository implements ManagementRepository {
         officeLongitude: input.officeLongitude,
         radiusKm: input.radiusKm,
         lateAfter: toTime(input.lateAfter),
+        workStart: toTime(input.workStart),
         workEnd: toTime(input.workEnd),
         breakStart: input.breakStart ? toTime(input.breakStart) : null,
         breakEnd: input.breakEnd ? toTime(input.breakEnd) : null,
@@ -963,7 +967,7 @@ export class PrismaManagementRepository implements ManagementRepository {
           action: "ATTENDANCE_POLICY_UPDATED",
           entityType: "AttendancePolicy",
           entityId: row.id,
-          metadata: { lateAfter: input.lateAfter, workEnd: input.workEnd, radiusKm: input.radiusKm },
+          metadata: { lateAfter: input.lateAfter, workStart: input.workStart, workEnd: input.workEnd, radiusKm: input.radiusKm },
         },
       });
       return attendancePolicyView(row);

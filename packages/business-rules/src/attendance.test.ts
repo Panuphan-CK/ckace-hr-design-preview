@@ -16,6 +16,7 @@ import {
   normalizeAttendancePolicy,
   normalizeTimeCorrection,
   normalizeTimeCorrectionDecision,
+  standardWorkdayMinutes,
 } from "./attendance";
 
 const policy = {
@@ -24,6 +25,7 @@ const policy = {
   officeLongitude: 100.439546,
   radiusKm: 5,
   lateAfter: "09:05",
+  workStart: "09:00",
   workEnd: "17:30",
   breakStart: "12:00",
   breakEnd: "13:00",
@@ -156,6 +158,33 @@ describe("attendance business rules", () => {
         policy,
       }),
     ).toBe(30);
+  });
+
+  it("derives the correction cap from the configured working hours", () => {
+    expect(standardWorkdayMinutes(policy)).toBe(450);
+
+    const shortDay = {
+      ...policy,
+      workStart: "08:30",
+      workEnd: "16:30",
+    };
+
+    expect(standardWorkdayMinutes(shortDay)).toBe(420);
+    expect(
+      calculateCorrectedWorkMinutes({
+        checkInTime: "07:00",
+        checkOutTime: "20:00",
+        policy: shortDay,
+      }),
+    ).toBe(420);
+
+    expect(
+      standardWorkdayMinutes({
+        ...policy,
+        breakStart: null,
+        breakEnd: null,
+      }),
+    ).toBe(510);
   });
 
   it("preserves correction work-hour cap at 7.5 hours", () => {

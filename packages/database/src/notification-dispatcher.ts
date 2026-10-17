@@ -12,6 +12,16 @@ import { bangkokToday } from "./approval-delegation";
 import { formatLeaveRequestNo } from "./leave-repository";
 import { formatRequestNo } from "./request-status-repository";
 
+/** ISO date (YYYY-MM-DD) -> DD/MM/YYYY with the Buddhist-era year, the project-wide date format. */
+function displayIsoDate(iso: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  return match ? `${match[3]}/${match[2]}/${Number(match[1]) + 543}` : iso;
+}
+
+function displayDate(value: Date): string {
+  return displayIsoDate(value.toISOString().slice(0, 10));
+}
+
 /** A delivery channel (LINE push, email...). `send` throws when the provider refuses the message. */
 export interface NotificationSender {
   readonly channel: Extract<NotificationChannel, "LINE" | "EMAIL">;
@@ -100,8 +110,8 @@ async function loadContext(
             label: "ใบลา",
             requesterEmployeeId: row.requesterEmployeeId,
             requesterName: row.requester.fullName,
-            summary: `${row.leaveType.name} ${row.startDate.toISOString().slice(0, 10)}${
-              row.endDate.getTime() !== row.startDate.getTime() ? " ถึง " + row.endDate.toISOString().slice(0, 10) : ""
+            summary: `${row.leaveType.name} ${displayDate(row.startDate)}${
+              row.endDate.getTime() !== row.startDate.getTime() ? " ถึง " + displayDate(row.endDate) : ""
             }`,
             comment: row.decisionReason,
             status: row.status,
@@ -132,7 +142,7 @@ async function loadContext(
             requesterEmployeeId: row.employeeId,
             requesterName: row.employee.fullName,
             summary: segment
-              ? `${segment.workDate.toISOString().slice(0, 10)} ${segment.startTime.toISOString().slice(11, 16)}-${segment.endTime.toISOString().slice(11, 16)} ${row.reason}`
+              ? `${displayDate(segment.workDate)} ${segment.startTime.toISOString().slice(11, 16)}-${segment.endTime.toISOString().slice(11, 16)} ${row.reason}`
               : row.reason,
             comment: row.decisionReason,
             status: row.status,
@@ -189,7 +199,7 @@ async function loadContext(
             label: "คำขอแก้ไขเวลา",
             requesterEmployeeId: row.employeeId,
             requesterName: row.employee.fullName,
-            summary: `${row.attendanceDate.toISOString().slice(0, 10)} ${row.reason}`,
+            summary: `${displayDate(row.attendanceDate)} ${row.reason}`,
             comment: row.decisionComment,
             status: row.status,
             currentApproverId: waitingApprover(row.approvalInstance),
@@ -348,7 +358,7 @@ export async function dispatchNotifications(
           delegatorName: delegator?.fullName ?? null,
           delegationPeriod:
             typeof payload.startDate === "string" && typeof payload.endDate === "string"
-              ? `${payload.startDate} ถึง ${payload.endDate}`
+              ? `${displayIsoDate(payload.startDate)} ถึง ${displayIsoDate(payload.endDate)}`
               : null,
         };
       }

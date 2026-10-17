@@ -224,6 +224,7 @@ async function main(): Promise<void> {
           officeLongitude: 100.5018,
           radiusKm: 5,
           lateAfter: new Date("1970-01-01T09:05:00.000Z"),
+          workStart: new Date("1970-01-01T09:00:00.000Z"),
           workEnd: new Date("1970-01-01T17:30:00.000Z"),
           breakStart: new Date("1970-01-01T12:00:00.000Z"),
           breakEnd: new Date("1970-01-01T13:00:00.000Z"),

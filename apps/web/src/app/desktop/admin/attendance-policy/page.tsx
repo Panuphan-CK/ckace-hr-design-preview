@@ -40,6 +40,7 @@ export default function AttendancePolicyPage() {
           officeLongitude: Number(text("officeLongitude")),
           radiusKm: Number(text("radiusKm")),
           lateAfter: text("lateAfter"),
+          workStart: text("workStart"),
           workEnd: text("workEnd"),
           breakStart: text("breakStart") || null,
           breakEnd: text("breakEnd") || null,
@@ -94,6 +95,10 @@ export default function AttendancePolicyPage() {
         <label>
           รัศมีที่ลงเวลาได้ (กม.)
           <input name="radiusKm" type="number" step="0.1" min="0.1" max="100" required defaultValue={policy?.radiusKm ?? 0.5} disabled={busy} />
+        </label>
+        <label>
+          เวลาเริ่มงานตามปกติ (ใช้คำนวณเพดานชั่วโมงทำงานเมื่อแก้เวลา)
+          <input name="workStart" type="time" required defaultValue={policy?.workStart ?? "09:00"} disabled={busy} />
         </label>
         <label>
           เข้างานหลังเวลานี้ถือว่าสาย

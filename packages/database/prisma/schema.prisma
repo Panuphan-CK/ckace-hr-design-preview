@@ -536,6 +536,7 @@ model AttendancePolicy {
   officeLongitude Decimal   @db.Decimal(9, 6)
   radiusKm        Decimal   @db.Decimal(6, 2)
   lateAfter       DateTime  @db.Time(0)
+  workStart       DateTime  @default(dbgenerated("'09:00:00'::time")) @db.Time(0)
   workEnd         DateTime  @db.Time(0)
   breakStart      DateTime? @db.Time(0)
   breakEnd        DateTime? @db.Time(0)

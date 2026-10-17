@@ -227,14 +227,22 @@ describe("attendance business rules", () => {
     });
   });
 
-  it("requires the original event and a changed correction time", () => {
+  it("requires an original check-in, allows filling in a missing check-out, and needs a changed time", () => {
+    expect(() =>
+      assertTimeCorrectionOriginalExists({
+        correctionType: "CHECK_IN",
+        originalCheckIn: null,
+        originalCheckOut: null,
+      }),
+    ).toThrow("requires an original");
+
     expect(() =>
       assertTimeCorrectionOriginalExists({
         correctionType: "CHECK_OUT",
         originalCheckIn: "09:00",
         originalCheckOut: null,
       }),
-    ).toThrow("requires an original");
+    ).not.toThrow();
 
     expect(() =>
       assertTimeCorrectionChanged({

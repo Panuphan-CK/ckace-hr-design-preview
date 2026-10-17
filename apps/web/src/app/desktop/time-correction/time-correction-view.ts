@@ -31,9 +31,9 @@ export function bangkokTime(value: string | null): string | null {
   return hour && minute ? `${hour}:${minute}` : null;
 }
 
-/** Check-out can only be corrected once a check-out exists on the record. */
-export function correctionTargets(record: AttendanceRecordView): readonly TimeCorrectionType[] {
-  return record.checkOutAt ? ["CHECK_IN", "CHECK_OUT"] : ["CHECK_IN"];
+/** Both times can be corrected; a missing check-out (forgot to scan out) is filled in by the correction. */
+export function correctionTargets(): readonly TimeCorrectionType[] {
+  return ["CHECK_IN", "CHECK_OUT"];
 }
 
 export function recordTime(record: AttendanceRecordView, type: TimeCorrectionType): string | null {

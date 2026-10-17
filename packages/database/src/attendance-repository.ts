@@ -1489,10 +1489,12 @@ export class PrismaAttendanceRepository
             normalized.correctionType === "CHECK_IN"
               ? originalCheckIn
               : originalCheckOut ?? "";
-          assertTimeCorrectionChanged({
-            originalTime,
-            correctedTime: normalized.correctedTime,
-          });
+          if (originalTime) {
+            assertTimeCorrectionChanged({
+              originalTime,
+              correctedTime: normalized.correctedTime,
+            });
+          }
 
           const active =
             await tx.timeCorrectionRequest.findMany({
@@ -1950,22 +1952,19 @@ export class PrismaAttendanceRepository
               )
             : record.checkOutAt;
 
-          if (!finalCheckOut) {
-            throw new Error(
-              "Approved time correction requires checkout to remain available",
-            );
-          }
-
           const finalCheckInTime =
             attendanceBusinessParts(finalCheckIn).time;
-          const finalCheckOutTime =
-            attendanceBusinessParts(finalCheckOut).time;
-          const workMinutes =
-            calculateCorrectedWorkMinutes({
-              checkInTime: finalCheckInTime,
-              checkOutTime: finalCheckOutTime,
-              policy: policy.rule,
-            });
+          // A record whose check-out was never scanned stays open until a check-out is corrected in.
+          const finalCheckOutTime = finalCheckOut
+            ? attendanceBusinessParts(finalCheckOut).time
+            : null;
+          const workMinutes = finalCheckOutTime
+            ? calculateCorrectedWorkMinutes({
+                checkInTime: finalCheckInTime,
+                checkOutTime: finalCheckOutTime,
+                policy: policy.rule,
+              })
+            : null;
           const timing = classifyAttendanceTiming({
             checkInTime: finalCheckInTime,
             checkOutTime: finalCheckOutTime,
@@ -2194,17 +2193,23 @@ export class PrismaAttendanceRepository
         const originalOut = dbTime(request.originalCheckOut);
         const restoredCheckIn =
           correctedIn && originalIn ? bangkokTimestamp(workDateKey, originalIn) : record.checkInAt;
-        const restoredCheckOut =
-          correctedOut && originalOut ? bangkokTimestamp(workDateKey, originalOut) : record.checkOutAt;
+        // A check-out that was only added by the correction goes back to "not scanned".
+        const restoredCheckOut = correctedOut
+          ? originalOut
+            ? bangkokTimestamp(workDateKey, originalOut)
+            : null
+          : record.checkOutAt;
         const policy = await attendancePolicyFor(tx, record.workDate);
         const overtimeSegments = await approvedOvertimeSegments(tx, request.employeeId, record.workDate);
         const checkInTime = attendanceBusinessParts(restoredCheckIn).time;
-        const checkOutTime = attendanceBusinessParts(restoredCheckOut).time;
-        const workMinutes = calculateCorrectedWorkMinutes({
-          checkInTime,
-          checkOutTime,
-          policy: policy.rule,
-        });
+        const checkOutTime = restoredCheckOut ? attendanceBusinessParts(restoredCheckOut).time : null;
+        const workMinutes = checkOutTime
+          ? calculateCorrectedWorkMinutes({
+              checkInTime,
+              checkOutTime,
+              policy: policy.rule,
+            })
+          : null;
         const timing = classifyAttendanceTiming({
           checkInTime,
           checkOutTime,

@@ -76,7 +76,7 @@ export default function DesktopTimeCorrectionPage() {
   const requests = useMemo(() => (state.status === "ready" ? sortRequests(state.requests) : []), [state]);
   const metrics = useMemo(() => correctionMetrics(requests, bangkokMonthKey(new Date())), [requests]);
   const selected = records.find((record) => record.attendanceRecordId === recordId) ?? records[0] ?? null;
-  const targets = selected ? correctionTargets(selected) : [];
+  const targets = selected ? correctionTargets() : [];
   const activeType: TimeCorrectionType = targets.includes(type) ? type : (targets[0] ?? "CHECK_IN");
   const systemTime = selected ? recordTime(selected, activeType) : null;
   const duplicate = selected ? hasPendingRequest(requests, selected.attendanceRecordId, activeType) : false;

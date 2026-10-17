@@ -59,10 +59,9 @@ describe("time correction view", () => {
     expect(bangkokTime("not a date")).toBeNull();
   });
 
-  it("only offers check-out correction when a check-out exists", () => {
-    expect(correctionTargets(record())).toEqual(["CHECK_IN"]);
+  it("offers check-out correction even when the check-out was never scanned", () => {
+    expect(correctionTargets()).toEqual(["CHECK_IN", "CHECK_OUT"]);
     const done = record({ checkOutAt: "2026-10-13T11:05:00.000Z" });
-    expect(correctionTargets(done)).toEqual(["CHECK_IN", "CHECK_OUT"]);
     expect(recordTime(done, "CHECK_OUT")).toBe("18:05");
     expect(recordTime(record(), "CHECK_OUT")).toBeNull();
   });

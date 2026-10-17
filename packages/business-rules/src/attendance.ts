@@ -430,18 +430,22 @@ export function assertTimeCorrectionOriginalExists(input: {
   readonly originalCheckIn: string | null;
   readonly originalCheckOut: string | null;
 }): void {
-  const original =
-    input.correctionType === "CHECK_IN"
-      ? input.originalCheckIn
-      : input.originalCheckOut;
+  // A missing check-out (forgot to scan out) can be filled in by a correction;
+  // the check-in always exists because it opens the record.
+  if (input.correctionType === "CHECK_OUT") {
+    if (input.originalCheckOut) {
+      normalizeAttendanceClock(input.originalCheckOut);
+    }
+    return;
+  }
 
-  if (!original) {
+  if (!input.originalCheckIn) {
     throw new Error(
       "Time correction requires an original attendance event",
     );
   }
 
-  normalizeAttendanceClock(original);
+  normalizeAttendanceClock(input.originalCheckIn);
 }
 
 export function assertTimeCorrectionChanged(input: {

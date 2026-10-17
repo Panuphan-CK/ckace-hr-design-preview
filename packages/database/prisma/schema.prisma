@@ -665,6 +665,8 @@ model BenefitPolicy {
   annualLimit   Decimal?  @db.Decimal(12, 2)
   /// Most that is paid for one claim; null = company default of 1,000.
   perClaimLimit Decimal?  @db.Decimal(12, 2)
+  /// Role keys whose own claims are approved automatically (no approval chain).
+  autoApproveRoleKeys String[] @default(["ADMIN", "SUPERADMIN"])
   effectiveFrom DateTime  @db.Date
   effectiveTo   DateTime? @db.Date
   active        Boolean   @default(true)

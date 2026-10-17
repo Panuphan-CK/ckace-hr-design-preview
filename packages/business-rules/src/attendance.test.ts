@@ -12,6 +12,7 @@ import {
   classifyAttendanceRadius,
   classifyAttendanceTiming,
   normalizeAttendanceLocation,
+  normalizeAttendanceRecordAdd,
   normalizeAttendancePolicy,
   normalizeTimeCorrection,
   normalizeTimeCorrectionDecision,
@@ -294,5 +295,35 @@ describe("attendance business rules", () => {
         { latitude: 13.84574, longitude: 100.439546 },
       ),
     ).toBe(0);
+  });
+});
+
+describe("normalizeAttendanceRecordAdd", () => {
+  const base = {
+    attendanceDate: "2026-10-14",
+    checkInTime: "09:00",
+    checkOutTime: "17:30",
+    reason: "ลืมสแกนทั้งวัน",
+    clientKey: "add-record-0001",
+  };
+
+  it("accepts a full day and trims the reason", () => {
+    expect(normalizeAttendanceRecordAdd({ ...base, reason: "  ลืมสแกน  " })).toMatchObject({
+      attendanceDate: "2026-10-14",
+      checkInTime: "09:00",
+      checkOutTime: "17:30",
+      reason: "ลืมสแกน",
+    });
+  });
+
+  it("rejects a check-out that is not after the check-in", () => {
+    expect(() => normalizeAttendanceRecordAdd({ ...base, checkOutTime: "09:00" })).toThrow(
+      "Time correction check-out must be after check-in",
+    );
+  });
+
+  it("requires a reason and a valid date", () => {
+    expect(() => normalizeAttendanceRecordAdd({ ...base, reason: " " })).toThrow();
+    expect(() => normalizeAttendanceRecordAdd({ ...base, attendanceDate: "14/10/2026" })).toThrow();
   });
 });

@@ -130,6 +130,8 @@ export interface OvertimeAllowancePolicyItem {
 export interface MedicalPolicyItem {
   readonly annualLimit: number;
   readonly perClaimLimit: number;
+  /** Role keys whose own claims skip the approval chain (default ADMIN, SUPERADMIN). */
+  readonly autoApproveRoleKeys: readonly string[];
   readonly effectiveFrom: string;
 }
 

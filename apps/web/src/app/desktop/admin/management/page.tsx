@@ -731,213 +731,189 @@ export default function DesktopManagementPage() {
               </div>
             </div>
 
-            <div className="table-scroll">
-              <table className="data-table production-management-table">
-                <thead>
-                  <tr>
-                    <th>รหัส</th>
-                    <th>พนักงาน</th>
-                    <th>สถานะ</th>
-                    <th>บริษัท</th>
-                    <th>หน่วยงาน (ทีม)</th>
-                    <th>ฝ่าย</th>
-                    <th>ผู้บังคับบัญชา</th>
-                    <th>ระดับและขอบเขต</th>
-                    <th>จัดการ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleUsers.map((user) => {
-                    const formId = "user-form-" + user.id;
-                    const roleFormId = "user-role-form-" + user.id;
-                    return (
-                      <tr key={user.id}>
-                        <td title={user.id}>{compactId(user.id)}</td>
-                        <td className="production-employee-cell">
-                          <span className="topbar-avatar" aria-hidden="true">
-                            {user.fullName.trim().slice(0, 1)}
-                          </span>
-                          <div>
-                            <strong>{user.fullName}</strong>
-                            <small>{user.loginName ?? "ยังไม่มีบัญชีเข้าสู่ระบบ"}</small>
-                          </div>
-                        </td>
-                        <td>
-                          <select
-                            className="production-table-select"
-                            name="state"
-                            form={formId}
-                            defaultValue={user.state ?? "PENDING"}
-                            disabled={
-                              !capabilities.usersAdminWrite || Boolean(busy)
-                            }
-                          >
-                            <option value="ACTIVE">ACTIVE</option>
-                            <option value="PENDING">PENDING</option>
-                            <option value="INACTIVE">INACTIVE</option>
-                            <option value="RESIGNED">RESIGNED</option>
-                          </select>
-                          <span className={"status-badge " + accountStateClass(user.state)}>
-                            {accountStateLabel(user.state)}
-                          </span>
-                        </td>
-                        <td>
-                          <select
-                            className="production-table-select"
-                            name="companyId"
-                            form={formId}
-                            defaultValue={user.companyId ?? ""}
-                            disabled={
-                              !capabilities.usersAdminWrite || Boolean(busy)
-                            }
-                          >
-                            <option value="">ไม่ระบุ</option>
-                            {data.companies?.map((item) => (
-                              <option key={item.id} value={item.id}>
-                                {item.name}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <select
-                            className="production-table-select"
-                            name="agencyId"
-                            form={formId}
-                            defaultValue={user.agencyId ?? ""}
-                            disabled={
-                              !capabilities.usersAdminWrite || Boolean(busy)
-                            }
-                          >
-                            <option value="">ไม่ระบุ</option>
-                            {data.agencies?.map((item) => (
-                              <option key={item.id} value={item.id}>
-                                {item.name}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <select
-                            className="production-table-select"
-                            name="departmentId"
-                            form={formId}
-                            defaultValue={user.departmentId ?? ""}
-                            disabled={
-                              !capabilities.usersAdminWrite || Boolean(busy)
-                            }
-                          >
-                            <option value="">ไม่ระบุ</option>
-                            {data.departments?.map((item) => (
-                              <option key={item.id} value={item.id}>
-                                {item.name}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <select
-                            className="production-table-select"
-                            name="managerEmployeeId"
-                            form={formId}
-                            defaultValue={user.managerEmployeeId ?? ""}
-                            disabled={
-                              !capabilities.usersAdminWrite || Boolean(busy)
-                            }
-                          >
-                            <option value="">ไม่มี (ใช้สายตามนโยบาย)</option>
-                            {data.users
-                              ?.filter((candidate) => candidate.id !== user.id)
-                              .map((candidate) => (
-                                <option key={candidate.id} value={candidate.id}>
-                                  {candidate.fullName}
-                                </option>
-                              ))}
-                          </select>
-                          <select
-                            className="production-table-select"
-                            name="approvalRouteMode"
-                            form={formId}
-                            defaultValue={user.approvalRouteMode}
-                            disabled={
-                              !capabilities.usersAdminWrite || Boolean(busy)
-                            }
-                            aria-label={"รูปแบบสายอนุมัติของ " + user.fullName}
-                          >
-                            <option value="STANDARD">สายตามนโยบาย</option>
-                            <option value="MANAGER_FIRST">
-                              ผู้บังคับบัญชาก่อน (ข้ามหัวหน้าทีม)
+            <div className="user-cards">
+              {visibleUsers.map((user) => {
+                const formId = "user-form-" + user.id;
+                const roleFormId = "user-role-form-" + user.id;
+                const locked = !capabilities.usersAdminWrite || Boolean(busy);
+                const canRoles = Boolean(data.rbac && capabilities.rbacAdminWrite);
+                return (
+                  <article className="user-card" key={user.id}>
+                    <header className="user-card-head">
+                      <span className="topbar-avatar" aria-hidden="true">
+                        {user.fullName.trim().slice(0, 1)}
+                      </span>
+                      <div className="user-card-name">
+                        <strong>{user.fullName}</strong>
+                        <small>{user.loginName ?? "ยังไม่มีบัญชีเข้าสู่ระบบ"}</small>
+                      </div>
+                      <span className={"status-badge " + accountStateClass(user.state)}>
+                        {accountStateLabel(user.state)}
+                      </span>
+                      <small className="user-card-id" title={user.id}>
+                        {compactId(user.id)}
+                      </small>
+                    </header>
+
+                    <div className="user-card-grid">
+                      <label className="user-card-field">
+                        <span>สถานะบัญชี</span>
+                        <select
+                          className="production-table-select"
+                          name="state"
+                          form={formId}
+                          defaultValue={user.state ?? "PENDING"}
+                          disabled={locked}
+                        >
+                          <option value="ACTIVE">ACTIVE</option>
+                          <option value="PENDING">PENDING</option>
+                          <option value="INACTIVE">INACTIVE</option>
+                          <option value="RESIGNED">RESIGNED</option>
+                        </select>
+                      </label>
+                      <label className="user-card-field">
+                        <span>บริษัท</span>
+                        <select
+                          className="production-table-select"
+                          name="companyId"
+                          form={formId}
+                          defaultValue={user.companyId ?? ""}
+                          disabled={locked}
+                        >
+                          <option value="">ไม่ระบุ</option>
+                          {data.companies?.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {item.name}
                             </option>
-                          </select>
-                          <label>
-                            ค่ารถ OT (บาท/วัน)
-                            <input
-                              className="production-table-select"
-                              type="number"
-                              min="0"
-                              step="1"
-                              name="overtimeTransportBaht"
-                              form={formId}
-                              defaultValue={user.overtimeTransportSatang / 100}
-                              disabled={
-                                !capabilities.usersAdminWrite || Boolean(busy)
-                              }
-                              aria-label={"ค่ารถ OT ของ " + user.fullName}
-                            />
-                          </label>
-                          <label>
-                            <input
-                              type="checkbox"
-                              name="attendanceExempt"
-                              form={formId}
-                              defaultChecked={user.attendanceExempt}
-                              disabled={
-                                !capabilities.usersAdminWrite || Boolean(busy)
-                              }
-                            />{" "}
-                            ไม่ต้องลงเวลา (เช่น ผู้ตรวจสอบบัญชี)
-                          </label>
-                        </td>
-                        <td>
-                          {data.rbac && capabilities.rbacAdminWrite ? (
+                          ))}
+                        </select>
+                      </label>
+                      <label className="user-card-field">
+                        <span>หน่วยงาน (ทีม)</span>
+                        <select
+                          className="production-table-select"
+                          name="agencyId"
+                          form={formId}
+                          defaultValue={user.agencyId ?? ""}
+                          disabled={locked}
+                        >
+                          <option value="">ไม่ระบุ</option>
+                          {data.agencies?.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {item.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="user-card-field">
+                        <span>ฝ่าย</span>
+                        <select
+                          className="production-table-select"
+                          name="departmentId"
+                          form={formId}
+                          defaultValue={user.departmentId ?? ""}
+                          disabled={locked}
+                        >
+                          <option value="">ไม่ระบุ</option>
+                          {data.departments?.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {item.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="user-card-field">
+                        <span>ผู้บังคับบัญชา</span>
+                        <select
+                          className="production-table-select"
+                          name="managerEmployeeId"
+                          form={formId}
+                          defaultValue={user.managerEmployeeId ?? ""}
+                          disabled={locked}
+                        >
+                          <option value="">ไม่มี (ใช้สายตามนโยบาย)</option>
+                          {data.users
+                            ?.filter((candidate) => candidate.id !== user.id)
+                            .map((candidate) => (
+                              <option key={candidate.id} value={candidate.id}>
+                                {candidate.fullName}
+                              </option>
+                            ))}
+                        </select>
+                      </label>
+                      <label className="user-card-field">
+                        <span>รูปแบบสายอนุมัติ</span>
+                        <select
+                          className="production-table-select"
+                          name="approvalRouteMode"
+                          form={formId}
+                          defaultValue={user.approvalRouteMode}
+                          disabled={locked}
+                          aria-label={"รูปแบบสายอนุมัติของ " + user.fullName}
+                        >
+                          <option value="STANDARD">สายตามนโยบาย</option>
+                          <option value="MANAGER_FIRST">
+                            ผู้บังคับบัญชาก่อน (ข้ามหัวหน้าทีม)
+                          </option>
+                        </select>
+                      </label>
+                      <label className="user-card-field">
+                        <span>ค่ารถ OT (บาท/วัน)</span>
+                        <input
+                          className="production-table-select"
+                          type="number"
+                          min="0"
+                          step="1"
+                          name="overtimeTransportBaht"
+                          form={formId}
+                          defaultValue={user.overtimeTransportSatang / 100}
+                          disabled={locked}
+                          aria-label={"ค่ารถ OT ของ " + user.fullName}
+                        />
+                      </label>
+                      <label className="user-card-field user-card-check">
+                        <input
+                          type="checkbox"
+                          name="attendanceExempt"
+                          form={formId}
+                          defaultChecked={user.attendanceExempt}
+                          disabled={locked}
+                        />
+                        <span>ไม่ต้องลงเวลา (เช่น ผู้ตรวจสอบบัญชี)</span>
+                      </label>
+                    </div>
+
+                    <div className="user-card-roles">
+                      <h4>ระดับและขอบเขตสิทธิ์</h4>
+                      {canRoles ? (
+                        <div className="user-card-grid">
+                          <label className="user-card-field">
+                            <span>ระดับสิทธิ์ (เลือกได้หลายรายการ)</span>
                             <select
                               className="production-table-select production-role-select"
                               name="roleIds"
                               form={roleFormId}
                               multiple
-                              size={Math.min(4, Math.max(2, data.rbac.roles.length))}
+                              size={Math.min(4, Math.max(2, data.rbac!.roles.length))}
                               defaultValue={user.roles.map((role) => role.id)}
                               aria-label={"ระดับสิทธิ์ของ " + user.fullName}
                             >
-                              {data.rbac.roles.map((role) => (
+                              {data.rbac!.roles.map((role) => (
                                 <option key={role.id} value={role.id}>
                                   {role.name}
                                 </option>
                               ))}
                             </select>
-                          ) : (
-                            <div className="production-role-chips">
-                              {user.roles.length > 0
-                                ? user.roles.map((role) => (
-                                    <span
-                                      className="status-badge status-info"
-                                      key={role.id}
-                                    >
-                                      {role.name}
-                                    </span>
-                                  ))
-                                : "—"}
-                            </div>
-                          )}
-                          {data.rbac && capabilities.rbacAdminWrite ? (
-                            <div className="production-scope-fields">
+                          </label>
+                          <div className="user-card-scope">
+                            <label className="user-card-field">
+                              <span>ขอบเขต</span>
                               <select
                                 className="production-table-select"
                                 name="scopeType"
                                 form={roleFormId}
                                 defaultValue={
-                                  user.roleAssignments[0]?.scopeType ??
-                                  "PLATFORM"
+                                  user.roleAssignments[0]?.scopeType ?? "PLATFORM"
                                 }
                                 aria-label={"ขอบเขตสิทธิ์ของ " + user.fullName}
                               >
@@ -946,6 +922,9 @@ export default function DesktopManagementPage() {
                                 <option value="TEAM_SET">เฉพาะทีมที่เลือก</option>
                                 <option value="SELF">เฉพาะตนเอง</option>
                               </select>
+                            </label>
+                            <label className="user-card-field">
+                              <span>บริษัท (ถ้าเลือกทั้งบริษัท)</span>
                               <select
                                 className="production-table-select"
                                 name="scopeCompanyId"
@@ -955,99 +934,103 @@ export default function DesktopManagementPage() {
                                 }
                                 aria-label={"บริษัทของขอบเขตสิทธิ์ " + user.fullName}
                               >
-                                <option value="">— บริษัท (ถ้าเลือกทั้งบริษัท)</option>
+                                <option value="">— ไม่ระบุ</option>
                                 {data.companies?.map((item) => (
                                   <option key={item.id} value={item.id}>
                                     {item.name}
                                   </option>
                                 ))}
                               </select>
-                              <select
-                                className="production-table-select"
-                                name="scopeAgencyIds"
-                                form={roleFormId}
-                                multiple
-                                size={Math.min(4, Math.max(2, data.agencies?.length ?? 2))}
-                                defaultValue={
-                                  user.roleAssignments[0]?.scopeAgencyIds ?? []
-                                }
-                                aria-label={"ทีมของขอบเขตสิทธิ์ " + user.fullName}
-                              >
-                                {data.agencies?.map((item) => (
-                                  <option key={item.id} value={item.id}>
-                                    {item.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          ) : null}
-                        </td>
-                        <td>
-                          {data.rbac && capabilities.rbacAdminWrite ? (
-                            <form
-                              id={roleFormId}
-                              onSubmit={(event) =>
-                                void updateUserRoles(event, user.id)
+                            </label>
+                          </div>
+                          <label className="user-card-field">
+                            <span>ทีมในขอบเขต (ถ้าเลือกเฉพาะทีม)</span>
+                            <select
+                              className="production-table-select"
+                              name="scopeAgencyIds"
+                              form={roleFormId}
+                              multiple
+                              size={Math.min(4, Math.max(2, data.agencies?.length ?? 2))}
+                              defaultValue={
+                                user.roleAssignments[0]?.scopeAgencyIds ?? []
                               }
-                            />
-                          ) : null}
-                          <form
-                            id={formId}
-                            className="production-table-actions"
-                            onSubmit={(event) => void updateUser(event, user.id)}
-                          >
-                            <button
-                              className="production-action-button production-action-edit"
-                              disabled={
-                                !capabilities.usersAdminWrite || Boolean(busy)
-                              }
-                              type="submit"
-                              title="บันทึกการแก้ไข"
+                              aria-label={"ทีมของขอบเขตสิทธิ์ " + user.fullName}
                             >
-                              <i
-                                className="fa-solid fa-pen-to-square"
-                                aria-hidden="true"
-                              />
-                            </button>
-                            {data.rbac ? (
-                              <button
-                                className="production-action-button production-action-role"
-                                disabled={Boolean(busy)}
-                                type="submit"
-                                form={roleFormId}
-                                title="บันทึกระดับสิทธิ์"
-                              >
-                                <i
-                                  className="fa-solid fa-user-shield"
-                                  aria-hidden="true"
-                                />
-                              </button>
-                            ) : null}
-                            {capabilities.passwordRecoveryAdmin ? (
-                              <button
-                                className="production-action-button production-action-view"
-                                disabled={Boolean(busy)}
-                                type="button"
-                                title="สร้างลิงก์รีเซ็ตรหัสผ่าน"
-                                onClick={() => void issueRecovery(user.id)}
-                              >
-                                <i className="fa-solid fa-key" aria-hidden="true" />
-                              </button>
-                            ) : null}
-                          </form>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {visibleUsers.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} className="production-empty-row">
-                        ไม่พบข้อมูล! 😓
-                      </td>
-                    </tr>
-                  ) : null}
-                </tbody>
-              </table>
+                              {data.agencies?.map((item) => (
+                                <option key={item.id} value={item.id}>
+                                  {item.name}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        </div>
+                      ) : (
+                        <div className="production-role-chips">
+                          {user.roles.length > 0
+                            ? user.roles.map((role) => (
+                                <span
+                                  className="status-badge status-info"
+                                  key={role.id}
+                                >
+                                  {role.name}
+                                </span>
+                              ))
+                            : "—"}
+                        </div>
+                      )}
+                    </div>
+
+                    {canRoles ? (
+                      <form
+                        id={roleFormId}
+                        onSubmit={(event) => void updateUserRoles(event, user.id)}
+                      />
+                    ) : null}
+                    <form
+                      id={formId}
+                      className="user-card-actions"
+                      onSubmit={(event) => void updateUser(event, user.id)}
+                    >
+                      <button
+                        className="production-action-button production-action-edit"
+                        disabled={locked}
+                        type="submit"
+                        title="บันทึกการแก้ไข"
+                      >
+                        <i className="fa-solid fa-pen-to-square" aria-hidden="true" />{" "}
+                        บันทึกข้อมูล
+                      </button>
+                      {data.rbac ? (
+                        <button
+                          className="production-action-button production-action-role"
+                          disabled={Boolean(busy)}
+                          type="submit"
+                          form={roleFormId}
+                          title="บันทึกระดับสิทธิ์"
+                        >
+                          <i className="fa-solid fa-user-shield" aria-hidden="true" />{" "}
+                          บันทึกสิทธิ์
+                        </button>
+                      ) : null}
+                      {capabilities.passwordRecoveryAdmin ? (
+                        <button
+                          className="production-action-button production-action-view"
+                          disabled={Boolean(busy)}
+                          type="button"
+                          title="สร้างลิงก์รีเซ็ตรหัสผ่าน"
+                          onClick={() => void issueRecovery(user.id)}
+                        >
+                          <i className="fa-solid fa-key" aria-hidden="true" />{" "}
+                          ลิงก์รีเซ็ตรหัสผ่าน
+                        </button>
+                      ) : null}
+                    </form>
+                  </article>
+                );
+              })}
+              {visibleUsers.length === 0 ? (
+                <div className="production-empty-row">ไม่พบข้อมูล! 😓</div>
+              ) : null}
             </div>
             <div className="production-table-footer">
               แสดง {visibleUsers.length} จาก {data.users?.length ?? 0} แถว

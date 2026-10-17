@@ -844,6 +844,7 @@ export class PrismaManagementRepository implements ManagementRepository {
       ? {
           annualLimit: row.annualLimit.toNumber(),
           perClaimLimit: row.perClaimLimit ? row.perClaimLimit.toNumber() : 1000,
+          autoApproveRoleKeys: row.autoApproveRoleKeys,
           effectiveFrom: dateOnly(row.effectiveFrom),
         }
       : null;
@@ -856,6 +857,7 @@ export class PrismaManagementRepository implements ManagementRepository {
     if (!(input.annualLimit > 0) || !(input.perClaimLimit > 0) || input.perClaimLimit > input.annualLimit) {
       throw new Error("Medical limits must be positive and the per-claim limit cannot exceed the annual limit");
     }
+    const autoApproveRoleKeys = [...new Set(input.autoApproveRoleKeys.map((key) => key.trim().toUpperCase()))];
     return this.prisma.$transaction(async (tx) => {
       const current = await tx.benefitPolicy.findFirst({
         where: { key: "MEDICAL", active: true },
@@ -865,7 +867,7 @@ export class PrismaManagementRepository implements ManagementRepository {
       const row = current
         ? await tx.benefitPolicy.update({
             where: { id: current.id },
-            data: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit },
+            data: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit, autoApproveRoleKeys },
           })
         : await tx.benefitPolicy.create({
             data: {
@@ -873,6 +875,7 @@ export class PrismaManagementRepository implements ManagementRepository {
               name: "ค่ารักษาพยาบาล",
               annualLimit: input.annualLimit,
               perClaimLimit: input.perClaimLimit,
+              autoApproveRoleKeys,
               effectiveFrom,
             },
           });
@@ -882,12 +885,13 @@ export class PrismaManagementRepository implements ManagementRepository {
           action: "MEDICAL_POLICY_UPDATED",
           entityType: "BenefitPolicy",
           entityId: row.id,
-          metadata: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit },
+          metadata: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit, autoApproveRoleKeys },
         },
       });
       return {
         annualLimit: input.annualLimit,
         perClaimLimit: input.perClaimLimit,
+        autoApproveRoleKeys,
         effectiveFrom: dateOnly(row.effectiveFrom),
       };
     });

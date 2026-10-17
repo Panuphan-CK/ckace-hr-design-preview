@@ -9,6 +9,12 @@ import type {
 } from "@ckace/contracts";
 import { Prisma, type PrismaClient } from "@prisma/client";
 
+function clockMinutes(value: string): number {
+  const [hour = "0", minute = "0"] = value.split(":");
+
+  return Number(hour) * 60 + Number(minute);
+}
+
 function clock(value: Date | null): string | null {
   return value ? value.toISOString().slice(11, 16) : null;
 }
@@ -31,6 +37,9 @@ export async function resubmitSentBackTimeCorrection(
   }
 
   const correctedTime = normalizeAttendanceClock(input.request.correctedTime);
+  const correctedCheckOutTime = input.request.correctedCheckOutTime
+    ? normalizeAttendanceClock(input.request.correctedCheckOutTime)
+    : null;
   const claim = createIdempotencyClaim({
     actorEmployeeId: input.employeeId,
     operationKind: "TIME_CORRECTION_RESUBMIT",
@@ -87,14 +96,30 @@ export async function resubmitSentBackTimeCorrection(
         throw new Error("Time correction request is not waiting for revision");
       }
 
+      const addsRecord =
+        request.originalCheckIn === null &&
+        request.originalCheckOut === null &&
+        request.correctedCheckIn !== null &&
+        request.correctedCheckOut !== null;
       const isCheckIn = request.correctedCheckIn !== null;
-      const original = clock(isCheckIn ? request.originalCheckIn : request.originalCheckOut);
 
-      if (!original) {
-        throw new Error("Time correction approval state is unavailable");
+      if (addsRecord) {
+        if (!correctedCheckOutTime) {
+          throw new Error("Time correction check-out time is required to add a record");
+        }
+
+        if (clockMinutes(correctedCheckOutTime) <= clockMinutes(correctedTime)) {
+          throw new Error("Time correction check-out must be after check-in");
+        }
+      } else {
+        const original = clock(isCheckIn ? request.originalCheckIn : request.originalCheckOut);
+
+        if (!original) {
+          throw new Error("Time correction approval state is unavailable");
+        }
+
+        assertTimeCorrectionChanged({ originalTime: original, correctedTime });
       }
-
-      assertTimeCorrectionChanged({ originalTime: original, correctedTime });
 
       const step = await tx.approvalStep.findFirst({
         where: { approvalInstanceId: request.approvalInstanceId, status: "REVISION_REQUESTED" },
@@ -114,7 +139,14 @@ export async function resubmitSentBackTimeCorrection(
           status: "PENDING",
           decisionComment: null,
           decidedAt: null,
-          ...(isCheckIn ? { correctedCheckIn: corrected } : { correctedCheckOut: corrected }),
+          ...(addsRecord && correctedCheckOutTime
+            ? {
+                correctedCheckIn: corrected,
+                correctedCheckOut: new Date(`1970-01-01T${correctedCheckOutTime}:00.000Z`),
+              }
+            : isCheckIn
+              ? { correctedCheckIn: corrected }
+              : { correctedCheckOut: corrected }),
         },
       });
 

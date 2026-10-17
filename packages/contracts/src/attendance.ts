@@ -61,7 +61,9 @@ export interface AttendanceWriteResult {
 
 export type TimeCorrectionType =
   | "CHECK_IN"
-  | "CHECK_OUT";
+  | "CHECK_OUT"
+  /** A whole day with no clock-in: the request adds a record with both times. */
+  | "ADD_RECORD";
 
 export type TimeCorrectionStatus =
   | "PENDING"
@@ -73,8 +75,17 @@ export type TimeCorrectionStatus =
 export interface TimeCorrectionCreateInput {
   readonly clientKey: string;
   readonly attendanceRecordId: string;
-  readonly correctionType: TimeCorrectionType;
+  readonly correctionType: Exclude<TimeCorrectionType, "ADD_RECORD">;
   readonly correctedTime: string;
+  readonly reason: string;
+}
+
+/** Employee asks for an attendance record on a day that has none at all. */
+export interface AttendanceRecordAddInput {
+  readonly clientKey: string;
+  readonly attendanceDate: string;
+  readonly checkInTime: string;
+  readonly checkOutTime: string;
   readonly reason: string;
 }
 
@@ -85,6 +96,8 @@ export interface TimeCorrectionRequestView {
   readonly correctionType: TimeCorrectionType;
   readonly originalTime: string;
   readonly correctedTime: string;
+  /** ADD_RECORD only: the check-out time (correctedTime is then the check-in time). */
+  readonly correctedCheckOutTime?: string;
   readonly reason: string;
   readonly status: TimeCorrectionStatus;
   readonly decisionComment: string | null;
@@ -120,6 +133,8 @@ export interface TimeCorrectionDecisionResult {
 export interface TimeCorrectionResubmitInput {
   readonly clientKey: string;
   readonly correctedTime: string;
+  /** Required when the request adds a whole record (ADD_RECORD). */
+  readonly correctedCheckOutTime?: string;
   readonly reason: string;
 }
 

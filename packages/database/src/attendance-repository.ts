@@ -12,6 +12,7 @@ import {
   calculateCorrectedWorkMinutes,
   classifyAttendanceRadius,
   classifyAttendanceTiming,
+  normalizeAttendanceRecordAdd,
   normalizeTimeCorrection,
   normalizeTimeCorrectionDecision,
   type AttendancePolicyRule,
@@ -21,6 +22,7 @@ import type {
   AttendanceCheckInInput,
   AttendanceCheckOutInput,
   AttendanceRadiusState,
+  AttendanceRecordAddInput,
   AttendanceSelfOverview,
   AttendanceWriteResult,
   TimeCorrectionCancelResult,
@@ -96,6 +98,13 @@ export interface AttendanceRepository {
     readonly employeeId: string;
     readonly correlationId: string;
     readonly request: TimeCorrectionCreateInput;
+    readonly canonicalPayload: string;
+  }): Promise<TimeCorrectionCreateResult>;
+
+  createSelfAttendanceRecordAdd(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly request: AttendanceRecordAddInput;
     readonly canonicalPayload: string;
   }): Promise<TimeCorrectionCreateResult>;
 
@@ -768,7 +777,11 @@ async function resolveCorrectionApproval(
 function correctionTypeFromStored(input: {
   readonly correctedCheckIn: Date | null;
   readonly correctedCheckOut: Date | null;
-}): "CHECK_IN" | "CHECK_OUT" {
+}): "CHECK_IN" | "CHECK_OUT" | "ADD_RECORD" {
+  if (input.correctedCheckIn && input.correctedCheckOut) {
+    return "ADD_RECORD";
+  }
+
   if (input.correctedCheckIn && !input.correctedCheckOut) {
     return "CHECK_IN";
   }
@@ -778,7 +791,7 @@ function correctionTypeFromStored(input: {
   }
 
   throw new Error(
-    "Stored time correction does not target exactly one event",
+    "Stored time correction has no corrected time",
   );
 }
 
@@ -807,13 +820,15 @@ function correctionView(input: {
 }): TimeCorrectionRequestView {
   const correctionType = correctionTypeFromStored(input.row);
   const original =
-    correctionType === "CHECK_IN"
-      ? input.row.originalCheckIn
-      : input.row.originalCheckOut;
+    correctionType === "CHECK_OUT"
+      ? input.row.originalCheckOut
+      : correctionType === "CHECK_IN"
+        ? input.row.originalCheckIn
+        : null;
   const corrected =
-    correctionType === "CHECK_IN"
-      ? input.row.correctedCheckIn
-      : input.row.correctedCheckOut;
+    correctionType === "CHECK_OUT"
+      ? input.row.correctedCheckOut
+      : input.row.correctedCheckIn;
 
   // A check-out that was never scanned has no original time; the view shows it as empty.
   if (!corrected) {
@@ -829,6 +844,9 @@ function correctionView(input: {
     correctionType,
     originalTime: original ? (dbTime(original) ?? "") : "",
     correctedTime: dbTime(corrected) ?? "",
+    ...(correctionType === "ADD_RECORD" && input.row.correctedCheckOut
+      ? { correctedCheckOutTime: dbTime(input.row.correctedCheckOut) ?? "" }
+      : {}),
     reason: input.row.reason,
     status: input.row.status,
     decisionComment: input.row.decisionComment,
@@ -1889,6 +1907,155 @@ export class PrismaAttendanceRepository
     );
   }
 
+  async createSelfAttendanceRecordAdd(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly request: AttendanceRecordAddInput;
+    readonly canonicalPayload: string;
+  }): Promise<TimeCorrectionCreateResult> {
+    const normalized = normalizeAttendanceRecordAdd(input.request);
+    const claim = createIdempotencyClaim({
+      actorEmployeeId: input.employeeId,
+      operationKind: "TIME_CORRECTION_CREATE",
+      clientKey: normalized.clientKey,
+      canonicalPayload: input.canonicalPayload,
+    });
+    const replay = await idempotencyReplay(this.prisma, claim);
+
+    if (replay) {
+      return { requestId: replay, replayed: true };
+    }
+
+    const now = this.clock();
+    const today = attendanceBusinessParts(now).dateKey;
+    assertAttendanceDateNotFuture({
+      attendanceDate: normalized.attendanceDate,
+      today,
+    });
+
+    try {
+      return await this.prisma.$transaction(
+        async (tx) => {
+          await tx.idempotencyKey.create({ data: claim });
+          const requester = await activeEmployeeContext(tx, input.employeeId);
+          const workDate = workDateValue(normalized.attendanceDate);
+
+          const existingRecords = await tx.attendanceRecord.count({
+            where: { employeeId: input.employeeId, workDate },
+          });
+
+          if (existingRecords > 0) {
+            throw new Error(
+              "Attendance already exists for this date; request a correction of the existing record instead",
+            );
+          }
+
+          const active = await tx.timeCorrectionRequest.findMany({
+            where: {
+              employeeId: input.employeeId,
+              attendanceDate: workDate,
+              status: { in: ["PENDING", "APPROVED", "REVISION_REQUESTED"] },
+            },
+            select: { status: true },
+          });
+          assertNoActiveTimeCorrection(active.map((row) => row.status));
+
+          const approval = await resolveCorrectionApproval(tx, requester);
+          const approverEmployeeId = approval.steps[0]?.approverEmployeeId ?? null;
+          const approvalInstance = await tx.approvalInstance.create({
+            data: {
+              requestKind: "TIME_CORRECTION",
+              requesterEmployeeId: input.employeeId,
+              ...(approval.policyId ? { policyId: approval.policyId } : {}),
+              status: "PENDING",
+              currentStepOrder: approval.steps[0]?.stepOrder ?? 1,
+              steps: {
+                create: approval.steps.map((step) => ({
+                  stepOrder: step.stepOrder,
+                  approverEmployeeId: step.approverEmployeeId,
+                  status: "PENDING",
+                  assignedAt: now,
+                })),
+              },
+            },
+            select: { id: true },
+          });
+          const request = await tx.timeCorrectionRequest.create({
+            data: {
+              employeeId: input.employeeId,
+              attendanceRecordId: null,
+              approvalInstanceId: approvalInstance.id,
+              attendanceDate: workDate,
+              originalCheckIn: null,
+              originalCheckOut: null,
+              correctedCheckIn: timeValue(normalized.checkInTime),
+              correctedCheckOut: timeValue(normalized.checkOutTime),
+              reason: normalized.reason,
+              status: "PENDING",
+              requestedAt: now,
+            },
+            select: { id: true },
+          });
+
+          await Promise.all([
+            tx.idempotencyKey.update({
+              where: {
+                actorEmployeeId_operationKind_clientKey: {
+                  actorEmployeeId: claim.actorEmployeeId,
+                  operationKind: claim.operationKind,
+                  clientKey: claim.clientKey,
+                },
+              },
+              data: { resultReferenceId: request.id },
+            }),
+            tx.auditLog.create({
+              data: {
+                actorEmployeeId: input.employeeId,
+                action: "TIME_CORRECTION_CREATE",
+                entityType: "TimeCorrectionRequest",
+                entityId: request.id,
+                correlationId: input.correlationId,
+                metadata: {
+                  correctionType: "ADD_RECORD",
+                  attendanceDate: normalized.attendanceDate,
+                  approverEmployeeId,
+                },
+              },
+            }),
+            tx.notificationOutbox.create({
+              data: {
+                aggregateType: "TIME_CORRECTION",
+                aggregateId: request.id,
+                eventType: "TIME_CORRECTION_CREATED",
+                payload: {
+                  requestId: request.id,
+                  requesterEmployeeId: input.employeeId,
+                  approverEmployeeId,
+                },
+              },
+            }),
+          ]);
+
+          return { requestId: request.id, replayed: false };
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        const existing = await idempotencyReplay(this.prisma, claim);
+
+        if (existing) {
+          return { requestId: existing, replayed: true };
+        }
+      }
+
+      throw error;
+    }
+  }
+
   async decideAssignedTimeCorrection(input: {
     readonly approverEmployeeId: string;
     readonly correlationId: string;
@@ -2112,7 +2279,75 @@ export class PrismaAttendanceRepository
           };
         }
 
-        if (normalized.decision === "APPROVED") {
+        let addedRecordId: string | null = null;
+
+        if (
+          normalized.decision === "APPROVED" &&
+          !request.attendanceRecordId &&
+          request.correctedCheckIn &&
+          request.correctedCheckOut
+        ) {
+          // ADD_RECORD: the day had no attendance at all, so approving creates the record.
+          const workDateKey = dateOnly(request.attendanceDate);
+          const existingRecords = await tx.attendanceRecord.count({
+            where: {
+              employeeId: request.employeeId,
+              workDate: request.attendanceDate,
+            },
+          });
+
+          if (existingRecords > 0) {
+            throw new Error(
+              "Attendance already exists for this date; the request can no longer add a record",
+            );
+          }
+
+          const policy = await attendancePolicyFor(tx, request.attendanceDate);
+          const overtimeSegments = await approvedOvertimeSegments(
+            tx,
+            request.employeeId,
+            request.attendanceDate,
+          );
+          const checkInTime = dbTime(request.correctedCheckIn) ?? "";
+          const checkOutTime = dbTime(request.correctedCheckOut) ?? "";
+          const workMinutes = calculateCorrectedWorkMinutes({
+            checkInTime,
+            checkOutTime,
+            policy: policy.rule,
+          });
+          const timing = classifyAttendanceTiming({
+            checkInTime,
+            checkOutTime,
+            policy: policy.rule,
+            hasApprovedOvertime: overtimeSegments.length > 0,
+          });
+          const created = await tx.attendanceRecord.create({
+            data: {
+              employeeId: request.employeeId,
+              workDate: request.attendanceDate,
+              checkInAt: bangkokTimestamp(workDateKey, checkInTime),
+              checkOutAt: bangkokTimestamp(workDateKey, checkOutTime),
+              calculation: {
+                create: {
+                  workMinutes,
+                  lateMinutes: timing.lateMinutes,
+                  earlyMinutes: timing.earlyMinutes,
+                  overtimeMinutes: null,
+                  checkInRadius: "UNKNOWN",
+                  checkOutRadius: "UNKNOWN",
+                  policyVersion: policy.id,
+                  calculatedAt: decidedAt,
+                },
+              },
+            },
+            select: { id: true },
+          });
+          addedRecordId = created.id;
+          await tx.timeCorrectionRequest.update({
+            where: { id: request.id },
+            data: { attendanceRecordId: created.id },
+          });
+        } else if (normalized.decision === "APPROVED") {
           if (
             !request.attendanceRecord ||
             !request.attendanceRecordId ||
@@ -2270,7 +2505,7 @@ export class PrismaAttendanceRepository
                 requesterEmployeeId:
                   request.employeeId,
                 attendanceRecordId:
-                  request.attendanceRecordId,
+                  addedRecordId ?? request.attendanceRecordId,
               },
             },
           }),
@@ -2396,7 +2631,39 @@ export class PrismaAttendanceRepository
         }
 
         const record = request.attendanceRecord;
+        const addedRecord =
+          request.originalCheckIn === null &&
+          request.originalCheckOut === null &&
+          request.correctedCheckIn !== null &&
+          request.correctedCheckOut !== null;
 
+        if (addedRecord) {
+          // ADD_RECORD: withdrawing removes the record the approval created.
+          if (!record || !record.checkOutAt) {
+            throw new Error("Time correction attendance record is unavailable");
+          }
+
+          if (
+            dbTime(request.correctedCheckIn) !== attendanceBusinessParts(record.checkInAt).time ||
+            dbTime(request.correctedCheckOut) !== attendanceBusinessParts(record.checkOutAt).time
+          ) {
+            throw new Error(
+              "Approved time correction cannot be withdrawn because the attendance record changed afterwards",
+            );
+          }
+
+          const linkedOvertime = await tx.overtimeSegment.count({
+            where: { attendanceRecordId: record.id },
+          });
+
+          if (linkedOvertime > 0) {
+            throw new Error(
+              "Approved time correction cannot be withdrawn because overtime is linked to the added record",
+            );
+          }
+
+          await tx.attendanceRecord.delete({ where: { id: record.id } });
+        } else {
         if (!record || !record.checkOutAt) {
           throw new Error("Time correction attendance record is unavailable");
         }
@@ -2472,6 +2739,8 @@ export class PrismaAttendanceRepository
             },
           },
         });
+        }
+
         await tx.timeCorrectionRequest.update({
           where: { id: request.id },
           data: { status: "CANCELLED", decisionComment: reason, decidedAt },

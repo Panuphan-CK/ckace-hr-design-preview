@@ -9,6 +9,7 @@ import { thaiDate, thaiDateTime } from "../ui/format";
 import { Icon } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
 import { ApproverChainNotice } from "../ui/approver-chain";
+import { AddRecordForm } from "./add-record-form";
 import { RequestTimelineSection } from "../ui/request-timeline";
 import { ResubmitPanel, type ResubmitOutcome } from "../ui/resubmit-panel";
 import {
@@ -18,6 +19,8 @@ import {
   correctionErrorMessage,
   correctionMetrics,
   correctionTargets,
+  correctionTimeSummary,
+  correctionTitle,
   hasPendingRequest,
   recordTime,
   sortRecords,
@@ -130,7 +133,12 @@ export default function DesktopTimeCorrectionPage() {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ clientKey, correctedTime: values.correctedTime, reason: values.reason }),
+        body: JSON.stringify({
+          clientKey,
+          correctedTime: values.correctedTime,
+          ...(values.correctedCheckOutTime ? { correctedCheckOutTime: values.correctedCheckOutTime } : {}),
+          reason: values.reason,
+        }),
       });
       if (!response.ok) return { ok: false, status: response.status, message: correctionErrorMessage(response.status, "create") };
       setDetail(null);
@@ -272,6 +280,15 @@ export default function DesktopTimeCorrectionPage() {
           )}
         </form>
 
+        <AddRecordForm
+          records={records}
+          requests={requests}
+          onResult={async (result) => {
+            setMessage(result);
+            if (result.kind === "success") await load();
+          }}
+        />
+
         <section className="ck-panel ck-c-time" aria-labelledby="tc-history">
           <SectionHead title="ประวัติการแก้ไขเวลา" id="tc-history" count={requests.length}>
             <Filters value={filter} options={FILTERS} onChange={setFilter} />
@@ -282,7 +299,7 @@ export default function DesktopTimeCorrectionPage() {
             <div className="ck-hgrid">
               {filtered.map((request) => {
                 const status = CORRECTION_STATUS[request.status];
-                const title = `แก้เวลา${CORRECTION_TYPE_LABEL[request.correctionType]} ${request.correctedTime}`;
+                const title = correctionTitle(request);
                 return (
                   <button key={request.requestId} type="button" className="ck-hcard ck-c-time" onClick={() => setDetail(request)}>
                     <span className="ck-hc-top">
@@ -303,7 +320,7 @@ export default function DesktopTimeCorrectionPage() {
                       <div>
                         <dt>เวลา</dt>
                         <dd>
-                          {request.originalTime || "—"} เป็น {request.correctedTime}
+                          {correctionTimeSummary(request)}
                         </dd>
                       </div>
                       <div>
@@ -330,7 +347,7 @@ export default function DesktopTimeCorrectionPage() {
           tone="time"
           icon="time"
           kicker="รายละเอียดคำขอแก้ไขเวลา"
-          title={`แก้เวลา${CORRECTION_TYPE_LABEL[detail.correctionType]} ${detail.correctedTime}`}
+          title={correctionTitle(detail)}
           status={CORRECTION_STATUS[detail.status]}
           onClose={() => setDetail(null)}
           footer={
@@ -355,8 +372,8 @@ export default function DesktopTimeCorrectionPage() {
               <dd>{detail.originalTime || "ไม่มีบันทึก"}</dd>
             </div>
             <div>
-              <dt>เวลาที่ขอแก้</dt>
-              <dd>{detail.correctedTime}</dd>
+              <dt>{detail.correctionType === "ADD_RECORD" ? "เวลาที่ขอเพิ่ม" : "เวลาที่ขอแก้"}</dt>
+              <dd>{correctionTimeSummary(detail).replace(/^.* เป็น /, "")}</dd>
             </div>
           </dl>
           <div className="ck-dlg-sec">
@@ -374,7 +391,10 @@ export default function DesktopTimeCorrectionPage() {
             <ResubmitPanel
               key={detail.requestId}
               fields={[
-                { name: "correctedTime", label: "เวลาที่ขอแก้", type: "time", value: detail.correctedTime },
+                { name: "correctedTime", label: detail.correctionType === "ADD_RECORD" ? "เวลาเข้างาน" : "เวลาที่ขอแก้", type: "time", value: detail.correctedTime },
+                ...(detail.correctionType === "ADD_RECORD"
+                  ? [{ name: "correctedCheckOutTime", label: "เวลาออกงาน", type: "time" as const, value: detail.correctedCheckOutTime ?? "" }]
+                  : []),
                 { name: "reason", label: "เหตุผล", type: "textarea", value: detail.reason },
               ]}
               onSubmit={(values, clientKey) => resubmit(detail, values, clientKey)}

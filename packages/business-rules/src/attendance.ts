@@ -425,6 +425,44 @@ export function normalizeTimeCorrection(input: {
   };
 }
 
+export interface NormalizedAttendanceRecordAdd {
+  readonly attendanceDate: string;
+  readonly checkInTime: string;
+  readonly checkOutTime: string;
+  readonly reason: string;
+  readonly clientKey: string;
+}
+
+/** Request to add a whole attendance record for a day that has no clock-in at all. */
+export function normalizeAttendanceRecordAdd(input: {
+  readonly attendanceDate: string;
+  readonly checkInTime: string;
+  readonly checkOutTime: string;
+  readonly reason: string;
+  readonly clientKey: string;
+}): NormalizedAttendanceRecordAdd {
+  const reason = input.reason.trim();
+
+  if (!reason || reason.length > 1000) {
+    throw new Error("Time correction reason must be 1 to 1000 characters");
+  }
+
+  const checkInTime = normalizeAttendanceClock(input.checkInTime);
+  const checkOutTime = normalizeAttendanceClock(input.checkOutTime);
+
+  if (clockMinutes(checkOutTime) <= clockMinutes(checkInTime)) {
+    throw new Error("Time correction check-out must be after check-in");
+  }
+
+  return {
+    attendanceDate: normalizeAttendanceIsoDate(input.attendanceDate),
+    checkInTime,
+    checkOutTime,
+    reason,
+    clientKey: normalizeAttendanceClientKey(input.clientKey),
+  };
+}
+
 export function assertTimeCorrectionOriginalExists(input: {
   readonly correctionType: "CHECK_IN" | "CHECK_OUT";
   readonly originalCheckIn: string | null;

@@ -456,7 +456,18 @@ export class ManagementController {
     ) {
       throw new BadRequestException("Invalid medical limits");
     }
-    return this.service.saveMedicalPolicy({ annualLimit, perClaimLimit }, actorId(request));
+    const rawRoles = value.autoApproveRoleKeys;
+    const allowedRoles = ["SUPERUSER", "ADMIN", "SUPERADMIN"];
+    if (
+      rawRoles !== undefined &&
+      (!Array.isArray(rawRoles) ||
+        rawRoles.some((role) => typeof role !== "string" || !allowedRoles.includes(role.trim().toUpperCase())))
+    ) {
+      throw new BadRequestException("Invalid auto-approval roles");
+    }
+    // Omitted keeps the previous default (ADMIN, SUPERADMIN); an empty list turns auto-approval off.
+    const autoApproveRoleKeys = (rawRoles as string[] | undefined) ?? ["ADMIN", "SUPERADMIN"];
+    return this.service.saveMedicalPolicy({ annualLimit, perClaimLimit, autoApproveRoleKeys }, actorId(request));
   }
 
   @Get("attendance-policy")

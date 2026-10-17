@@ -218,6 +218,12 @@ describe("medical business rules", () => {
     ).toBe(true);
   });
 
+  it("follows the policy's auto-approval roles", () => {
+    expect(isMedicalAutoApprovalRole(["ADMIN"], ["SUPERADMIN"])).toBe(false);
+    expect(isMedicalAutoApprovalRole(["superuser"], ["SUPERUSER", "ADMIN"])).toBe(true);
+    expect(isMedicalAutoApprovalRole(["ADMIN", "SUPERADMIN"], [])).toBe(false);
+  });
+
   it("allows cancellation only while pending", () => {
     expect(() =>
       assertMedicalCancelable("PENDING"),

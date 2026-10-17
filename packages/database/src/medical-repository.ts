@@ -463,6 +463,26 @@ async function perClaimLimitFor(
   return policy?.perClaimLimit ? policy.perClaimLimit.toNumber() : MEDICAL_PER_CLAIM_LIMIT_DEFAULT;
 }
 
+/** Roles whose own claims are auto-approved by the active medical policy (default ADMIN, SUPERADMIN). */
+async function autoApproveRolesFor(
+  prisma: Pick<Prisma.TransactionClient, "benefitPolicy">,
+  today: string,
+): Promise<readonly string[]> {
+  const effectiveDate = dateValue(today);
+  const policy = await prisma.benefitPolicy.findFirst({
+    where: {
+      key: MEDICAL_BENEFIT_POLICY_KEY,
+      active: true,
+      effectiveFrom: { lte: effectiveDate },
+      OR: [{ effectiveTo: null }, { effectiveTo: { gte: effectiveDate } }],
+    },
+    select: { autoApproveRoleKeys: true },
+    orderBy: [{ effectiveFrom: "desc" }, { id: "asc" }],
+  });
+
+  return policy?.autoApproveRoleKeys ?? ["ADMIN", "SUPERADMIN"];
+}
+
 async function activeMedicalBenefitPolicy(
   prisma: Pick<
     Prisma.TransactionClient,
@@ -1266,6 +1286,10 @@ export class PrismaMedicalRepository
             const autoApproved =
               isMedicalAutoApprovalRole(
                 requester.roleKeys,
+                await autoApproveRolesFor(
+                  tx,
+                  bangkokDateKey(this.clock()),
+                ),
               );
             const approval = autoApproved
               ? null
@@ -1909,7 +1933,12 @@ export class PrismaMedicalRepository
   async previewApprovalChain(employeeId: string): Promise<ApprovalChainPreview> {
     const requester = await activeMedicalEmployee(this.prisma, employeeId);
 
-    if (isMedicalAutoApprovalRole(requester.roleKeys)) {
+    if (
+      isMedicalAutoApprovalRole(
+        requester.roleKeys,
+        await autoApproveRolesFor(this.prisma, bangkokDateKey(this.clock())),
+      )
+    ) {
       return { autoApproved: true, steps: [] };
     }
 

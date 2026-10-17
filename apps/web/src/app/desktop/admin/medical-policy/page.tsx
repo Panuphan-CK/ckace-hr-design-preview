@@ -3,6 +3,12 @@
 import type { MedicalPolicyItem } from "@ckace/contracts";
 import { useCallback, useEffect, useState } from "react";
 
+const AUTO_APPROVE_ROLES: readonly (readonly [string, string])[] = [
+  ["SUPERUSER", "หัวหน้าทีม (SuperUser)"],
+  ["ADMIN", "แอดมิน"],
+  ["SUPERADMIN", "ซูเปอร์แอดมิน"],
+];
+
 export default function MedicalPolicyPage() {
   const [policy, setPolicy] = useState<MedicalPolicyItem | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +42,7 @@ export default function MedicalPolicyPage() {
         body: JSON.stringify({
           annualLimit: Number(data.get("annualLimit")),
           perClaimLimit: Number(data.get("perClaimLimit")),
+          autoApproveRoleKeys: data.getAll("autoApproveRoleKeys").map(String),
         }),
       });
       if (!response.ok) throw new Error(response.status === 400 ? "วงเงินต่อใบต้องไม่เกินวงเงินต่อปี และต้องมากกว่า 0" : "บันทึกไม่สำเร็จ");
@@ -65,7 +72,7 @@ export default function MedicalPolicyPage() {
       ) : null}
       {policy === null ? <p>ยังไม่มีการตั้งค่า กรอกค่าด้านล่างเพื่อเริ่มใช้งาน (ค่าแนะนำ 1,000 ต่อใบ และ 10,000 ต่อปี)</p> : null}
       <form
-        key={policy ? policy.annualLimit + "-" + policy.perClaimLimit : "new"}
+        key={policy ? policy.annualLimit + "-" + policy.perClaimLimit + "-" + policy.autoApproveRoleKeys.join(",") : "new"}
         onSubmit={(event) => {
           event.preventDefault();
           void save(event.currentTarget);
@@ -80,6 +87,21 @@ export default function MedicalPolicyPage() {
           วงเงินต่อปี (บาท)
           <input name="annualLimit" type="number" min="1" step="1" required defaultValue={policy?.annualLimit ?? 10000} disabled={busy} />
         </label>
+        <fieldset disabled={busy} style={{ display: "grid", gap: 6, border: "1px solid #e3e7ef", borderRadius: 10, padding: 12 }}>
+          <legend>อนุมัติอัตโนมัติ (ไม่ต้องผ่านสายอนุมัติ)</legend>
+          {AUTO_APPROVE_ROLES.map(([key, label]) => (
+            <label key={key}>
+              <input
+                type="checkbox"
+                name="autoApproveRoleKeys"
+                value={key}
+                defaultChecked={(policy?.autoApproveRoleKeys ?? ["ADMIN", "SUPERADMIN"]).includes(key)}
+              />{" "}
+              {label}
+            </label>
+          ))}
+          <small>ใบเบิกของผู้ที่มีระดับที่เลือกจะอนุมัติทันที และบันทึกในประวัติตรวจสอบ</small>
+        </fieldset>
         <button type="submit" className="primary-button" disabled={busy}>
           บันทึก
         </button>

@@ -10,6 +10,22 @@ import type { PrismaClient } from "@prisma/client";
 import { delegatorIdsFor } from "./approval-delegation";
 import { formatLeaveRequestNo } from "./leave-repository";
 
+/** A request that adds a whole record says so and shows the times; other corrections keep the reason. */
+function correctionSummary(row: {
+  readonly reason: string;
+  readonly attendanceDate: Date;
+  readonly correctedCheckIn: Date | null;
+  readonly correctedCheckOut: Date | null;
+}): string {
+  if (!row.correctedCheckIn || !row.correctedCheckOut) {
+    return row.reason;
+  }
+
+  const time = (value: Date) => value.toISOString().slice(11, 16);
+
+  return `เพิ่มบันทึกลงเวลา ${row.attendanceDate.toISOString().slice(0, 10)} เข้า ${time(row.correctedCheckIn)} ออก ${time(row.correctedCheckOut)}: ${row.reason}`;
+}
+
 /** OT-0001 / MED-0001 / TC-0001 style numbers; grows past four digits when needed. */
 export function formatRequestNo(prefix: "OT" | "MED" | "TC", value: number): string {
   return prefix + "-" + String(value).padStart(4, "0");
@@ -63,7 +79,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
         where: { employeeId },
         select: {
           id: true, requestNo: true, status: true, requestedAt: true, decisionComment: true,
-          reason: true,
+          reason: true, attendanceDate: true, correctedCheckIn: true, correctedCheckOut: true,
         },
       }),
       this.prisma.overtimeRequest.findMany({
@@ -102,7 +118,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
         kind: "TIME_CORRECTION" as const,
         status: row.status,
         submittedAt: row.requestedAt.toISOString(),
-        summary: row.reason,
+        summary: correctionSummary(row),
         decisionReason: row.decisionComment,
         employeeId,
         canDecide: false,
@@ -165,7 +181,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
             timeCorrection: {
               select: {
                 id: true, requestNo: true, status: true, requestedAt: true, decisionComment: true,
-                reason: true,
+                reason: true, attendanceDate: true, correctedCheckIn: true, correctedCheckOut: true,
               },
             },
             overtimeRequest: {
@@ -212,7 +228,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           ...common,
           id: row.id, requestNo: formatRequestNo("TC", row.requestNo), kind: "TIME_CORRECTION", status: row.status,
           submittedAt: row.requestedAt.toISOString(),
-          summary: row.reason,
+          summary: correctionSummary(row),
           decisionReason: row.decisionComment,
         });
       } else if (instance.overtimeRequest) {
@@ -342,6 +358,9 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
                 requestNo: true,
                 requestedAt: true,
                 reason: true,
+                attendanceDate: true,
+                correctedCheckIn: true,
+                correctedCheckOut: true,
               },
             },
             overtimeRequest: {
@@ -405,7 +424,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           requestNo: formatRequestNo("TC", row.requestNo),
           kind: "TIME_CORRECTION",
           submittedAt: row.requestedAt.toISOString(),
-          summary: row.reason,
+          summary: correctionSummary(row),
         });
       } else if (instance.overtimeRequest) {
         const row = instance.overtimeRequest;

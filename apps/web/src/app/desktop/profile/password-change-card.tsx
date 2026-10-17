@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 
+import { SectionHead } from "../ui/kit";
+
 function failureText(status: number): string {
   if (status === 403) return "รหัสผ่านปัจจุบันไม่ถูกต้อง";
   if (status === 400) return "รหัสผ่านใหม่ไม่ถูกต้อง ต้องยาว 8 ตัวอักษรขึ้นไป และต้องต่างจากรหัสเดิม";
@@ -53,29 +55,28 @@ export function PasswordChangeCard() {
   }
 
   return (
-    <section className="module-panel" aria-labelledby="password-change-title">
-      <h2 id="password-change-title">เปลี่ยนรหัสผ่าน</h2>
-      <p>ใส่รหัสผ่านปัจจุบันเพื่อยืนยันตัวตน แล้วตั้งรหัสใหม่ (อย่างน้อย 8 ตัวอักษร)</p>
+    <section className="ck-fbox ck-c-accent" aria-labelledby="password-change-title">
+      <SectionHead id="password-change-title" title="เปลี่ยนรหัสผ่าน" hint="ใส่รหัสผ่านปัจจุบันเพื่อยืนยันตัวตน แล้วตั้งรหัสใหม่ (อย่างน้อย 8 ตัวอักษร)" />
       {message ? (
         <p role={message.kind === "error" ? "alert" : "status"} className={"ck-msg " + message.kind}>
           {message.text}
         </p>
       ) : null}
-      <form method="post" onSubmit={(event) => void submit(event)} style={{ display: "grid", gap: 12, maxWidth: 360 }}>
-        <label>
-          รหัสผ่านปัจจุบัน
-          <input name="currentPassword" type="password" autoComplete="current-password" required disabled={busy} />
+      <form method="post" onSubmit={(event) => void submit(event)} className="ck-fgrid">
+        <label className="ck-field">
+          <span>รหัสผ่านปัจจุบัน</span>
+          <input className="ck-in" name="currentPassword" type="password" autoComplete="current-password" required disabled={busy} />
         </label>
-        <label>
-          รหัสผ่านใหม่
-          <input name="newPassword" type="password" autoComplete="new-password" minLength={8} maxLength={200} required disabled={busy} />
+        <label className="ck-field">
+          <span>รหัสผ่านใหม่</span>
+          <input className="ck-in" name="newPassword" type="password" autoComplete="new-password" minLength={8} maxLength={200} required disabled={busy} />
         </label>
-        <label>
-          ยืนยันรหัสผ่านใหม่
-          <input name="confirmPassword" type="password" autoComplete="new-password" minLength={8} maxLength={200} required disabled={busy} />
+        <label className="ck-field">
+          <span>ยืนยันรหัสผ่านใหม่</span>
+          <input className="ck-in" name="confirmPassword" type="password" autoComplete="new-password" minLength={8} maxLength={200} required disabled={busy} />
         </label>
-        <div>
-          <button type="submit" className="primary-button" disabled={busy}>
+        <div className="ck-field full" style={{ alignItems: "flex-start" }}>
+          <button type="submit" className="ck-btn tone" style={{ alignSelf: "start" }} disabled={busy}>
             {busy ? "กำลังบันทึก…" : "เปลี่ยนรหัสผ่าน"}
           </button>
         </div>

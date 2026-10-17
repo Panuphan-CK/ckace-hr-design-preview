@@ -1,6 +1,10 @@
 "use client";
 
 import { DateField } from "../ui/date-picker";
+import { Icon, type IconName } from "../ui/icons";
+import { ErrorState, LoadingState, PageHead, SectionHead, type Tone } from "../ui/kit";
+import { DonutChart, MonthlyChart, seriesColor } from "./report-charts";
+import { formatNumber, monthlyBuckets, personSummaries, rowType, typeShares } from "./report-stats";
 import type {
   ManagementReportRow,
   MissingCheckOutItem,
@@ -24,39 +28,17 @@ interface ReportOption {
   readonly kind: ReportKind;
   readonly title: string;
   readonly description: string;
-  readonly icon: string;
-  readonly tone: string;
+  readonly icon: IconName;
+  readonly tone: Tone;
+  readonly unit: string;
+  readonly overview: string;
 }
 
 const REPORT_OPTIONS: readonly ReportOption[] = [
-  {
-    kind: "LEAVE",
-    title: "รายงานการลา",
-    description: "วิเคราะห์เฉพาะรายการลาที่อนุมัติแล้ว",
-    icon: "fa-solid fa-plane-departure",
-    tone: "blue",
-  },
-  {
-    kind: "ATTENDANCE",
-    title: "รายงานเข้าออกงาน",
-    description: "สรุปเฉพาะรายการเวลาเข้า-ออกที่บันทึกครบ",
-    icon: "fa-solid fa-user-clock",
-    tone: "green",
-  },
-  {
-    kind: "OVERTIME",
-    title: "รายงานทำงานล่วงเวลา",
-    description: "วิเคราะห์เฉพาะ OT ที่อนุมัติแล้ว",
-    icon: "fa-solid fa-briefcase",
-    tone: "orange",
-  },
-  {
-    kind: "MEDICAL",
-    title: "รายงานเบิกค่ารักษา",
-    description: "วิเคราะห์เฉพาะค่ารักษาที่อนุมัติแล้ว",
-    icon: "fa-solid fa-first-aid",
-    tone: "red",
-  },
+  { kind: "LEAVE", title: "รายงานการลา", description: "วิเคราะห์เฉพาะรายการลาที่อนุมัติแล้ว", icon: "leave", tone: "leave", unit: "วัน", overview: "การลา" },
+  { kind: "ATTENDANCE", title: "รายงานเข้าออกงาน", description: "สรุปเฉพาะรายการเวลาเข้า-ออกที่บันทึกครบ", icon: "clock", tone: "time", unit: "ชม.", overview: "การเข้างาน" },
+  { kind: "OVERTIME", title: "รายงานทำงานล่วงเวลา", description: "วิเคราะห์เฉพาะ OT ที่อนุมัติแล้ว", icon: "ot", tone: "ot", unit: "ชม.", overview: "OT" },
+  { kind: "MEDICAL", title: "รายงานเบิกค่ารักษา", description: "วิเคราะห์เฉพาะค่ารักษาที่อนุมัติแล้ว", icon: "med", tone: "med", unit: "บาท", overview: "ค่ารักษาพยาบาล" },
 ];
 
 const REPORT_HASH: Readonly<Record<string, ReportKind | null>> = {
@@ -227,311 +209,267 @@ export default function DesktopReportsPage() {
     return state.data.rows.filter((row) => row.kind === selectedKind);
   }, [selectedKind, state]);
 
-  if (selectedKind === null) {
-    const overviewTotals =
-      state.status === "ready"
-        ? [
-            { label: "การลา", value: state.data.totals.leave, icon: "fa-solid fa-plane-departure", tone: "blue" },
-            { label: "การเข้างาน", value: state.data.totals.attendance, icon: "fa-solid fa-user-clock", tone: "green" },
-            { label: "OT", value: state.data.totals.overtime, icon: "fa-solid fa-briefcase", tone: "orange" },
-            { label: "ค่ารักษาพยาบาล", value: state.data.totals.medical, icon: "fa-solid fa-first-aid", tone: "red" },
-          ] as const
-        : [];
+  const buckets = useMemo(() => monthlyBuckets(selectedRows), [selectedRows]);
+  const shares = useMemo(() => typeShares(selectedRows), [selectedRows]);
+  const people = useMemo(() => personSummaries(selectedRows), [selectedRows]);
+  const typeNames = useMemo(() => shares.map((share) => share.label), [shares]);
 
+  const totals =
+    state.status === "ready"
+      ? [state.data.totals.leave, state.data.totals.attendance, state.data.totals.overtime, state.data.totals.medical]
+      : [];
+
+  const filterBar = (
+    <div className="ck-fbox ck-c-accent" style={{ padding: 16 }}>
+      <div className="ck-row" style={{ alignItems: "flex-end" }}>
+        <label className="ck-field" style={{ minWidth: 200 }}>
+          <span>วันที่เริ่ม</span>
+          <DateField label="วันที่เริ่ม" value={from} onChange={(next) => setFrom(next)} />
+        </label>
+        <label className="ck-field" style={{ minWidth: 200 }}>
+          <span>วันที่สิ้นสุด</span>
+          <DateField label="วันที่สิ้นสุด" value={to} onChange={(next) => setTo(next)} />
+        </label>
+        <button
+          className="ck-btn quiet"
+          type="button"
+          onClick={() => {
+            const next = monthRange();
+            setFrom(next.from);
+            setTo(next.to);
+          }}
+        >
+          เดือนนี้
+        </button>
+        <button className="ck-btn tone" type="button" onClick={() => void load()}>
+          วิเคราะห์
+        </button>
+        <span className="ck-ml ck-row">
+          <a
+            className="ck-btn quiet"
+            href={"/api/management/reports/overtime.xlsx?from=" + encodeURIComponent(from) + "&to=" + encodeURIComponent(to)}
+            download
+          >
+            ดาวน์โหลดรายงาน OT (Excel)
+          </a>
+          {selectedKind !== null ? (
+            <button className="ck-btn quiet" type="button" disabled={selectedRows.length === 0} onClick={() => exportCsv(selectedRows, selectedKind)}>
+              ส่งออก CSV
+            </button>
+          ) : null}
+        </span>
+      </div>
+    </div>
+  );
+
+  const stateBlock =
+    state.status === "loading" ? (
+      <LoadingState title="กำลังสรุปข้อมูล" />
+    ) : state.status === "error" ? (
+      <ErrorState title="โหลดรายงานไม่สำเร็จ" message={state.message} onRetry={() => void load()} />
+    ) : null;
+
+  if (selectedKind === null || selectedOption === null) {
     return (
-      <div className="production-report-selection task398-reports-page fade-in">
-        <section className="module-heading task396-report-intro">
-          <div>
-            <p className="eyebrow">APPROVED DATA ANALYTICS</p>
-            <h1>รายงานและวิเคราะห์ข้อมูล</h1>
-            <p>
-              วิเคราะห์ข้อมูลที่อนุมัติหรือบันทึกสมบูรณ์แล้วเท่านั้น
-              เพื่อไม่ให้รายการรออนุมัติหรือถูกปฏิเสธปะปนกับข้อมูลจริง
-            </p>
-          </div>
-        </section>
-
-        <section className="module-panel task396-report-overview-panel">
-          <div className="production-report-heading">
-            <div>
-              <span className="summary-kicker">ภาพรวม</span>
-              <h2>ข้อมูลในช่วงที่เลือก</h2>
-            </div>
-            <span className="production-period-chip">
-              {from} ถึง {to}
-            </span>
-          </div>
-
-          <div className="production-report-filters task396-report-overview-filters">
-            <label>
-              <span>วันที่เริ่ม</span>
-              <DateField label="วันที่เริ่ม" value={from} onChange={(next) => setFrom(next)} />
-            </label>
-            <label>
-              <span>วันที่สิ้นสุด</span>
-              <DateField label="วันที่สิ้นสุด" value={to} onChange={(next) => setTo(next)} />
-            </label>
-            <div className="production-report-filter-actions">
-              <button
-                className="secondary-button"
-                type="button"
-                onClick={() => {
-                  const next = monthRange();
-                  setFrom(next.from);
-                  setTo(next.to);
-                }}
-              >
-                เดือนนี้
-              </button>
-              <a
-                className="secondary-button"
-                href={
-                  "/api/management/reports/overtime.xlsx?from=" +
-                  encodeURIComponent(from) +
-                  "&to=" +
-                  encodeURIComponent(to)
-                }
-                download
-              >
-                ดาวน์โหลดรายงาน OT (Excel)
-              </a>
-              <button
-                className="primary-button"
-                type="button"
-                onClick={() => void load()}
-              >
-                วิเคราะห์
-              </button>
-            </div>
-          </div>
-
-          {state.status === "loading" ? (
-            <div className="module-state production-report-state" role="status" aria-busy="true">
-              <div className="spinner" aria-hidden="true" />
-              <h2>กำลังสรุปข้อมูล</h2>
-            </div>
-          ) : state.status === "error" ? (
-            <div className="module-state production-report-state" role="alert">
-              <div className="status-badge error">เกิดข้อผิดพลาด</div>
-              <h2>โหลดภาพรวมไม่สำเร็จ</h2>
-              <p>{state.message}</p>
-              <button className="primary-button" type="button" onClick={() => void load()}>
-                ลองใหม่
-              </button>
-            </div>
-          ) : (
-            <div className="task396-report-overview-summary">
-              {overviewTotals.map((item) => (
-                <article key={item.label}>
-                  <span
-                    className={
-                      "production-report-icon production-report-icon-" + item.tone
-                    }
-                  >
-                    <i className={item.icon} aria-hidden="true" />
-                  </span>
-                  <div>
-                    <strong>{item.value}</strong>
-                    <span>{item.label}</span>
+      <>
+        <PageHead tone="accent" icon="chart" title="รายงาน" subtitle={"ข้อมูลที่อนุมัติหรือบันทึกครบแล้ว · " + from + " ถึง " + to} />
+        <div className="ck-wrap ck-stack">
+          {filterBar}
+          {stateBlock}
+          {state.status === "ready" ? (
+            <div className="ck-hgrid" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+              {REPORT_OPTIONS.map((option, index) => (
+                <button className={"ck-hcard ck-c-" + option.tone} key={option.kind} type="button" onClick={() => selectReport(option.kind)}>
+                  <div className="ck-hc-top">
+                    <span className={"ck-chip ck-c-" + option.tone}>
+                      <Icon name={option.icon} size={20} />
+                    </span>
+                    <div>
+                      <b>{option.title}</b>
+                      <small>{option.description}</small>
+                    </div>
                   </div>
-                </article>
+                  <div style={{ fontSize: 34, fontWeight: 600, padding: "6px 0" }}>
+                    {totals[index] ?? 0} <small className="ck-muted" style={{ fontSize: 14, fontWeight: 400 }}>รายการ</small>
+                  </div>
+                  <div className="ck-hc-foot">
+                    <span className="ck-more">
+                      ดูรายงาน <Icon name="chevron" size={16} />
+                    </span>
+                  </div>
+                </button>
               ))}
             </div>
-          )}
-        </section>
-
-        <div className="production-report-grid">
-          {REPORT_OPTIONS.map((option) => (
-            <button
-              className="production-report-card"
-              key={option.kind}
-              type="button"
-              onClick={() => selectReport(option.kind)}
-            >
-              <span
-                className={
-                  "production-report-icon production-report-icon-" + option.tone
-                }
-              >
-                <i className={option.icon} aria-hidden="true" />
-              </span>
-              <strong>{option.title}</strong>
-              <span>{option.description}</span>
-            </button>
-          ))}
+          ) : null}
         </div>
-      </div>
+      </>
     );
   }
 
+  const sumValue = selectedRows.reduce((sum, row) => sum + (Number.isFinite(Number(row.amount)) && row.amount !== null ? Number(row.amount) : 1), 0);
+  const kpis = [
+    { label: "ยอดรวม", value: formatNumber(sumValue), unit: selectedOption.unit, tone: selectedOption.tone, icon: selectedOption.icon },
+    { label: "จำนวนรายการ", value: String(selectedRows.length), unit: "รายการ", tone: "gray" as Tone, icon: "document" as IconName },
+    { label: "จำนวนพนักงาน", value: String(people.length), unit: "คน", tone: "biz" as Tone, icon: "users" as IconName },
+    {
+      label: "เฉลี่ยต่อคน",
+      value: people.length > 0 ? formatNumber(Math.round((sumValue / people.length) * 10) / 10) : "0",
+      unit: selectedOption.unit,
+      tone: "ot" as Tone,
+      icon: "chart" as IconName,
+    },
+  ];
+
   return (
-    <div className="module-stack task398-reports-page">
-      <section className="module-panel fade-in">
-        <div className="production-report-heading">
-          <h2>{selectedOption?.title ?? "รายงาน"}</h2>
-          <button
-            className="secondary-button compact"
-            type="button"
-            onClick={() => selectReport(null)}
-          >
-            <i className="fa-solid fa-arrow-left" aria-hidden="true" />
-            กลับ
-          </button>
-        </div>
-
-        <div className="production-report-filters">
-          <label>
-            <span>วันที่เริ่ม</span>
-            <DateField label="วันที่เริ่ม" value={from} onChange={(next) => setFrom(next)} />
-          </label>
-          <label>
-            <span>วันที่สิ้นสุด</span>
-            <DateField label="วันที่สิ้นสุด" value={to} onChange={(next) => setTo(next)} />
-          </label>
-          <div className="production-report-filter-actions">
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={() => {
-                const next = monthRange();
-                setFrom(next.from);
-                setTo(next.to);
-              }}
-            >
-              ล้าง
-            </button>
-            <button
-              className="primary-button"
-              type="button"
-              onClick={() => void load()}
-            >
-              ค้นหา
-            </button>
-            <button
-              className="success-button"
-              type="button"
-              disabled={selectedRows.length === 0}
-              onClick={() => exportCsv(selectedRows, selectedKind)}
-            >
-              <i className="fa-solid fa-file-export" aria-hidden="true" />
-              CSV
-            </button>
+    <>
+      <PageHead tone={selectedOption.tone} icon={selectedOption.icon} title={selectedOption.title} subtitle={from + " ถึง " + to}>
+        <button className="ck-btn quiet" type="button" onClick={() => selectReport(null)}>
+          <Icon name="back" size={16} /> กลับภาพรวม
+        </button>
+      </PageHead>
+      <div className="ck-wrap ck-stack">
+        {filterBar}
+        {stateBlock}
+        {state.status === "ready" && selectedRows.length === 0 ? (
+          <div className="ck-empty">
+            <b>ไม่พบข้อมูลในช่วงวันที่นี้</b>
+            ลองเปลี่ยนช่วงวันที่แล้วกดวิเคราะห์อีกครั้ง
           </div>
-        </div>
-
-        {state.status === "loading" ? (
-          <div className="module-state production-report-state" role="status">
-            <div className="spinner" aria-hidden="true" />
-            <h2>กำลังโหลดรายงาน</h2>
-          </div>
-        ) : state.status === "error" ? (
-          <div className="module-state production-report-state" role="alert">
-            <div className="status-badge error">เกิดข้อผิดพลาด</div>
-            <h2>โหลดรายงานไม่สำเร็จ</h2>
-            <p>{state.message}</p>
-            <button className="primary-button" onClick={() => void load()}>
-              ลองใหม่
-            </button>
-          </div>
-        ) : selectedRows.length === 0 ? (
-          <div className="empty-state">
-            <h3>ไม่พบข้อมูลในช่วงวันที่นี้</h3>
-            <p>ลองเปลี่ยนช่วงวันที่แล้วค้นหาอีกครั้ง</p>
-          </div>
-        ) : (
+        ) : null}
+        {state.status === "ready" && selectedRows.length > 0 ? (
           <>
-            <div className="table-scroll production-report-table-wrap">
-              <table className="data-table">
+            <div className="ck-qgrid">
+              {kpis.map((kpi) => (
+                <div className={"ck-hcard ck-c-" + kpi.tone} key={kpi.label}>
+                  <div className="ck-hc-top">
+                    <span className={"ck-chip ck-c-" + kpi.tone}>
+                      <Icon name={kpi.icon} size={18} />
+                    </span>
+                    <b>{kpi.label}</b>
+                  </div>
+                  <div style={{ fontSize: 30, fontWeight: 600 }}>
+                    {kpi.value} <small className="ck-muted" style={{ fontSize: 14, fontWeight: 400 }}>{kpi.unit}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="ck-two">
+              <section className={"ck-panel ck-c-" + selectedOption.tone}>
+                <SectionHead title="สรุปรายเดือน" />
+                <MonthlyChart buckets={buckets} types={typeNames} />
+              </section>
+              <section className={"ck-panel ck-c-" + selectedOption.tone}>
+                <SectionHead title="สัดส่วนตามประเภท" />
+                <DonutChart shares={shares} centerLabel={"รวม (" + selectedOption.unit + ")"} unit={selectedOption.unit} />
+              </section>
+            </div>
+
+            <section className={"ck-panel ck-c-" + selectedOption.tone}>
+              <SectionHead title="รายบุคคล" count={people.length} />
+              <div className="ck-tablewrap">
+                <table className="ck-table">
+                  <thead>
+                    <tr>
+                      <th>พนักงาน</th>
+                      {typeNames.map((type, index) => (
+                        <th key={type}>
+                          <i style={{ background: seriesColor(index) }} /> {type}
+                        </th>
+                      ))}
+                      <th>รวม</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {people.map((person) => (
+                      <tr key={person.employeeId}>
+                        <td>
+                          <b>{person.employeeName}</b>
+                        </td>
+                        {typeNames.map((type, index) => {
+                          const value = person.byType[type] ?? 0;
+                          const pct = person.value > 0 ? Math.round((value / person.value) * 100) : 0;
+                          return (
+                            <td key={type}>
+                              {formatNumber(value)}
+                              <div className="ck-track" style={{ ["--tc" as string]: seriesColor(index), marginTop: 4 }}>
+                                <i style={{ width: pct + "%" }} />
+                              </div>
+                            </td>
+                          );
+                        })}
+                        <td>
+                          <b>{formatNumber(person.value)}</b> <small className="ck-muted">{selectedOption.unit}</small>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className={"ck-panel ck-c-" + selectedOption.tone}>
+              <SectionHead title="รายการทั้งหมด" count={selectedRows.length} />
+              <div className="ck-tablewrap">
+                <table className="ck-table">
+                  <thead>
+                    <tr>
+                      <th>วันที่</th>
+                      <th>พนักงาน</th>
+                      <th>สถานะ</th>
+                      <th>รายละเอียด</th>
+                      <th>จำนวน</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedRows.map((row) => (
+                      <tr key={row.kind + "-" + row.id}>
+                        <td>{row.date}</td>
+                        <td>{row.employeeName}</td>
+                        <td>
+                          <span className="ck-pill muted">{row.status}</span>
+                        </td>
+                        <td>{row.summary || rowType(row)}</td>
+                        <td>{row.amount ?? "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </>
+        ) : null}
+
+        {selectedKind === "ATTENDANCE" && missing.length > 0 ? (
+          <section className="ck-panel ck-c-ot">
+            <SectionHead title="ลืมลงเวลาออก" count={missing.length} />
+            <div className="ck-tablewrap">
+              <table className="ck-table">
                 <thead>
                   <tr>
                     <th>วันที่</th>
                     <th>พนักงาน</th>
-                    <th>สถานะ</th>
-                    <th>รายละเอียด</th>
-                    <th>จำนวนเงิน</th>
+                    <th>ทีม</th>
+                    <th>บริษัท</th>
+                    <th>เวลาเข้า</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedRows.map((row) => (
-                    <tr key={row.kind + "-" + row.id}>
-                      <td>{row.date}</td>
-                      <td>{row.employeeName}</td>
-                      <td>
-                        <span className="request-status">{row.status}</span>
-                      </td>
-                      <td>{row.summary}</td>
-                      <td>{row.amount ?? "—"}</td>
+                  {missing.map((item) => (
+                    <tr key={item.employeeId + "-" + item.workDate}>
+                      <td>{item.workDate}</td>
+                      <td>{item.employeeName}</td>
+                      <td>{item.teamName}</td>
+                      <td>{item.companyName}</td>
+                      <td>{item.checkIn}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-
-            <div className="production-report-pagination">
-              แสดง {selectedRows.length} รายการ
-            </div>
-          </>
-        )}
-      </section>
-
-      {selectedKind === "ATTENDANCE" && missing.length > 0 ? (
-        <section className="module-panel">
-          <h2>ลืมลงเวลาออก ({missing.length})</h2>
-          <div className="table-scroll production-report-table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>วันที่</th>
-                  <th>พนักงาน</th>
-                  <th>ทีม</th>
-                  <th>บริษัท</th>
-                  <th>เวลาเข้า</th>
-                </tr>
-              </thead>
-              <tbody>
-                {missing.map((item) => (
-                  <tr key={item.employeeId + "-" + item.workDate}>
-                    <td>{item.workDate}</td>
-                    <td>{item.employeeName}</td>
-                    <td>{item.teamName}</td>
-                    <td>{item.companyName}</td>
-                    <td>{item.checkIn}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : null}
-
-      {state.status === "ready" ? (
-        <section className="module-panel production-report-summary">
-          <h2>สรุปข้อมูล</h2>
-          <div className="production-report-summary-grid">
-            {REPORT_OPTIONS.map((option) => {
-              const count =
-                state.data.rows.filter((row) => row.kind === option.kind)
-                  .length;
-              return (
-                <article key={option.kind}>
-                  <span
-                    className={
-                      "production-report-icon production-report-icon-" +
-                      option.tone
-                    }
-                  >
-                    <i className={option.icon} aria-hidden="true" />
-                  </span>
-                  <div>
-                    <strong>{count}</strong>
-                    <span>{option.title}</span>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-      ) : null}
-    </div>
+          </section>
+        ) : null}
+      </div>
+    </>
   );
 }

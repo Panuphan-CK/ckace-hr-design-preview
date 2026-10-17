@@ -208,10 +208,10 @@ export default function DesktopNotificationsPage() {
           <p className="eyebrow">
             NOTIFICATION OPERATIONS
           </p>
-          <h1>Notifications</h1>
+          <h1>การส่งแจ้งเตือน</h1>
           <p>
-            ตรวจ Outbox, จำนวนครั้งที่ส่ง, Delivery count
-            และ Retry เฉพาะรายการ FAILED ตามสิทธิ์จาก Server
+            ตรวจคิวส่งข้อความ จำนวนครั้งที่ส่ง
+            และส่งใหม่เฉพาะรายการที่ล้มเหลวตามสิทธิ์
           </p>
         </div>
         <button
@@ -224,11 +224,10 @@ export default function DesktopNotificationsPage() {
       </section>
 
       <section className="notifications-contract-note">
-        <strong>ขอบเขต M9D.10</strong>
+        <strong>หมายเหตุ</strong>
         <span>
-          ระบบปัจจุบันเป็น operational outbox สำหรับผู้ดูแล
-          และยังไม่มี employee inbox / unread-read contract
-          จึงไม่สร้างสถานะอ่านแล้ว/ยังไม่อ่านขึ้นเอง
+          หน้านี้แสดงคิวส่งข้อความสำหรับผู้ดูแลเท่านั้น
+          ยังไม่มีสถานะอ่านแล้ว/ยังไม่อ่านของพนักงาน
         </span>
       </section>
 
@@ -364,18 +363,18 @@ export default function DesktopNotificationsPage() {
                     </strong>
                   </div>
                   <div>
-                    <span>Attempts</span>
+                    <span>จำนวนครั้งที่ลองส่ง</span>
                     <strong>{item.attempts}</strong>
                   </div>
                   <div>
-                    <span>Deliveries</span>
+                    <span>ส่งสำเร็จ (ช่องทาง)</span>
                     <strong>{item.deliveryCount}</strong>
                   </div>
                 </div>
 
                 {item.lastError ? (
                   <div className="notification-error">
-                    <strong>Last error</strong>
+                    <strong>ข้อผิดพลาดล่าสุด</strong>
                     <span>{item.lastError}</span>
                   </div>
                 ) : null}
@@ -400,10 +399,10 @@ export default function DesktopNotificationsPage() {
                       }
                     >
                       {busyId === item.id
-                        ? "กำลัง Retry..."
+                        ? "กำลังส่งใหม่..."
                         : state.overview.canRetry
-                          ? "Retry"
-                          : "ไม่มีสิทธิ์ Retry"}
+                          ? "ส่งใหม่"
+                          : "ไม่มีสิทธิ์ส่งใหม่"}
                     </button>
                   ) : null}
                 </div>

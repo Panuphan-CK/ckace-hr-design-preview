@@ -130,7 +130,7 @@ export default function DesktopOnboardingPage() {
     const selected = selection[employeeId];
     if (!selected?.agencyId || !selected.departmentId) {
       setMessageKind("error");
-      setMessage("กรุณาเลือก Agency และ Department ให้ครบ");
+      setMessage("กรุณาเลือกทีมและฝ่ายให้ครบ");
       return;
     }
     if (!window.confirm("ยืนยันอนุมัติและเปิดใช้งานบัญชีพนักงานนี้?")) {
@@ -214,7 +214,7 @@ export default function DesktopOnboardingPage() {
           <p className="eyebrow">ONBOARDING DESKTOP</p>
           <h1>รับพนักงานใหม่</h1>
           <p>
-            ตรวจสอบบัญชี PENDING และกำหนด Agency / Department
+            ตรวจสอบบัญชีที่รออนุมัติ และกำหนดทีมและฝ่าย
             ก่อนเปิดใช้งานบัญชี
           </p>
         </div>
@@ -309,14 +309,14 @@ export default function DesktopOnboardingPage() {
                       }
                     >
                       {employee.lineLinked
-                        ? "LINE linked"
-                        : "LINE not linked"}
+                        ? "เชื่อม LINE แล้ว"
+                        : "ยังไม่เชื่อม LINE"}
                     </span>
                   </div>
 
                   <div className="profile-detail-grid">
                     <div>
-                      <span>Employee ID</span>
+                      <span>รหัสพนักงาน</span>
                       <strong>{employee.employeeId}</strong>
                     </div>
                     <div>
@@ -335,7 +335,7 @@ export default function DesktopOnboardingPage() {
 
                   <div className="onboarding-approval-grid">
                     <label>
-                      Agency
+                      ทีม
                       <select
                         value={selected.agencyId}
                         disabled={busy === employee.employeeId}
@@ -349,7 +349,7 @@ export default function DesktopOnboardingPage() {
                           }))
                         }
                       >
-                        <option value="">เลือก Agency</option>
+                        <option value="">เลือกทีม</option>
                         {state.options.agencies.map((option) => (
                           <option key={option.id} value={option.id}>
                             {option.name}
@@ -358,7 +358,7 @@ export default function DesktopOnboardingPage() {
                       </select>
                     </label>
                     <label>
-                      Department
+                      ฝ่าย
                       <select
                         value={selected.departmentId}
                         disabled={busy === employee.employeeId}
@@ -372,7 +372,7 @@ export default function DesktopOnboardingPage() {
                           }))
                         }
                       >
-                        <option value="">เลือก Department</option>
+                        <option value="">เลือกฝ่าย</option>
                         {state.options.departments.map((option) => (
                           <option key={option.id} value={option.id}>
                             {option.name}
@@ -406,9 +406,9 @@ export default function DesktopOnboardingPage() {
 
       <section className="module-panel">
         <p className="panel-description">
-          การสมัครบัญชีใหม่ยังใช้ canonical public registration flow
-          เดิม ส่วนหน้านี้เป็น Admin approval surface เท่านั้น
-          และไม่รับ password หรือ LINE user ID มาแสดง
+          พนักงานใหม่สมัครผ่านหน้าสมัครสมาชิกเดิม
+          หน้านี้ใช้สำหรับผู้ดูแลอนุมัติเท่านั้น
+          และไม่แสดงรหัสผ่านหรือข้อมูลบัญชี LINE
         </p>
       </section>
     </div>

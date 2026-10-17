@@ -157,7 +157,7 @@ const SECTIONS: readonly FlySection[] = [
 ];
 
 /** Pages already rebuilt on the ck- design system render edge to edge; the rest keep their legacy padding. */
-const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop", "/desktop/delegation", "/desktop/leave", "/desktop/overtime", "/desktop/medical", "/desktop/time-correction", "/desktop/attendance", "/desktop/approvals"]);
+const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop", "/desktop/delegation", "/desktop/leave", "/desktop/overtime", "/desktop/medical", "/desktop/time-correction", "/desktop/attendance", "/desktop/approvals", "/desktop/profile", "/desktop/reports"]);
 
 /** Page header for pages that are not yet rebuilt: one consistent band across the whole system. */
 const LEGACY_HEADS: readonly { readonly path: string; readonly tone: PageTone; readonly icon: IconName; readonly title: string; readonly subtitle: string }[] = [
@@ -170,9 +170,7 @@ const LEGACY_HEADS: readonly { readonly path: string; readonly tone: PageTone; r
   { path: "/desktop/admin", tone: "gray", icon: "gear", title: "ตั้งค่าระบบ", subtitle: "การตั้งค่าและประชาสัมพันธ์ของระบบ" },
   { path: "/desktop/announcements", tone: "ot", icon: "megaphone", title: "ข่าวประกาศ", subtitle: "ข่าวสารและประกาศของบริษัท" },
   { path: "/desktop/calendar", tone: "leave", icon: "calendar", title: "ปฏิทินการลา", subtitle: "ดูวันลาของพนักงานทั้งเดือน" },
-  { path: "/desktop/reports", tone: "accent", icon: "chart", title: "รายงาน", subtitle: "วิเคราะห์เฉพาะข้อมูลที่อนุมัติหรือบันทึกครบแล้ว" },
   { path: "/desktop/benefits", tone: "med", icon: "med", title: "สิทธิและสวัสดิการ", subtitle: "วงเงินค่ารักษาและประวัติการใช้สิทธิ" },
-  { path: "/desktop/profile", tone: "biz", icon: "user", title: "โปรไฟล์ของฉัน", subtitle: "ข้อมูลส่วนตัว บัญชี และลายเซ็น" },
   { path: "/desktop/requests", tone: "gray", icon: "document", title: "สถานะคำขอ", subtitle: "คำขอทุกประเภทของคุณในที่เดียว" },
   { path: "/desktop/notifications", tone: "gray", icon: "bell", title: "การส่งแจ้งเตือน", subtitle: "สถานะการส่งข้อความผ่าน LINE และอีเมล" },
   { path: "/desktop/inbox", tone: "gray", icon: "bell", title: "กล่องแจ้งเตือน", subtitle: "ข้อความแจ้งเตือนถึงคุณ" },

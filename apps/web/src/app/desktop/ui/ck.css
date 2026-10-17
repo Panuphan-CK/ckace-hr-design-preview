@@ -785,8 +785,8 @@ button.ck-hcard:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgb
   background: #fff;
   border: 1px solid var(--ck-line);
   border-radius: 14px;
-  padding: 0 26px 26px;
-  max-width: 980px;
+  padding: 22px 26px 26px;
+  max-width: none;
   box-shadow: none;
 }
 .ck-admin > h1,
@@ -934,3 +934,46 @@ button.ck-hcard:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgb
 .ck-legacy .production-calendar-main { padding: 0; }
 .ck-legacy .status-badge,
 .ck-legacy .request-status { border-radius: 999px; font-weight: 600; }
+
+/* Legacy globals.css reserves room for a sidebar this shell no longer has; the ck rail is already outside .ck-main. */
+.ck-main .ck-legacy.desktop-content.main-content {
+  margin-left: 0;
+  padding: 28px 40px 80px;
+}
+.ck-legacy .production-report-selection { width: 100%; margin: 0; }
+.ck-legacy .primary-button,
+.ck-legacy .secondary-button,
+.ck-legacy .success-button { white-space: nowrap; }
+.ck-legacy .task398-reports-page .production-report-grid { width: 100%; margin: 0; }
+
+/* v18 data tables (reports) */
+.ck-tablewrap { overflow-x: auto; }
+.ck-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ck-table th { text-align: left; font-weight: 500; font-size: 13px; color: var(--ck-accent); background: var(--ck-accent-soft); padding: 10px 14px; border-bottom: 2px solid var(--ck-accent); white-space: nowrap; }
+.ck-table th i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 4px; }
+.ck-table td { padding: 12px 14px; border-bottom: 1px solid var(--ck-line2); vertical-align: middle; }
+.ck-table tbody tr:hover { background: var(--ck-hover); }
+.ck-admin > p { color: var(--ck-ink2); margin: 0 0 16px; max-width: 760px; }
+.ck-admin form > button,
+.ck-admin form > .primary-button { justify-self: start; }
+
+/* management: user summary cards in the v18 card style */
+.ck-legacy .production-user-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+.ck-legacy .production-user-stat {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: #fff; border: 1px solid #e6e9ef; border-top: 3px solid var(--ck-t-leave); border-radius: 14px; padding: 14px 16px; box-shadow: none;
+}
+.ck-legacy .production-user-stat-green { border-top-color: #10a37f; }
+.ck-legacy .production-user-stat-yellow { border-top-color: var(--ck-t-ot); }
+.ck-legacy .production-user-stat-red { border-top-color: var(--ck-t-sick); }
+.ck-legacy .production-user-stat span { display: block; color: var(--ck-ink2); font-size: 13px; }
+.ck-legacy .production-user-stat strong { font-size: 28px; font-weight: 600; color: var(--ck-ink); }
+.ck-legacy .production-user-stat i { display: none; }
+@media (max-width: 1100px) { .ck-legacy .production-user-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* summary tiles on request/notification/onboarding pages */
+.ck-legacy .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.ck-legacy .metric-card { background: #fff; border: 1px solid #e6e9ef; border-top: 3px solid var(--ck-accent); border-radius: 14px; box-shadow: none; padding: 14px 16px; }
+.ck-legacy .metric-card span { color: var(--ck-ink2); font-size: 13px; }
+.ck-legacy .metric-card strong { display: block; font-size: 28px; font-weight: 600; margin-top: 4px; }
+.ck-legacy .module-heading { margin-bottom: 0; }

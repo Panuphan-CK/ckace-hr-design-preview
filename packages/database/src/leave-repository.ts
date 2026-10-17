@@ -1173,6 +1173,8 @@ export class PrismaLeaveRepository implements LeaveRepository {
                 requestId: request.id,
                 approvalStepId: step.id,
                 decision: input.decision.decision,
+                // Status right after this decision, so the message matches this decision even when sent late.
+                resultingStatus: status,
                 approverEmployeeId:
                   input.approverEmployeeId,
               },

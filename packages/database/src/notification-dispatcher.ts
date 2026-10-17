@@ -320,7 +320,11 @@ export async function dispatchNotifications(
     try {
       const payload = (event.payload ?? {}) as Record<string, unknown>;
       const context = await loadContext(prisma, event.aggregateType, event.aggregateId);
-      const classification = classifyNotificationEvent(event.eventType, context.status);
+      // A decision event describes the status it produced, not whatever the request became since.
+      const classification = classifyNotificationEvent(
+        event.eventType,
+        typeof payload.resultingStatus === "string" ? payload.resultingStatus : context.status,
+      );
       const recipients = await resolveRecipients(
         prisma,
         classification.audience,

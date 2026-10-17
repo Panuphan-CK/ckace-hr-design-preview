@@ -1,6 +1,6 @@
 # CKACE_HR — Project B PROJECT PLAN
 
-Last Updated: 2026-10-15 Asia/Bangkok
+Last Updated: 2026-10-17 Asia/Bangkok
 
 > Canonical plan for **Project B only**: `D:\CKACE_HR`.
 > Project A `D:\APP_Leave` has separate continuity and must not be tracked here.
@@ -10,6 +10,8 @@ Last Updated: 2026-10-15 Asia/Bangkok
 **Phase A — Project B Web Desktop Functional + Security QA — PASS**
 
 Phase A review is complete on TEST. Production remains **NO-GO** until later explicit gates.
+
+**Status 2026-10-17 (TEST, branch `claude/project-thread-j4idbg`, commit 38b3e86):** the v18 Desktop redesign and the Owner-driven workflow work are deployed to TEST (API m19b, Web m19a) and covered by an API-level regression run inside the TEST migrate-job image (authorization, leave/OT/medical/time-correction cycles, add-record for a whole missing day, medical auto-approval policy, reports, delegations). Owner decisions: late threshold 09:05 (attendance policy), over-limit medical claims stay capped at the per-claim limit, medical auto-approval roles are policy data, LINE LIFF stays out of scope. Open: Owner single-pass visual review of the web UI on TEST; LINE/email sending (credentials deferred, TEST has no Cloud Scheduler); leave logic vs Production is otherwise aligned (docs/design/PRODUCTION_RULES_SUMMARY.md, comparison 2026-10-17); import of real employees and balances, Production release and GAS retirement each need separate Owner approval and have not been started.
 
 ## Milestones
 
@@ -361,6 +363,6 @@ Remaining:
 
 ## Next Action
 
-**Continue TASK-39.8 with Wave 3 — Reports Production UI Parity.**
+**Owner reviews the TEST web UI once (decides whether UX/UI is accepted), then the remaining Production-parity gaps and the release-readiness plan (TASK-40) are scheduled.**
 
-Waves 1–2 are closed PASS. Keep Production/Project A/LINE LIFF/GAS/Gateway unchanged. TASK-40 remains deferred until TASK-39.8 Waves 3–4 and final whole-task QA are complete and the Owner explicitly approves release readiness.
+Keep Production/Project A/LINE LIFF/GAS/Gateway unchanged. Real-employee import, Production release, source-of-truth switch and GAS retirement each require explicit Owner approval.

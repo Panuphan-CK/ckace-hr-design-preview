@@ -112,6 +112,8 @@ export interface TimeCorrectionDecisionInput {
 export interface TimeCorrectionDecisionResult {
   readonly requestId: string;
   readonly status: "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
+  /** false when this approval only advanced the request to the next approval step. */
+  readonly completed?: boolean;
 }
 
 /** Employee edits the corrected time and reason of a sent-back time correction (type and date stay fixed). */

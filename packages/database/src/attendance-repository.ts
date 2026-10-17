@@ -42,7 +42,9 @@ import { delegatorIdsFor } from "./approval-delegation";
 import {
   actorHasRoleOverEmployee,
   resolveCompanyApprovalRoute,
+  systemSelectedApprovals,
 } from "./approval-route-loader";
+import { buildOvertimeApproverScopeWhere } from "./overtime-repository";
 import { LEAVE_WITHDRAW_ROLE_KEY } from "./leave-revision-repository";
 import { resubmitSentBackTimeCorrection } from "./time-correction-revision-repository";
 
@@ -648,6 +650,119 @@ async function resolveCorrectionApprover(
   throw new Error(
     "No eligible time correction approver is available",
   );
+}
+
+interface CorrectionApprovalResolution {
+  readonly policyId: string | null;
+  readonly steps: readonly {
+    readonly stepOrder: number;
+    readonly approverEmployeeId: string;
+  }[];
+}
+
+/**
+ * Approval chain for a time correction. When back-office configured an active
+ * TIME_CORRECTION approval policy (team-specific, else global) its steps are
+ * used; otherwise the built-in single-approver routing keeps working.
+ */
+async function resolveCorrectionApproval(
+  prisma: Pick<
+    Prisma.TransactionClient,
+    "approvalPolicy" | "employee" | "agency"
+  >,
+  requester: ActiveEmployeeContext,
+): Promise<CorrectionApprovalResolution> {
+  const policies = await prisma.approvalPolicy.findMany({
+    where: {
+      active: true,
+      requestKind: "TIME_CORRECTION",
+      OR: [{ agencyId: requester.agencyId }, { agencyId: null }],
+    },
+    select: {
+      id: true,
+      agencyId: true,
+      steps: {
+        select: {
+          stepOrder: true,
+          requiredRoleId: true,
+          scope: true,
+          requiredRole: { select: { key: true } },
+        },
+        orderBy: { stepOrder: "asc" },
+      },
+    },
+  });
+  const policy =
+    policies.find(
+      (candidate) => candidate.agencyId === requester.agencyId,
+    ) ?? policies.find((candidate) => candidate.agencyId === null);
+
+  if (!policy || policy.steps.length === 0) {
+    const approverEmployeeId = await resolveCorrectionApprover(
+      prisma,
+      requester,
+    );
+
+    return {
+      policyId: null,
+      steps: [{ stepOrder: 1, approverEmployeeId }],
+    };
+  }
+
+  const routed = await resolveCompanyApprovalRoute(
+    prisma,
+    requester.id,
+    policy.steps.map((step) => ({
+      kind: "ROLE" as const,
+      roleKey: step.requiredRole.key,
+      selection: "SYSTEM_PICKS_FIRST" as const,
+      peerFallback: true,
+    })),
+    { defaultSelection: "SYSTEM_PICKS_FIRST" },
+  );
+
+  if (routed) {
+    if (routed.route.steps.length === 0) {
+      throw new Error("No eligible time correction approver is available");
+    }
+
+    return {
+      policyId: policy.id,
+      steps: [...systemSelectedApprovals(routed.route)],
+    };
+  }
+
+  const steps: { stepOrder: number; approverEmployeeId: string }[] = [];
+
+  for (const step of policy.steps) {
+    const approver = await prisma.employee.findFirst({
+      where: {
+        id: { not: requester.id },
+        ...buildOvertimeApproverScopeWhere(step.scope, requester),
+        userAccount: {
+          is: {
+            state: "ACTIVE",
+            roles: { some: { roleId: step.requiredRoleId } },
+          },
+        },
+      },
+      select: { id: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+
+    if (!approver) {
+      throw new Error(
+        `No eligible time correction approver for step ${step.stepOrder}`,
+      );
+    }
+
+    steps.push({
+      stepOrder: step.stepOrder,
+      approverEmployeeId: approver.id,
+    });
+  }
+
+  return { policyId: policy.id, steps };
 }
 
 function correctionTypeFromStored(input: {
@@ -1376,6 +1491,14 @@ export class PrismaAttendanceRepository
           },
         },
         select: {
+          approvalInstance: {
+            select: {
+              currentStepOrder: true,
+              steps: {
+                select: { stepOrder: true, approverEmployeeId: true, status: true },
+              },
+            },
+          },
           id: true,
           attendanceRecordId: true,
           attendanceDate: true,
@@ -1398,13 +1521,26 @@ export class PrismaAttendanceRepository
         ],
       });
 
-    return rows.map((row) =>
-      correctionView({
-        row,
-        canDecide: true,
-        employeeDisplayName: row.employee.fullName,
-      }),
-    );
+    const mine = new Set([approverEmployeeId, ...delegators]);
+
+    // Only the approver of the step the request is currently waiting on sees it.
+    return rows
+      .filter((row) =>
+        row.approvalInstance?.steps.some(
+          (step) =>
+            step.stepOrder === row.approvalInstance?.currentStepOrder &&
+            step.status === "PENDING" &&
+            step.approverEmployeeId !== null &&
+            mine.has(step.approverEmployeeId),
+        ),
+      )
+      .map((row) =>
+        correctionView({
+          row,
+          canDecide: true,
+          employeeDisplayName: row.employee.fullName,
+        }),
+      );
   }
 
   async createSelfTimeCorrection(input: {
@@ -1516,25 +1652,29 @@ export class PrismaAttendanceRepository
             active.map((row) => row.status),
           );
 
+          const approval =
+            await resolveCorrectionApproval(tx, requester);
+          // The first approver is the one notified that the request is waiting.
           const approverEmployeeId =
-            await resolveCorrectionApprover(
-              tx,
-              requester,
-            );
+            approval.steps[0]?.approverEmployeeId ?? null;
           const approvalInstance =
             await tx.approvalInstance.create({
               data: {
                 requestKind: "TIME_CORRECTION",
                 requesterEmployeeId: input.employeeId,
+                ...(approval.policyId
+                  ? { policyId: approval.policyId }
+                  : {}),
                 status: "PENDING",
-                currentStepOrder: 1,
+                currentStepOrder:
+                  approval.steps[0]?.stepOrder ?? 1,
                 steps: {
-                  create: {
-                    stepOrder: 1,
-                    approverEmployeeId,
+                  create: approval.steps.map((step) => ({
+                    stepOrder: step.stepOrder,
+                    approverEmployeeId: step.approverEmployeeId,
                     status: "PENDING",
                     assignedAt: now,
-                  },
+                  })),
                 },
               },
               select: { id: true },
@@ -1794,9 +1934,11 @@ export class PrismaAttendanceRepository
               approvalInstance: {
                 select: {
                   id: true,
+                  currentStepOrder: true,
                   steps: {
                     select: {
                       id: true,
+                      stepOrder: true,
                       approverEmployeeId: true,
                       status: true,
                     },
@@ -1814,15 +1956,28 @@ export class PrismaAttendanceRepository
         }
 
         const delegators = await delegatorIdsFor(tx, input.approverEmployeeId);
+        const mayDecide = (candidate: {
+          readonly approverEmployeeId: string | null;
+        }) =>
+          candidate.approverEmployeeId === input.approverEmployeeId ||
+          (request.employeeId !== input.approverEmployeeId &&
+            candidate.approverEmployeeId !== null &&
+            delegators.includes(candidate.approverEmployeeId));
+        const currentStepOrder = request.approvalInstance.currentStepOrder;
+        // Only the step the request is waiting on can be decided. Once the request is
+        // finished there is no current step, so a repeated decision is matched by status.
         const step =
           request.approvalInstance.steps.find(
             (candidate) =>
-              candidate.approverEmployeeId ===
-                input.approverEmployeeId ||
-              (request.employeeId !== input.approverEmployeeId &&
-                candidate.approverEmployeeId !== null &&
-                delegators.includes(candidate.approverEmployeeId)),
-          );
+              candidate.stepOrder === currentStepOrder && mayDecide(candidate),
+          ) ??
+          (currentStepOrder === null
+            ? request.approvalInstance.steps.find(
+                (candidate) =>
+                  mayDecide(candidate) &&
+                  candidate.status === normalized.decision,
+              )
+            : undefined);
 
         if (!step) {
           throw new Error(
@@ -1842,6 +1997,7 @@ export class PrismaAttendanceRepository
           return {
             requestId: request.id,
             status: normalized.decision,
+            completed: true,
           };
         }
 
@@ -1889,6 +2045,70 @@ export class PrismaAttendanceRepository
           ]);
 
           return { requestId: request.id, status: "REVISION_REQUESTED" as const };
+        }
+
+        const nextStep =
+          normalized.decision === "APPROVED"
+            ? request.approvalInstance.steps.find(
+                (candidate) =>
+                  candidate.stepOrder > step.stepOrder &&
+                  candidate.status === "PENDING",
+              )
+            : undefined;
+
+        if (nextStep) {
+          // More approval steps remain: record this approval and hand over to the next approver.
+          await Promise.all([
+            tx.approvalStep.update({
+              where: { id: step.id },
+              data: {
+                status: "APPROVED",
+                comment: normalized.comment || null,
+                decidedAt,
+              },
+            }),
+            tx.approvalStep.update({
+              where: { id: nextStep.id },
+              data: { assignedAt: decidedAt },
+            }),
+            tx.approvalInstance.update({
+              where: { id: request.approvalInstance.id },
+              data: { currentStepOrder: nextStep.stepOrder },
+            }),
+            tx.auditLog.create({
+              data: {
+                actorEmployeeId: input.approverEmployeeId,
+                action: "TIME_CORRECTION_APPROVE",
+                entityType: "TimeCorrectionRequest",
+                entityId: request.id,
+                correlationId: input.correlationId,
+                metadata: {
+                  requesterEmployeeId: request.employeeId,
+                  attendanceRecordId: request.attendanceRecordId,
+                  stepOrder: step.stepOrder,
+                  completed: false,
+                },
+              },
+            }),
+            tx.notificationOutbox.create({
+              data: {
+                aggregateType: "TIME_CORRECTION",
+                aggregateId: request.id,
+                eventType: "TIME_CORRECTION_APPROVAL_ADVANCED",
+                payload: {
+                  requestId: request.id,
+                  requesterEmployeeId: request.employeeId,
+                  nextStepOrder: nextStep.stepOrder,
+                },
+              },
+            }),
+          ]);
+
+          return {
+            requestId: request.id,
+            status: "APPROVED" as const,
+            completed: false,
+          };
         }
 
         if (normalized.decision === "APPROVED") {
@@ -2073,6 +2293,7 @@ export class PrismaAttendanceRepository
         return {
           requestId: request.id,
           status: normalized.decision,
+          completed: true,
         };
       },
       {
@@ -2084,15 +2305,20 @@ export class PrismaAttendanceRepository
 
   async previewTimeCorrectionApprover(employeeId: string): Promise<ApprovalChainPreview> {
     const requester = await activeEmployeeContext(this.prisma, employeeId);
-    const approverId = await resolveCorrectionApprover(this.prisma, requester);
-    const approver = await this.prisma.employee.findUnique({
-      where: { id: approverId },
-      select: { fullName: true },
+    const approval = await resolveCorrectionApproval(this.prisma, requester);
+    const approvers = await this.prisma.employee.findMany({
+      where: { id: { in: approval.steps.map((step) => step.approverEmployeeId) } },
+      select: { id: true, fullName: true },
     });
+    const names = new Map(approvers.map((row) => [row.id, row.fullName]));
 
     return {
       autoApproved: false,
-      steps: [{ stepOrder: 1, approverEmployeeId: approverId, approverName: approver?.fullName ?? null }],
+      steps: approval.steps.map((step) => ({
+        stepOrder: step.stepOrder,
+        approverEmployeeId: step.approverEmployeeId,
+        approverName: names.get(step.approverEmployeeId) ?? null,
+      })),
     };
   }
 

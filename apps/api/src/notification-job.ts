@@ -1,5 +1,7 @@
 import {
   dispatchNotifications,
+  currentLeaveYear,
+  ensureYearlyEntitlementsForAll,
   getPrismaClient,
   queueOverdueApprovalReminders,
   type NotificationSender,
@@ -28,6 +30,8 @@ async function main(): Promise<void> {
     senders.push(SmtpEmailSender.gmail(smtpUser, smtpPassword));
   }
 
+  // New calendar year: grants every active employee the fresh yearly balances (idempotent).
+  const entitlements = await ensureYearlyEntitlementsForAll(prisma, currentLeaveYear());
   const reminders = await queueOverdueApprovalReminders(prisma);
   const result = await dispatchNotifications(prisma, { senders });
 
@@ -36,6 +40,7 @@ async function main(): Promise<void> {
       job: "notification-cycle",
       channels: senders.map((sender) => sender.channel),
       remindersQueued: reminders,
+      yearlyEntitlementsCreated: entitlements.created,
       ...result,
     }),
   );

@@ -407,11 +407,15 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
             actorEmployeeId,
           });
         } else if (!currentIds.has(leaveType.id)) {
+          const year = currentLeaveYear();
+
           await tx.leaveEntitlement.create({
             data: {
               employeeId,
               leaveTypeId: leaveType.id,
               quota: rule.quota,
+              validFrom: new Date(`${year}-01-01T00:00:00.000Z`),
+              validTo: new Date(`${year}-12-31T00:00:00.000Z`),
             },
           });
         }

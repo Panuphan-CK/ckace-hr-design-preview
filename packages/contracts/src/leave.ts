@@ -94,6 +94,8 @@ export interface LeaveCreateInput {
 export interface LeaveCreateResult {
   readonly requestId: string;
   readonly replayed: boolean;
+  /** A leave across New Year is filed as one request per calendar year; the rest are listed here. */
+  readonly additionalRequestIds?: readonly string[];
 }
 
 export interface LeaveCancelResult {

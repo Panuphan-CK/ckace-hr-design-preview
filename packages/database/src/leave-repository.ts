@@ -81,6 +81,13 @@ export interface LeaveRepository {
     readonly requestId: string;
   }): Promise<LeaveCancelResult>;
 
+  /** Entitlement of the same employee and leave type that covers the whole calendar year, or null. */
+  findEntitlementForYear(input: {
+    readonly employeeId: string;
+    readonly entitlementId: string;
+    readonly year: number;
+  }): Promise<string | null>;
+
   decideLeave(input: {
     readonly approverEmployeeId: string;
     readonly correlationId: string;
@@ -559,6 +566,34 @@ export class PrismaLeaveRepository implements LeaveRepository {
       employeeId,
     );
     return result.options;
+  }
+
+  async findEntitlementForYear(input: {
+    readonly employeeId: string;
+    readonly entitlementId: string;
+    readonly year: number;
+  }): Promise<string | null> {
+    const base = await this.prisma.leaveEntitlement.findUnique({
+      where: { id: input.entitlementId },
+      select: { employeeId: true, leaveTypeId: true },
+    });
+
+    if (!base || base.employeeId !== input.employeeId) {
+      return null;
+    }
+
+    const found = await this.prisma.leaveEntitlement.findFirst({
+      where: {
+        employeeId: input.employeeId,
+        leaveTypeId: base.leaveTypeId,
+        validFrom: { lte: new Date(`${input.year}-01-01T00:00:00.000Z`) },
+        validTo: { gte: new Date(`${input.year}-12-31T00:00:00.000Z`) },
+      },
+      select: { id: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return found?.id ?? null;
   }
 
   async createSelfLeave(input: {

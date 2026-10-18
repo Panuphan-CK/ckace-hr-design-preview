@@ -738,9 +738,17 @@ async function resolveCorrectionApproval(
       throw new Error("No eligible time correction approver is available");
     }
 
+    // Time corrections need one approver only (owner decision 2026-10-18):
+    // the first step that has an eligible person decides; a requester whose
+    // own level has no peer (an Admin) falls through to the next step.
     return {
       policyId: policy.id,
-      steps: [...systemSelectedApprovals(routed.route)],
+      steps: [
+        ...systemSelectedApprovals({
+          ...routed.route,
+          steps: routed.route.steps.slice(0, 1),
+        }),
+      ],
     };
   }
 

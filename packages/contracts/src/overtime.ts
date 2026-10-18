@@ -36,6 +36,18 @@ export interface OvertimeReportRow {
   readonly approvedEnd: string;
   readonly actualCheckIn: string | null;
   readonly actualCheckOut: string | null;
+  /**
+   * COMPLETE: clocked out at or after the approved end. LEFT_EARLY: clocked out
+   * before it (paid to the real time). NO_CHECK_OUT / NO_RECORD: a past day with
+   * no clock-out / no record at all, paid to the approved time (owner decision
+   * 2026-10-18) and flagged for review. PENDING: the day is not over yet.
+   */
+  readonly attendanceCheck:
+    | "COMPLETE"
+    | "LEFT_EARLY"
+    | "NO_CHECK_OUT"
+    | "NO_RECORD"
+    | "PENDING";
   readonly requestedMinutes: number;
   readonly paidMinutes: number;
   /** null = legacy default breaks (no explicit choice stored). */

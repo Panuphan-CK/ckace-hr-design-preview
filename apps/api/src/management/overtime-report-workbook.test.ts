@@ -15,6 +15,7 @@ const row = (overrides: Partial<OvertimeReportRow> = {}): OvertimeReportRow => (
   approvedEnd: "21:30",
   actualCheckIn: "08:55",
   actualCheckOut: "21:40",
+  attendanceCheck: "COMPLETE",
   requestedMinutes: 240,
   paidMinutes: 240,
   breaks: [],
@@ -49,10 +50,10 @@ describe("overtime workbook", () => {
     expect(summary).toBeDefined();
     // title, blank, header, 2 rows, total
     expect(detail?.rowCount).toBe(6);
-    expect(detail?.getRow(4).getCell(15).value).toBe(120);
-    expect(detail?.getRow(4).getCell(16).value).toBe(50);
+    expect(detail?.getRow(4).getCell(16).value).toBe(120);
+    expect(detail?.getRow(4).getCell(17).value).toBe(50);
     expect(detail?.getRow(5).getCell(3).value).toBe("'=cmd");
-    expect(detail?.getRow(6).getCell(17).value).toBe(220);
+    expect(detail?.getRow(6).getCell(18).value).toBe(220);
     expect(summary?.rowCount).toBe(3);
   });
 });

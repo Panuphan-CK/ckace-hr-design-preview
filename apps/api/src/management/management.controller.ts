@@ -685,7 +685,29 @@ export class ManagementController {
       throw new BadRequestException("active must be boolean");
     }
     const active = value.active as boolean | undefined;
-    if (name === undefined && active === undefined) {
+    const profile: Record<string, string | null> = {};
+    for (const [key, max] of [
+      ["taxId", 40],
+      ["address", 500],
+      ["phone", 40],
+      ["email", 200],
+    ] as const) {
+      const raw = value[key];
+      if (raw === undefined) continue;
+      if (raw !== null && typeof raw !== "string") {
+        throw new BadRequestException(key + " must be text or null");
+      }
+      const text = raw === null ? "" : raw.trim();
+      if (text.length > max) {
+        throw new BadRequestException(key + " is too long");
+      }
+      profile[key] = text === "" ? null : text;
+    }
+    if (
+      name === undefined &&
+      active === undefined &&
+      Object.keys(profile).length === 0
+    ) {
       throw new BadRequestException("No company fields supplied");
     }
     return this.service.updateCompany(
@@ -693,6 +715,7 @@ export class ManagementController {
       {
         ...(name !== undefined ? { name } : {}),
         ...(active !== undefined ? { active } : {}),
+        ...profile,
       },
       actorId(request),
     );

@@ -14,6 +14,7 @@ import type {
   ManagedAccountState,
   ManagedEmployeeItem,
   ManagementReportView,
+  CompanyUpdateInput,
   OrganizationUnitItem,
   RbacAdminView,
   RoleAssignmentInput,
@@ -101,7 +102,7 @@ export class ManagementService {
 
   updateCompany(
     id: string,
-    input: { readonly name?: string; readonly active?: boolean },
+    input: CompanyUpdateInput,
     actorEmployeeId: string,
   ): Promise<OrganizationUnitItem> {
     return this.repository.updateCompany(id, input, actorEmployeeId);

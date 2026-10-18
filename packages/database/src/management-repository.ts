@@ -18,6 +18,7 @@ import type {
   ManagedAccountState,
   ManagedEmployeeItem,
   ManagementReportView,
+  CompanyUpdateInput,
   OrganizationUnitItem,
   RbacAdminView,
   RoleAssignmentInput,
@@ -94,7 +95,7 @@ export interface ManagementRepository {
   createCompany(name: string, actorEmployeeId: string): Promise<OrganizationUnitItem>;
   updateCompany(
     id: string,
-    input: { readonly name?: string; readonly active?: boolean },
+    input: CompanyUpdateInput,
     actorEmployeeId: string,
   ): Promise<OrganizationUnitItem>;
   setEmployeeRoles(
@@ -193,6 +194,16 @@ function attendancePolicyView(row: {
     effectiveFrom: dateOnly(row.effectiveFrom),
   };
 }
+
+const COMPANY_SELECT = {
+  id: true,
+  name: true,
+  active: true,
+  taxId: true,
+  address: true,
+  phone: true,
+  email: true,
+} as const;
 
 const APPROVAL_POLICY_KINDS = ["LEAVE", "TIME_CORRECTION", "OVERTIME", "MEDICAL"] as const;
 
@@ -1156,7 +1167,7 @@ export class PrismaManagementRepository implements ManagementRepository {
 
   async listCompanies(): Promise<readonly OrganizationUnitItem[]> {
     return this.prisma.company.findMany({
-      select: { id: true, name: true, active: true },
+      select: COMPANY_SELECT,
       orderBy: [{ active: "desc" }, { name: "asc" }, { id: "asc" }],
     });
   }
@@ -1168,7 +1179,7 @@ export class PrismaManagementRepository implements ManagementRepository {
     return this.prisma.$transaction(async (tx) => {
       const row = await tx.company.create({
         data: { name },
-        select: { id: true, name: true, active: true },
+        select: COMPANY_SELECT,
       });
       await tx.auditLog.create({
         data: {
@@ -1184,14 +1195,14 @@ export class PrismaManagementRepository implements ManagementRepository {
 
   async updateCompany(
     id: string,
-    input: { readonly name?: string; readonly active?: boolean },
+    input: CompanyUpdateInput,
     actorEmployeeId: string,
   ): Promise<OrganizationUnitItem> {
     return this.prisma.$transaction(async (tx) => {
       const row = await tx.company.update({
         where: { id },
         data: input,
-        select: { id: true, name: true, active: true },
+        select: COMPANY_SELECT,
       });
       await tx.auditLog.create({
         data: {

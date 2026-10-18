@@ -400,7 +400,16 @@ export default function DesktopManagementPage() {
                 active,
                 companyId: String(data.get("companyId") ?? "") || null,
               }
-            : { name, active },
+            : type === "companies"
+              ? {
+                  name,
+                  active,
+                  taxId: String(data.get("taxId") ?? ""),
+                  address: String(data.get("address") ?? ""),
+                  phone: String(data.get("phone") ?? ""),
+                  email: String(data.get("email") ?? ""),
+                }
+              : { name, active },
         ),
       "บันทึกข้อมูลแล้ว",
     );
@@ -1074,6 +1083,10 @@ export default function DesktopManagementPage() {
                 <tr>
                   <th>รหัส</th>
                   <th>บริษัท</th>
+                  <th>เลขประจำตัวผู้เสียภาษี</th>
+                  <th>ที่อยู่</th>
+                  <th>โทรศัพท์</th>
+                  <th>อีเมล</th>
                   <th>สถานะ</th>
                   <th>จัดการ</th>
                 </tr>
@@ -1092,6 +1105,42 @@ export default function DesktopManagementPage() {
                           defaultValue={item.name}
                           maxLength={200}
                           required
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="production-table-input"
+                          form={formId}
+                          name="taxId"
+                          defaultValue={item.taxId ?? ""}
+                          maxLength={40}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="production-table-input"
+                          form={formId}
+                          name="address"
+                          defaultValue={item.address ?? ""}
+                          maxLength={500}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="production-table-input"
+                          form={formId}
+                          name="phone"
+                          defaultValue={item.phone ?? ""}
+                          maxLength={40}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="production-table-input"
+                          form={formId}
+                          name="email"
+                          defaultValue={item.email ?? ""}
+                          maxLength={200}
                         />
                       </td>
                       <td>
@@ -1134,7 +1183,7 @@ export default function DesktopManagementPage() {
                 })}
                 {visibleCompanies.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="production-empty-row">
+                    <td colSpan={8} className="production-empty-row">
                       ยังไม่มีบริษัท เพิ่มบริษัทแรกด้านบน
                     </td>
                   </tr>

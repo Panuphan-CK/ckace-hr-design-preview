@@ -178,6 +178,21 @@ export interface OrganizationUnitItem {
   /** Teams (agencies) only: the company the team belongs to. */
   readonly companyId?: string | null;
   readonly companyName?: string | null;
+  /** Companies only: basic profile. */
+  readonly taxId?: string | null;
+  readonly address?: string | null;
+  readonly phone?: string | null;
+  readonly email?: string | null;
+}
+
+/** Editable company fields; null clears a profile field. */
+export interface CompanyUpdateInput {
+  readonly name?: string;
+  readonly active?: boolean;
+  readonly taxId?: string | null;
+  readonly address?: string | null;
+  readonly phone?: string | null;
+  readonly email?: string | null;
 }
 
 export interface LeaveEntitlementAdminItem {

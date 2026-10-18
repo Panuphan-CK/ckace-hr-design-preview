@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 
+import { AnnouncementAdminPanel } from "./admin-panel";
 import { preparePrivateDownloadTab, showPrivateDownload } from "../private-download";
 
 import {
@@ -223,6 +224,8 @@ export default function DesktopAnnouncementsPage() {
           {actionError}
         </div>
       ) : null}
+
+      <AnnouncementAdminPanel onChanged={() => void load()} />
 
       <section className="module-panel">
         <div className="panel-heading">

@@ -3,12 +3,14 @@
 import type {
   ApprovalHistoryItem,
   ApprovalHistoryOverview,
+  AttachmentDownloadResult,
   RequestStatusItem,
   RequestStatusOverview,
   UnifiedRequestKind,
 } from "@ckace/contracts";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { preparePrivateDownloadTab, showPrivateDownload } from "../private-download";
 import { thaiDate, thaiDateTime } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
 import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
@@ -188,6 +190,22 @@ export default function DesktopApprovalsPage() {
     }
   }
 
+  async function openReceipt(attachmentId: string) {
+    let tab: Window | null = null;
+    try {
+      tab = preparePrivateDownloadTab();
+      const response = await fetch(`/api/attachments/${encodeURIComponent(attachmentId)}/download`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      if (!response.ok) throw new Error("เปิดใบเสร็จไม่สำเร็จ หรือไม่มีสิทธิ์ดูไฟล์นี้");
+      await showPrivateDownload(tab, (await response.json()) as AttachmentDownloadResult);
+    } catch (error) {
+      tab?.close();
+      setMessage({ kind: "error", text: error instanceof Error ? error.message : "เปิดใบเสร็จไม่สำเร็จ" });
+    }
+  }
+
   async function decide(request: RequestStatusItem, decision: "APPROVED" | "REJECTED" | "REVISION_REQUESTED") {
     if (!request.approvalStepId || busyId) return;
     const comment = comments[request.id]?.trim() ?? "";
@@ -273,6 +291,25 @@ export default function DesktopApprovalsPage() {
                         <small>ยื่นเมื่อ {thaiDateTime(request.submittedAt)}</small>
                       </span>
                     </div>
+                    {request.medical ? (
+                      <div className="ck-ac-act" aria-label="รายละเอียดการเบิกค่ารักษา">
+                        <span>
+                          ยอดเบิก <b>{request.medical.amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท</b>
+                          {" · "}วันที่ป่วย <b>{thaiDate(request.medical.sicknessDate)}</b>
+                        </span>
+                        {request.medical.attachmentIds.map((attachmentId, index) => (
+                          <button
+                            key={attachmentId}
+                            type="button"
+                            className="ck-btn"
+                            onClick={() => void openReceipt(attachmentId)}
+                          >
+                            ดูใบเสร็จ{request.medical && request.medical.attachmentIds.length > 1 ? ` ${index + 1}` : ""}
+                          </button>
+                        ))}
+                        {request.medical.attachmentIds.length === 0 ? <span>ไม่มีใบเสร็จแนบ</span> : null}
+                      </div>
+                    ) : null}
                     <div className="ck-prog" aria-label="สถานะการอนุมัติ">
                       <span className="s done">
                         <i>✓</i>ส่งแล้ว

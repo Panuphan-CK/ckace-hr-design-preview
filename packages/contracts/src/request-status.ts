@@ -11,6 +11,14 @@ export type UnifiedRequestStatus =
   | "CANCELLED"
   | "REVISION_REQUESTED";
 
+/** Medical claim figures an approver needs to decide (pending approvals only). */
+export interface MedicalApprovalDetail {
+  readonly amount: number;
+  /** ISO date (yyyy-mm-dd). */
+  readonly sicknessDate: string;
+  readonly attachmentIds: readonly string[];
+}
+
 export interface RequestStatusItem {
   readonly id: string;
   /** Running number such as LEV-0001, OT-0001, MED-0001, TC-0001. */
@@ -25,6 +33,7 @@ export interface RequestStatusItem {
   readonly canDecide: boolean;
   readonly approvalStepId: string | null;
   readonly stepOrder: number | null;
+  readonly medical?: MedicalApprovalDetail;
 }
 
 export interface RequestStatusOverview {

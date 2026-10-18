@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { requestDesktopLogout } from "./logout-request";
+import { installHashChangeEvents } from "./ui/hash-events";
 import { Icon, type IconName } from "./ui/icons";
 import { PageHead, type Tone as PageTone } from "./ui/kit";
 import "./ui/ck.css";
@@ -227,6 +228,10 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
   const [popover, setPopover] = useState<"me" | "apps" | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
+
+  useEffect(() => {
+    installHashChangeEvents();
+  }, []);
 
   useEffect(() => {
     const sync = () => setHash(window.location.hash);

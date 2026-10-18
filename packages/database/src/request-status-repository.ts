@@ -193,7 +193,8 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
             medicalClaim: {
               select: {
                 id: true, requestNo: true, status: true, submittedAt: true, decisionReason: true,
-                description: true,
+                description: true, amount: true, sicknessDate: true,
+                attachments: { select: { attachmentId: true } },
               },
             },
           },
@@ -248,6 +249,11 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           submittedAt: row.submittedAt.toISOString(),
           summary: row.description,
           decisionReason: row.decisionReason,
+          medical: {
+            amount: Number(row.amount),
+            sicknessDate: row.sicknessDate.toISOString().slice(0, 10),
+            attachmentIds: row.attachments.map((a) => a.attachmentId),
+          },
         });
       }
     }

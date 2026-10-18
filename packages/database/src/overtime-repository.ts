@@ -7,7 +7,6 @@ import {
 import {
   assertNoOverlappingOvertime,
   assertOvertimeCancelable,
-  assertOvertimeDateRangeNotFuture,
   expandOvertimeDays,
   normalizeOvertimeCreate,
   normalizeOvertimeDecision,
@@ -130,29 +129,6 @@ function workDateValue(value: string): Date {
 
 function timeValue(value: string): Date {
   return new Date(`1970-01-01T${value}:00.000Z`);
-}
-
-function bangkokDateKey(value: Date): string {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Bangkok",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(value);
-  const map = new Map(
-    parts.map((part) => [part.type, part.value]),
-  );
-  const year = map.get("year");
-  const month = map.get("month");
-  const day = map.get("day");
-
-  if (!year || !month || !day) {
-    throw new Error(
-      "Unable to derive Asia/Bangkok overtime date",
-    );
-  }
-
-  return `${year}-${month}-${day}`;
 }
 
 function isoWeekday(dateKey: string): number {
@@ -763,11 +739,6 @@ export class PrismaOvertimeRepository
 
     const batchId = randomUUID();
     const now = this.clock();
-    assertOvertimeDateRangeNotFuture({
-      startDate: normalized.startDate,
-      endDate: normalized.endDate,
-      today: bangkokDateKey(now),
-    });
 
     try {
       const created = await this.prisma.$transaction(

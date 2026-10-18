@@ -323,7 +323,7 @@ export default function DesktopReportsPage() {
 
   return (
     <>
-      <PageHead tone={selectedOption.tone} icon={selectedOption.icon} title={selectedOption.title} subtitle={from + " ถึง " + to}>
+      <PageHead tone={selectedOption.tone} icon={selectedOption.icon} title={selectedOption.title} subtitle={thaiDateRange(from, to)}>
         <button className="ck-btn quiet" type="button" onClick={() => selectReport(null)}>
           <Icon name="back" size={16} /> กลับภาพรวม
         </button>

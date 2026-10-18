@@ -49,6 +49,7 @@ interface RequestContext {
   readonly status: string | null;
   /** Approver of the step that is waiting right now (null when nothing is waiting). */
   readonly currentApproverId: string | null;
+  readonly coApproverIds: readonly string[];
 }
 
 const EMPTY_CONTEXT: RequestContext = {
@@ -60,11 +61,17 @@ const EMPTY_CONTEXT: RequestContext = {
   comment: null,
   status: null,
   currentApproverId: null,
+  coApproverIds: [],
 };
 
 type InstanceShape = {
   currentStepOrder: number | null;
-  steps: { stepOrder: number; approverEmployeeId: string | null; status: string }[];
+  steps: {
+    stepOrder: number;
+    approverEmployeeId: string | null;
+    coApproverEmployeeIds: string[];
+    status: string;
+  }[];
 } | null;
 
 function waitingApprover(instance: InstanceShape): string | null {
@@ -75,10 +82,18 @@ function waitingApprover(instance: InstanceShape): string | null {
   return step?.approverEmployeeId ?? null;
 }
 
+function waitingCoApprovers(instance: InstanceShape): readonly string[] {
+  const step = instance?.steps.find(
+    (candidate) => candidate.stepOrder === instance.currentStepOrder && candidate.status === "PENDING",
+  );
+
+  return step?.coApproverEmployeeIds ?? [];
+}
+
 const INSTANCE_SELECT = {
   select: {
     currentStepOrder: true,
-    steps: { select: { stepOrder: true, approverEmployeeId: true, status: true } },
+    steps: { select: { stepOrder: true, approverEmployeeId: true, coApproverEmployeeIds: true, status: true } },
   },
 } as const;
 
@@ -116,6 +131,7 @@ async function loadContext(
             comment: row.decisionReason,
             status: row.status,
             currentApproverId: waitingApprover(row.approvalInstance),
+            coApproverIds: waitingCoApprovers(row.approvalInstance),
           }
         : EMPTY_CONTEXT;
     }
@@ -147,6 +163,7 @@ async function loadContext(
             comment: row.decisionReason,
             status: row.status,
             currentApproverId: waitingApprover(row.approvalInstance),
+            coApproverIds: waitingCoApprovers(row.approvalInstance),
           }
         : EMPTY_CONTEXT;
     }
@@ -175,6 +192,7 @@ async function loadContext(
             comment: row.decisionReason,
             status: row.status,
             currentApproverId: waitingApprover(row.approvalInstance),
+            coApproverIds: waitingCoApprovers(row.approvalInstance),
           }
         : EMPTY_CONTEXT;
     }
@@ -203,6 +221,7 @@ async function loadContext(
             comment: row.decisionComment,
             status: row.status,
             currentApproverId: waitingApprover(row.approvalInstance),
+            coApproverIds: waitingCoApprovers(row.approvalInstance),
           }
         : EMPTY_CONTEXT;
     }
@@ -240,7 +259,11 @@ async function resolveRecipients(
         },
         select: { delegateEmployeeId: true },
       });
-      const ids = new Set([context.currentApproverId, ...delegates.map((row) => row.delegateEmployeeId)]);
+      const ids = new Set([
+        context.currentApproverId,
+        ...context.coApproverIds,
+        ...delegates.map((row) => row.delegateEmployeeId),
+      ]);
 
       // Never tell someone to approve their own request.
       if (context.requesterEmployeeId) {

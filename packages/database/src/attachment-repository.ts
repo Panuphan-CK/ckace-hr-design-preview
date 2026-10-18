@@ -131,7 +131,10 @@ export class PrismaAttachmentRepository implements AttachmentRepository {
                     currentStepOrder: true,
                     steps: {
                       where: {
-                        approverEmployeeId: actorEmployeeId,
+                        OR: [
+                          { approverEmployeeId: actorEmployeeId },
+                          { coApproverEmployeeIds: { has: actorEmployeeId } },
+                        ],
                         status: "PENDING",
                       },
                       select: { stepOrder: true },

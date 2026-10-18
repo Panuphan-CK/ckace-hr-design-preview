@@ -30,6 +30,7 @@ const secret = "wd13-unit-test-secret-".padEnd(48, "x");
 function credentialRepository(lookup: Map<string, OnboardingCredentialRecord>): OnboardingRepository {
   return {
     findCredentials: async (username) => lookup.get(username) ?? null,
+    findActiveEmployeeIdByLineUserId: async () => null,
     register: async () => { throw new Error("not used"); },
     bindLine: async () => { throw new Error("not used"); },
     activateImportedDesktopCredential: async () => { throw new Error("not used"); },

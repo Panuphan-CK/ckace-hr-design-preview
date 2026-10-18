@@ -32,6 +32,7 @@ export interface OnboardingRegistrationRecord {
 export interface OnboardingRepository {
   register(input: OnboardingRegistrationRecord): Promise<EmployeeRegistrationResult>;
   findCredentials(normalizedLogin: string): Promise<OnboardingCredentialRecord | null>;
+  findActiveEmployeeIdByLineUserId(lineUserId: string): Promise<string | null>;
   bindLine(
     employeeId: string,
     lineUserId: string,
@@ -119,6 +120,19 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
           passwordHash: account.passwordHash,
           legacyPasswordHash: account.legacyPasswordHash,
         }
+      : null;
+  }
+
+  async findActiveEmployeeIdByLineUserId(lineUserId: string): Promise<string | null> {
+    const binding = await this.prisma.lineAccount.findUnique({
+      where: { lineUserId },
+      select: {
+        employeeId: true,
+        employee: { select: { userAccount: { select: { state: true } } } },
+      },
+    });
+    return binding?.employee.userAccount?.state === "ACTIVE"
+      ? binding.employeeId
       : null;
   }
 

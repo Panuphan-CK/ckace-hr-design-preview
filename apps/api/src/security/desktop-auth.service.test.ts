@@ -13,6 +13,7 @@ import {
   describe,
   expect,
   it,
+  vi,
 } from "vitest";
 
 import {
@@ -32,9 +33,11 @@ const activeIdentity: IdentityRecord = {
 
 function repository(
   credential: OnboardingCredentialRecord | null,
+  lineEmployeeId: string | null = null,
 ): OnboardingRepository {
   return {
     findCredentials: async () => credential,
+    findActiveEmployeeIdByLineUserId: async () => lineEmployeeId,
     register: async () => {
       throw new Error("not used");
     },
@@ -67,6 +70,8 @@ describe("DesktopAuthService", () => {
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
+    delete process.env.LINE_LOGIN_CHANNEL_ID;
     delete process.env.CKACE_DESKTOP_SESSION_SECRET;
     delete process.env.CKACE_LEGACY_PASSWORD_SALT;
   });
@@ -136,5 +141,63 @@ describe("DesktopAuthService", () => {
         password: "correct-password",
       }),
     ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  describe("loginWithLine", () => {
+    const idToken = "line-id-token-".repeat(3);
+    const stubLine = (ok: boolean, sub = "U-line-1") =>
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => ({ ok, json: async () => ({ sub }) })),
+      );
+
+    beforeEach(() => {
+      process.env.LINE_LOGIN_CHANNEL_ID = "1234567890";
+    });
+
+    it("signs in the employee linked to the verified LINE account", async () => {
+      stubLine(true);
+      const service = new DesktopAuthService(
+        repository(null, "employee-1"),
+        identityRepository,
+      );
+
+      const result = await service.loginWithLine({ idToken });
+
+      expect(result.actor).toMatchObject({
+        employeeId: "employee-1",
+        authenticatedBy: "PROJECT_B_WEB",
+      });
+      await expect(
+        service.resolveSession({ token: result.token }),
+      ).resolves.toMatchObject({ employeeId: "employee-1" });
+    });
+
+    it("rejects a LINE account that is not linked to an active employee", async () => {
+      stubLine(true);
+      const service = new DesktopAuthService(
+        repository(null, null),
+        identityRepository,
+      );
+
+      await expect(
+        service.loginWithLine({ idToken }),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+    });
+
+    it("rejects a token LINE refuses to verify and a malformed token", async () => {
+      stubLine(false);
+      const service = new DesktopAuthService(
+        repository(null, "employee-1"),
+        identityRepository,
+      );
+
+      await expect(
+        service.loginWithLine({ idToken }),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+      await expect(
+        service.loginWithLine({ idToken: "short" }),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+    });
   });
 });

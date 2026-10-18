@@ -34,6 +34,16 @@ export interface RequestStatusItem {
   readonly approvalStepId: string | null;
   readonly stepOrder: number | null;
   readonly medical?: MedicalApprovalDetail;
+  /** Assigned-list only: what the approver needs to see without opening the request. */
+  readonly leave?: { readonly startDate: string; readonly endDate: string; readonly durationCode: string };
+  readonly overtime?: {
+    readonly segments: readonly {
+      readonly workDate: string;
+      readonly startTime: string;
+      readonly endTime: string;
+      readonly requestedMinutes: number;
+    }[];
+  };
 }
 
 export interface RequestStatusOverview {

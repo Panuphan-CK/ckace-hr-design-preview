@@ -393,6 +393,8 @@ model ApprovalStep {
   approvalInstanceId  String             @db.Uuid
   stepOrder           Int
   approverEmployeeId  String?            @db.Uuid
+  /// Other eligible approvers (for example the second SuperAdmin): any of them may decide the step.
+  coApproverEmployeeIds String[]         @default([]) @db.Uuid
   status              ApprovalStepStatus @default(PENDING)
   assignedAt          DateTime?          @db.Timestamptz(3)
   decidedAt           DateTime?          @db.Timestamptz(3)

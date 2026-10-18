@@ -668,6 +668,7 @@ interface CorrectionApprovalResolution {
   readonly steps: readonly {
     readonly stepOrder: number;
     readonly approverEmployeeId: string;
+    readonly coApproverEmployeeIds?: readonly string[];
   }[];
 }
 
@@ -1504,7 +1505,10 @@ export class PrismaAttendanceRepository
             is: {
               steps: {
                 some: {
-                  approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
+                  OR: [
+                    { approverEmployeeId: { in: [approverEmployeeId, ...delegators] } },
+                    { coApproverEmployeeIds: { hasSome: [approverEmployeeId, ...delegators] } },
+                  ],
                   status: "PENDING",
                 },
               },
@@ -1516,7 +1520,7 @@ export class PrismaAttendanceRepository
             select: {
               currentStepOrder: true,
               steps: {
-                select: { stepOrder: true, approverEmployeeId: true, status: true },
+                select: { stepOrder: true, approverEmployeeId: true, coApproverEmployeeIds: true, status: true },
               },
             },
           },
@@ -1551,8 +1555,9 @@ export class PrismaAttendanceRepository
           (step) =>
             step.stepOrder === row.approvalInstance?.currentStepOrder &&
             step.status === "PENDING" &&
-            step.approverEmployeeId !== null &&
-            mine.has(step.approverEmployeeId),
+            ((step.approverEmployeeId !== null &&
+              mine.has(step.approverEmployeeId)) ||
+              step.coApproverEmployeeIds.some((id) => mine.has(id))),
         ),
       )
       .map((row) =>
@@ -1693,6 +1698,7 @@ export class PrismaAttendanceRepository
                   create: approval.steps.map((step) => ({
                     stepOrder: step.stepOrder,
                     approverEmployeeId: step.approverEmployeeId,
+                    coApproverEmployeeIds: [...(step.coApproverEmployeeIds ?? [])],
                     status: "PENDING",
                     assignedAt: now,
                   })),
@@ -1975,6 +1981,7 @@ export class PrismaAttendanceRepository
                 create: approval.steps.map((step) => ({
                   stepOrder: step.stepOrder,
                   approverEmployeeId: step.approverEmployeeId,
+                  coApproverEmployeeIds: [...(step.coApproverEmployeeIds ?? [])],
                   status: "PENDING",
                   assignedAt: now,
                 })),
@@ -2110,6 +2117,7 @@ export class PrismaAttendanceRepository
                       id: true,
                       stepOrder: true,
                       approverEmployeeId: true,
+                      coApproverEmployeeIds: true,
                       status: true,
                     },
                     orderBy: { stepOrder: "asc" },
@@ -2128,11 +2136,13 @@ export class PrismaAttendanceRepository
         const delegators = await delegatorIdsFor(tx, input.approverEmployeeId);
         const mayDecide = (candidate: {
           readonly approverEmployeeId: string | null;
+          readonly coApproverEmployeeIds: readonly string[];
         }) =>
           candidate.approverEmployeeId === input.approverEmployeeId ||
           (request.employeeId !== input.approverEmployeeId &&
-            candidate.approverEmployeeId !== null &&
-            delegators.includes(candidate.approverEmployeeId));
+            (candidate.coApproverEmployeeIds.includes(input.approverEmployeeId) ||
+              (candidate.approverEmployeeId !== null &&
+                delegators.includes(candidate.approverEmployeeId))));
         const currentStepOrder = request.approvalInstance.currentStepOrder;
         // Only the step the request is waiting on can be decided. Once the request is
         // finished there is no current step, so a repeated decision is matched by status.

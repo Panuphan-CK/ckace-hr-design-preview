@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 
+import { formatRequestNo } from "./request-status-repository";
 import {
   IdempotencyConflictError,
   createIdempotencyClaim,
@@ -100,6 +101,7 @@ interface OvertimeApprovalResolution {
   readonly steps: readonly {
     readonly stepOrder: number;
     readonly approverEmployeeId: string;
+    readonly coApproverEmployeeIds?: readonly string[];
   }[];
 }
 
@@ -434,6 +436,7 @@ function requestView(
       | "REVISION_REQUESTED";
     readonly decisionReason: string | null;
     readonly submittedAt: Date;
+    readonly requestNo?: number;
     readonly segments: readonly {
       readonly id: string;
       readonly workDate: Date;
@@ -451,6 +454,7 @@ function requestView(
     status: request.status,
     decisionReason: request.decisionReason,
     submittedAt: request.submittedAt.toISOString(),
+    ...(typeof request.requestNo === "number" ? { requestNo: formatRequestNo("OT", request.requestNo) } : {}),
     segments: request.segments.map((segment) => ({
       id: segment.id,
       workDate: dateOnly(segment.workDate),
@@ -592,6 +596,7 @@ export class PrismaOvertimeRepository
         status: true,
         decisionReason: true,
         submittedAt: true,
+        requestNo: true,
         segments: {
           select: {
             id: true,
@@ -630,7 +635,10 @@ export class PrismaOvertimeRepository
     const delegators = await delegatorIdsFor(this.prisma, approverEmployeeId);
     const steps = await this.prisma.approvalStep.findMany({
       where: {
-        approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
+        OR: [
+          { approverEmployeeId: { in: [approverEmployeeId, ...delegators] } },
+          { coApproverEmployeeIds: { hasSome: [approverEmployeeId, ...delegators] } },
+        ],
         status: "PENDING",
         approvalInstance: {
           is: {
@@ -653,6 +661,7 @@ export class PrismaOvertimeRepository
                 status: true,
                 decisionReason: true,
                 submittedAt: true,
+                requestNo: true,
                 segments: {
                   select: {
                     id: true,
@@ -825,6 +834,9 @@ export class PrismaOvertimeRepository
                       stepOrder: step.stepOrder,
                       approverEmployeeId:
                         step.approverEmployeeId,
+                      coApproverEmployeeIds: [
+                        ...(step.coApproverEmployeeIds ?? []),
+                      ],
                       status: "PENDING",
                       assignedAt: now,
                     })),
@@ -1130,6 +1142,7 @@ export class PrismaOvertimeRepository
                       id: true,
                       stepOrder: true,
                       approverEmployeeId: true,
+                      coApproverEmployeeIds: true,
                       status: true,
                     },
                     orderBy: { stepOrder: "asc" },
@@ -1156,6 +1169,7 @@ export class PrismaOvertimeRepository
         const mayDecide = currentStep
           ? await actorMayDecideStep(tx, {
               stepApproverId: currentStep.approverEmployeeId,
+              coApproverIds: currentStep.coApproverEmployeeIds,
               actorEmployeeId: input.approverEmployeeId,
               requesterEmployeeId: request.employeeId,
             })

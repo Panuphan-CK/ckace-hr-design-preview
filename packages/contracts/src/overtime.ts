@@ -63,6 +63,8 @@ export interface OvertimeRequestView {
   readonly status: OvertimeRequestStatus;
   readonly decisionReason: string | null;
   readonly submittedAt: string;
+  /** Running number such as OT-0001; absent only on rows built without it. */
+  readonly requestNo?: string;
   readonly segments: readonly OvertimeSegmentView[];
 }
 

@@ -23,6 +23,7 @@ export interface MedicalClaimView {
   readonly status: MedicalClaimStatus;
   readonly decisionReason: string | null;
   readonly submittedAt: string;
+  readonly requestNo?: string;
   readonly attachments: readonly MedicalAttachmentView[];
 }
 

@@ -10,6 +10,7 @@ import { OnboardingService } from "./onboarding.service";
 const repository = {
   register: vi.fn(),
   findCredentials: vi.fn(),
+  findActiveEmployeeIdByLineUserId: vi.fn(),
   bindLine: vi.fn(),
   activateImportedDesktopCredential: vi.fn(),
   listPending: vi.fn(async () => []),

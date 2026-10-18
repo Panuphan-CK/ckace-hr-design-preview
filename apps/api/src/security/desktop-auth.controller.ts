@@ -71,6 +71,36 @@ export class DesktopAuthController {
     } as const;
   }
 
+  @Post("line-login")
+  @HttpCode(200)
+  async lineLogin(
+    @Body() body: { readonly idToken?: unknown },
+    @Req() request: SecurityRequest,
+    @Res({ passthrough: true }) response: HeaderResponse,
+  ) {
+    const result = await this.auth.loginWithLine({
+      idToken: body?.idToken,
+      ...(request.correlationId
+        ? { correlationId: request.correlationId }
+        : {}),
+    });
+    response.setHeader(
+      "Set-Cookie",
+      desktopSessionCookie(
+        result.token,
+        process.env.CKACE_RUNTIME_STAGE,
+      ),
+    );
+    return {
+      authenticated: true,
+      employeeId: result.actor.employeeId,
+      navigation: desktopNavigationForPermissions(
+        result.actor.permissions,
+      ),
+      clientRoleAuthority: false,
+    } as const;
+  }
+
   @Post("logout")
   @HttpCode(200)
   logout(

@@ -33,6 +33,7 @@ import {
   type PrismaClient,
 } from "@prisma/client";
 
+import { formatRequestNo } from "./request-status-repository";
 import { actorMayDecideStep, delegatorIdsFor } from "./approval-delegation";
 import {
   resubmitSentBackMedical,
@@ -102,6 +103,7 @@ interface MedicalApprovalResolution {
   readonly steps: readonly {
     readonly stepOrder: number;
     readonly approverEmployeeId: string;
+    readonly coApproverEmployeeIds?: readonly string[];
   }[];
 }
 
@@ -715,6 +717,7 @@ function medicalClaimView(
       | "REVISION_REQUESTED";
     readonly decisionReason: string | null;
     readonly submittedAt: Date;
+    readonly requestNo?: number;
     readonly attachments: readonly {
       readonly attachment: {
         readonly id: string;
@@ -748,6 +751,7 @@ function medicalClaimView(
       claim.decisionReason,
     submittedAt:
       claim.submittedAt.toISOString(),
+    ...(typeof claim.requestNo === "number" ? { requestNo: formatRequestNo("MED", claim.requestNo) } : {}),
     attachments:
       claim.attachments.map((link) =>
         medicalAttachmentView(
@@ -768,6 +772,7 @@ const medicalClaimSelection = {
   status: true,
   decisionReason: true,
   submittedAt: true,
+  requestNo: true,
   attachments: {
     select: {
       attachment: {
@@ -1049,7 +1054,10 @@ export class PrismaMedicalRepository
     const steps =
       await this.prisma.approvalStep.findMany({
         where: {
-          approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
+          OR: [
+            { approverEmployeeId: { in: [approverEmployeeId, ...delegators] } },
+            { coApproverEmployeeIds: { hasSome: [approverEmployeeId, ...delegators] } },
+          ],
           status: "PENDING",
           approvalInstance: {
             is: {
@@ -1321,6 +1329,9 @@ export class PrismaMedicalRepository
                                 step.stepOrder,
                               approverEmployeeId:
                                 step.approverEmployeeId,
+                              coApproverEmployeeIds: [
+                                ...(step.coApproverEmployeeIds ?? []),
+                              ],
                               status:
                                 "PENDING",
                               assignedAt:
@@ -1664,6 +1675,8 @@ export class PrismaMedicalRepository
                       stepOrder: true,
                       approverEmployeeId:
                         true,
+                      coApproverEmployeeIds:
+                        true,
                       status: true,
                     },
                     orderBy: {
@@ -1694,6 +1707,7 @@ export class PrismaMedicalRepository
         const mayDecide = currentStep
           ? await actorMayDecideStep(tx, {
               stepApproverId: currentStep.approverEmployeeId,
+              coApproverIds: currentStep.coApproverEmployeeIds,
               actorEmployeeId: input.approverEmployeeId,
               requesterEmployeeId: claim.employeeId,
             })

@@ -17,6 +17,7 @@ import {
 } from "@nestjs/common";
 
 import {
+  LineVerifyApiTokenVerifier,
   verifyLegacyGasPassword,
   verifyProjectPassword,
 } from "../onboarding/onboarding-auth";
@@ -129,6 +130,54 @@ export class DesktopAuthService {
         throw new ForbiddenException(
           "Desktop account is unavailable",
         );
+      }
+      throw error;
+    }
+  }
+
+  async loginWithLine(input: {
+    readonly idToken: unknown;
+    readonly correlationId?: string | null;
+  }): Promise<DesktopLoginResult> {
+    if (
+      typeof input.idToken !== "string" ||
+      input.idToken.length < 20 ||
+      input.idToken.length > 8000
+    ) {
+      throw new UnauthorizedException("Invalid LINE identity");
+    }
+    let lineUserId: string;
+    try {
+      lineUserId = await new LineVerifyApiTokenVerifier(
+        process.env.LINE_LOGIN_CHANNEL_ID?.trim() ?? "",
+      ).verify(input.idToken);
+    } catch {
+      throw new UnauthorizedException("Invalid LINE identity");
+    }
+    const employeeId =
+      await this.repository.findActiveEmployeeIdByLineUserId(lineUserId);
+    if (!employeeId) {
+      throw new UnauthorizedException("LINE account is not linked");
+    }
+    try {
+      const actor = await this.identity.resolveEmployeeActor({
+        employeeId,
+        authenticatedBy: "PROJECT_B_WEB",
+        ...(input.correlationId
+          ? { correlationId: input.correlationId }
+          : {}),
+      });
+      const { token } = issueDesktopSessionToken({
+        employeeId: actor.employeeId,
+        secret: sessionSecret(),
+      });
+      return { token, actor };
+    } catch (error) {
+      if (
+        error instanceof IdentityInactiveError ||
+        error instanceof IdentityUnavailableError
+      ) {
+        throw new ForbiddenException("Account is unavailable");
       }
       throw error;
     }

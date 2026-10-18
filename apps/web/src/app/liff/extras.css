@@ -1,0 +1,38 @@
+/* Native Project B screens that sit next to the hosted Project A app: same colours, radii and type. */
+.xt{min-height:100vh;background:#faf7f2;color:#26354c;font-family:Prompt,Sarabun,sans-serif;padding:0 16px 40px;font-size:14px}
+.xt *{box-sizing:border-box}
+.xt-head{display:flex;align-items:center;gap:10px;padding:14px 0 10px;position:sticky;top:0;background:#faf7f2;z-index:2}
+.xt-head h1{margin:0;font-size:18px;font-weight:800;color:#172d59}
+.xt-back{border:1px solid #dce4ee;background:#fff;color:#172d59;border-radius:999px;padding:6px 12px;font:inherit;font-weight:700;font-size:12px;text-decoration:none}
+.xt-card{background:#fff;border:1px solid #dce4ee;border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(34,59,95,.04)}
+.xt-card h2{margin:0 0 4px;font-size:15px;font-weight:800;color:#172d59}
+.xt-hint{margin:0 0 10px;font-size:11px;color:#8993a2}
+.xt label{display:block;font-size:12px;font-weight:700;color:#596577;margin:10px 0 4px}
+.xt input,.xt select,.xt textarea{width:100%;border:1px solid #dce4ee;border-radius:12px;background:#fff;padding:10px 12px;font:inherit;color:#26354c;min-height:44px}
+.xt textarea{min-height:84px;resize:vertical}
+.xt-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.xt-chips{display:flex;flex-wrap:wrap;gap:8px}
+.xt-chip{border:1px solid #dce4ee;background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-size:12px;font-weight:700;color:#596577}
+.xt-chip[aria-pressed=true]{border-color:#c9a84c;background:#fffaf0;color:#8f6f1f}
+.xt-types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.xt-type{border:1px solid #dce4ee;background:#fff;border-radius:14px;padding:10px;text-align:left;font:inherit}
+.xt-type b{display:block;font-size:13px;color:#172d59}
+.xt-type span{font-size:11px;color:#3b82f6;font-weight:600}
+.xt-type[aria-pressed=true]{border-color:#3b82f6;background:#f8fbff;box-shadow:0 0 0 2px #dbeafe}
+.xt-step{display:flex;align-items:center;gap:10px;margin-top:8px}
+.xt-step i{flex:none;width:26px;height:26px;border-radius:50%;background:#f4c542;color:#fff;font-style:normal;font-weight:800;display:grid;place-items:center;font-size:13px}
+.xt-step select{flex:1}
+.xt-send{width:100%;margin-top:14px;min-height:48px;border:0;border-radius:14px;background:#172d59;color:#fff;font:inherit;font-weight:800;font-size:15px}
+.xt-send:disabled{opacity:.55}
+.xt-note{border-radius:12px;padding:10px 12px;margin:0 0 12px;font-size:12px;font-weight:600}
+.xt-note.ok{background:#effaf3;color:#24765a;border:1px solid #cdebd8}
+.xt-note.err{background:#fef2f2;color:#c2414b;border:1px solid #f6d3d3}
+.xt-menu{display:block;text-decoration:none;color:inherit}
+.xt-menu b{display:block;font-size:15px;color:#172d59}
+.xt-menu span{font-size:12px;color:#8993a2}
+.xt-meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#596577;margin:6px 0}
+.xt-btn{border:1px solid #c9a84c;background:#fffaf0;color:#8f6f1f;border-radius:12px;padding:9px 14px;font:inherit;font-weight:800;font-size:12px;margin:6px 8px 0 0}
+.xt-modal{position:fixed;inset:0;background:rgba(23,45,89,.55);z-index:20;display:grid;place-items:center;padding:16px}
+.xt-modal div{background:#fff;border-radius:18px;max-height:88vh;overflow:auto;padding:12px;width:100%}
+.xt-modal img{width:100%;display:block;border-radius:10px}
+.xt-fab{position:fixed;right:14px;bottom:96px;z-index:10;border:1px solid #c9a84c;background:#fffaf0;color:#8f6f1f;border-radius:999px;padding:10px 14px;font:700 12px Prompt,Sarabun,sans-serif;box-shadow:0 4px 14px rgba(34,59,95,.18);text-decoration:none}

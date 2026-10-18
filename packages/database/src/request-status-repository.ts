@@ -160,7 +160,10 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
     const delegators = await delegatorIdsFor(this.prisma, approverEmployeeId);
     const steps = await this.prisma.approvalStep.findMany({
       where: {
-        approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
+        OR: [
+          { approverEmployeeId: { in: [approverEmployeeId, ...delegators] } },
+          { coApproverEmployeeIds: { hasSome: [approverEmployeeId, ...delegators] } },
+        ],
         status: "PENDING",
         approvalInstance: { is: { status: "PENDING" } },
       },
@@ -175,7 +178,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
             leaveRequest: {
               select: {
                 id: true, requestNo: true, status: true, submittedAt: true, decisionReason: true,
-                description: true, leaveType: { select: { name: true } },
+                description: true, startDate: true, endDate: true, durationCode: true, leaveType: { select: { name: true } },
               },
             },
             timeCorrection: {
@@ -188,6 +191,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
               select: {
                 id: true, requestNo: true, status: true, submittedAt: true, decisionReason: true,
                 reason: true,
+                segments: { select: { workDate: true, startTime: true, endTime: true, requestedMinutes: true }, orderBy: { workDate: "asc" } },
               },
             },
             medicalClaim: {
@@ -222,6 +226,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           submittedAt: row.submittedAt.toISOString(),
           summary: `${row.leaveType.name}: ${row.description}`,
           decisionReason: row.decisionReason,
+          leave: { startDate: row.startDate.toISOString().slice(0, 10), endDate: row.endDate.toISOString().slice(0, 10), durationCode: row.durationCode },
         });
       } else if (instance.timeCorrection) {
         const row = instance.timeCorrection;
@@ -240,6 +245,14 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           submittedAt: row.submittedAt.toISOString(),
           summary: row.reason,
           decisionReason: row.decisionReason,
+          overtime: {
+            segments: row.segments.map((segment) => ({
+              workDate: segment.workDate.toISOString().slice(0, 10),
+              startTime: segment.startTime.toISOString().slice(11, 16),
+              endTime: segment.endTime.toISOString().slice(11, 16),
+              requestedMinutes: segment.requestedMinutes,
+            })),
+          },
         });
       } else if (instance.medicalClaim) {
         const row = instance.medicalClaim;

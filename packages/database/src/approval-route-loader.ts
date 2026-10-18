@@ -139,6 +139,9 @@ export async function resolveCompanyApprovalRoute(
     managerRoleKeys: manager
       ? manager.assignments.map((assignment) => assignment.roleKey)
       : null,
+    requesterRoleKeys: requester.assignments.map(
+      (assignment) => assignment.roleKey,
+    ),
   });
 
   const route = resolveApprovalRoute({
@@ -166,7 +169,12 @@ export async function resolveCompanyApprovalRoute(
  */
 export function systemSelectedApprovals(
   route: ResolvedApprovalRoute,
-): readonly { readonly stepOrder: number; readonly approverEmployeeId: string }[] {
+): readonly {
+  readonly stepOrder: number;
+  readonly approverEmployeeId: string;
+  /** Other eligible approvers of the step: any of them may decide it. */
+  readonly coApproverEmployeeIds: readonly string[];
+}[] {
   return route.steps.map((step) => {
     if (!step.selectedId) {
       throw new Error("Approval step has no selected approver");
@@ -175,6 +183,9 @@ export function systemSelectedApprovals(
     return {
       stepOrder: step.stepOrder,
       approverEmployeeId: step.selectedId,
+      coApproverEmployeeIds: step.candidateIds.filter(
+        (id) => id !== step.selectedId,
+      ),
     };
   });
 }

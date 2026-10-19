@@ -1,0 +1,1 @@
+{“permissions”:{“allow”:[“Bash(gcloud run jobs update ckace-hr-migrate-test *)”,”Bash(gcloud run jobs execute ckace-hr-migrate-test *)”]}}

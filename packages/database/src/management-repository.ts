@@ -27,6 +27,7 @@ import type {
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { ATTENDANCE_STATS_EMPLOYEE_FILTER, isAttendanceExempt } from "./attendance-exemption";
 import {
+  confirmOvertimeSegments,
   loadOvertimeReportRows,
   recordOvertimeReportExport,
   type OvertimeReportFilters,
@@ -131,6 +132,11 @@ export interface ManagementRepository {
     filters: OvertimeReportFilters,
     actorEmployeeId: string,
   ): Promise<readonly OvertimeReportRow[]>;
+  overtimeRows(filters: OvertimeReportFilters): Promise<readonly OvertimeReportRow[]>;
+  confirmOvertimeSegments(
+    segmentIds: readonly string[],
+    actorEmployeeId: string,
+  ): Promise<number>;
   upsertEntitlement(
     input: {
       readonly employeeId: string;
@@ -1413,6 +1419,17 @@ export class PrismaManagementRepository implements ManagementRepository {
       rowCount: rows.length,
     });
     return rows;
+  }
+
+  overtimeRows(filters: OvertimeReportFilters): Promise<readonly OvertimeReportRow[]> {
+    return loadOvertimeReportRows(this.prisma, filters);
+  }
+
+  confirmOvertimeSegments(
+    segmentIds: readonly string[],
+    actorEmployeeId: string,
+  ): Promise<number> {
+    return confirmOvertimeSegments(this.prisma, { segmentIds, actorEmployeeId });
   }
 
   generateVacationEntitlements(

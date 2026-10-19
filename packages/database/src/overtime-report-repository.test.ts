@@ -32,6 +32,7 @@ function prismaWith(options: {
           endTime: new Date("1970-01-01T22:00:00.000Z"),
           requestedMinutes: 270,
           breakCodes: options.breakCodes ?? [],
+          confirmedAt: null,
           request: {
             id: "req1",
             status: options.status ?? "APPROVED",

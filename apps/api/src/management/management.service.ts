@@ -248,6 +248,17 @@ export class ManagementService {
     return this.repository.overtimeReport(filters, actorEmployeeId);
   }
 
+  overtimeRows(filters: OvertimeReportFilters): Promise<readonly OvertimeReportRow[]> {
+    return this.repository.overtimeRows(filters);
+  }
+
+  confirmOvertimeSegments(
+    segmentIds: readonly string[],
+    actorEmployeeId: string,
+  ): Promise<number> {
+    return this.repository.confirmOvertimeSegments(segmentIds, actorEmployeeId);
+  }
+
   generateVacationEntitlements(
     year: number,
     actorEmployeeId: string,

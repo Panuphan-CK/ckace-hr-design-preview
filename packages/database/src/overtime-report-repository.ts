@@ -115,6 +115,7 @@ export async function loadOvertimeReportRows(
       endTime: true,
       requestedMinutes: true,
       breakCodes: true,
+      confirmedAt: true,
       request: {
         select: {
           id: true,
@@ -218,6 +219,8 @@ export async function loadOvertimeReportRows(
     const company = employee.company?.name ?? employee.agency?.company?.name ?? "";
 
     return {
+      segmentId: segment.id,
+      confirmed: segment.confirmedAt !== null,
       requestId: segment.request.id,
       workDate: date,
       employeeId: employee.id,
@@ -268,4 +271,28 @@ export async function recordOvertimeReportExport(
       },
     },
   });
+}
+
+/** Marks flagged segments as checked by an admin; returns how many were newly confirmed. */
+export async function confirmOvertimeSegments(
+  prisma: PrismaClient,
+  input: { readonly segmentIds: readonly string[]; readonly actorEmployeeId: string },
+): Promise<number> {
+  const now = new Date();
+  const result = await prisma.overtimeSegment.updateMany({
+    where: { id: { in: [...input.segmentIds] }, confirmedAt: null },
+    data: { confirmedAt: now, confirmedById: input.actorEmployeeId },
+  });
+  if (result.count > 0) {
+    await prisma.auditLog.create({
+      data: {
+        actorEmployeeId: input.actorEmployeeId,
+        action: "OVERTIME_SEGMENTS_CONFIRMED",
+        entityType: "OvertimeSegment",
+        entityId: input.actorEmployeeId,
+        metadata: { segmentIds: [...input.segmentIds], count: result.count },
+      },
+    });
+  }
+  return result.count;
 }

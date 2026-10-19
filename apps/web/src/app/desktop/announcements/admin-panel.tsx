@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  AttachmentUploadIntentResult,
   AnnouncementAdminItem,
   AnnouncementAdminListResult,
   AnnouncementCreateInput,
@@ -28,6 +29,44 @@ async function send(
         : "บันทึกประกาศไม่สำเร็จ กรุณาตรวจข้อมูลแล้วลองใหม่",
     );
   }
+}
+
+async function sha256Hex(file: File): Promise<string> {
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Uploads one announcement file (internal class) and returns its finalized attachment id. */
+async function uploadAnnouncementFile(file: File): Promise<string> {
+  const failed = "แนบไฟล์ไม่สำเร็จ กรุณาตรวจชนิดและขนาดไฟล์ (รูปภาพหรือ PDF) แล้วลองใหม่";
+  const intentResponse = await fetch("/api/attachments/upload-intent", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      privacyClass: "INTERNAL",
+      originalFilename: file.name,
+      mimeType: file.type,
+      sizeBytes: file.size,
+      checksumSha256: await sha256Hex(file),
+    }),
+  });
+  if (!intentResponse.ok) throw new Error(failed);
+  const intent = (await intentResponse.json()) as AttachmentUploadIntentResult;
+  const upload = await fetch(intent.upload.url, {
+    method: intent.upload.method,
+    headers: intent.upload.requiredHeaders,
+    body: file,
+  });
+  if (!upload.ok) throw new Error(failed);
+  const finalize = await fetch(
+    "/api/attachments/" + encodeURIComponent(intent.attachmentId) + "/finalize",
+    { method: "POST", credentials: "same-origin" },
+  );
+  if (!finalize.ok) throw new Error(failed);
+  return intent.attachmentId;
 }
 
 function inputFrom(
@@ -163,9 +202,14 @@ export function AnnouncementAdminPanel({
   function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
-    const body = inputFrom(new FormData(form), { publishNow: true });
+    const data = new FormData(form);
+    const body = inputFrom(data, { publishNow: true });
+    const files = data.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
     void run(async () => {
-      await send("/api/announcements", "POST", body);
+      if (files.length > 10) throw new Error("แนบไฟล์ได้ไม่เกิน 10 ไฟล์");
+      const attachmentIds: string[] = [];
+      for (const file of files) attachmentIds.push(await uploadAnnouncementFile(file));
+      await send("/api/announcements", "POST", { ...body, attachmentIds });
       form.reset();
     }, "ประกาศแล้ว");
   }
@@ -196,6 +240,10 @@ export function AnnouncementAdminPanel({
       ) : null}
       <form className="announcement-filter-grid" onSubmit={create}>
         <Fields lists={lists} />
+        <label>
+          แนบไฟล์ (รูปภาพหรือ PDF ได้หลายไฟล์ ไม่บังคับ)
+          <input name="files" type="file" multiple accept="image/jpeg,image/png,application/pdf" />
+        </label>
         <button className="success-button" disabled={busy} type="submit">
           โพสต์ประกาศ
         </button>

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Inject,
   Post,
@@ -69,6 +70,12 @@ export class DesktopAuthController {
       ),
       clientRoleAuthority: false,
     } as const;
+  }
+
+  /** The LIFF ID is public by design; kept in the runtime environment so it needs no rebuild. */
+  @Get("line-config")
+  lineConfig() {
+    return { liffId: process.env.LIFF_ID?.trim() || null };
   }
 
   @Post("line-login")

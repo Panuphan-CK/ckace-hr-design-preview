@@ -155,8 +155,8 @@ function LeaveForm() {
         ))}
       </div>
       <div className="xt-row">
-        <div><label htmlFor="xl-start">{duration === "FULL_DAY" ? "เริ่มวันที่" : "วันที่ลา"}</label><input id="xl-start" type="date" value={startDate} onChange={(event) => setStartDate(event.currentTarget.value)} /></div>
-        {duration === "FULL_DAY" ? <div><label htmlFor="xl-end">ถึงวันที่</label><input id="xl-end" type="date" value={endDate} min={startDate} onChange={(event) => setEndDate(event.currentTarget.value)} /></div> : null}
+        <div><label htmlFor="xl-start">{duration === "FULL_DAY" ? "เริ่มวันที่" : "วันที่ลา"}</label><input id="xl-start" type="date" value={startDate} onChange={(event) => setStartDate(event.currentTarget.value)} />{startDate ? <small className="xt-date">{formatThaiDate(startDate)} (พ.ศ.)</small> : null}</div>
+        {duration === "FULL_DAY" ? <div><label htmlFor="xl-end">ถึงวันที่</label><input id="xl-end" type="date" value={endDate} min={startDate} onChange={(event) => setEndDate(event.currentTarget.value)} />{endDate ? <small className="xt-date">{formatThaiDate(endDate)} (พ.ศ.)</small> : null}</div> : null}
       </div>
       {duration === "HOURLY" ? (
         <div className="xt-row">
@@ -246,7 +246,7 @@ function AddRecordForm() {
       <p className="xt-hint">ใช้เมื่อลืมสแกนทั้งวัน ไม่มีบันทึกเข้า-ออกงานของวันนั้นเลย</p>
       <Note message={message} />
       <label htmlFor="xa-date">วันที่ไม่มีบันทึก</label>
-      <input id="xa-date" type="date" max={today} value={date} onChange={(event) => setDate(event.currentTarget.value)} />
+      <input id="xa-date" type="date" max={today} value={date} onChange={(event) => setDate(event.currentTarget.value)} />{date ? <small className="xt-date">{formatThaiDate(date)} (พ.ศ.)</small> : null}
       <div className="xt-row">
         <div><label htmlFor="xa-in">เวลาเข้างาน</label><input id="xa-in" type="time" value={checkIn} onChange={(event) => setCheckIn(event.currentTarget.value)} /></div>
         <div><label htmlFor="xa-out">เวลาออกงาน</label><input id="xa-out" type="time" value={checkOut} onChange={(event) => setCheckOut(event.currentTarget.value)} /></div>

@@ -82,7 +82,10 @@ export async function buildOvertimeWorkbook(
       row.approvedEnd,
       row.actualCheckIn ?? "",
       row.actualCheckOut ?? "",
-      ATTENDANCE_CHECK_LABEL[row.attendanceCheck],
+      ATTENDANCE_CHECK_LABEL[row.attendanceCheck] +
+        (row.confirmed && (row.attendanceCheck === "NO_CHECK_OUT" || row.attendanceCheck === "NO_RECORD")
+          ? " · แอดมินยืนยันแล้ว"
+          : ""),
       row.requestedMinutes,
       row.paidMinutes,
       breakText(row),

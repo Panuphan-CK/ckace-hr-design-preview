@@ -16,6 +16,8 @@ const row = (overrides: Partial<OvertimeReportRow> = {}): OvertimeReportRow => (
   actualCheckIn: "08:55",
   actualCheckOut: "21:40",
   attendanceCheck: "COMPLETE",
+  segmentId: "seg-1",
+  confirmed: false,
   requestedMinutes: 240,
   paidMinutes: 240,
   breaks: [],

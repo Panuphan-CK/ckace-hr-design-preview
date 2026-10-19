@@ -89,6 +89,11 @@ async function submitErrorMessage(response: Response): Promise<string> {
     if (reason.startsWith("Leave entitlement is unavailable")) return "ประเภทการลานี้ใช้ไม่ได้ในช่วงวันที่เลือก";
     if (reason === "Leave request must consume positive leave quota") return "ช่วงวันที่เลือกไม่มีวันทำงาน กรุณาเลือกใหม่";
     if (reason.startsWith("Selected approver")) return "ผู้อนุมัติที่เลือกไม่ถูกต้อง กรุณาเลือกใหม่";
+    if (/overlaps another/i.test(reason)) return "มีใบลาอื่นในช่วงวันเดียวกันอยู่แล้ว";
+    if (/end date must not precede/i.test(reason)) return "วันสิ้นสุดต้องไม่ก่อนวันเริ่ม";
+    if (/No leave entitlement is available for year/i.test(reason)) return "ยังไม่มีสิทธิ์ลาของปีที่เลือก";
+    if (/across New Year/i.test(reason)) return "ลาข้ามปีต้องเป็นแบบเต็มวัน และไม่เกิน 2 ปีปฏิทิน";
+    if (/No eligible .*approver/i.test(reason)) return "ยังไม่พบผู้อนุมัติ กรุณาติดต่อฝ่ายบุคคล";
     return "ข้อมูลใบลาไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
   }
   return errorMessage(response.status);

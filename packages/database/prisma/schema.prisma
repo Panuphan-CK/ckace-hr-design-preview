@@ -616,6 +616,9 @@ model OvertimeSegment {
   requestedMinutes   Int
   /// Breaks the employee took inside the overtime window (list of OvertimeBreakCode); null = legacy default.
   breakCodes         Json?
+  /// Admin sign-off that a flagged (forgotten clock-in/out) segment is fine to pay as approved.
+  confirmedAt        DateTime? @db.Timestamptz(3)
+  confirmedById      String?   @db.Uuid
   createdAt          DateTime @default(now()) @db.Timestamptz(3)
 
   request          OvertimeRequest   @relation(fields: [overtimeRequestId], references: [id], onDelete: Cascade)

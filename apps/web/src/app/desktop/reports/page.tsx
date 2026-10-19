@@ -4,6 +4,7 @@ import { DateField } from "../ui/date-picker";
 import { thaiDateRange } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
 import { ErrorState, LoadingState, PageHead, SectionHead, type Tone } from "../ui/kit";
+import { OvertimeCheckPanel } from "./overtime-check-panel";
 import { DonutChart, MonthlyChart, seriesColor } from "./report-charts";
 import { formatNumber, monthlyBuckets, personSummaries, rowType, typeShares } from "./report-stats";
 import type {
@@ -331,6 +332,7 @@ export default function DesktopReportsPage() {
       <div className="ck-wrap ck-stack">
         {filterBar}
         {stateBlock}
+        {selectedKind === "OVERTIME" ? <OvertimeCheckPanel from={from} to={to} /> : null}
         {state.status === "ready" && selectedRows.length === 0 ? (
           <div className="ck-empty">
             <b>ไม่พบข้อมูลในช่วงวันที่นี้</b>

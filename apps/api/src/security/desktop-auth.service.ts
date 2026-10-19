@@ -157,6 +157,8 @@ export class DesktopAuthService {
     const employeeId =
       await this.repository.findActiveEmployeeIdByLineUserId(lineUserId);
     if (!employeeId) {
+      // Lets an admin find the LINE user id to bind to an employee (read from the server log).
+      console.warn(`line-login: LINE account is not linked (lineUserId=${lineUserId})`);
       throw new UnauthorizedException("LINE account is not linked");
     }
     try {

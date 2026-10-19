@@ -177,6 +177,42 @@ export class ManagementController {
     return this.service.missingCheckOuts(range.from, range.to);
   }
 
+  @Get("reports/overtime")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  async overtimeRows(
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+    @Query("companyId") companyId: string | undefined,
+    @Query("agencyId") agencyId: string | undefined,
+    @Query("employeeId") employeeId: string | undefined,
+    @Query("status") status: string | undefined,
+  ) {
+    const range = dateRange(from, to);
+    const rows = await this.service.overtimeRows({
+      from: range.from,
+      to: range.to,
+      companyId: optionalUuid(companyId, "companyId") ?? null,
+      agencyId: optionalUuid(agencyId, "agencyId") ?? null,
+      employeeId: optionalUuid(employeeId, "employeeId") ?? null,
+      status: parseReportStatus(status),
+    });
+    return { rows };
+  }
+
+  @Post("reports/overtime/confirm")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("users.admin.write", "GLOBAL")
+  async confirmOvertime(@Req() request: SecurityRequest, @Body() body: unknown) {
+    const value = objectBody(body);
+    const ids = value.segmentIds;
+    if (!Array.isArray(ids) || ids.length === 0 || ids.length > 500) {
+      throw new BadRequestException("segmentIds must be an array of 1 to 500");
+    }
+    const segmentIds = ids.map((id) => requiredUuid(id, "segmentId"));
+    return { confirmed: await this.service.confirmOvertimeSegments(segmentIds, actorId(request)) };
+  }
+
   @Get("reports/overtime.xlsx")
   @ModuleRoute("ADMIN_READ")
   @RequirePermission("reports.management.read", "GLOBAL")

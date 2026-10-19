@@ -36,3 +36,5 @@
 .xt-modal div{background:#fff;border-radius:18px;max-height:88vh;overflow:auto;padding:12px;width:100%}
 .xt-modal img{width:100%;display:block;border-radius:10px}
 .xt-fab{position:fixed;right:14px;bottom:96px;z-index:10;border:1px solid #c9a84c;background:#fffaf0;color:#8f6f1f;border-radius:999px;padding:10px 14px;font:700 12px Prompt,Sarabun,sans-serif;box-shadow:0 4px 14px rgba(34,59,95,.18);text-decoration:none}
+
+.xt-date{display:block;margin-top:4px;font-size:12px;font-weight:600;color:#172d59}

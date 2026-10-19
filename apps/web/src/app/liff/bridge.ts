@@ -17,7 +17,7 @@ import type {
 } from "@ckace/contracts";
 
 import { completeMedicalReceiptUploads, type MedicalReceiptProgress } from "../desktop/medical/medical-receipt-upload";
-import type { LiffSession } from "./api";
+import { thaiError, type LiffSession } from "./api";
 
 /**
  * Host side of Project A's approved LIFF screens (the React app in /react-read, shown in an iframe).
@@ -80,7 +80,7 @@ async function call<T>(method: "GET" | "POST", url: string, body?: unknown): Pro
   let message = response.status === 403 ? "บัญชีนี้ไม่มีสิทธิ์ทำรายการนี้" : response.status === 409 ? "รายการนี้ถูกส่งหรือเปลี่ยนแปลงไปแล้ว กรุณาตรวจสอบประวัติ" : "ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
   try {
     const parsed = (await response.json()) as { message?: unknown };
-    if (typeof parsed.message === "string" && parsed.message.trim()) message = parsed.message;
+    if (typeof parsed.message === "string" && parsed.message.trim()) message = thaiError(parsed.message);
   } catch {
     /* keep the generic text */
   }

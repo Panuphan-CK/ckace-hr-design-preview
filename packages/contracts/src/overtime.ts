@@ -27,6 +27,8 @@ export interface OvertimeCreateInput {
 /** One overtime day in the exported OT report. Money is in satang. */
 export interface OvertimeReportRow {
   readonly requestId: string;
+  readonly segmentId: string;
+  readonly confirmed: boolean;
   readonly workDate: string;
   readonly employeeId: string;
   readonly employeeName: string;

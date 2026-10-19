@@ -40,11 +40,25 @@ async function readSession(): Promise<LiffSession | null> {
   return response.ok ? ((await response.json()) as LiffSession) : null;
 }
 
+/** LIFF ID from the build setting when present, otherwise from the server's runtime setting. */
+async function readLiffId(): Promise<string | null> {
+  const built = process.env.NEXT_PUBLIC_LIFF_ID?.trim();
+  if (built) return built;
+  try {
+    const response = await fetch("/api/desktop-auth/line-config", { cache: "no-store" });
+    if (!response.ok) return null;
+    const body = (await response.json()) as { liffId?: string | null };
+    return body.liffId?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
 /** Existing session first (desktop/browser), else sign in through LINE LIFF and exchange the ID token. */
 async function authenticate(): Promise<Auth> {
   const existing = await readSession().catch(() => null);
   if (existing) return { status: "ready", session: existing };
-  const liffId = process.env.NEXT_PUBLIC_LIFF_ID?.trim();
+  const liffId = await readLiffId();
   if (!liffId) {
     return { status: "error", message: "ยังไม่ได้ตั้งค่า LINE LIFF หรือยังไม่ได้เข้าสู่ระบบ กรุณาเปิดจากเมนู LINE ของบริษัท" };
   }

@@ -5,15 +5,15 @@ import { addHours, dmyToIso, isoToDmy, thaiDate, thaiDateRange, weekdaysBetween 
 
 describe("desktop format helpers", () => {
   it("formats ISO dates in Thai with the Buddhist year", () => {
-    expect(thaiDate("2026-10-23")).toBe("23 ต.ค. 2569");
+    expect(thaiDate("2026-10-23")).toBe("23/10/2569");
     expect(thaiDate("not-a-date")).toBe("not-a-date");
     expect(thaiDate(null)).toBe("—");
   });
 
-  it("collapses a same-month range", () => {
-    expect(thaiDateRange("2026-10-23", "2026-10-24")).toBe("23 ถึง 24 ต.ค. 2569");
-    expect(thaiDateRange("2026-10-23", "2026-10-23")).toBe("23 ต.ค. 2569");
-    expect(thaiDateRange("2026-09-30", "2026-10-01")).toBe("30 ก.ย. 2569 ถึง 1 ต.ค. 2569");
+  it("joins a range", () => {
+    expect(thaiDateRange("2026-10-23", "2026-10-24")).toBe("23/10/2569 ถึง 24/10/2569");
+    expect(thaiDateRange("2026-10-23", "2026-10-23")).toBe("23/10/2569");
+    expect(thaiDateRange("2026-09-30", "2026-10-01")).toBe("30/09/2569 ถึง 01/10/2569");
   });
 
   it("counts weekdays only", () => {

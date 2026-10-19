@@ -28,7 +28,7 @@ const NAV_LABELS: Readonly<
   medical: "ค่ารักษาพยาบาล",
   benefits: "สวัสดิการ",
   announcements: "ข่าวสาร",
-  notifications: "Notifications",
+  notifications: "การแจ้งเตือน",
   profile: "โปรไฟล์",
   admin: "ผู้ดูแลระบบ",
 };
@@ -74,6 +74,6 @@ export function enabledProfileCapabilities(
       [keyof ProfileNavigationCapabilities, boolean]
     >
   )
-    .filter(([, enabled]) => enabled)
+    .filter(([key, enabled]) => enabled && key in NAV_LABELS)
     .map(([key]) => NAV_LABELS[key]);
 }

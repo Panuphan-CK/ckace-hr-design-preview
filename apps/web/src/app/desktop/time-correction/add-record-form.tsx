@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import { resolveSubmissionIntent, shouldDiscardSubmissionIntent, type SubmissionIntent } from "../submission-intent";
 import { ApproverChainNotice } from "../ui/approver-chain";
 import { DateField } from "../ui/date-picker";
+import { useHolidayMarks } from "../ui/holidays";
 import { thaiDate } from "../ui/format";
 import { Icon } from "../ui/icons";
 import { SectionHead, TimeInput } from "../ui/kit";
@@ -22,6 +23,7 @@ export function AddRecordForm({
   readonly requests: readonly TimeCorrectionRequestView[];
   readonly onResult: (result: { kind: "success" | "error"; text: string }) => Promise<void> | void;
 }) {
+  const holidayMark = useHolidayMarks();
   const [date, setDate] = useState("");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -85,7 +87,7 @@ export function AddRecordForm({
       <div className="ck-fgrid">
         <div className="ck-field span2">
           <span>วันที่ไม่มีบันทึก</span>
-          <DateField label="วันที่ไม่มีบันทึก" value={date} max={today} onChange={setDate} />
+          <DateField label="วันที่ไม่มีบันทึก" value={date} max={today} marks={holidayMark} onChange={setDate} />
         </div>
         <div className="ck-field">
           <span>เวลาเข้างาน</span>

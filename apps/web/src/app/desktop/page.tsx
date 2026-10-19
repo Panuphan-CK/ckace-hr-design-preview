@@ -25,7 +25,7 @@ import {
 } from "./dashboard-view";
 import { thaiDate, thaiDateRange } from "./ui/format";
 import { Icon, type IconName } from "./ui/icons";
-import { EmptyState, ErrorState, LoadingState, PageHead, SectionHead, toneClass, type Tone } from "./ui/kit";
+import { EmptyState, ErrorState, HeroBand, LoadingState, SectionHead, StatOrb, StatusDot, toneClass, type Tone } from "./ui/kit";
 
 interface Session {
   readonly employeeId: string;
@@ -131,7 +131,10 @@ export default function DesktopDashboardPage() {
   const nav = data.session.navigation;
   const firstName = data.profile?.nickname || data.profile?.fullName.split(/\s+/)[0] || "";
   const entitlements = data.leave?.entitlements ?? [];
-  const totalRemaining = entitlements.reduce((sum, entitlement) => sum + entitlement.remaining, 0);
+  const vacationRemaining = entitlements
+    .filter((entitlement) => entitlement.leaveTypeKey === "VACATION")
+    .reduce((sum, entitlement) => sum + entitlement.remaining, 0);
+  const hasVacation = entitlements.some((entitlement) => entitlement.leaveTypeKey === "VACATION");
   const progress = inProgressRequests(data.requests?.requests ?? []);
   const team = teamLeaveThisWeek(data.team?.items ?? [], data.session.employeeId, todayKey);
   const announcements = data.announcements?.announcements ?? [];
@@ -151,24 +154,30 @@ export default function DesktopDashboardPage() {
 
   return (
     <>
-      <PageHead
-        tone="accent"
-        icon="sun"
-        title={`${greeting(now)} ${firstName}`.trim()}
-        subtitle={
-          longThaiDate(todayKey) +
-          (data.leave ? ` ปีนี้คุณยังมีวันลาเหลือ ${dayLabel(totalRemaining)} วัน` : "")
-        }
-      >
-        {nav.attendance ? (
-          <Link className="ck-btn ok" href="/desktop/attendance">
-            <Icon name="pin" size={16} />
-            ลงเวลาเข้างาน
-          </Link>
-        ) : null}
-      </PageHead>
+      <div className="ck-wrap ck-stack ck-home">
+        <HeroBand
+          eyebrow={longThaiDate(todayKey)}
+          title={`${greeting(now)} ${firstName}`.trim()}
+          subtitle={
+            data.leave && hasVacation
+              ? `ปีนี้คุณยังมีวันลาพักร้อนเหลือ ${dayLabel(vacationRemaining)} วัน`
+              : "ขอให้เป็นวันที่ดีนะครับ"
+          }
+          action={
+            nav.attendance ? (
+              <Link className="ck-btn ck-btn-light" href="/desktop/attendance">
+                <Icon name="pin" size={16} />
+                ลงเวลาเข้า-ออกงานวันนี้
+              </Link>
+            ) : null
+          }
+        >
+          {hasVacation ? <StatOrb value={dayLabel(vacationRemaining)} label="วันลาพักร้อน" /> : null}
+          {nav.requestStatus ? <StatOrb value={String(progress.length)} label="คำขอรออนุมัติ" /> : null}
+          {nav.calendar ? <StatOrb value={String(team.length)} label="ทีมลาสัปดาห์นี้" /> : null}
+          {data.medical ? <StatOrb value={baht(data.medical.entitlement.remaining)} label="ค่ารักษาคงเหลือ" /> : null}
+        </HeroBand>
 
-      <div className="ck-wrap ck-stack">
         {quick.some((entry) => entry.show) ? (
           <div className="ck-qgrid">
             {quick
@@ -231,7 +240,7 @@ export default function DesktopDashboardPage() {
                             {!back && request.stepOrder ? ` ขั้นที่ ${request.stepOrder}` : ""}
                           </small>
                         </span>
-                        <span className={"ck-pill " + (back ? "back" : "wait")}>{back ? "รอแก้ไข" : "รออนุมัติ"}</span>
+                        <StatusDot tone={back ? "back" : "wait"} label={back ? "ส่งกลับให้แก้ไข" : "รออนุมัติ"} />
                       </Link>
                     );
                   })}

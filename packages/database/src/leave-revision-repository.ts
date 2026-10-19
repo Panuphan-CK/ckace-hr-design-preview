@@ -16,6 +16,7 @@ import type {
 import { Prisma, type PrismaClient } from "@prisma/client";
 
 import { actorHasRoleOverEmployee } from "./approval-route-loader";
+import { leaveAttachmentRows, validateLeaveAttachments } from "./leave-attachments";
 
 /** Role that may withdraw an already approved leave request (Owner, 2026-10-16). */
 export const LEAVE_WITHDRAW_ROLE_KEY = "SUPERADMIN";
@@ -128,6 +129,8 @@ export async function resubmitSentBackLeave(
           status: true,
           entitlementId: true,
           approvalInstanceId: true,
+          leaveType: { select: { key: true } },
+          _count: { select: { attachments: true } },
         },
       });
 
@@ -244,9 +247,21 @@ export async function resubmitSentBackLeave(
         others.map(overlapPeriodOf),
       );
 
+      const attachmentIds = [...(input.request.attachmentIds ?? [])];
+      validateLeaveAttachments({
+        employeeId: input.employeeId,
+        leaveTypeKey: request.leaveType.key,
+        requestedIds: attachmentIds,
+        rows: await leaveAttachmentRows(tx, attachmentIds),
+        existingCount: request._count.attachments,
+      });
+
       await tx.leaveRequest.update({
         where: { id: request.id },
         data: {
+          ...(attachmentIds.length > 0
+            ? { attachments: { create: attachmentIds.map((attachmentId) => ({ attachmentId })) } }
+            : {}),
           description: input.request.description.trim(),
           startDate: start,
           endDate: end,

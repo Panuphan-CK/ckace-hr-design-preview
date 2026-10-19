@@ -11,8 +11,9 @@ import {
   useState,
 } from "react";
 
+import "../ck-v2-pages.css";
 import { thaiDate, thaiDateTime } from "../ui/format";
-import { EmptyState, ErrorState, Filters, LoadingState, SectionHead } from "../ui/kit";
+import { DataGrid, DetailDialog, EmptyState, ErrorState, Filters, LoadingState, SectionHead, StatusDot, type DotTone } from "../ui/kit";
 import { Icon } from "../ui/icons";
 import {
   benefitKindLabel,
@@ -47,12 +48,12 @@ function errorMessage(status: number): string {
 
 const money = new Intl.NumberFormat("th-TH", { style: "currency", currency: "THB", maximumFractionDigits: 2 });
 
-const STATUS_TONE: Readonly<Record<string, string>> = {
+const STATUS_TONE: Readonly<Record<string, DotTone>> = {
   PENDING: "wait",
   APPROVED: "ok",
   REJECTED: "bad",
   CANCELLED: "muted",
-  REVISION_REQUESTED: "wait",
+  REVISION_REQUESTED: "back",
 };
 
 const KIND_FILTERS: readonly { id: BenefitKindFilter; label: string }[] = [
@@ -87,6 +88,7 @@ export default function DesktopBenefitsPage() {
     useState<BenefitKindFilter>("ALL");
   const [statusFilter, setStatusFilter] =
     useState<BenefitStatusFilter>("ALL");
+  const [detail, setDetail] = useState<BenefitsSelfOverview["requests"][number] | null>(null);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -179,68 +181,91 @@ export default function DesktopBenefitsPage() {
           <Filters value={kindFilter} options={KIND_FILTERS} onChange={setKindFilter} />
           <Filters value={statusFilter} options={STATUS_FILTERS} onChange={setStatusFilter} />
         </SectionHead>
-        {visibleRequests.length === 0 ? (
-          <EmptyState title="ไม่พบรายการ">
-            {overview.requests.length === 0 ? "เมื่อมีคำขอ OT หรือเบิกค่ารักษา รายการจะแสดงที่นี่" : "ลองเปลี่ยนประเภทหรือสถานะที่เลือก"}
-          </EmptyState>
-        ) : (
-          <div className="ck-hgrid">
-            {visibleRequests.map((request) => {
-              const isOt = request.kind === "OVERTIME";
-              return (
-                <Link key={request.id} href={benefitSourceHref(request.kind)} className={"ck-hcard " + (isOt ? "ck-c-ot" : "ck-c-med")}>
-                  <span className="ck-hc-top">
-                    <span className="ck-chip">
-                      <Icon name={isOt ? "ot" : "med"} />
-                    </span>
-                    <span>
-                      <b>{benefitValueLabel(request)}</b>
-                      <small>
-                        {benefitKindLabel(request.kind)} · ส่งเมื่อ {thaiDateTime(request.submittedAt)}
-                      </small>
-                    </span>
-                    <span className={"ck-pill " + (STATUS_TONE[request.status] ?? "muted")}>{benefitStatusLabel(request.status)}</span>
+        <DataGrid
+          rows={visibleRequests}
+          rowKey={(request) => request.id}
+          onRowClick={(request) => setDetail(request)}
+          empty={
+            <EmptyState icon="document" title="ไม่พบรายการ">
+              {overview.requests.length === 0 ? "เมื่อมีคำขอ OT หรือเบิกค่ารักษา รายการจะแสดงที่นี่" : "ลองเปลี่ยนประเภทหรือสถานะที่เลือก"}
+            </EmptyState>
+          }
+          columns={[
+            {
+              key: "st",
+              header: "",
+              width: "48px",
+              align: "center",
+              render: (request) => <StatusDot tone={STATUS_TONE[request.status] ?? "muted"} label={benefitStatusLabel(request.status)} />,
+            },
+            {
+              key: "kind",
+              header: "ประเภท",
+              render: (request) => (
+                <span className={"ck-gcell " + (request.kind === "OVERTIME" ? "ck-c-ot" : "ck-c-med")}>
+                  <span className="ck-chip sm">
+                    <Icon name={request.kind === "OVERTIME" ? "ot" : "med"} size={16} />
                   </span>
-                  <dl className="ck-dl">
-                    <div>
-                      <dt>วันที่</dt>
-                      <dd>{thaiDate(request.date)}</dd>
-                    </div>
-                    {request.startTime && request.endTime ? (
-                      <div>
-                        <dt>เวลา</dt>
-                        <dd>
-                          {request.startTime}–{request.endTime}
-                        </dd>
-                      </div>
-                    ) : null}
-                    <div>
-                      <dt>รายละเอียด</dt>
-                      <dd>{request.reason || "—"}</dd>
-                    </div>
-                    {request.comment ? (
-                      <div>
-                        <dt>หมายเหตุผู้อนุมัติ</dt>
-                        <dd>{request.comment}</dd>
-                      </div>
-                    ) : null}
-                    <div>
-                      <dt>เอกสารแนบ</dt>
-                      <dd>{request.attachments.length} ไฟล์</dd>
-                    </div>
-                  </dl>
-                  <span className="ck-hc-foot">
-                    <span className="ck-more">
-                      เปิดหน้ารายการ
-                      <Icon name="chevron" size={14} />
-                    </span>
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                  {benefitKindLabel(request.kind)}
+                </span>
+              ),
+            },
+            { key: "val", header: "ยอด", render: (request) => <b>{benefitValueLabel(request)}</b> },
+            { key: "date", header: "วันที่", render: (request) => thaiDate(request.date) },
+            { key: "reason", header: "รายละเอียด", render: (request) => request.reason || "—" },
+            { key: "at", header: "ส่งเมื่อ", render: (request) => thaiDateTime(request.submittedAt) },
+            { key: "go", header: "", width: "40px", align: "center", render: () => <Icon name="chevron" size={16} /> },
+          ]}
+        />
       </section>
+      {detail ? (
+        <DetailDialog
+          tone={detail.kind === "OVERTIME" ? "ot" : "med"}
+          icon={detail.kind === "OVERTIME" ? "ot" : "med"}
+          kicker={benefitKindLabel(detail.kind)}
+          title={benefitValueLabel(detail)}
+          status={{ label: benefitStatusLabel(detail.status), tone: STATUS_TONE[detail.status] ?? "muted" }}
+          onClose={() => setDetail(null)}
+          footer={
+            <Link className="ck-btn sky" href={benefitSourceHref(detail.kind)}>
+              เปิดหน้ารายการ
+            </Link>
+          }
+        >
+          <dl className="ck-dlg-grid">
+            <div>
+              <dt>วันที่</dt>
+              <dd>{thaiDate(detail.date)}</dd>
+            </div>
+            {detail.startTime && detail.endTime ? (
+              <div>
+                <dt>เวลา</dt>
+                <dd>
+                  {detail.startTime}–{detail.endTime}
+                </dd>
+              </div>
+            ) : null}
+            <div>
+              <dt>ส่งเมื่อ</dt>
+              <dd>{thaiDateTime(detail.submittedAt)}</dd>
+            </div>
+            <div>
+              <dt>เอกสารแนบ</dt>
+              <dd>{detail.attachments.length} ไฟล์</dd>
+            </div>
+          </dl>
+          <div className="ck-dlg-sec">
+            <h3>รายละเอียด</h3>
+            <p>{detail.reason || "—"}</p>
+          </div>
+          {detail.comment ? (
+            <div className="ck-dlg-sec">
+              <h3>หมายเหตุผู้อนุมัติ</h3>
+              <p>{detail.comment}</p>
+            </div>
+          ) : null}
+        </DetailDialog>
+      ) : null}
     </div>
   );
 }

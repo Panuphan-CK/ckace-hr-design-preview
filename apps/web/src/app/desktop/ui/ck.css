@@ -780,7 +780,8 @@ button.ck-hcard:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgb
 .ck-anno h3 { margin: 0; font-size: 16px; }
 .ck-anno p { margin: 0; color: var(--ck-ink2); white-space: pre-line; }
 .ck-anno small { color: var(--ck-ink3); margin-top: auto; }
-@media (max-width: 1100px) { .ck-qgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ck-two { grid-template-columns: 1fr; } .ck-agrid3, .ck-rgrid { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) { .ck-qgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ck-two { grid-template-columns: 1fr; } .ck-agrid3 { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .ck-rgrid { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .ck-qgrid { grid-template-columns: 1fr; } }
 
 /* Admin settings pages (v18 look): white card, tinted header strip, soft navy controls. */

@@ -275,6 +275,68 @@ describe("LeaveController / LeaveService", () => {
     expect(cancelled).toEqual(["00000000-0000-4000-8000-000000000031"]);
   });
 
+  it("passes optional attachment IDs through, sorted into the payload, and rejects bad ones", async () => {
+    const repository = new FakeLeaveRepository();
+    const service = new LeaveService(repository);
+    const idA = "00000000-0000-4000-8000-0000000000a1";
+    const idB = "00000000-0000-4000-8000-0000000000b2";
+
+    await service.createSelfLeave({
+      employeeId: actor.employeeId,
+      correlationId: actor.correlationId,
+      body: { ...validBody(), attachmentIds: [idB, idA] },
+    });
+    expect(repository.lastCreate?.request.attachmentIds).toEqual([idB, idA]);
+    expect(repository.lastCreate?.canonicalPayload).toContain(JSON.stringify([idA, idB]));
+
+    await service.createSelfLeave({ employeeId: actor.employeeId, correlationId: actor.correlationId, body: validBody() });
+    expect(repository.lastCreate?.request.attachmentIds).toEqual([]);
+
+    for (const bad of [["not-a-uuid"], [idA, idA], "x", [1], [idA, idB, idA, idB]]) {
+      await expect(
+        service.createSelfLeave({
+          employeeId: actor.employeeId,
+          correlationId: actor.correlationId,
+          body: { ...validBody(), attachmentIds: bad },
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    }
+  });
+
+  it("links the attachments to only the first filed part of a leave across New Year", async () => {
+    const repository = new FakeLeaveRepository();
+    const calls: LeaveCreateInput[] = [];
+    repository.createSelfLeave = async (input) => {
+      calls.push(input.request);
+      return { requestId: `00000000-0000-4000-8000-00000000004${calls.length}`, replayed: false };
+    };
+    const id = "00000000-0000-4000-8000-0000000000a1";
+
+    await new LeaveService(repository).createSelfLeave({
+      employeeId: actor.employeeId,
+      correlationId: actor.correlationId,
+      body: { ...validBody(), startDate: "2026-12-29", endDate: "2027-01-04", attachmentIds: [id] },
+    });
+
+    expect(calls[0]?.attachmentIds).toEqual([id]);
+    expect(calls[1]?.attachmentIds).toEqual([]);
+  });
+
+  it("maps repository attachment rejections to 400", async () => {
+    const repository = new FakeLeaveRepository();
+    repository.createSelfLeave = async () => {
+      throw new Error("Leave attachment is already linked");
+    };
+
+    await expect(
+      new LeaveService(repository).createSelfLeave({
+        employeeId: actor.employeeId,
+        correlationId: actor.correlationId,
+        body: { ...validBody(), attachmentIds: ["00000000-0000-4000-8000-0000000000a1"] },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
   it("fails input validation closed", async () => {
     const service = new LeaveService(
       new FakeLeaveRepository(),

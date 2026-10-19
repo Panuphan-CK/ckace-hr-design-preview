@@ -1,5 +1,6 @@
 import type {
   ManagedAccountState,
+  ManagementReportView,
   RoleScopeKind,
 } from "@ckace/contracts";
 import {
@@ -24,6 +25,11 @@ import { AuthorizationGuard } from "../security/authorization.guard";
 import { RequirePermission } from "../security/require-permission.decorator";
 import type { SecurityRequest } from "../security/security-request";
 import { ManagementService } from "./management.service";
+import {
+  buildAttendanceWorkbook,
+  buildLeaveWorkbook,
+  buildMedicalWorkbook,
+} from "./management-report-workbook";
 import { buildOvertimeWorkbook } from "./overtime-report-workbook";
 
 const UUID =
@@ -242,6 +248,56 @@ export class ManagementController {
     return new StreamableFile(workbook, {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       disposition: `attachment; filename="overtime-${filters.from.toISOString().slice(0, 10)}_${filters.to.toISOString().slice(0, 10)}.xlsx"`,
+    });
+  }
+
+  @Get("reports/leave.xlsx")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  leaveReportXlsx(
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+  ): Promise<StreamableFile> {
+    return this.reportWorkbook("leave", buildLeaveWorkbook, from, to);
+  }
+
+  @Get("reports/attendance.xlsx")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  attendanceReportXlsx(
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+  ): Promise<StreamableFile> {
+    return this.reportWorkbook("attendance", buildAttendanceWorkbook, from, to);
+  }
+
+  @Get("reports/medical.xlsx")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  medicalReportXlsx(
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+  ): Promise<StreamableFile> {
+    return this.reportWorkbook("medical", buildMedicalWorkbook, from, to);
+  }
+
+  private async reportWorkbook(
+    name: string,
+    build: (
+      rows: ManagementReportView["rows"],
+      range: { readonly from: string; readonly to: string },
+    ) => Promise<Buffer>,
+    from: string | undefined,
+    to: string | undefined,
+  ): Promise<StreamableFile> {
+    const range = dateRange(from, to);
+    const view = await this.service.reports(range.from, range.to);
+    const fromText = range.from.toISOString().slice(0, 10);
+    const toText = range.to.toISOString().slice(0, 10);
+    const workbook = await build(view.rows, { from: fromText, to: toText });
+    return new StreamableFile(workbook, {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      disposition: `attachment; filename="${name}-${fromText}_${toText}.xlsx"`,
     });
   }
 

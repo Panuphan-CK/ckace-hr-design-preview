@@ -179,6 +179,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
               select: {
                 id: true, requestNo: true, status: true, submittedAt: true, decisionReason: true,
                 description: true, startDate: true, endDate: true, durationCode: true, leaveType: { select: { name: true } },
+                attachments: { select: { attachmentId: true }, orderBy: { attachmentId: "asc" } },
               },
             },
             timeCorrection: {
@@ -226,7 +227,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           submittedAt: row.submittedAt.toISOString(),
           summary: `${row.leaveType.name}: ${row.description}`,
           decisionReason: row.decisionReason,
-          leave: { startDate: row.startDate.toISOString().slice(0, 10), endDate: row.endDate.toISOString().slice(0, 10), durationCode: row.durationCode },
+          leave: { startDate: row.startDate.toISOString().slice(0, 10), endDate: row.endDate.toISOString().slice(0, 10), durationCode: row.durationCode, attachmentIds: row.attachments.map((a) => a.attachmentId) },
         });
       } else if (instance.timeCorrection) {
         const row = instance.timeCorrection;
@@ -368,6 +369,9 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
                 requestNo: true,
                 submittedAt: true,
                 description: true,
+                startDate: true,
+                endDate: true,
+                durationCode: true,
                 leaveType: { select: { name: true } },
               },
             },
@@ -388,6 +392,10 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
                 requestNo: true,
                 submittedAt: true,
                 reason: true,
+                segments: {
+                  select: { workDate: true, startTime: true, endTime: true, requestedMinutes: true },
+                  orderBy: [{ workDate: "asc" }, { startTime: "asc" }],
+                },
               },
             },
             medicalClaim: {
@@ -434,6 +442,11 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           kind: "LEAVE",
           submittedAt: row.submittedAt.toISOString(),
           summary: `${row.leaveType.name}: ${row.description}`,
+          leave: {
+            startDate: row.startDate.toISOString().slice(0, 10),
+            endDate: row.endDate.toISOString().slice(0, 10),
+            durationCode: row.durationCode,
+          },
         });
       } else if (instance.timeCorrection) {
         const row = instance.timeCorrection;
@@ -454,6 +467,14 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           kind: "OVERTIME",
           submittedAt: row.submittedAt.toISOString(),
           summary: row.reason,
+          overtime: {
+            segments: row.segments.map((segment) => ({
+              workDate: segment.workDate.toISOString().slice(0, 10),
+              startTime: segment.startTime.toISOString().slice(11, 16),
+              endTime: segment.endTime.toISOString().slice(11, 16),
+              requestedMinutes: segment.requestedMinutes,
+            })),
+          },
         });
       } else if (instance.medicalClaim) {
         const row = instance.medicalClaim;

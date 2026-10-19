@@ -8,6 +8,7 @@ export * from "./idempotency-store";
 export * from "./identity-repository";
 export * from "./leave-repository";
 export * from "./medical-repository";
+export * from "./leave-attachments";
 export * from "./management-repository";
 export * from "./overtime-repository";
 export * from "./prisma-client";

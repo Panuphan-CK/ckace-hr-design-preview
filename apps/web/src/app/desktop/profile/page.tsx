@@ -18,7 +18,8 @@ import {
   type ProfileNavigationCapabilities,
 } from "./profile-view";
 import { PasswordChangeCard } from "./password-change-card";
-import { ErrorState, LoadingState, PageHead, SectionHead } from "../ui/kit";
+import "../ck-v2-pages.css";
+import { ErrorState, LoadingState, Message, PageHead, SectionHead, StatusDot } from "../ui/kit";
 
 interface SessionSnapshot {
   readonly authenticated: true;
@@ -297,9 +298,7 @@ export default function DesktopProfilePage() {
       <div className="ck-field">
         <span>{label}</span>
         <div className="ck-row">
-          <span className={"ck-pill " + (media ? "ok" : "muted")}>
-            {media ? "มีไฟล์ในระบบ" : "ยังไม่มีไฟล์"}
-          </span>
+          <StatusDot tone={media ? "ok" : "muted"} label={media ? "มีไฟล์ในระบบ" : "ยังไม่มีไฟล์"} />
           {media ? (
             <button
               className="ck-btn sm quiet"
@@ -343,14 +342,7 @@ export default function DesktopProfilePage() {
       </PageHead>
 
       <div className="ck-wrap ck-stack">
-        {message ? (
-          <div
-            className={"ck-msg " + message.kind}
-            role={message.kind === "error" ? "alert" : "status"}
-          >
-            {message.text}
-          </div>
-        ) : null}
+        <Message value={message} />
 
         <section className="ck-fbox ck-c-accent">
           <div className="ck-row" style={{ gap: 16 }}>
@@ -367,8 +359,11 @@ export default function DesktopProfilePage() {
                 {profile.department?.name ?? "ไม่ระบุแผนก"}
               </p>
             </div>
-            <span className={"ck-pill ck-ml " + (profile.accountState === "ACTIVE" ? "ok" : "muted")}>
-              {profileAccountStateLabel(profile.accountState)}
+            <span className="ck-ml">
+              <StatusDot
+                tone={profile.accountState === "ACTIVE" ? "ok" : "muted"}
+                label={profileAccountStateLabel(profile.accountState)}
+              />
             </span>
           </div>
         </section>
@@ -376,10 +371,6 @@ export default function DesktopProfilePage() {
         <section className="ck-fbox ck-c-accent">
           <SectionHead title="ข้อมูลทั่วไป" />
           <div className="ck-fgrid">
-            <div className="ck-field">
-              <span>รหัสพนักงาน</span>
-              <b>{profile.employeeId}</b>
-            </div>
             <div className="ck-field">
               <span>วันเกิด</span>
               <b>{formatDate(profile.dateOfBirth)}</b>
@@ -411,7 +402,7 @@ export default function DesktopProfilePage() {
               <div className="ck-row" style={{ flexWrap: "wrap" }}>
                 {profile.roles.length > 0 ? (
                   profile.roles.map((role) => (
-                    <span className="ck-pill muted" key={role}>{role}</span>
+                    <span className="ck-minichip" key={role}>{role}</span>
                   ))
                 ) : (
                   <span className="ck-muted">ไม่มีบทบาทที่แสดงได้</span>
@@ -423,7 +414,7 @@ export default function DesktopProfilePage() {
               <div className="ck-row" style={{ flexWrap: "wrap" }}>
                 {capabilities.length > 0 ? (
                   capabilities.map((capability) => (
-                    <span className="ck-pill ok" key={capability}>{capability}</span>
+                    <span className="ck-minichip ok" key={capability}>{capability}</span>
                   ))
                 ) : (
                   <span className="ck-muted">ไม่มีเมนูเพิ่มเติม</span>
@@ -431,9 +422,6 @@ export default function DesktopProfilePage() {
               </div>
             </div>
           </div>
-          <p className="ck-muted" style={{ marginTop: 12 }}>
-            หน้านี้แสดงข้อมูลเพื่อการใช้งานเท่านั้น การอนุญาตจริงตรวจที่เซิร์ฟเวอร์ทุกครั้ง
-          </p>
         </section>
 
         <section className="ck-fbox ck-c-accent">
@@ -442,10 +430,6 @@ export default function DesktopProfilePage() {
             {mediaCard("รูปโปรไฟล์", profile.media.profile, "เปิดรูปโปรไฟล์", "PROFILE")}
             {mediaCard("ลายเซ็น", profile.media.signature, "เปิดลายเซ็น", "SIGNATURE")}
           </div>
-          <p className="ck-muted" style={{ marginTop: 12 }}>
-            ไฟล์ส่วนตัวเปิดผ่านลิงก์อายุสั้น ตรวจสิทธิ์ที่เซิร์ฟเวอร์ ชื่อ บัญชี รูปโปรไฟล์
-            และลายเซ็นยังแก้ไขจากหน้านี้ไม่ได้ในตอนนี้
-          </p>
         </section>
 
         <PasswordChangeCard />

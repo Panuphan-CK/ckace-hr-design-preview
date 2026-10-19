@@ -1,0 +1,24 @@
+/* Simple settings pages: a few grouped cards, one control per row, one save bar. */
+.ck-sstack { display: flex; flex-direction: column; gap: 20px; max-width: 760px; }
+.ck-sstack.wide { max-width: none; }
+.ck-sgroup > .ck-sgroup-note { margin: 0 0 6px; color: var(--ck-ink3); font-size: 13px; }
+.ck-sgroup .ck-in.ck-snum { width: 140px; height: 38px; text-align: right; }
+.ck-sgroup .ck-in.ck-stext { width: 260px; height: 38px; }
+.ck-sgroup .ck-time { width: 96px; height: 38px; text-align: center; }
+.ck-sgroup .ck-sunit { color: var(--ck-ink3); font-size: 13px; }
+.ck-sbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ck-sbar .ck-btn { min-width: 120px; }
+.ck-sform { display: flex; flex-direction: column; gap: 14px; }
+.ck-sform .ck-field > span { font-size: 14px; }
+.ck-sform .ck-sselect { width: 100%; }
+.ck-sstep { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ck-sstep > b { min-width: 64px; font-weight: 500; }
+.ck-sstep .ck-sselect { flex: 1 1 160px; min-width: 0; }
+.ck-ro { color: var(--ck-ink2); text-align: right; }
+.ck-gridtools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ck-gridtools .ck-in { max-width: 320px; height: 38px; }
+.ck-subtle { color: var(--ck-ink3); }
+@media (max-width: 640px) {
+  .ck-srow { flex-wrap: wrap; }
+  .ck-sgroup .ck-in.ck-stext { width: 100%; }
+}

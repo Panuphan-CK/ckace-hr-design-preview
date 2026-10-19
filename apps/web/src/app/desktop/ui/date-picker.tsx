@@ -56,6 +56,7 @@ export function DatePicker({
   min,
   max,
   blocked,
+  marks,
 }: {
   readonly mode: "single" | "range";
   readonly start: string;
@@ -66,6 +67,8 @@ export function DatePicker({
   readonly max?: string | undefined;
   /** Days that cannot be picked (e.g. weekends and company holidays). */
   readonly blocked?: ((iso: string) => boolean) | undefined;
+  /** Days to colour without blocking them: company holidays (red) or days already booked (amber). */
+  readonly marks?: ((iso: string) => "holiday" | "booked" | undefined) | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const [picking, setPicking] = useState<string | null>(null);
@@ -198,7 +201,8 @@ export function DatePicker({
               const weekend = index % 7 >= 5;
               const inRange = Boolean(lo && hi && iso >= lo && iso <= hi);
               const edge = iso === lo || iso === hi;
-              const classes = ["ck-dp-day", weekend ? "we" : "", iso === today ? "today" : "", inRange ? "in" : "", edge && inRange ? "edge" : ""]
+              const mark = marks?.(iso);
+              const classes = ["ck-dp-day", weekend ? "we" : "", mark ? "mk-" + mark : "", iso === today ? "today" : "", inRange ? "in" : "", edge && inRange ? "edge" : ""]
                 .filter(Boolean)
                 .join(" ");
               return (
@@ -208,7 +212,8 @@ export function DatePicker({
                   className={classes}
                   disabled={disabled}
                   aria-pressed={edge && inRange}
-                  aria-label={isoToDmy(iso)}
+                  aria-label={isoToDmy(iso) + (mark === "holiday" ? " วันหยุดบริษัท" : mark === "booked" ? " มีใบลาแล้ว" : "")}
+                  title={mark === "holiday" ? "วันหยุดบริษัท" : mark === "booked" ? "มีใบลาแล้ว" : undefined}
                   onClick={() => pick(iso)}
                   onMouseEnter={() => (picking ? setHover(iso) : undefined)}
                 >
@@ -246,6 +251,7 @@ export function DateField({
   label,
   min,
   max,
+  marks,
 }: {
   readonly name?: string | undefined;
   readonly form?: string | undefined;
@@ -255,6 +261,7 @@ export function DateField({
   readonly label: string;
   readonly min?: string | undefined;
   readonly max?: string | undefined;
+  readonly marks?: ((iso: string) => "holiday" | "booked" | undefined) | undefined;
 }) {
   const [inner, setInner] = useState(defaultValue ?? "");
   const current = value ?? inner;
@@ -268,6 +275,7 @@ export function DateField({
         end={current}
         min={min}
         max={max}
+        marks={marks}
         onChange={(next) => {
           setInner(next);
           onChange?.(next);

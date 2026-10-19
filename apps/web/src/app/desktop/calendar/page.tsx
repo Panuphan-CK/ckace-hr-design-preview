@@ -11,6 +11,9 @@ import {
   useState,
 } from "react";
 
+import "../ck-v2-pages.css";
+import { DataGrid, EmptyState, ErrorState, LoadingState, StatusDot, type DotTone } from "../ui/kit";
+
 type State =
   | { status: "loading" }
   | { status: "ready"; data: LeaveCalendarView }
@@ -69,6 +72,14 @@ function eventClass(status: string): string {
   return "status-pending";
 }
 
+function statusDot(status: string): DotTone {
+  if (status === "APPROVED") return "ok";
+  if (status === "REJECTED") return "bad";
+  if (status === "CANCELLED") return "muted";
+  if (status === "REVISION_REQUESTED") return "back";
+  return "wait";
+}
+
 function eventOccursOn(item: LeaveCalendarItem, day: string): boolean {
   return item.startDate <= day && item.endDate >= day;
 }
@@ -84,6 +95,14 @@ export default function DesktopCalendarPage() {
     () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
   const [state, setState] = useState<State>({ status: "loading" });
+
+  const [holidays, setHolidays] = useState<ReadonlySet<string>>(new Set());
+  useEffect(() => {
+    void fetch("/api/leave/me", { credentials: "same-origin", cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((body: { holidays?: readonly string[] } | null) => setHolidays(new Set(body?.holidays ?? [])))
+      .catch(() => setHolidays(new Set()));
+  }, []);
 
   const range = useMemo(
     () => rangeForMonth(visibleMonth),
@@ -172,9 +191,11 @@ export default function DesktopCalendarPage() {
   const items = state.status === "ready" ? state.data.items : [];
   const approvedCount = items.filter((item) => item.status === "APPROVED").length;
   const pendingCount = items.filter((item) => item.status === "PENDING").length;
+  const rejectedCount = items.filter((item) => item.status === "REJECTED" || item.status === "CANCELLED").length;
+  const revisionCount = items.filter((item) => item.status === "REVISION_REQUESTED").length;
 
   return (
-    <section className="production-calendar-panel task397-calendar fade-in">
+    <section className="production-calendar-panel task397-calendar fade-in ck-cal-v2">
       <div className="production-calendar-toolbar task397-calendar-heading">
         <div>
           <span className="summary-kicker">ปฏิทินการลา</span>
@@ -185,6 +206,8 @@ export default function DesktopCalendarPage() {
           <span><strong>{items.length}</strong> รายการ</span>
           <span className="approved"><strong>{approvedCount}</strong> อนุมัติแล้ว</span>
           <span className="pending"><strong>{pendingCount}</strong> รอดำเนินการ</span>
+          {revisionCount > 0 ? <span><strong>{revisionCount}</strong> ส่งกลับแก้ไข</span> : null}
+          {rejectedCount > 0 ? <span><strong>{rejectedCount}</strong> ไม่อนุมัติ / ยกเลิก</span> : null}
         </div>
       </div>
 
@@ -231,23 +254,9 @@ export default function DesktopCalendarPage() {
         </div>
 
         {state.status === "loading" ? (
-          <div className="module-state production-calendar-state" role="status">
-            <div className="spinner" aria-hidden="true" />
-            <h2>กำลังโหลดปฏิทินการลา</h2>
-          </div>
+          <LoadingState title="กำลังโหลดปฏิทินการลา" />
         ) : state.status === "error" ? (
-          <div className="module-state production-calendar-state" role="alert">
-            <div className="status-badge error">เกิดข้อผิดพลาด</div>
-            <h2>โหลดข้อมูลไม่สำเร็จ</h2>
-            <p>{state.message}</p>
-            <button
-              className="primary-button"
-              type="button"
-              onClick={() => void load()}
-            >
-              ลองใหม่
-            </button>
-          </div>
+          <ErrorState title="โหลดข้อมูลไม่สำเร็จ" message={state.message} onRetry={() => void load()} />
         ) : (
           <div className="calendar-grid">
             {calendarCells.map((cell) => {
@@ -261,14 +270,16 @@ export default function DesktopCalendarPage() {
                 );
               }
 
-              const events = items.filter((item) =>
-                eventOccursOn(item, cell.date),
-              );
               const weekday = new Date(
                 visibleMonth.getFullYear(),
                 visibleMonth.getMonth(),
                 cell.day,
               ).getDay();
+              // leave only counts working days, so weekends and company holidays stay unpainted
+              const events =
+                weekday === 0 || weekday === 6 || holidays.has(cell.date)
+                  ? []
+                  : items.filter((item) => eventOccursOn(item, cell.date));
 
               return (
                 <article
@@ -331,40 +342,33 @@ export default function DesktopCalendarPage() {
         </div>
 
         {state.status !== "ready" || items.length === 0 ? (
-          <div className="empty-state compact">
-            <i className="fa-regular fa-calendar-xmark" aria-hidden="true" />
-            <h3>ไม่มีรายการในเดือนนี้</h3>
-            <p>รายการการลาจะแสดงด้านล่างปฏิทินเมื่อมีข้อมูล</p>
-          </div>
+          <EmptyState icon="calendar" title="ไม่มีรายการในเดือนนี้">
+            รายการการลาจะแสดงด้านล่างปฏิทินเมื่อมีข้อมูล
+          </EmptyState>
         ) : (
-          <div className="task397-calendar-list-grid">
-            {[...items]
-              .sort((left, right) => left.startDate.localeCompare(right.startDate))
-              .map((item) => (
-                <article className="task397-calendar-list-card" key={item.id}>
-                  <div className={"task397-calendar-status-rail " + eventClass(item.status)} />
-                  <div className="task397-calendar-list-copy">
-                    <div className="task397-calendar-list-title">
-                      <strong>{item.employeeName}</strong>
-                      <span className={"request-status " + eventClass(item.status)}>
-                        {STATUS_LABEL[item.status] ?? item.status}
-                      </span>
-                    </div>
-                    <p>{item.leaveType}</p>
-                    <div className="task397-calendar-list-meta">
-                      <span>
-                        <i className="fa-regular fa-calendar" aria-hidden="true" />
-                        {item.startDate === item.endDate
-                          ? displayDate(item.startDate)
-                          : displayDate(item.startDate) +
-                            " – " +
-                            displayDate(item.endDate)}
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              ))}
-          </div>
+          <DataGrid
+            rows={[...items].sort((left, right) => left.startDate.localeCompare(right.startDate))}
+            rowKey={(item) => item.id}
+            columns={[
+              {
+                key: "st",
+                header: "",
+                width: "48px",
+                align: "center",
+                render: (item) => <StatusDot tone={statusDot(item.status)} label={STATUS_LABEL[item.status] ?? item.status} />,
+              },
+              { key: "emp", header: "พนักงาน", render: (item) => <b>{item.employeeName}</b> },
+              { key: "type", header: "ประเภทการลา", render: (item) => item.leaveType },
+              {
+                key: "range",
+                header: "วันที่ลา",
+                render: (item) =>
+                  item.startDate === item.endDate
+                    ? displayDate(item.startDate)
+                    : displayDate(item.startDate) + " – " + displayDate(item.endDate),
+              },
+            ]}
+          />
         )}
       </div>
     </section>

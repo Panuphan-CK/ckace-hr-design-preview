@@ -35,6 +35,13 @@ export interface LeaveRequestStepView {
   readonly comment: string | null;
 }
 
+export interface LeaveAttachmentView {
+  readonly attachmentId: string;
+  readonly fileName: string | null;
+  readonly mimeType: string | null;
+  readonly sizeBytes: number | null;
+}
+
 export interface LeaveRequestView {
   readonly requestId: string;
   /** Running number such as LEV-0001. */
@@ -53,6 +60,8 @@ export interface LeaveRequestView {
   readonly status: LeaveRequestStatus;
   readonly decisionReason: string | null;
   readonly submittedAt: string;
+  /** Optional medical certificate files (SICK leave). */
+  readonly attachments: readonly LeaveAttachmentView[];
 }
 
 export interface LeaveSelfOverview {
@@ -89,6 +98,8 @@ export interface LeaveCreateInput {
   readonly startTime?: string | null;
   readonly endTime?: string | null;
   readonly approverEmployeeIds: readonly string[];
+  /** Optional finalized MEDICAL_PRIVATE uploads (medical certificate). */
+  readonly attachmentIds?: readonly string[];
 }
 
 export interface LeaveCreateResult {
@@ -132,6 +143,8 @@ export interface LeaveResubmitInput {
   readonly durationCode: LeaveDurationCode;
   readonly startTime?: string | null;
   readonly endTime?: string | null;
+  /** Optional extra finalized uploads to link when resubmitting. */
+  readonly attachmentIds?: readonly string[];
 }
 
 export interface LeaveResubmitResult {

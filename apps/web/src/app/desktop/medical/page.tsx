@@ -25,7 +25,9 @@ import {
 import { DatePicker } from "../ui/date-picker";
 import { thaiDate, thaiDateRange, thaiDateTime } from "../ui/format";
 import { Icon } from "../ui/icons";
-import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
+import { DataGrid, DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, StatusDot, type DotTone } from "../ui/kit";
+import { useConfirm } from "../ui/confirm";
+import "../requests-common/ck-v2-requests.css";
 import { ApproverChainNotice } from "../ui/approver-chain";
 import { RequestTimelineSection } from "../ui/request-timeline";
 import { ResubmitPanel, type ResubmitOutcome } from "../ui/resubmit-panel";
@@ -121,6 +123,7 @@ export default function DesktopMedicalPage() {
   const [amountText, setAmountText] = useState("");
   const [filter, setFilter] = useState<Filter>("ALL");
   const [detail, setDetail] = useState<MedicalClaimView | null>(null);
+  const { ask: confirmAsk, dialog: confirmDialog } = useConfirm();
   const today = useMemo(() => todayBangkok(), []);
 
   const load = useCallback(async () => {
@@ -322,7 +325,7 @@ export default function DesktopMedicalPage() {
     if (
       busy ||
       (claim.status !== "PENDING" && claim.status !== "REVISION_REQUESTED") ||
-      !window.confirm("ยืนยันยกเลิกคำขอเบิกนี้?")
+      !(await confirmAsk("ยืนยันยกเลิกคำขอเบิกนี้?", "ยืนยันยกเลิก"))
     ) {
       return;
     }
@@ -396,7 +399,7 @@ export default function DesktopMedicalPage() {
 
   const { overview } = state;
   const maxAmount = Math.max(0, Math.min(MEDICAL_DESKTOP_PER_CLAIM_LIMIT, overview.entitlement.remaining));
-  const leaveOptions = leaveOverview?.requests.filter((request) => request.status !== "CANCELLED") ?? [];
+  const leaveOptions = leaveOverview?.requests.filter((request) => request.status !== "CANCELLED" && request.leaveTypeKey.toUpperCase() === "SICK") ?? [];
   const claims = [...overview.claims].sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   const filtered = filter === "ALL" ? claims : claims.filter((claim) => claim.status === filter);
   const amountNumber = Number(amountText);
@@ -422,7 +425,7 @@ export default function DesktopMedicalPage() {
         <Message value={message} />
 
         <form className="ck-fbox ck-c-med" onSubmit={submitClaim} noValidate>
-          <SectionHead title="ขอเบิกค่ารักษา" hint={`แนบใบเสร็จที่อ่านได้ชัด เบิกได้สูงสุด ${currency.format(MEDICAL_DESKTOP_PER_CLAIM_LIMIT)} ต่อครั้ง`} />
+          <SectionHead title="ขอเบิกค่ารักษา" hint={`สูงสุด ${currency.format(MEDICAL_DESKTOP_PER_CLAIM_LIMIT)} ต่อครั้ง`} />
           {maxAmount <= 0 ? (
             <p className="ck-msg error" role="alert" style={{ marginBottom: 16 }}>
               วงเงินค่ารักษาของปีนี้ไม่เพียงพอสำหรับการเบิกเพิ่ม
@@ -450,7 +453,7 @@ export default function DesktopMedicalPage() {
               />
             </label>
             <label className="ck-field span2">
-              <span>เชื่อมกับใบลา (ถ้ามี)</span>
+              <span>เชื่อมกับใบลาป่วย (ถ้ามี)</span>
               <select className="ck-in" name="leaveRequestId" defaultValue="" disabled={busy === "create" || leaveOptions.length === 0}>
                 <option value="">{leaveOptions.length === 0 ? "ไม่มีใบลาให้เชื่อม" : "ไม่เชื่อมกับใบลา"}</option>
                 {leaveOptions.map((request) => (
@@ -556,49 +559,40 @@ export default function DesktopMedicalPage() {
           <SectionHead title="ประวัติการเบิก" id="med-history" count={claims.length}>
             <Filters value={filter} options={FILTERS} onChange={setFilter} />
           </SectionHead>
-          {filtered.length === 0 ? (
-            <EmptyState title={claims.length === 0 ? "ยังไม่มีประวัติการเบิก" : "ไม่มีคำขอในสถานะนี้"}>คำขอเบิกที่ส่งแล้วจะแสดงที่นี่</EmptyState>
-          ) : (
-            <div className="ck-hgrid">
-              {filtered.map((claim) => {
-                const status = STATUS[claim.status];
-                return (
-                  <button key={claim.id} type="button" className="ck-hcard ck-c-med" onClick={() => setDetail(claim)}>
-                    <span className="ck-hc-top">
-                      <span className="ck-chip">
-                        <Icon name="med" />
-                      </span>
-                      <span>
-                        <b>{currency.format(claim.amount)}</b>
-                        <small>ยื่นเมื่อ {thaiDateTime(claim.submittedAt)}</small>
-                      </span>
-                      <span className={"ck-pill " + status.tone}>{status.label}</span>
+          <div className="ck-hist">
+            <DataGrid
+              rows={filtered}
+              rowKey={(claim) => claim.id}
+              onRowClick={setDetail}
+              empty={
+                <EmptyState icon="med" title={claims.length === 0 ? "ยังไม่มีประวัติการเบิก" : "ไม่มีคำขอในสถานะนี้"}>
+                  คำขอที่ส่งแล้วจะแสดงที่นี่
+                </EmptyState>
+              }
+              columns={[
+                {
+                  key: "date",
+                  header: "วันที่รักษา",
+                  render: (claim) => (
+                    <span className="ck-gcell">
+                      <b>{thaiDate(claim.sicknessDate)}</b>
+                      <small>ยื่น {thaiDateTime(claim.submittedAt)}</small>
                     </span>
-                    <dl className="ck-dl">
-                      <div>
-                        <dt>วันที่รักษา</dt>
-                        <dd>{thaiDate(claim.sicknessDate)}</dd>
-                      </div>
-                      <div>
-                        <dt>รายละเอียด</dt>
-                        <dd>{claim.description || "—"}</dd>
-                      </div>
-                      <div>
-                        <dt>ใบเสร็จ</dt>
-                        <dd>{claim.attachments.length} ไฟล์</dd>
-                      </div>
-                    </dl>
-                    <span className="ck-hc-foot">
-                      <span className="ck-more">
-                        ดูรายละเอียด
-                        <Icon name="chevron" size={14} />
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                  ),
+                },
+                { key: "desc", header: "รายละเอียด", render: (claim) => <span className="ck-gcell"><small>{claim.description || "—"}</small></span> },
+                { key: "files", header: "ใบเสร็จ", align: "center", render: (claim) => `${claim.attachments.length} ไฟล์` },
+                { key: "amount", header: "จำนวนเงิน", align: "right", render: (claim) => <b>{currency.format(claim.amount)}</b> },
+                {
+                  key: "status",
+                  header: "สถานะ",
+                  align: "center",
+                  width: "80px",
+                  render: (claim) => <StatusDot tone={STATUS[claim.status].tone as DotTone} label={STATUS[claim.status].label} />,
+                },
+              ]}
+            />
+          </div>
         </section>
       </div>
 
@@ -672,6 +666,7 @@ export default function DesktopMedicalPage() {
           <RequestTimelineSection requestId={detail.id} />
         </DetailDialog>
       ) : null}
+      {confirmDialog}
     </>
   );
 }

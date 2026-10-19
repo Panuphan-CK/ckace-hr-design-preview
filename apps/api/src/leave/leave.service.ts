@@ -66,6 +66,30 @@ function requiredString(
   return normalized;
 }
 
+function optionalAttachmentIds(value: unknown): readonly string[] {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  if (!Array.isArray(value) || value.length > 3) {
+    throw new BadRequestException("attachmentIds is invalid");
+  }
+
+  const ids = value.map((entry) => {
+    if (typeof entry !== "string") {
+      throw new BadRequestException("attachmentIds is invalid");
+    }
+
+    return requiredUuid(entry, "attachmentId");
+  });
+
+  if (new Set(ids).size !== ids.length) {
+    throw new BadRequestException("attachmentIds must be unique");
+  }
+
+  return ids;
+}
+
 function optionalTime(value: unknown): string | null {
   if (value === undefined || value === null || value === "") {
     return null;
@@ -152,6 +176,7 @@ function parseCreateBody(body: unknown): LeaveCreateInput {
       startTime: period.startTime,
       endTime: period.endTime,
       approverEmployeeIds,
+      attachmentIds: optionalAttachmentIds(source.attachmentIds),
     };
   } catch (error) {
     if (error instanceof BadRequestException) {
@@ -251,6 +276,7 @@ function parseResubmitBody(body: unknown): LeaveResubmitInput {
       durationCode: period.durationCode,
       startTime: period.startTime,
       endTime: period.endTime,
+      attachmentIds: optionalAttachmentIds(source.attachmentIds),
     };
   } catch (error) {
     if (error instanceof BadRequestException) {
@@ -285,6 +311,7 @@ function canonicalCreatePayload(
     approverEmployeeIds: [
       ...request.approverEmployeeIds,
     ],
+    attachmentIds: [...(request.attachmentIds ?? [])].sort(),
   });
 }
 
@@ -422,6 +449,8 @@ export class LeaveService {
 
     const created: string[] = [];
     let replayed = true;
+    // A file links to exactly one request: the first part that is actually filed carries it.
+    let pendingAttachmentIds = request.attachmentIds ?? [];
 
     try {
       for (let year = firstYear; year <= lastYear; year += 1) {
@@ -447,6 +476,7 @@ export class LeaveService {
             year === firstYear
               ? request.description
               : `${request.description} (ต่อเนื่องข้ามปี)`,
+          attachmentIds: pendingAttachmentIds,
         };
 
         try {
@@ -458,6 +488,7 @@ export class LeaveService {
           });
 
           created.push(result.requestId);
+          pendingAttachmentIds = [];
           replayed = replayed && result.replayed;
         } catch (error) {
           // A part that covers only holidays/weekends needs no leave of its own.
@@ -523,6 +554,7 @@ export class LeaveService {
           durationCode: request.durationCode,
           startTime: request.startTime ?? null,
           endTime: request.endTime ?? null,
+          attachmentIds: [...(request.attachmentIds ?? [])].sort(),
         }),
       });
     } catch (error) {

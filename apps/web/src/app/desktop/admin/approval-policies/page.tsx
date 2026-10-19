@@ -9,6 +9,9 @@ import type {
 } from "@ckace/contracts";
 import { useCallback, useEffect, useState } from "react";
 
+import { DataGrid, DetailDialog, EmptyState, ErrorState, LoadingState, Message, PageHead, SectionHead, SettingRow, StatusDot, Toggle } from "../../ui/kit";
+import "../ck-v2-settings.css";
+
 const KIND_LABEL: Readonly<Record<ApprovalPolicyKind, string>> = {
   LEAVE: "การลา",
   OVERTIME: "ทำงานล่วงเวลา",
@@ -78,8 +81,8 @@ export default function ApprovalPoliciesPage() {
     void load();
   }, [load]);
 
-  if (state.status === "loading") return <p role="status">กำลังโหลด…</p>;
-  if (state.status === "error") return <p role="alert">{state.message}</p>;
+  if (state.status === "loading") return <LoadingState title="กำลังโหลด…" />;
+  if (state.status === "error") return <ErrorState title="เปิดหน้าไม่สำเร็จ" message={state.message} onRetry={() => void load()} />;
 
   const { policies, agencies, roles } = state;
   const firstRole = roles.find((role) => role.key === "ADMIN")?.key ?? roles[0]?.key ?? "";
@@ -129,145 +132,138 @@ export default function ApprovalPoliciesPage() {
   }
 
   return (
-    <div className="module-panel fade-in ck-admin">
-      <h1>สายอนุมัติ</h1>
-      <p>
-        กำหนดลำดับผู้อนุมัติของแต่ละประเภทคำขอ เลือกได้ทั้งแบบใช้กับทุกทีม หรือเฉพาะบางทีม
-        ถ้าทีมมีสายอนุมัติของตัวเอง ระบบจะใช้ของทีมก่อน
-      </p>
-      {message ? (
-        <p role={message.kind === "error" ? "alert" : "status"} className={"ck-msg " + message.kind}>
-          {message.text}
-        </p>
-      ) : null}
+    <>
+      <PageHead tone="ot" icon="flow" title="สายอนุมัติ" subtitle="ลำดับผู้อนุมัติของแต่ละประเภทคำขอ ถ้าทีมมีสายของตัวเอง ระบบใช้ของทีมก่อน" />
+      <div className="ck-wrap ck-stack">
+        <Message value={draft ? null : message} />
 
-      <table className="production-table">
-        <thead>
-          <tr>
-            <th>ประเภท</th>
-            <th>ใช้กับ</th>
-            <th>ลำดับผู้อนุมัติ</th>
-            <th>สถานะ</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {policies.map((policy) => (
-            <tr key={policy.id}>
-              <td>{KIND_LABEL[policy.requestKind]}</td>
-              <td>{policy.agencyName ?? "ทุกทีม (ค่าเริ่มต้น)"}</td>
-              <td>
-                {policy.steps
-                  .map((step) => step.stepOrder + ". " + step.roleName + " (" + SCOPE_LABEL[step.scope] + ")")
-                  .join(" → ")}
-              </td>
-              <td>{policy.active ? "ใช้งาน" : "ปิด"}</td>
-              <td>
-                <button type="button" className="secondary-button" onClick={() => edit(policy)}>
-                  แก้ไข
-                </button>
-              </td>
-            </tr>
-          ))}
-          {policies.length === 0 ? (
-            <tr>
-              <td colSpan={5}>ยังไม่มีสายอนุมัติ เลือกประเภทด้านล่างเพื่อสร้าง</td>
-            </tr>
-          ) : null}
-        </tbody>
-      </table>
+        <section className="ck-sgroup ck-c-ot">
+          <h2>สร้างสายอนุมัติใหม่</h2>
+          <div className="ck-row" style={{ padding: "10px 0 14px" }}>
+            {KINDS.map((kind) => (
+              <button key={kind} type="button" className="ck-btn quiet sm" onClick={() => startNew(kind)}>
+                + {KIND_LABEL[kind]}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "16px 0" }}>
-        {KINDS.map((kind) => (
-          <button key={kind} type="button" className="secondary-button" onClick={() => startNew(kind)}>
-            + สายอนุมัติ{KIND_LABEL[kind]}
-          </button>
-        ))}
+        <section className="ck-c-ot">
+          <SectionHead title="สายอนุมัติทั้งหมด" count={policies.length} />
+          <DataGrid
+            rows={policies}
+            rowKey={(policy) => policy.id}
+            onRowClick={edit}
+            empty={<EmptyState title="ยังไม่มีสายอนุมัติ" icon="flow">เลือกประเภทด้านบนเพื่อสร้าง</EmptyState>}
+            columns={[
+              { key: "kind", header: "ประเภท", render: (policy) => <b>{KIND_LABEL[policy.requestKind]}</b> },
+              { key: "agency", header: "ใช้กับ", render: (policy) => policy.agencyName ?? "ทุกทีม (ค่าเริ่มต้น)" },
+              {
+                key: "steps",
+                header: "ลำดับผู้อนุมัติ",
+                render: (policy) =>
+                  policy.steps.map((step) => step.stepOrder + ". " + step.roleName + " (" + SCOPE_LABEL[step.scope] + ")").join(" → "),
+              },
+              {
+                key: "active",
+                header: "สถานะ",
+                align: "center",
+                width: "90px",
+                render: (policy) => <StatusDot tone={policy.active ? "ok" : "muted"} label={policy.active ? "ใช้งาน" : "ปิดใช้งาน"} />,
+              },
+            ]}
+          />
+        </section>
       </div>
 
       {draft ? (
-        <section aria-label="แก้ไขสายอนุมัติ" style={{ display: "grid", gap: 8, maxWidth: 640 }}>
-          <h2>{KIND_LABEL[draft.requestKind]}</h2>
-          <label>
-            ใช้กับทีม
-            <select value={draft.agencyId} onChange={(event) => setDraft({ ...draft, agencyId: event.currentTarget.value })}>
-              <option value="">ทุกทีม (ค่าเริ่มต้น)</option>
-              {agencies.map((agency) => (
-                <option key={agency.id} value={agency.id}>
-                  {agency.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            ชื่อสายอนุมัติ
-            <input value={draft.name} maxLength={200} onChange={(event) => setDraft({ ...draft, name: event.currentTarget.value })} />
-          </label>
-          <label>
-            <input type="checkbox" checked={draft.active} onChange={(event) => setDraft({ ...draft, active: event.currentTarget.checked })} /> ใช้งาน
-          </label>
-          {draft.steps.map((step, index) => (
-            <div key={index} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <span>ขั้นที่ {index + 1}</span>
-              <select
-                aria-label={"บทบาทผู้อนุมัติขั้นที่ " + (index + 1)}
-                value={step.roleKey}
-                onChange={(event) => {
-                  const steps = draft.steps.map((item, i) => (i === index ? { ...item, roleKey: event.currentTarget.value } : item));
-                  setDraft({ ...draft, steps });
-                }}
-              >
-                {roles.map((role) => (
-                  <option key={role.key} value={role.key}>
-                    {role.name}
+        <DetailDialog
+          tone="ot"
+          icon="flow"
+          kicker="สายอนุมัติ"
+          title={KIND_LABEL[draft.requestKind]}
+          onClose={() => setDraft(null)}
+          footer={
+            <button type="button" className="ck-btn sky" disabled={busy} onClick={() => void save()}>
+              {busy ? "กำลังบันทึก…" : "บันทึก"}
+            </button>
+          }
+        >
+          <Message value={message} />
+          <div className="ck-sform">
+            <label className="ck-field">
+              <span>ใช้กับทีม</span>
+              <select className="ck-sselect" value={draft.agencyId} onChange={(event) => setDraft({ ...draft, agencyId: event.currentTarget.value })}>
+                <option value="">ทุกทีม (ค่าเริ่มต้น)</option>
+                {agencies.map((agency) => (
+                  <option key={agency.id} value={agency.id}>
+                    {agency.name}
                   </option>
                 ))}
               </select>
-              <select
-                aria-label={"ขอบเขตผู้อนุมัติขั้นที่ " + (index + 1)}
-                value={step.scope}
-                onChange={(event) => {
-                  const scope = event.currentTarget.value as ApprovalPolicyScope;
-                  const steps = draft.steps.map((item, i) => (i === index ? { ...item, scope } : item));
-                  setDraft({ ...draft, steps });
-                }}
-              >
-                {SCOPES.map((scope) => (
-                  <option key={scope} value={scope}>
-                    {SCOPE_LABEL[scope]}
-                  </option>
-                ))}
-              </select>
-              {draft.steps.length > 1 ? (
+            </label>
+            <label className="ck-field">
+              <span>ชื่อสายอนุมัติ</span>
+              <input className="ck-in" value={draft.name} maxLength={200} onChange={(event) => setDraft({ ...draft, name: event.currentTarget.value })} />
+            </label>
+            <SettingRow label="ใช้งาน">
+              <Toggle label="ใช้งานสายอนุมัติ" checked={draft.active} onChange={(active) => setDraft({ ...draft, active })} />
+            </SettingRow>
+            {draft.steps.map((step, index) => (
+              <div key={index} className="ck-sstep">
+                <b>ขั้นที่ {index + 1}</b>
+                <select
+                  className="ck-sselect"
+                  aria-label={"บทบาทผู้อนุมัติขั้นที่ " + (index + 1)}
+                  value={step.roleKey}
+                  onChange={(event) => {
+                    const steps = draft.steps.map((item, i) => (i === index ? { ...item, roleKey: event.currentTarget.value } : item));
+                    setDraft({ ...draft, steps });
+                  }}
+                >
+                  {roles.map((role) => (
+                    <option key={role.key} value={role.key}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="ck-sselect"
+                  aria-label={"ขอบเขตผู้อนุมัติขั้นที่ " + (index + 1)}
+                  value={step.scope}
+                  onChange={(event) => {
+                    const scope = event.currentTarget.value as ApprovalPolicyScope;
+                    const steps = draft.steps.map((item, i) => (i === index ? { ...item, scope } : item));
+                    setDraft({ ...draft, steps });
+                  }}
+                >
+                  {SCOPES.map((scope) => (
+                    <option key={scope} value={scope}>
+                      {SCOPE_LABEL[scope]}
+                    </option>
+                  ))}
+                </select>
+                {draft.steps.length > 1 ? (
+                  <button type="button" className="ck-btn no sm" onClick={() => setDraft({ ...draft, steps: draft.steps.filter((_, i) => i !== index) })}>
+                    ลบ
+                  </button>
+                ) : null}
+              </div>
+            ))}
+            {draft.steps.length < 5 ? (
+              <div>
                 <button
                   type="button"
-                  className="secondary-button"
-                  onClick={() => setDraft({ ...draft, steps: draft.steps.filter((_, i) => i !== index) })}
+                  className="ck-btn quiet sm"
+                  onClick={() => setDraft({ ...draft, steps: [...draft.steps, { roleKey: firstRole, scope: "GLOBAL" }] })}
                 >
-                  ลบ
+                  + เพิ่มขั้น
                 </button>
-              ) : null}
-            </div>
-          ))}
-          <div style={{ display: "flex", gap: 8 }}>
-            {draft.steps.length < 5 ? (
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={() => setDraft({ ...draft, steps: [...draft.steps, { roleKey: firstRole, scope: "GLOBAL" }] })}
-              >
-                + เพิ่มขั้น
-              </button>
+              </div>
             ) : null}
-            <button type="button" className="primary-button" disabled={busy} onClick={() => void save()}>
-              บันทึก
-            </button>
-            <button type="button" className="secondary-button" disabled={busy} onClick={() => setDraft(null)}>
-              ยกเลิก
-            </button>
           </div>
-        </section>
+        </DetailDialog>
       ) : null}
-    </div>
+    </>
   );
 }

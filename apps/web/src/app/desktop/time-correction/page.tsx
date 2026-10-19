@@ -7,7 +7,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { resolveSubmissionIntent, shouldDiscardSubmissionIntent, type SubmissionIntent } from "../submission-intent";
 import { thaiDate, thaiDateTime } from "../ui/format";
 import { Icon } from "../ui/icons";
-import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
+import { DataGrid, DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, StatusDot, TimeInput, type DotTone } from "../ui/kit";
+import { useConfirm } from "../ui/confirm";
+import "../requests-common/ck-v2-requests.css";
 import { ApproverChainNotice } from "../ui/approver-chain";
 import { AddRecordForm } from "./add-record-form";
 import { RequestTimelineSection } from "../ui/request-timeline";
@@ -50,6 +52,7 @@ export default function DesktopTimeCorrectionPage() {
   const [reason, setReason] = useState("");
   const [filter, setFilter] = useState<Filter>("ALL");
   const [detail, setDetail] = useState<TimeCorrectionRequestView | null>(null);
+  const { ask: confirmAsk, dialog: confirmDialog } = useConfirm();
   const intent = useRef<SubmissionIntent | null>(null);
 
   const load = useCallback(async () => {
@@ -151,7 +154,7 @@ export default function DesktopTimeCorrectionPage() {
   }
 
   async function cancel(request: TimeCorrectionRequestView) {
-    if (busy || (request.status !== "PENDING" && request.status !== "REVISION_REQUESTED") || !window.confirm("ยืนยันยกเลิกคำขอแก้ไขเวลานี้?")) return;
+    if (busy || (request.status !== "PENDING" && request.status !== "REVISION_REQUESTED") || !(await confirmAsk("ยืนยันยกเลิกคำขอแก้ไขเวลานี้?", "ยืนยันยกเลิก"))) return;
     setBusy(request.requestId);
     setMessage(null);
     try {
@@ -194,9 +197,9 @@ export default function DesktopTimeCorrectionPage() {
         <Message value={message} />
 
         <form className="ck-fbox ck-c-time" onSubmit={submit} noValidate>
-          <SectionHead title="ขอแก้ไขเวลา" hint="ใช้เมื่อลืมสแกนหรือเวลาที่บันทึกไม่ถูกต้อง" />
+          <SectionHead title="ขอแก้ไขเวลา" hint="ลืมสแกนหรือเวลาไม่ถูกต้อง" />
           {records.length === 0 ? (
-            <EmptyState title="ยังไม่มีรายการลงเวลา">เมื่อมีบันทึกเวลาเข้างาน จะเลือกวันที่เพื่อขอแก้ไขได้ที่นี่</EmptyState>
+            <EmptyState icon="time" title="ยังไม่มีรายการลงเวลา">จะเลือกวันที่ขอแก้ไขได้เมื่อมีบันทึกเวลา</EmptyState>
           ) : (
             <>
               <div className="ck-fgrid">
@@ -265,7 +268,7 @@ export default function DesktopTimeCorrectionPage() {
                       แก้เวลา{CORRECTION_TYPE_LABEL[activeType]}วันที่ <b>{thaiDate(selected.workDate)}</b> เป็น <b>{correctedTime}</b>
                     </>
                   ) : (
-                    "เลือกวันที่และระบุเวลาที่ถูกต้อง ระบบจะสรุปให้ตรงนี้"
+                    "เลือกวันที่และเวลาที่ถูกต้อง"
                   )}
                   {duplicate ? " (มีคำขอรออนุมัติอยู่แล้ว)" : ""}
                 </span>
@@ -293,52 +296,40 @@ export default function DesktopTimeCorrectionPage() {
           <SectionHead title="ประวัติการแก้ไขเวลา" id="tc-history" count={requests.length}>
             <Filters value={filter} options={FILTERS} onChange={setFilter} />
           </SectionHead>
-          {filtered.length === 0 ? (
-            <EmptyState title={requests.length === 0 ? "ยังไม่มีประวัติการแก้ไขเวลา" : "ไม่มีคำขอในสถานะนี้"}>คำขอที่ส่งแล้วจะแสดงที่นี่</EmptyState>
-          ) : (
-            <div className="ck-hgrid">
-              {filtered.map((request) => {
-                const status = CORRECTION_STATUS[request.status];
-                const title = correctionTitle(request);
-                return (
-                  <button key={request.requestId} type="button" className="ck-hcard ck-c-time" onClick={() => setDetail(request)}>
-                    <span className="ck-hc-top">
-                      <span className="ck-chip">
-                        <Icon name="time" />
-                      </span>
-                      <span>
-                        <b>{title}</b>
-                        <small>ยื่นเมื่อ {thaiDateTime(request.requestedAt)}</small>
-                      </span>
-                      <span className={"ck-pill " + status.tone}>{status.label}</span>
+          <div className="ck-hist">
+            <DataGrid
+              rows={filtered}
+              rowKey={(request) => request.requestId}
+              onRowClick={setDetail}
+              empty={
+                <EmptyState icon="time" title={requests.length === 0 ? "ยังไม่มีประวัติการแก้ไขเวลา" : "ไม่มีคำขอในสถานะนี้"}>
+                  คำขอที่ส่งแล้วจะแสดงที่นี่
+                </EmptyState>
+              }
+              columns={[
+                {
+                  key: "date",
+                  header: "วันที่",
+                  render: (request) => (
+                    <span className="ck-gcell">
+                      <b>{thaiDate(request.attendanceDate)}</b>
+                      <small>ยื่น {thaiDateTime(request.requestedAt)}</small>
                     </span>
-                    <dl className="ck-dl">
-                      <div>
-                        <dt>วันที่</dt>
-                        <dd>{thaiDate(request.attendanceDate)}</dd>
-                      </div>
-                      <div>
-                        <dt>เวลา</dt>
-                        <dd>
-                          {correctionTimeSummary(request)}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>เหตุผล</dt>
-                        <dd>{request.reason || "—"}</dd>
-                      </div>
-                    </dl>
-                    <span className="ck-hc-foot">
-                      <span className="ck-more">
-                        ดูรายละเอียด
-                        <Icon name="chevron" size={14} />
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                  ),
+                },
+                { key: "title", header: "รายการ", render: (request) => correctionTitle(request) },
+                { key: "time", header: "เวลา", render: (request) => correctionTimeSummary(request) },
+                { key: "reason", header: "เหตุผล", render: (request) => <span className="ck-gcell"><small>{request.reason || "—"}</small></span> },
+                {
+                  key: "status",
+                  header: "สถานะ",
+                  align: "center",
+                  width: "80px",
+                  render: (request) => <StatusDot tone={CORRECTION_STATUS[request.status].tone as DotTone} label={CORRECTION_STATUS[request.status].label} />,
+                },
+              ]}
+            />
+          </div>
         </section>
       </div>
 
@@ -403,6 +394,7 @@ export default function DesktopTimeCorrectionPage() {
           <RequestTimelineSection requestId={detail.requestId} />
         </DetailDialog>
       ) : null}
+      {confirmDialog}
     </>
   );
 }

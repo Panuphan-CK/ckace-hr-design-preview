@@ -1,0 +1,112 @@
+/* CKACE desktop v2: shared styles for approvals, reports, profile, onboarding, delegation, announcements, notifications, inbox, benefits, calendar. */
+
+/* grid cells */
+.ck-gcell { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.ck-gcell b { font-weight: 500; }
+.ck-chip.sm { width: 28px; height: 28px; border-radius: 9px; flex: none; }
+.ck-chip.sm svg { width: 16px; height: 16px; }
+.ck-wrapbtn { flex-wrap: wrap; gap: 8px; }
+.ck-search { max-width: 260px; height: 38px; }
+.ck-prewrap { white-space: pre-line; margin: 0; }
+.ck-dlg-note { margin: 0; color: var(--ck-ink3); font-size: 13.5px; }
+.ck-grid td { vertical-align: middle; }
+
+/* small chips (roles, permissions, scopes) */
+.ck-minichip {
+  display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px;
+  font-size: 12.5px; color: var(--ck-ink2); background: var(--ck-accent-soft); border: 1px solid var(--ck-line);
+}
+.ck-minichip.ok { color: var(--ck-ok); background: var(--ck-ok-bg); border-color: #bfe6cc; }
+
+/* stat circles outside the hero band */
+.ck-orbrow { display: flex; flex-wrap: wrap; gap: 16px; }
+.ck-orbrow .ck-orb {
+  width: 112px; height: 112px; color: var(--tc, var(--ck-accent));
+  background: radial-gradient(circle at 30% 25%, #fff 0%, var(--tb, var(--ck-accent-soft)) 100%);
+  border: 2px solid color-mix(in srgb, var(--tc, var(--ck-accent)) 35%, #fff);
+  box-shadow: var(--ck-shadow);
+}
+.ck-orbrow .ck-orb small { color: var(--ck-ink2); opacity: 1; }
+
+/* reports */
+.ck-rpt-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.ck-rpt-tile {
+  display: flex; align-items: center; gap: 20px; text-align: left; padding: 20px 24px; cursor: pointer; font: inherit; color: var(--ck-ink);
+  background: linear-gradient(120deg, var(--tb, var(--ck-accent-soft)) 0%, #fff 70%);
+  border: 1px solid color-mix(in srgb, var(--tc, var(--ck-accent)) 22%, #fff); border-radius: 22px;
+  box-shadow: var(--ck-shadow); transition: transform 0.18s, box-shadow 0.18s;
+}
+.ck-rpt-tile:hover { transform: translateY(-3px); box-shadow: var(--ck-shadow-up); }
+.ck-rpt-orb {
+  flex: none; width: 92px; height: 92px; border-radius: 50%; display: grid; place-content: center; text-align: center;
+  color: #fff; background: linear-gradient(135deg, var(--tc, var(--ck-accent)), color-mix(in srgb, var(--tc, var(--ck-accent)) 55%, #fff));
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--tc, var(--ck-accent)) 30%, transparent);
+  animation: ck-pop-in 0.4s ease-out both;
+}
+.ck-rpt-orb b { font-size: 28px; line-height: 1.05; font-weight: 600; }
+.ck-rpt-orb small { font-size: 12px; opacity: 0.92; }
+.ck-rpt-orb.sm { width: 52px; height: 52px; }
+.ck-rpt-txt { display: grid; gap: 4px; flex: 1; min-width: 0; }
+.ck-rpt-txt b { font-size: 17px; font-weight: 600; }
+.ck-rpt-txt small { color: var(--ck-ink3); }
+.ck-rpt-txt .ck-chip { width: 34px; height: 34px; }
+.ck-rpt-tile .ck-more { flex: none; display: inline-flex; align-items: center; color: var(--tc, var(--ck-accent)); }
+.ck-rpt-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.ck-rpt-kpi {
+  display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: #fff; border: 1px solid var(--ck-line);
+  border-radius: 18px; box-shadow: var(--ck-shadow); transition: transform 0.18s, box-shadow 0.18s;
+}
+.ck-rpt-kpi:hover { transform: translateY(-3px); box-shadow: var(--ck-shadow-up); }
+.ck-rpt-kpi small { display: block; color: var(--ck-ink3); }
+.ck-rpt-kpi b { font-size: 26px; font-weight: 600; }
+.ck-rpt-kpi b small { display: inline; font-size: 14px; font-weight: 400; }
+
+/* onboarding media preview */
+.ck-media-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ck-media-pair > div { display: grid; gap: 8px; justify-items: start; }
+.ck-media-pair > div > small { color: var(--ck-ink3); }
+.ck-media-box {
+  width: 100%; height: 170px; display: grid; place-items: center; overflow: hidden; border-radius: 14px;
+  background: var(--ck-hover); border: 1px dashed #bcd0f0; color: var(--ck-ink3);
+}
+.ck-media-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+/* inbox */
+.ck-inbox { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ck-inbox-item {
+  display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: inherit;
+  background: #fff; border: 1px solid var(--ck-line); border-radius: 14px; transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.ck-inbox-item:hover { transform: translateY(-2px); box-shadow: var(--ck-shadow); background: var(--ck-hover); }
+.ck-inbox-item.unread { background: var(--ck-accent-soft); }
+.ck-inbox-txt { display: grid; gap: 2px; min-width: 0; }
+.ck-inbox-txt b { font-weight: 500; }
+.ck-inbox-item.unread .ck-inbox-txt b { font-weight: 700; }
+.ck-inbox-txt span { white-space: pre-line; color: var(--ck-ink2); }
+.ck-inbox-item small { color: var(--ck-ink3); white-space: nowrap; }
+
+/* calendar (markup and 7-column grid come from globals.css; only the look is overridden here) */
+.ck-cal-v2.production-calendar-panel, .ck-cal-v2 .production-calendar-main { background: transparent; box-shadow: none; border: 0; }
+.ck-cal-v2 .calendar-grid { gap: 8px; }
+.ck-cal-v2 .calendar-day-cell {
+  background: #fff; border: 1px solid var(--ck-line); border-radius: 14px; box-shadow: var(--ck-shadow); transition: transform 0.15s, box-shadow 0.15s;
+}
+.ck-cal-v2 .calendar-day-cell:not(.empty):hover { transform: translateY(-2px); box-shadow: var(--ck-shadow-up); }
+.ck-cal-v2 .calendar-day-cell.empty { background: transparent; border-color: transparent; box-shadow: none; }
+.ck-cal-v2 .calendar-day-cell.today { border-color: var(--ck-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ck-accent) 18%, #fff); }
+.ck-cal-v2 .task397-calendar-stats span { border-radius: 999px; background: #fff; border: 1px solid var(--ck-line); box-shadow: var(--ck-shadow); }
+.ck-cal-v2 .production-calendar-nav-button { border-radius: 12px; border: 1px solid var(--ck-line); background: #fff; transition: transform 0.15s, box-shadow 0.15s; }
+.ck-cal-v2 .production-calendar-nav-button:hover { transform: translateY(-2px); box-shadow: var(--ck-shadow); }
+.ck-cal-v2 .task397-calendar-list-section { margin-top: 20px; }
+
+@media (max-width: 900px) {
+  .ck-rpt-tiles { grid-template-columns: 1fr; }
+  .ck-rpt-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .ck-media-pair { grid-template-columns: 1fr; }
+  .ck-rpt-tile { flex-wrap: wrap; }
+  .ck-inbox-item { grid-template-columns: 28px 1fr; }
+  .ck-inbox-item small { grid-column: 2; }
+  .ck-search { max-width: 100%; width: 100%; }
+}

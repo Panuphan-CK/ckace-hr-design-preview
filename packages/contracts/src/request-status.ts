@@ -35,7 +35,13 @@ export interface RequestStatusItem {
   readonly stepOrder: number | null;
   readonly medical?: MedicalApprovalDetail;
   /** Assigned-list only: what the approver needs to see without opening the request. */
-  readonly leave?: { readonly startDate: string; readonly endDate: string; readonly durationCode: string };
+  readonly leave?: {
+    readonly startDate: string;
+    readonly endDate: string;
+    readonly durationCode: string;
+    /** Medical certificate attachment IDs (pending approvals only). */
+    readonly attachmentIds?: readonly string[];
+  };
   readonly overtime?: {
     readonly segments: readonly {
       readonly workDate: string;
@@ -65,6 +71,16 @@ export interface ApprovalHistoryItem {
   readonly employeeId: string;
   readonly employeeDisplayName?: string;
   readonly stepOrder: number;
+  /** Same facts the approver saw while deciding (dates, times, hours). */
+  readonly leave?: { readonly startDate: string; readonly endDate: string; readonly durationCode: string };
+  readonly overtime?: {
+    readonly segments: readonly {
+      readonly workDate: string;
+      readonly startTime: string;
+      readonly endTime: string;
+      readonly requestedMinutes: number;
+    }[];
+  };
 }
 
 export interface ApprovalHistoryOverview {

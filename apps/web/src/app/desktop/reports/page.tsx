@@ -1,9 +1,10 @@
 "use client";
 
+import "../ck-v2-pages.css";
 import { DateField } from "../ui/date-picker";
-import { thaiDateRange } from "../ui/format";
+import { thaiDate, thaiDateRange } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
-import { ErrorState, LoadingState, PageHead, SectionHead, type Tone } from "../ui/kit";
+import { DataGrid, EmptyState, ErrorState, LoadingState, PageHead, SectionHead, StatusDot, type Tone } from "../ui/kit";
 import { OvertimeCheckPanel } from "./overtime-check-panel";
 import { DonutChart, MonthlyChart, seriesColor } from "./report-charts";
 import { formatNumber, monthlyBuckets, personSummaries, rowType, typeShares } from "./report-stats";
@@ -247,13 +248,23 @@ export default function DesktopReportsPage() {
           วิเคราะห์
         </button>
         <span className="ck-ml ck-row">
-          <a
-            className="ck-btn quiet"
-            href={"/api/management/reports/overtime.xlsx?from=" + encodeURIComponent(from) + "&to=" + encodeURIComponent(to)}
-            download
-          >
-            ดาวน์โหลดรายงาน OT (Excel)
-          </a>
+          {(
+            [
+              ["leave", "ดาวน์โหลดรายงานการลา (Excel)"],
+              ["attendance", "ดาวน์โหลดรายงานเข้าออกงาน (Excel)"],
+              ["overtime", "ดาวน์โหลดรายงาน OT (Excel)"],
+              ["medical", "ดาวน์โหลดรายงานเบิกค่ารักษา (Excel)"],
+            ] as const
+          ).map(([name, label]) => (
+            <a
+              className="ck-btn quiet"
+              key={name}
+              href={"/api/management/reports/" + name + ".xlsx?from=" + encodeURIComponent(from) + "&to=" + encodeURIComponent(to)}
+              download
+            >
+              {label}
+            </a>
+          ))}
           {selectedKind !== null ? (
             <button className="ck-btn quiet" type="button" disabled={selectedRows.length === 0} onClick={() => exportCsv(selectedRows, selectedKind)}>
               ส่งออก CSV
@@ -279,26 +290,23 @@ export default function DesktopReportsPage() {
           {filterBar}
           {stateBlock}
           {state.status === "ready" ? (
-            <div className="ck-hgrid" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+            <div className="ck-rpt-tiles">
               {REPORT_OPTIONS.map((option, index) => (
-                <button className={"ck-hcard ck-c-" + option.tone} key={option.kind} type="button" onClick={() => selectReport(option.kind)}>
-                  <div className="ck-hc-top">
-                    <span className={"ck-chip ck-c-" + option.tone}>
+                <button className={"ck-rpt-tile ck-c-" + option.tone} key={option.kind} type="button" onClick={() => selectReport(option.kind)}>
+                  <span className="ck-rpt-orb">
+                    <b>{totals[index] ?? 0}</b>
+                    <small>รายการ</small>
+                  </span>
+                  <span className="ck-rpt-txt">
+                    <span className="ck-chip">
                       <Icon name={option.icon} size={20} />
                     </span>
-                    <div>
-                      <b>{option.title}</b>
-                      <small>{option.description}</small>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 34, fontWeight: 600, padding: "6px 0" }}>
-                    {totals[index] ?? 0} <small className="ck-muted" style={{ fontSize: 14, fontWeight: 400 }}>รายการ</small>
-                  </div>
-                  <div className="ck-hc-foot">
-                    <span className="ck-more">
-                      ดูรายงาน <Icon name="chevron" size={16} />
-                    </span>
-                  </div>
+                    <b>{option.title}</b>
+                    <small>{option.description}</small>
+                  </span>
+                  <span className="ck-more">
+                    ดูรายงาน <Icon name="chevron" size={16} />
+                  </span>
                 </button>
               ))}
             </div>
@@ -334,24 +342,23 @@ export default function DesktopReportsPage() {
         {stateBlock}
         {selectedKind === "OVERTIME" ? <OvertimeCheckPanel from={from} to={to} /> : null}
         {state.status === "ready" && selectedRows.length === 0 ? (
-          <div className="ck-empty">
-            <b>ไม่พบข้อมูลในช่วงวันที่นี้</b>
+          <EmptyState icon="chart" title="ไม่พบข้อมูลในช่วงวันที่นี้">
             ลองเปลี่ยนช่วงวันที่แล้วกดวิเคราะห์อีกครั้ง
-          </div>
+          </EmptyState>
         ) : null}
         {state.status === "ready" && selectedRows.length > 0 ? (
           <>
-            <div className="ck-qgrid">
+            <div className="ck-rpt-kpis">
               {kpis.map((kpi) => (
-                <div className={"ck-hcard ck-c-" + kpi.tone} key={kpi.label}>
-                  <div className="ck-hc-top">
-                    <span className={"ck-chip ck-c-" + kpi.tone}>
-                      <Icon name={kpi.icon} size={18} />
-                    </span>
-                    <b>{kpi.label}</b>
-                  </div>
-                  <div style={{ fontSize: 30, fontWeight: 600 }}>
-                    {kpi.value} <small className="ck-muted" style={{ fontSize: 14, fontWeight: 400 }}>{kpi.unit}</small>
+                <div className={"ck-rpt-kpi ck-c-" + kpi.tone} key={kpi.label}>
+                  <span className="ck-rpt-orb sm">
+                    <Icon name={kpi.icon} size={22} />
+                  </span>
+                  <div>
+                    <small>{kpi.label}</small>
+                    <b>
+                      {kpi.value} <small>{kpi.unit}</small>
+                    </b>
                   </div>
                 </div>
               ))}
@@ -370,75 +377,54 @@ export default function DesktopReportsPage() {
 
             <section className={"ck-panel ck-c-" + selectedOption.tone}>
               <SectionHead title="รายบุคคล" count={people.length} />
-              <div className="ck-tablewrap">
-                <table className="ck-table">
-                  <thead>
-                    <tr>
-                      <th>พนักงาน</th>
-                      {typeNames.map((type, index) => (
-                        <th key={type}>
-                          <i style={{ background: seriesColor(index) }} /> {type}
-                        </th>
-                      ))}
-                      <th>รวม</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {people.map((person) => (
-                      <tr key={person.employeeId}>
-                        <td>
-                          <b>{person.employeeName}</b>
-                        </td>
-                        {typeNames.map((type, index) => {
-                          const value = person.byType[type] ?? 0;
-                          const pct = person.value > 0 ? Math.round((value / person.value) * 100) : 0;
-                          return (
-                            <td key={type}>
-                              {formatNumber(value)}
-                              <div className="ck-track" style={{ ["--tc" as string]: seriesColor(index), marginTop: 4 }}>
-                                <i style={{ width: pct + "%" }} />
-                              </div>
-                            </td>
-                          );
-                        })}
-                        <td>
-                          <b>{formatNumber(person.value)}</b> <small className="ck-muted">{selectedOption.unit}</small>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataGrid
+                rows={people}
+                rowKey={(person) => person.employeeId}
+                columns={[
+                  { key: "name", header: "พนักงาน", render: (person) => <b>{person.employeeName}</b> },
+                  ...typeNames.map((type, index) => ({
+                    key: "t-" + type,
+                    header: type,
+                    render: (person: (typeof people)[number]) => {
+                      const value = person.byType[type] ?? 0;
+                      const pct = person.value > 0 ? Math.round((value / person.value) * 100) : 0;
+                      return (
+                        <>
+                          {formatNumber(value)}
+                          <div className="ck-track" style={{ ["--tc" as string]: seriesColor(index), marginTop: 4 }}>
+                            <i style={{ width: pct + "%" }} />
+                          </div>
+                        </>
+                      );
+                    },
+                  })),
+                  {
+                    key: "sum",
+                    header: "รวม",
+                    render: (person) => (
+                      <>
+                        <b>{formatNumber(person.value)}</b> <small className="ck-muted">{selectedOption.unit}</small>
+                      </>
+                    ),
+                  },
+                ]}
+              />
             </section>
 
             <section className={"ck-panel ck-c-" + selectedOption.tone}>
               <SectionHead title="รายการทั้งหมด" count={selectedRows.length} />
-              <div className="ck-tablewrap">
-                <table className="ck-table">
-                  <thead>
-                    <tr>
-                      <th>วันที่</th>
-                      <th>พนักงาน</th>
-                      <th>สถานะ</th>
-                      <th>รายละเอียด</th>
-                      <th>จำนวน</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedRows.map((row) => (
-                      <tr key={row.kind + "-" + row.id}>
-                        <td>{row.date}</td>
-                        <td>{row.employeeName}</td>
-                        <td>
-                          <span className="ck-pill muted">{row.status}</span>
-                        </td>
-                        <td>{row.summary || rowType(row)}</td>
-                        <td>{row.amount ?? "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataGrid
+                rows={selectedRows}
+                rowKey={(row) => row.kind + "-" + row.id}
+                pageSize={20}
+                columns={[
+                  { key: "st", header: "", width: "48px", align: "center", render: (row) => <StatusDot tone="ok" label={row.status} /> },
+                  { key: "date", header: "วันที่", render: (row) => thaiDate(row.date) },
+                  { key: "emp", header: "พนักงาน", render: (row) => row.employeeName },
+                  { key: "sum", header: "รายละเอียด", render: (row) => row.summary || rowType(row) },
+                  { key: "amt", header: "จำนวน", align: "right", render: (row) => row.amount ?? "—" },
+                ]}
+              />
             </section>
           </>
         ) : null}
@@ -446,30 +432,18 @@ export default function DesktopReportsPage() {
         {selectedKind === "ATTENDANCE" && missing.length > 0 ? (
           <section className="ck-panel ck-c-ot">
             <SectionHead title="ลืมลงเวลาออก" count={missing.length} />
-            <div className="ck-tablewrap">
-              <table className="ck-table">
-                <thead>
-                  <tr>
-                    <th>วันที่</th>
-                    <th>พนักงาน</th>
-                    <th>ทีม</th>
-                    <th>บริษัท</th>
-                    <th>เวลาเข้า</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {missing.map((item) => (
-                    <tr key={item.employeeId + "-" + item.workDate}>
-                      <td>{item.workDate}</td>
-                      <td>{item.employeeName}</td>
-                      <td>{item.teamName}</td>
-                      <td>{item.companyName}</td>
-                      <td>{item.checkIn}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataGrid
+              rows={missing}
+              rowKey={(item) => item.employeeId + "-" + item.workDate}
+              columns={[
+                { key: "st", header: "", width: "48px", align: "center", render: () => <StatusDot tone="back" label="ลืมลงเวลาออก" /> },
+                { key: "date", header: "วันที่", render: (item) => thaiDate(item.workDate) },
+                { key: "emp", header: "พนักงาน", render: (item) => item.employeeName },
+                { key: "team", header: "ทีม", render: (item) => item.teamName },
+                { key: "co", header: "บริษัท", render: (item) => item.companyName },
+                { key: "in", header: "เวลาเข้า", render: (item) => item.checkIn },
+              ]}
+            />
           </section>
         ) : null}
       </div>

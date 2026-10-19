@@ -3,9 +3,10 @@
 import type { ApprovalDelegationItem, ApprovalDelegationOverview } from "@ckace/contracts";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
+import "../ck-v2-pages.css";
 import { DatePicker } from "../ui/date-picker";
 import { thaiDateRange } from "../ui/format";
-import { EmptyState, ErrorState, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
+import { DataGrid, EmptyState, ErrorState, LoadingState, Message, PageHead, SectionHead, StatusDot } from "../ui/kit";
 
 type Notice = { kind: "success" | "error"; text: string } | null;
 
@@ -150,38 +151,50 @@ export default function DelegationPage() {
 
         <section className="ck-panel ck-c-biz" aria-labelledby="dg-given">
           <SectionHead title="ที่ฉันมอบหมายไว้" id="dg-given" count={given.length} />
-          {given.length === 0 ? (
-            <EmptyState title="ยังไม่มีการมอบหมาย">เมื่อมอบหมายแล้วจะแสดงที่นี่</EmptyState>
-          ) : (
-            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
-              {given.map((item) => (
-                <li key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "space-between" }}>
-                  <span>
-                    <b>{item.delegateName}</b> · {thaiDateRange(item.startDate, item.endDate)}
-                  </span>
-                  <button type="button" className="ck-btn no" disabled={busy} onClick={() => void cancel(item)}>
+          <DataGrid
+            rows={given}
+            rowKey={(item) => item.id}
+            empty={<EmptyState icon="users" title="ยังไม่มีการมอบหมาย">เมื่อมอบหมายแล้วจะแสดงที่นี่</EmptyState>}
+            columns={[
+              { key: "st", header: "", width: "48px", align: "center", render: () => <StatusDot tone="ok" label="กำลังมอบหมายอยู่" /> },
+              { key: "who", header: "ผู้อนุมัติแทน", render: (item) => <b>{item.delegateName}</b> },
+              { key: "range", header: "ช่วงวันที่", render: (item) => thaiDateRange(item.startDate, item.endDate) },
+              {
+                key: "act",
+                header: "",
+                align: "right",
+                render: (item) => (
+                  <button type="button" className="ck-btn no sm" disabled={busy} onClick={() => void cancel(item)}>
                     ยกเลิก
                   </button>
-                </li>
-              ))}
-            </ul>
-          )}
+                ),
+              },
+            ]}
+          />
         </section>
 
         <section className="ck-panel ck-c-biz" aria-labelledby="dg-received">
           <SectionHead title="ที่ได้รับมอบหมายให้ฉัน" id="dg-received" count={data.received.length} />
-          {data.received.length === 0 ? (
-            <EmptyState title="ไม่มีผู้มอบหมายให้คุณ">เมื่อมีผู้มอบหมายให้คุณอนุมัติแทน จะแสดงที่นี่</EmptyState>
-          ) : (
-            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
-              {data.received.map((item) => (
-                <li key={item.id}>
-                  <b>{item.delegatorName}</b> มอบหมายให้คุณ · {thaiDateRange(item.startDate, item.endDate)} ·{" "}
-                  <a href="/desktop/approvals">ไปที่งานอนุมัติ</a>
-                </li>
-              ))}
-            </ul>
-          )}
+          <DataGrid
+            rows={data.received}
+            rowKey={(item) => item.id}
+            empty={<EmptyState icon="users" title="ไม่มีผู้มอบหมายให้คุณ">เมื่อมีผู้มอบหมายให้คุณอนุมัติแทน จะแสดงที่นี่</EmptyState>}
+            columns={[
+              { key: "st", header: "", width: "48px", align: "center", render: () => <StatusDot tone="ok" label="ได้รับมอบหมาย" /> },
+              { key: "who", header: "ผู้มอบหมาย", render: (item) => <b>{item.delegatorName}</b> },
+              { key: "range", header: "ช่วงวันที่", render: (item) => thaiDateRange(item.startDate, item.endDate) },
+              {
+                key: "act",
+                header: "",
+                align: "right",
+                render: () => (
+                  <a className="ck-btn sky sm" href="/desktop/approvals">
+                    ไปที่งานอนุมัติ
+                  </a>
+                ),
+              },
+            ]}
+          />
         </section>
       </div>
     </>

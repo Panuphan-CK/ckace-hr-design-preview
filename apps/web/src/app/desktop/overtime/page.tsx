@@ -6,13 +6,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { resolveSubmissionIntent, shouldDiscardSubmissionIntent, type SubmissionIntent } from "../submission-intent";
 import { DatePicker } from "../ui/date-picker";
+import { useHolidayMarks } from "../ui/holidays";
 import { thaiDateRange, thaiDateTime, weekdaysBetween } from "../ui/format";
 import { Icon } from "../ui/icons";
-import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
+import { DataGrid, DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, StatusDot, TimeInput, type DotTone } from "../ui/kit";
+import { useConfirm } from "../ui/confirm";
+import "../requests-common/ck-v2-requests.css";
 import { ApproverChainNotice } from "../ui/approver-chain";
 import { RequestTimelineSection } from "../ui/request-timeline";
 import { ResubmitPanel, type ResubmitOutcome } from "../ui/resubmit-panel";
-import { attendanceLinkLabel, OVERTIME_BREAK_OPTIONS, overtimeBreakDeduction, overtimeMetrics, overtimeRequestMinutes } from "./overtime-view";
+import { allowanceHint, attendanceLinkLabel, OVERTIME_BREAK_OPTIONS, overtimeBreakDeduction, overtimeMetrics, overtimeRequestMinutes } from "./overtime-view";
 
 type State = { status: "loading" } | { status: "ready"; overview: OvertimeSelfOverview } | { status: "error"; message: string };
 type Filter = "ALL" | OvertimeRequestStatus;
@@ -75,6 +78,7 @@ export default function DesktopOvertimePage() {
   const [breaks, setBreaks] = useState<readonly OvertimeBreakCode[]>([]);
   const [filter, setFilter] = useState<Filter>("ALL");
   const [detail, setDetail] = useState<OvertimeRequestView | null>(null);
+  const { ask: confirmAsk, dialog: confirmDialog } = useConfirm();
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -90,6 +94,8 @@ export default function DesktopOvertimePage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const holidayMark = useHolidayMarks();
 
   const metrics = useMemo(() => (state.status === "ready" ? overtimeMetrics(state.overview) : null), [state]);
   const requests = useMemo(
@@ -167,7 +173,7 @@ export default function DesktopOvertimePage() {
   }
 
   async function cancel(request: OvertimeRequestView) {
-    if (busy || (request.status !== "PENDING" && request.status !== "REVISION_REQUESTED") || !window.confirm("ยืนยันยกเลิกคำขอ OT นี้?")) return;
+    if (busy || (request.status !== "PENDING" && request.status !== "REVISION_REQUESTED") || !(await confirmAsk("ยืนยันยกเลิกคำขอ OT นี้?", "ยืนยันยกเลิก"))) return;
     setBusy(request.id);
     setMessage(null);
     try {
@@ -200,7 +206,7 @@ export default function DesktopOvertimePage() {
           </span>
           <span className="ck-c-med">
             <i />
-            อนุมัติ <b>{metrics?.approvedRequests ?? 0}</b> คำขอ
+            อนุมัติแล้ว <b>{minutesLabel(metrics?.approvedMinutes ?? 0)}</b>
           </span>
         </div>
       </PageHead>
@@ -209,13 +215,14 @@ export default function DesktopOvertimePage() {
         <Message value={message} />
 
         <form className="ck-fbox ck-c-ot" onSubmit={submit} noValidate>
-          <SectionHead title="ขอทำงานล่วงเวลา" hint="ส่งได้ทั้งก่อนและหลังวันที่ทำ ถ้าเลือกหลายวันระบบแยกเป็นคำขอรายวัน" />
+          <SectionHead title="ขอทำงานล่วงเวลา" hint="หลายวันแยกเป็นคำขอรายวัน" />
           <div className="ck-fgrid">
             <div className="ck-field span2">
               <span>วันที่ทำ (เลือกเป็นช่วงได้)</span>
               <DatePicker
                 mode="range"
                 label="วันที่ทำ OT"
+                marks={holidayMark}
                 start={startDate}
                 end={endDate}
                 onChange={(from, to) => {
@@ -233,7 +240,7 @@ export default function DesktopOvertimePage() {
               <TimeInput label="เวลาสิ้นสุด OT" value={endTime} onChange={setEndTime} />
             </div>
             <div className="ck-field full">
-              <span>เวลาพักที่ใช้ในช่วง OT (เลือกได้ ไม่บังคับ — ไม่เลือก = ไม่หักเวลา)</span>
+              <span>เวลาพัก (ไม่บังคับ)</span>
               <div className="ck-seg" role="group" aria-label="เวลาพักในช่วง OT">
                 {OVERTIME_BREAK_OPTIONS.map((option) => {
                   const on = breaks.includes(option.code);
@@ -272,10 +279,10 @@ export default function DesktopOvertimePage() {
               <Icon name="clock" size={18} />
               {startDate && perDay > 0 ? (
                 <>
-                  รวม <b>{minutesLabel(perDay)}</b> ต่อวัน {days > 1 ? <>จำนวน <b>{days} วัน</b></> : null} วันที่ <b>{thaiDateRange(startDate, endDate || startDate)}</b>
+                  รวม <b>{minutesLabel(perDay)}</b> ต่อวัน {days > 1 ? <>จำนวน <b>{days} วัน</b></> : null} วันที่ <b>{thaiDateRange(startDate, endDate || startDate)}</b> · {allowanceHint(endTime)}
                 </>
               ) : (
-                "เลือกวันที่และเวลา ระบบจะสรุปชั่วโมงให้ตรงนี้"
+                "เลือกวันและเวลา"
               )}
             </span>
             <button className="ck-btn quiet ck-ml" type="button" onClick={resetForm}>
@@ -291,51 +298,47 @@ export default function DesktopOvertimePage() {
           <SectionHead title="ประวัติ OT" id="ot-history" count={requests.length}>
             <Filters value={filter} options={FILTERS} onChange={setFilter} />
           </SectionHead>
-          {filtered.length === 0 ? (
-            <EmptyState title={requests.length === 0 ? "ยังไม่มีประวัติ OT" : "ไม่มีคำขอในสถานะนี้"}>คำขอ OT ที่ส่งแล้วจะแสดงที่นี่</EmptyState>
-          ) : (
-            <div className="ck-hgrid">
-              {filtered.map((request) => {
-                const { start, end } = requestDates(request);
-                const first = request.segments[0];
-                const status = STATUS[request.status];
-                return (
-                  <button key={request.id} type="button" className="ck-hcard ck-c-ot" onClick={() => setDetail(request)}>
-                    <span className="ck-hc-top">
-                      <span className="ck-chip">
-                        <Icon name="ot" />
+          <div className="ck-hist">
+            <DataGrid
+              rows={filtered}
+              rowKey={(request) => request.id}
+              onRowClick={setDetail}
+              empty={
+                <EmptyState icon="ot" title={requests.length === 0 ? "ยังไม่มีประวัติ OT" : "ไม่มีคำขอในสถานะนี้"}>
+                  คำขอที่ส่งแล้วจะแสดงที่นี่
+                </EmptyState>
+              }
+              columns={[
+                {
+                  key: "date",
+                  header: "วันที่ทำ",
+                  render: (request) => {
+                    const { start, end } = requestDates(request);
+                    return (
+                      <span className="ck-gcell">
+                        <b>{start ? thaiDateRange(start, end) : "—"}</b>
+                        <small>ยื่น {thaiDateTime(request.submittedAt)}</small>
                       </span>
-                      <span>
-                        <b>OT {minutesLabel(overtimeRequestMinutes(request))}</b>
-                        <small>ยื่นเมื่อ {thaiDateTime(request.submittedAt)}</small>
-                      </span>
-                      <span className={"ck-pill " + status.tone}>{status.label}</span>
-                    </span>
-                    <dl className="ck-dl">
-                      <div>
-                        <dt>วันที่</dt>
-                        <dd>{start ? thaiDateRange(start, end) : "—"}</dd>
-                      </div>
-                      <div>
-                        <dt>เวลา</dt>
-                        <dd>{first ? `${first.startTime} ถึง ${first.endTime}` : "—"}</dd>
-                      </div>
-                      <div>
-                        <dt>งานที่ทำ</dt>
-                        <dd>{request.reason || "—"}</dd>
-                      </div>
-                    </dl>
-                    <span className="ck-hc-foot">
-                      <span className="ck-more">
-                        ดูรายละเอียด
-                        <Icon name="chevron" size={14} />
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                    );
+                  },
+                },
+                {
+                  key: "time",
+                  header: "เวลา",
+                  render: (request) => (request.segments[0] ? `${request.segments[0].startTime} - ${request.segments[0].endTime}` : "—"),
+                },
+                { key: "reason", header: "งานที่ทำ", render: (request) => <span className="ck-gcell"><small>{request.reason || "—"}</small></span> },
+                { key: "hours", header: "รวม", align: "right", render: (request) => <b>{minutesLabel(overtimeRequestMinutes(request))}</b> },
+                {
+                  key: "status",
+                  header: "สถานะ",
+                  align: "center",
+                  width: "80px",
+                  render: (request) => <StatusDot tone={STATUS[request.status].tone as DotTone} label={STATUS[request.status].label} />,
+                },
+              ]}
+            />
+          </div>
         </section>
       </div>
 
@@ -376,7 +379,7 @@ export default function DesktopOvertimePage() {
                 <div key={segment.id}>
                   <dt>{thaiDateRange(segment.workDate, segment.workDate)}</dt>
                   <dd>
-                    {segment.startTime} ถึง {segment.endTime} ({minutesLabel(segment.requestedMinutes)}) {attendanceLinkLabel(segment.attendanceRecordId)}
+                    {segment.startTime} ถึง {segment.endTime} ({minutesLabel(segment.requestedMinutes)}) · {allowanceHint(segment.endTime)} {attendanceLinkLabel(segment.attendanceRecordId)}
                   </dd>
                 </div>
               ))}
@@ -400,6 +403,7 @@ export default function DesktopOvertimePage() {
           <RequestTimelineSection requestId={detail.id} />
         </DetailDialog>
       ) : null}
+      {confirmDialog}
     </>
   );
 }

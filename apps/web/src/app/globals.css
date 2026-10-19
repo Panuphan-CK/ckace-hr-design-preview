@@ -3967,6 +3967,7 @@ body.dark .secondary-button {
 }
 
 .production-calendar-nav-button {
+  white-space: nowrap;
   min-height: 40px;
   display: inline-flex;
   align-items: center;
@@ -4198,7 +4199,7 @@ body.dark .notification-meta-grid div {
   }
 
   .calendar-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 }
 

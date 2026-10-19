@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { OvertimeSelfOverview } from "@ckace/contracts";
 import {
+  allowanceHint,
   attendanceLinkLabel,
   overtimeMetrics,
   overtimeRequestMinutes,
@@ -56,6 +57,7 @@ describe("Desktop Overtime view helpers", () => {
       pendingRequests: 1,
       approvedRequests: 1,
       totalRequestedMinutes: 180,
+      approvedMinutes: 90,
       linkedSegments: 1,
       unlinkedSegments: 1,
     });
@@ -75,5 +77,14 @@ describe("Desktop Overtime view helpers", () => {
     expect(attendanceLinkLabel(null)).toBe(
       "ยังไม่พบบันทึกเวลาเข้างานของวันนั้น",
     );
+  });
+});
+
+describe("allowanceHint", () => {
+  it("follows the 20:00 meal and 21:30 transport thresholds", () => {
+    expect(allowanceHint("19:30")).toContain("ยังไม่ถึงเกณฑ์");
+    expect(allowanceHint("20:00")).toBe("คาดว่าได้ค่าข้าว");
+    expect(allowanceHint("21:30")).toBe("คาดว่าได้ค่าข้าว และ ค่าเดินทาง");
+    expect(allowanceHint("")).toBe("");
   });
 });

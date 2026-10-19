@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  AttachmentDownloadResult,
   LeaveApprovalStepOptions,
   LeaveDurationCode,
   LeaveEntitlementView,
@@ -19,6 +20,16 @@ import {
 import { DateField, DatePicker } from "../ui/date-picker";
 import { addHours, isoToDmy, thaiDateRange, thaiDateTime } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
+import { DataGrid, EmptyState, StatusDot, type DotTone } from "../ui/kit";
+import { useConfirm } from "../ui/confirm";
+import "../requests-common/ck-v2-requests.css";
+import { validateReceiptCandidates, formatMedicalBytes } from "../medical/medical-view";
+import {
+  completeMedicalReceiptUploads,
+  MedicalReceiptFinalizeUncertainError,
+  type MedicalReceiptProgress,
+} from "../medical/medical-receipt-upload";
+import { preparePrivateDownloadTab, showPrivateDownload } from "../private-download";
 
 type PageState =
   | { status: "loading" }
@@ -88,6 +99,7 @@ async function submitErrorMessage(response: Response): Promise<string> {
     if (reason === "Leave entitlement exceeded") return "วันลาเกินสิทธิคงเหลือ (นับรวมใบลาที่รออนุมัติอยู่แล้ว)";
     if (reason.startsWith("Leave entitlement is unavailable")) return "ประเภทการลานี้ใช้ไม่ได้ในช่วงวันที่เลือก";
     if (reason === "Leave request must consume positive leave quota") return "ช่วงวันที่เลือกไม่มีวันทำงาน กรุณาเลือกใหม่";
+    if (/^Leave attachment/i.test(reason)) return "ไฟล์ใบรับรองแพทย์ไม่ถูกต้อง แนบได้ JPG, PNG หรือ PDF ไม่เกิน 2 MiB";
     if (reason.startsWith("Selected approver")) return "ผู้อนุมัติที่เลือกไม่ถูกต้อง กรุณาเลือกใหม่";
     if (/overlaps another/i.test(reason)) return "มีใบลาอื่นในช่วงวันเดียวกันอยู่แล้ว";
     if (/end date must not precede/i.test(reason)) return "วันสิ้นสุดต้องไม่ก่อนวันเริ่ม";
@@ -125,6 +137,8 @@ export default function LeaveDesktopPage() {
   const [state, setState] = useState<PageState>({ status: "loading" });
   const [submitting, setSubmitting] = useState(false);
   const createIntent = useRef<SubmissionIntent | null>(null);
+  const [certFiles, setCertFiles] = useState<readonly File[]>([]);
+  const certProgress = useRef<MedicalReceiptProgress | null>(null);
   const [actionMessage, setActionMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [entitlementId, setEntitlementId] = useState("");
   const [duration, setDuration] = useState<LeaveDurationCode>("FULL_DAY");
@@ -134,7 +148,8 @@ export default function LeaveDesktopPage() {
   const [hours, setHours] = useState(1);
   const [filter, setFilter] = useState<HistoryFilter>("ALL");
   const [detail, setDetail] = useState<LeaveRequestView | null>(null);
-  const [revision, setRevision] = useState<{ description: string; startDate: string; endDate: string } | null>(null);
+  const { ask: confirmAsk, dialog: confirmDialog } = useConfirm();
+  const [revision, setRevision] = useState<{ description: string; startDate: string; endDate: string; durationCode: LeaveDurationCode } | null>(null);
   const resubmitIntent = useRef<SubmissionIntent | null>(null);
 
   const load = useCallback(async () => {
@@ -156,6 +171,11 @@ export default function LeaveDesktopPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // an old error about the previous choice must not linger once the choice changes
+  useEffect(() => {
+    setActionMessage((current) => (current?.kind === "error" ? null : current));
+  }, [entitlementId, startDate, endDate, duration]);
 
   useEffect(() => {
     setRevision(null);
@@ -182,6 +202,18 @@ export default function LeaveDesktopPage() {
     },
     [holidaySet, workingWeekdays],
   );
+  const bookedDays = useMemo(() => {
+    const days = new Set<string>();
+    if (state.status !== "ready") return days;
+    for (const request of state.overview.requests) {
+      if (request.status !== "PENDING" && request.status !== "APPROVED") continue;
+      for (let cursor = new Date(request.startDate.slice(0, 10) + "T00:00:00.000Z"); cursor <= new Date(request.endDate.slice(0, 10) + "T00:00:00.000Z"); cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+        days.add(cursor.toISOString().slice(0, 10));
+      }
+    }
+    return days;
+  }, [state]);
+  const bookedMark = useCallback((iso: string) => (bookedDays.has(iso) ? ("booked" as const) : undefined), [bookedDays]);
   function workingDaysBetween(from: string, to: string): number {
     if (!from) return 0;
     let count = 0;
@@ -218,6 +250,24 @@ export default function LeaveDesktopPage() {
     setEndDate("");
     setStartTime("13:00");
     setHours(1);
+    setCertFiles([]);
+    certProgress.current = null;
+  }
+
+  async function openCertificate(attachmentId: string) {
+    let tab: Window | null = null;
+    try {
+      tab = preparePrivateDownloadTab();
+      const response = await fetch(`/api/attachments/${encodeURIComponent(attachmentId)}/download`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      if (!response.ok) throw new Error("เปิดใบรับรองแพทย์ไม่สำเร็จ");
+      await showPrivateDownload(tab, (await response.json()) as AttachmentDownloadResult);
+    } catch (error) {
+      tab?.close();
+      setActionMessage({ kind: "error", text: error instanceof Error ? error.message : "เปิดใบรับรองแพทย์ไม่สำเร็จ" });
+    }
   }
 
   async function submitLeave(event: FormEvent<HTMLFormElement>) {
@@ -242,6 +292,15 @@ export default function LeaveDesktopPage() {
       return;
     }
     const approverEmployeeIds = state.approvalOptions.map((step) => String(data.get(`approver-${step.stepOrder}`) ?? ""));
+    // The certificate field exists only for sick leave; never send files for another type.
+    const files = selected?.leaveTypeKey.toUpperCase() === "SICK" ? certFiles : [];
+    if (files.length > 0) {
+      const problem = validateReceiptCandidates(files);
+      if (problem) {
+        setActionMessage({ kind: "error", text: problem.replace("ใบเสร็จ", "ใบรับรองแพทย์") });
+        return;
+      }
+    }
     const payload = {
       entitlementId,
       description: String(data.get("description") ?? ""),
@@ -252,26 +311,46 @@ export default function LeaveDesktopPage() {
       endTime: duration === "HOURLY" ? endTime : null,
       approverEmployeeIds,
     };
-    createIntent.current = resolveSubmissionIntent(createIntent.current, payload);
+    createIntent.current = resolveSubmissionIntent(createIntent.current, {
+      ...payload,
+      files: files.map((file) => ({ name: file.name, type: file.type, size: file.size, lastModified: file.lastModified })),
+    });
+    const intent = createIntent.current;
+    const progress: MedicalReceiptProgress =
+      certProgress.current?.signature === intent.signature
+        ? certProgress.current
+        : { signature: intent.signature, receipts: [] };
+    certProgress.current = progress;
     setSubmitting(true);
     setActionMessage(null);
     try {
+      // Same flow as medical receipts: upload-intent, PUT, finalize; the server links on create.
+      const attachmentIds = files.length > 0 ? await completeMedicalReceiptUploads(files, progress) : [];
       const response = await fetch("/api/leave/requests", {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ ...payload, clientKey: createIntent.current.clientKey }),
+        body: JSON.stringify({ ...payload, ...(attachmentIds.length > 0 ? { attachmentIds } : {}), clientKey: intent.clientKey }),
       });
       if (!response.ok) {
         if (shouldDiscardSubmissionIntent(response.status)) createIntent.current = null;
         throw new Error(await submitErrorMessage(response));
       }
       createIntent.current = null;
+      certProgress.current = null;
       resetForm(form);
       setActionMessage({ kind: "success", text: "ส่งใบลาเรียบร้อยแล้ว หัวหน้าจะได้รับแจ้งเตือน" });
       await load();
     } catch (error) {
-      setActionMessage({ kind: "error", text: error instanceof Error ? error.message : "ส่งใบลาไม่สำเร็จ" });
+      setActionMessage({
+        kind: "error",
+        text:
+          error instanceof MedicalReceiptFinalizeUncertainError
+            ? "ยังยืนยันไฟล์ใบรับรองแพทย์ไม่ได้ กรุณากดส่งใบลาอีกครั้ง"
+            : error instanceof Error
+              ? error.message
+              : "ส่งใบลาไม่สำเร็จ",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -286,10 +365,10 @@ export default function LeaveDesktopPage() {
     const payload = {
       description: revision.description.trim(),
       startDate: revision.startDate,
-      endDate: request.durationCode === "FULL_DAY" ? revision.endDate || revision.startDate : revision.startDate,
-      durationCode: request.durationCode,
-      startTime: request.startTime,
-      endTime: request.endTime,
+      endDate: revision.durationCode === "FULL_DAY" ? revision.endDate || revision.startDate : revision.startDate,
+      durationCode: revision.durationCode,
+      startTime: revision.durationCode === "HOURLY" ? request.startTime : null,
+      endTime: revision.durationCode === "HOURLY" ? request.endTime : null,
     };
     resubmitIntent.current = resolveSubmissionIntent(resubmitIntent.current, { requestId: request.requestId, ...payload });
     setSubmitting(true);
@@ -318,7 +397,7 @@ export default function LeaveDesktopPage() {
   }
 
   async function cancelRequest(requestId: string) {
-    if (submitting || !window.confirm("ยืนยันยกเลิกคำขอลานี้?")) return;
+    if (submitting || !(await confirmAsk("ยืนยันยกเลิกคำขอลานี้?", "ยืนยันยกเลิก"))) return;
     setSubmitting(true);
     setActionMessage(null);
     try {
@@ -395,7 +474,7 @@ export default function LeaveDesktopPage() {
         <form className="ck-fbox ck-c-leave" onSubmit={submitLeave} noValidate>
           <div className="ck-sh">
             <h2>ยื่นใบลา</h2>
-            <span className="ck-hint">หัวหน้าจะได้รับแจ้งเตือนทันทีที่ส่ง</span>
+            <span className="ck-hint">หัวหน้าได้รับแจ้งทันที</span>
           </div>
 
           {!hasAvailable ? (
@@ -449,6 +528,7 @@ export default function LeaveDesktopPage() {
                 mode={duration === "FULL_DAY" ? "range" : "single"}
                 label="วันที่ลา"
                 blocked={isNonWorkingDay}
+                marks={bookedMark}
                 start={startDate}
                 end={endDate}
                 onChange={(from, to) => {
@@ -507,6 +587,26 @@ export default function LeaveDesktopPage() {
               <span>เหตุผล</span>
               <textarea className="ck-in" name="description" rows={2} maxLength={2000} required placeholder="เช่น พาครอบครัวไปต่างจังหวัด" />
             </label>
+
+            {selected?.leaveTypeKey.toUpperCase() === "SICK" ? (
+              <label className="ck-field full">
+                <span>ใบรับรองแพทย์ (ไม่บังคับ)</span>
+                <input
+                  className="ck-in"
+                  type="file"
+                  name="medicalCertificate"
+                  multiple
+                  accept="image/jpeg,image/png,application/pdf"
+                  onChange={(event) => setCertFiles(Array.from(event.currentTarget.files ?? []))}
+                />
+                <small className="ck-hint">แนบได้ JPG, PNG หรือ PDF</small>
+                {certFiles.length > 0 ? (
+                  <small className="ck-hint">
+                    {certFiles.map((file) => `${file.name} (${formatMedicalBytes(file.size)})`).join(", ")}
+                  </small>
+                ) : null}
+              </label>
+            ) : null}
           </div>
 
           <div className="ck-aprbox">
@@ -569,17 +669,17 @@ export default function LeaveDesktopPage() {
                   </>
                 ) : (
                   <>
-                    ลา <b>{selected.leaveTypeName}</b> ประมาณ <b>{estimateDays} วันทำการ</b> หลังลาเหลือประมาณ <b>{remainingAfter} วัน</b>
+                    ลา <b>{selected.leaveTypeName}</b> ประมาณ <b>{estimateDays} วันทำการ</b>{overQuota ? <> · <b>เกินสิทธิ์ {Math.round((estimateDays - (selected?.remaining ?? 0)) * 1000) / 1000} วัน</b></> : <> หลังลาเหลือประมาณ <b>{remainingAfter} วัน</b></>}
                   </>
                 )
               ) : (
-                "เลือกประเภทและวันที่ลา ระบบจะสรุปให้ตรงนี้"
+                "เลือกประเภทและวันที่ลา"
               )}
             </span>
             <button className="ck-btn quiet ck-ml" type="reset" onClick={(event) => resetForm(event.currentTarget.form as HTMLFormElement)}>
               ล้างฟอร์ม
             </button>
-            <button className="ck-btn tone" type="submit" disabled={submitting || !hasAvailable || approvalOptions.length === 0 || overQuota}>
+            <button className="ck-btn tone" type="submit" disabled={submitting || !hasAvailable || approvalOptions.length === 0}>
               {submitting ? "กำลังส่ง…" : "ส่งใบลา"}
             </button>
           </div>
@@ -597,59 +697,57 @@ export default function LeaveDesktopPage() {
               ))}
             </div>
           </div>
-          {filtered.length === 0 ? (
-            <div className="ck-empty">
-              <b>{requests.length === 0 ? "ยังไม่มีประวัติการลา" : "ไม่มีคำขอในสถานะนี้"}</b>
-              ใบลาที่ยื่นแล้วจะแสดงที่นี่
-            </div>
-          ) : (
-            <div className="ck-hgrid">
-              {filtered.map((request) => {
-                const tone = toneOf(request.leaveTypeKey);
-                const status = STATUS[request.status];
-                return (
-                  <button key={request.requestId} type="button" className={"ck-hcard ck-c-" + tone} onClick={() => setDetail(request)}>
-                    <span className="ck-hc-top">
-                      <span className="ck-chip">
-                        <Icon name={TONE_ICON[tone]} />
+          <div className="ck-hist">
+            <DataGrid
+              rows={filtered}
+              rowKey={(request) => request.requestId}
+              onRowClick={setDetail}
+              empty={
+                <EmptyState icon="leave" title={requests.length === 0 ? "ยังไม่มีประวัติการลา" : "ไม่มีคำขอในสถานะนี้"}>
+                  ใบลาที่ยื่นแล้วจะแสดงที่นี่
+                </EmptyState>
+              }
+              columns={[
+                {
+                  key: "type",
+                  header: "ประเภท",
+                  render: (request) => {
+                    const tone = toneOf(request.leaveTypeKey);
+                    return (
+                      <span className={"ck-gkind ck-c-" + tone}>
+                        <span className="ck-chip">
+                          <Icon name={TONE_ICON[tone]} size={16} />
+                        </span>
+                        <span className="ck-gcell">
+                          <b>{request.leaveTypeName}</b>
+                          <small>ยื่น {thaiDateTime(request.submittedAt)}</small>
+                        </span>
                       </span>
-                      <span>
-                        <b>{request.leaveTypeName}</b>
-                        <small>
-                          {request.requestNo} · ยื่นเมื่อ {thaiDateTime(request.submittedAt)}
-                        </small>
-                      </span>
-                      <span className={"ck-pill " + status.tone}>{status.label}</span>
+                    );
+                  },
+                },
+                { key: "date", header: "วันที่ลา", render: (request) => thaiDateRange(request.startDate, request.endDate) },
+                {
+                  key: "amount",
+                  header: "จำนวน",
+                  render: (request) => (
+                    <span className="ck-gcell">
+                      <b>{amountLabel(request)}</b>
+                      <small>{DURATION_LABEL[request.durationCode]}</small>
                     </span>
-                    <dl className="ck-dl">
-                      <div>
-                        <dt>วันที่</dt>
-                        <dd>{thaiDateRange(request.startDate, request.endDate)}</dd>
-                      </div>
-                      <div>
-                        <dt>จำนวน</dt>
-                        <dd>{amountLabel(request)}</dd>
-                      </div>
-                      <div>
-                        <dt>ช่วงเวลา</dt>
-                        <dd>{DURATION_LABEL[request.durationCode]}</dd>
-                      </div>
-                      <div>
-                        <dt>เหตุผล</dt>
-                        <dd>{request.description || "—"}</dd>
-                      </div>
-                    </dl>
-                    <span className="ck-hc-foot">
-                      <span className="ck-more">
-                        ดูรายละเอียด
-                        <Icon name="chevron" size={14} />
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                  ),
+                },
+                { key: "reason", header: "เหตุผล", render: (request) => <span className="ck-gcell"><small>{request.description || "—"}</small></span> },
+                {
+                  key: "status",
+                  header: "สถานะ",
+                  align: "center",
+                  width: "80px",
+                  render: (request) => <StatusDot tone={STATUS[request.status].tone as DotTone} label={STATUS[request.status].label} />,
+                },
+              ]}
+            />
+          </div>
         </section>
       </div>
 
@@ -727,6 +825,18 @@ export default function LeaveDesktopPage() {
                   </ol>
                 </div>
               ) : null}
+              {detail.attachments.length > 0 ? (
+                <div className="ck-dlg-sec">
+                  <h3>ใบรับรองแพทย์</h3>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {detail.attachments.map((attachment, index) => (
+                      <button key={attachment.attachmentId} type="button" className="ck-btn" onClick={() => void openCertificate(attachment.attachmentId)}>
+                        ดูใบรับรองแพทย์{detail.attachments.length > 1 ? ` ${index + 1}` : ""}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
               <div className="ck-dlg-sec">
                 <h3>ผลการพิจารณา</h3>
                 <p>{detail.decisionReason || (detail.status === "PENDING" ? "รอผู้อนุมัติพิจารณา" : "—")}</p>
@@ -749,7 +859,23 @@ export default function LeaveDesktopPage() {
                       วันที่เริ่มลา
                       <DateField label="วันที่เริ่มลา" value={revision.startDate} onChange={(next) => setRevision({ ...revision, startDate: next })} />
                     </label>
-                    {detail.durationCode === "FULL_DAY" ? (
+                    {detail.durationCode !== "HOURLY" ? (
+                      <div className="ck-seg" role="radiogroup" aria-label="ช่วงเวลา">
+                        {(["FULL_DAY", "MORNING", "AFTERNOON"] as const).map((code) => (
+                          <button
+                            key={code}
+                            type="button"
+                            role="radio"
+                            aria-checked={revision.durationCode === code}
+                            className={revision.durationCode === code ? "on" : ""}
+                            onClick={() => setRevision({ ...revision, durationCode: code })}
+                          >
+                            {code === "FULL_DAY" ? "เต็มวัน" : code === "MORNING" ? "ครึ่งเช้า" : "ครึ่งบ่าย"}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                    {revision.durationCode === "FULL_DAY" ? (
                       <label>
                         วันที่สิ้นสุด
                         <DateField label="วันที่สิ้นสุด" min={revision.startDate} value={revision.endDate} onChange={(next) => setRevision({ ...revision, endDate: next })} />
@@ -770,6 +896,7 @@ export default function LeaveDesktopPage() {
                         description: detail.description ?? "",
                         startDate: detail.startDate.slice(0, 10),
                         endDate: detail.endDate.slice(0, 10),
+                        durationCode: detail.durationCode,
                       })
                     }
                   >
@@ -791,6 +918,7 @@ export default function LeaveDesktopPage() {
           </div>
         </>
       ) : null}
+      {confirmDialog}
     </>
   );
 }

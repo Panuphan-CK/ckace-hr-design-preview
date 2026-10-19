@@ -12,6 +12,10 @@ import {
   useState,
 } from "react";
 
+import "../ck-v2-pages.css";
+import { Icon } from "../ui/icons";
+import { DataGrid, DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
+import { thaiDateTime } from "../ui/format";
 import { AnnouncementAdminPanel } from "./admin-panel";
 import { preparePrivateDownloadTab, showPrivateDownload } from "../private-download";
 
@@ -30,28 +34,19 @@ type State =
     }
   | { status: "error"; message: string };
 
-const dateTimeFormatter = new Intl.DateTimeFormat(
-  "th-TH",
-  {
-    timeZone: "Asia/Bangkok",
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  },
-);
-
 function formatPublishedAt(
   value: string | null,
 ): string {
   if (!value) return "ยังไม่เผยแพร่";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? value
-    : dateTimeFormatter.format(date);
+  return thaiDateTime(value);
 }
+
+const SCOPE_FILTERS: readonly { id: AnnouncementScopeFilter; label: string }[] = [
+  { id: "ALL", label: "ทั้งหมด" },
+  { id: "GLOBAL", label: "ทั้งบริษัท" },
+  { id: "AGENCY", label: "หน่วยงาน" },
+  { id: "DEPARTMENT", label: "แผนก" },
+];
 
 function errorMessage(status: number): string {
   if (status === 401) {
@@ -75,6 +70,7 @@ export default function DesktopAnnouncementsPage() {
   const [query, setQuery] = useState("");
   const [busyAttachment, setBusyAttachment] =
     useState<string | null>(null);
+  const [detail, setDetail] = useState<AnnouncementView | null>(null);
   const [actionError, setActionError] =
     useState<string | null>(null);
 
@@ -155,211 +151,108 @@ export default function DesktopAnnouncementsPage() {
     }
   }
 
-  if (state.status === "loading") {
-    return (
-      <section
-        className="module-state"
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-      >
-        <div className="spinner" aria-hidden="true" />
-        <h1>กำลังโหลดข่าวประกาศ</h1>
-        <p>
-          กำลังตรวจสอบข่าวที่คุณมีสิทธิ์เห็นจาก Server
-        </p>
-      </section>
-    );
-  }
-
+  if (state.status === "loading") return <LoadingState title="กำลังโหลดข่าวประกาศ" />;
   if (state.status === "error") {
-    return (
-      <section className="module-state" role="alert">
-        <div className="status-badge error">
-          ANNOUNCEMENTS ERROR
-        </div>
-        <h1>เปิดข่าวประกาศไม่สำเร็จ</h1>
-        <p>{state.message}</p>
-        <button
-          className="primary-button"
-          type="button"
-          onClick={() => void load()}
-        >
-          ลองใหม่
-        </button>
-      </section>
-    );
+    return <ErrorState title="เปิดข่าวประกาศไม่สำเร็จ" message={state.message} onRetry={() => void load()} />;
   }
 
   return (
-    <div className="module-stack">
-      <section className="module-heading">
-        <div>
-          <p className="eyebrow">
-            ANNOUNCEMENTS DESKTOP
-          </p>
-          <h1>ข่าวประกาศ</h1>
-          <p>
-            ข่าวสารที่เผยแพร่สำหรับทั้งบริษัท หน่วยงาน
-            หรือแผนกของคุณ
-          </p>
-        </div>
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={() => void load()}
-        >
-          รีเฟรช
+    <>
+      <PageHead tone="accent" icon="megaphone" title="ข่าวประกาศ" subtitle="ข่าวสารสำหรับทั้งบริษัท หน่วยงาน หรือแผนกของคุณ">
+        <button className="ck-btn quiet" type="button" onClick={() => void load()}>
+          <Icon name="refresh" size={16} /> รีเฟรช
         </button>
-      </section>
+      </PageHead>
 
-      {state.result.dataStatus === "SOURCE_MISSING" ? (
-        <div className="action-message error" role="alert">
-          แหล่งข้อมูลข่าวประกาศยังไม่พร้อมใช้งาน
-        </div>
-      ) : null}
+      <div className="ck-wrap ck-stack">
+        {state.result.dataStatus === "SOURCE_MISSING" ? (
+          <Message value={{ kind: "error", text: "แหล่งข้อมูลข่าวประกาศยังไม่พร้อมใช้งาน" }} />
+        ) : null}
+        {detail ? null : <Message value={actionError ? { kind: "error", text: actionError } : null} />}
 
-      {actionError ? (
-        <div className="action-message error" role="alert">
-          {actionError}
-        </div>
-      ) : null}
+        <AnnouncementAdminPanel onChanged={() => void load()} />
 
-      <AnnouncementAdminPanel onChanged={() => void load()} />
-
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">FILTER</p>
-            <h2>ค้นหาข่าวประกาศ</h2>
-          </div>
-          <span className="panel-note">
-            {visibleAnnouncements.length} รายการ
-          </span>
-        </div>
-        <div className="announcement-filter-grid">
-          <label>
-            ขอบเขต
-            <select
-              value={scopeFilter}
-              onChange={(event) =>
-                setScopeFilter(
-                  event.target
-                    .value as AnnouncementScopeFilter,
-                )
-              }
-            >
-              <option value="ALL">ทั้งหมด</option>
-              <option value="GLOBAL">ทั้งบริษัท</option>
-              <option value="AGENCY">หน่วยงาน</option>
-              <option value="DEPARTMENT">แผนก</option>
-            </select>
-          </label>
-          <label>
-            ค้นหาข้อความ
+        <section className="ck-panel ck-c-accent" aria-labelledby="an-list">
+          <SectionHead title="ข่าวล่าสุด" id="an-list" count={visibleAnnouncements.length}>
+            <Filters value={scopeFilter} options={SCOPE_FILTERS} onChange={setScopeFilter} />
             <input
+              className="ck-in ck-search"
               type="search"
               value={query}
-              onChange={(event) =>
-                setQuery(event.target.value)
-              }
-              placeholder="หัวข้อหรือเนื้อหาประกาศ"
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="ค้นหาหัวข้อหรือเนื้อหา"
+              aria-label="ค้นหาข่าวประกาศ"
             />
-          </label>
-        </div>
-      </section>
-
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">NEWS FEED</p>
-            <h2>ข่าวล่าสุด</h2>
-          </div>
-        </div>
-
-        {visibleAnnouncements.length === 0 ? (
-          <div className="empty-state">
-            <h3>ไม่พบข่าวประกาศ</h3>
-            <p>
-              ยังไม่มีประกาศที่ตรงกับตัวกรองและสิทธิ์ของคุณ
-            </p>
-          </div>
-        ) : (
-          <div className="announcement-list">
-            {visibleAnnouncements.map((announcement) => (
-              <article
-                className="announcement-card"
-                key={announcement.id}
-              >
-                <div className="announcement-card-head">
-                  <div>
-                    <span className="announcement-scope">
-                      {announcementScopeLabel(
-                        announcement.scope,
-                      )}
+          </SectionHead>
+          <DataGrid
+            rows={visibleAnnouncements}
+            rowKey={(announcement) => announcement.id}
+            onRowClick={(announcement) => setDetail(announcement)}
+            empty={<EmptyState icon="megaphone" title="ไม่พบข่าวประกาศ">ยังไม่มีประกาศที่ตรงกับตัวกรองและสิทธิ์ของคุณ</EmptyState>}
+            columns={[
+              {
+                key: "title",
+                header: "หัวข้อ",
+                render: (announcement) => (
+                  <span className="ck-gcell">
+                    <span className="ck-chip sm ck-c-accent">
+                      <Icon name="megaphone" size={16} />
                     </span>
-                    <h3>
-                      {announcementTitle(announcement)}
-                    </h3>
-                  </div>
-                  <time>
-                    {formatPublishedAt(
-                      announcement.publishedAt,
-                    )}
-                  </time>
-                </div>
+                    <b>{announcementTitle(announcement)}</b>
+                  </span>
+                ),
+              },
+              {
+                key: "scope",
+                header: "ขอบเขต",
+                render: (announcement) => <span className="ck-minichip">{announcementScopeLabel(announcement.scope)}</span>,
+              },
+              { key: "at", header: "เผยแพร่เมื่อ", render: (announcement) => formatPublishedAt(announcement.publishedAt) },
+              {
+                key: "att",
+                header: "เอกสารแนบ",
+                align: "center",
+                render: (announcement) =>
+                  announcement.hasAttachment ? <Icon name="clip" size={16} /> : "—",
+              },
+              { key: "go", header: "", width: "40px", align: "center", render: () => <Icon name="chevron" size={16} /> },
+            ]}
+          />
+        </section>
+      </div>
 
-                <p className="announcement-content">
-                  {announcement.content}
-                </p>
-
-                {announcement.hasAttachment ? (
-                  <div className="announcement-attachments">
-                    <strong>เอกสารแนบ</strong>
-                    <div className="announcement-attachment-actions">
-                      {announcement.attachmentIds.map(
-                        (attachmentId, index) => (
-                          <button
-                            className="secondary-button"
-                            type="button"
-                            key={attachmentId}
-                            disabled={Boolean(busyAttachment)}
-                            onClick={() =>
-                              void downloadAttachment(
-                                announcement,
-                                attachmentId,
-                              )
-                            }
-                          >
-                            {busyAttachment === attachmentId
-                              ? "กำลังเปิด..."
-                              : `เอกสารแนบ ${index + 1}`}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  </div>
-                ) : null}
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="module-panel activity-gap-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">COMPANY ACTIVITIES</p>
-            <h2>กิจกรรมบริษัท</h2>
-          </div>
-          <span className="status-badge">ยังไม่เชื่อมข้อมูล</span>
-        </div>
-        <p className="panel-description">
-          Project B รุ่นปัจจุบันยังไม่มีแหล่งข้อมูลกิจกรรมบริษัท
-          ที่เป็น contract/API แยกจากข่าวประกาศ
-          จึงยังไม่แสดงข้อมูลกิจกรรมในหน้านี้
-        </p>
-      </section>
-    </div>
+      {detail ? (
+        <DetailDialog
+          tone="accent"
+          icon="megaphone"
+          kicker={announcementScopeLabel(detail.scope)}
+          title={announcementTitle(detail)}
+          onClose={() => setDetail(null)}
+        >
+          <Message value={actionError ? { kind: "error", text: actionError } : null} />
+          <p className="ck-dlg-note">เผยแพร่เมื่อ {formatPublishedAt(detail.publishedAt)}</p>
+          <p className="ck-prewrap">{detail.content}</p>
+          {detail.hasAttachment ? (
+            <div className="ck-dlg-sec">
+              <h3>เอกสารแนบ</h3>
+              <div className="ck-row ck-wrapbtn">
+                {detail.attachmentIds.map((attachmentId, index) => (
+                  <button
+                    className="ck-btn sm"
+                    type="button"
+                    key={attachmentId}
+                    disabled={Boolean(busyAttachment)}
+                    onClick={() => void downloadAttachment(detail, attachmentId)}
+                  >
+                    <Icon name="clip" size={14} />
+                    {busyAttachment === attachmentId ? "กำลังเปิด..." : `เอกสารแนบ ${index + 1}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </DetailDialog>
+      ) : null}
+    </>
   );
 }

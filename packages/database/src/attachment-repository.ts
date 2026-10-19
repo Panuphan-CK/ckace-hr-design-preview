@@ -116,7 +116,31 @@ export class PrismaAttachmentRepository implements AttachmentRepository {
         sizeBytes: true,
         checksumSha256: true,
         finalizedAt: true,
-        leaveLink: { select: { attachmentId: true } },
+        leaveLink: {
+          select: {
+            attachmentId: true,
+            leaveRequest: {
+              select: {
+                requesterEmployeeId: true,
+                approvalInstance: {
+                  select: {
+                    currentStepOrder: true,
+                    steps: {
+                      where: {
+                        OR: [
+                          { approverEmployeeId: actorEmployeeId },
+                          { coApproverEmployeeIds: { has: actorEmployeeId } },
+                        ],
+                        status: "PENDING",
+                      },
+                      select: { stepOrder: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
         overtimeLink: { select: { attachmentId: true } },
         announcementLink: { select: { attachmentId: true } },
         employeeMedia: { select: { id: true } },
@@ -159,6 +183,7 @@ export class PrismaAttachmentRepository implements AttachmentRepository {
       row.announcementLink ||
       row.employeeMedia,
     );
+    const leaveInstance = row.leaveLink?.leaveRequest.approvalInstance;
     const medicalRelationAuthorized =
       row.ownerEmployeeId === actorEmployeeId ||
       Boolean(
@@ -166,6 +191,12 @@ export class PrismaAttachmentRepository implements AttachmentRepository {
           (step) =>
             step.stepOrder ===
             row.medicalLink?.medicalClaim.approvalInstance?.currentStepOrder,
+        ),
+      ) ||
+      // Sick-leave certificate: the assigned approver with a pending step at the current stage.
+      Boolean(
+        leaveInstance?.steps.some(
+          (step) => step.stepOrder === leaveInstance.currentStepOrder,
         ),
       );
 

@@ -32,6 +32,7 @@ import {
   recordOvertimeReportExport,
   type OvertimeReportFilters,
 } from "./overtime-report-repository";
+import { calendarPolicy, usageForRequest } from "./leave-repository";
 import { generateVacationEntitlementsForYear } from "./vacation-entitlement";
 
 export interface ManagementRepository {
@@ -413,6 +414,9 @@ export class PrismaManagementRepository implements ManagementRepository {
           requesterEmployeeId: true,
           startDate: true,
           endDate: true,
+          durationCode: true,
+          startTime: true,
+          endTime: true,
           status: true,
           requester: { select: { fullName: true } },
           leaveType: { select: { name: true } },
@@ -450,7 +454,7 @@ export class PrismaManagementRepository implements ManagementRepository {
           reason: true,
           employee: { select: { fullName: true } },
           segments: {
-            select: { workDate: true, startTime: true, endTime: true },
+            select: { workDate: true, startTime: true, endTime: true, requestedMinutes: true },
             orderBy: [{ workDate: "asc" }, { startTime: "asc" }],
           },
         },
@@ -475,6 +479,8 @@ export class PrismaManagementRepository implements ManagementRepository {
         take: 1000,
       }),
     ]);
+    const calendar = await calendarPolicy(this.prisma);
+    const hours = (minutes: number) => String(Math.round((minutes / 60) * 100) / 100);
     const rows = [
       ...leave.map((row) => ({
         id: row.id,
@@ -489,6 +495,7 @@ export class PrismaManagementRepository implements ManagementRepository {
           dateOnly(row.startDate) +
           " - " +
           dateOnly(row.endDate),
+        amount: String(usageForRequest(row, calendar)),
       })),
       ...attendance.map((row) => ({
         id: row.id,
@@ -501,6 +508,7 @@ export class PrismaManagementRepository implements ManagementRepository {
           "เข้า " +
           row.checkInAt.toISOString() +
           (row.checkOutAt ? " · ออก " + row.checkOutAt.toISOString() : ""),
+        amount: row.checkOutAt ? hours((row.checkOutAt.getTime() - row.checkInAt.getTime()) / 60000) : "0",
       })),
       ...overtime.map((row) => {
         const first = row.segments[0];
@@ -518,6 +526,7 @@ export class PrismaManagementRepository implements ManagementRepository {
             (first && last
               ? "OT " + clock(first.startTime) + "-" + clock(last.endTime) + ": "
               : "") + row.reason,
+          amount: hours(row.segments.reduce((sum, segment) => sum + segment.requestedMinutes, 0)),
         };
       }),
       ...medical.map((row) => ({

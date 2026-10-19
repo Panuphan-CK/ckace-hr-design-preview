@@ -35,6 +35,12 @@ import {
   resubmitSentBackLeave,
   withdrawApprovedLeave,
 } from "./leave-revision-repository";
+import {
+  leaveAttachmentRows,
+  leaveAttachmentSelection,
+  leaveAttachmentView,
+  validateLeaveAttachments,
+} from "./leave-attachments";
 
 /** Request states whose days count against the entitlement when a new request is checked. */
 export const QUOTA_RESERVING_STATUSES = ["APPROVED", "PENDING", "REVISION_REQUESTED"] as const;
@@ -134,7 +140,7 @@ function asNumber(value: Prisma.Decimal): number {
   return numberValue;
 }
 
-async function calendarPolicy(
+export async function calendarPolicy(
   prisma: Pick<Prisma.TransactionClient, "weeklyWorkRule" | "holiday">,
 ): Promise<LeaveWorkingCalendar> {
   const [rules, holidays] = await Promise.all([
@@ -165,7 +171,7 @@ async function calendarPolicy(
   };
 }
 
-function usageForRequest(
+export function usageForRequest(
   request: {
     startDate: Date;
     endDate: Date;
@@ -486,6 +492,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
           decisionReason: true,
           submittedAt: true,
           entitlementId: true,
+          attachments: leaveAttachmentSelection,
           leaveType: {
             select: {
               key: true,
@@ -528,6 +535,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
         status: request.status,
         decisionReason: request.decisionReason,
         submittedAt: request.submittedAt.toISOString(),
+        attachments: request.attachments.map(leaveAttachmentView),
       }),
     );
 
@@ -791,6 +799,16 @@ export class PrismaLeaveRepository implements LeaveRepository {
               select: { id: true },
             });
 
+          const attachmentIds = [
+            ...(input.request.attachmentIds ?? []),
+          ];
+          validateLeaveAttachments({
+            employeeId: input.employeeId,
+            leaveTypeKey: leaveType.key,
+            requestedIds: attachmentIds,
+            rows: await leaveAttachmentRows(tx, attachmentIds),
+          });
+
           const leaveRequest = await tx.leaveRequest.create({
             data: {
               requesterEmployeeId: input.employeeId,
@@ -816,6 +834,13 @@ export class PrismaLeaveRepository implements LeaveRepository {
                   )
                 : null,
               status: "PENDING",
+              ...(attachmentIds.length > 0
+                ? {
+                    attachments: {
+                      create: attachmentIds.map((attachmentId) => ({ attachmentId })),
+                    },
+                  }
+                : {}),
             },
             select: { id: true },
           });

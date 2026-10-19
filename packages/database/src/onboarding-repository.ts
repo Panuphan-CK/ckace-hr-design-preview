@@ -285,6 +285,7 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
             id: true,
           },
         },
+        media: { select: { kind: true } },
       },
       orderBy: [
         { employmentStart: "asc" },
@@ -304,6 +305,8 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
             employmentStart:
               row.employmentStart?.toISOString().slice(0, 10) ?? null,
             lineLinked: Boolean(row.lineAccount),
+            hasProfileImage: row.media.some((item) => item.kind === "PROFILE"),
+            hasSignatureImage: row.media.some((item) => item.kind === "SIGNATURE"),
           }]
         : [],
     );
@@ -422,7 +425,7 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
       }
 
       let notificationQueued = false;
-      if (!unchanged && account.employee.lineAccount) {
+      if (!unchanged) {
         await tx.notificationOutbox.create({
           data: {
             aggregateType: "EMPLOYEE_ACCOUNT",

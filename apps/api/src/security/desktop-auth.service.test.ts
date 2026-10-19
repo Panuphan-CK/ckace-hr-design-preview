@@ -6,7 +6,7 @@ import type {
   OnboardingCredentialRecord,
   OnboardingRepository,
 } from "@ckace/database";
-import { UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
 import {
   afterEach,
   beforeEach,
@@ -140,7 +140,43 @@ describe("DesktopAuthService", () => {
         username: "user",
         password: "correct-password",
       }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+
+    const pending = new DesktopAuthService(
+      repository({
+        employeeId: "employee-1",
+        accountState: "PENDING",
+        passwordHash: hashProjectPassword("correct-password"),
+        legacyPasswordHash: null,
+      }),
+      identityRepository,
+    );
+    await expect(
+      pending.login({ username: "user", password: "wrong-password" }),
     ).rejects.toBeInstanceOf(UnauthorizedException);
+    await expect(
+      pending.login({ username: "user", password: "correct-password" }),
+    ).rejects.toThrow("pending approval");
+  });
+
+  it("locks a login name for 5 minutes after 5 wrong passwords", async () => {
+    const service = new DesktopAuthService(
+      repository({
+        employeeId: "employee-1",
+        accountState: "ACTIVE",
+        passwordHash: hashProjectPassword("correct-password"),
+        legacyPasswordHash: null,
+      }),
+      identityRepository,
+    );
+    for (let i = 0; i < 5; i += 1) {
+      await expect(
+        service.login({ username: "user", password: "wrong-password" }),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+    }
+    await expect(
+      service.login({ username: "user", password: "correct-password" }),
+    ).rejects.toMatchObject({ status: 429 });
   });
 
   describe("loginWithLine", () => {

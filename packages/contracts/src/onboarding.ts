@@ -4,6 +4,7 @@ export interface EmployeeRegistrationInput {
 }
 export interface EmployeeRegistrationResult {
   readonly employeeId: string; readonly accountState: "PENDING"; readonly pendingApproval: true;
+  readonly mediaToken?: string | null;
 }
 export interface PendingLineBindingInput {
   readonly username: string; readonly password: string; readonly lineIdToken: string;
@@ -36,6 +37,8 @@ export interface PendingEmployeeAdminItem {
   readonly dateOfBirth: string | null;
   readonly employmentStart: string | null;
   readonly lineLinked: boolean;
+  readonly hasProfileImage?: boolean;
+  readonly hasSignatureImage?: boolean;
 }
 
 export interface OnboardingOrganizationOption {

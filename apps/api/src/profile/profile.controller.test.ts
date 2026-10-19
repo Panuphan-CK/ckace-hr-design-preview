@@ -20,6 +20,8 @@ import { ProfileController } from "./profile.controller";
 import { ProfileService } from "./profile.service";
 
 class FakeProfileRepository implements SelfProfileRepository {
+  async linkOwnMedia(): Promise<void> {}
+
   constructor(
     private readonly profile: DatabaseSelfProfile | null,
   ) {}
@@ -163,6 +165,8 @@ describe("ProfileController", () => {
 
 describe("Profile password change", () => {
   class CredentialRepository implements SelfProfileRepository {
+    async linkOwnMedia(): Promise<void> {}
+
     saved: { employeeId: string; passwordHash: string } | undefined;
 
     constructor(private readonly passwordHash: string | null, private readonly legacy: string | null = null) {}

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   REQUIRE_PERMISSION_KEY,
 } from "../security/require-permission.decorator";
+import type { RegistrationMediaService } from "./registration-media.service";
 import { OnboardingController } from "./onboarding.controller";
 import { OnboardingService } from "./onboarding.service";
 
@@ -59,6 +60,7 @@ describe("Onboarding admin Desktop API", () => {
   it("uses repository read projections without exposing credentials", async () => {
     const controller = new OnboardingController(
       new OnboardingService(repository, verifier),
+      { issueToken: () => null } as unknown as RegistrationMediaService,
     );
     await expect(
       controller.listPending({

@@ -125,6 +125,31 @@ export default function DesktopOnboardingPage() {
     [query, state],
   );
 
+  async function viewMedia(employeeId: string, kind: "PROFILE" | "SIGNATURE") {
+    const label = kind === "SIGNATURE" ? "ลายเซ็น" : "รูปโปรไฟล์";
+    // Open the tab synchronously so the browser does not block it as a popup.
+    const tab = window.open("", "_blank");
+    try {
+      const grantResponse = await fetch(
+        `/api/onboarding/employees/${encodeURIComponent(employeeId)}/media/${kind}`,
+        { credentials: "same-origin", cache: "no-store" },
+      );
+      if (!grantResponse.ok) throw new Error("grant");
+      const grant = (await grantResponse.json()) as {
+        download: { url: string; requiredHeaders: Record<string, string> };
+      };
+      const file = await fetch(grant.download.url, { headers: grant.download.requiredHeaders });
+      if (!file.ok) throw new Error("file");
+      const url = URL.createObjectURL(await file.blob());
+      if (tab) tab.location.href = url;
+      else window.location.href = url;
+    } catch {
+      tab?.close();
+      setMessageKind("error");
+      setMessage("เปิด" + label + "ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+    }
+  }
+
   async function approve(employeeId: string) {
     if (state.status !== "ready" || busy) return;
     const selected = selection[employeeId];
@@ -330,6 +355,29 @@ export default function DesktopOnboardingPage() {
                       <strong>
                         {displayDate(employee.dateOfBirth)}
                       </strong>
+                    </div>
+                  </div>
+
+                  <div className="profile-detail-grid">
+                    <div>
+                      <span>รูปโปรไฟล์</span>
+                      {employee.hasProfileImage ? (
+                        <button className="secondary-button" type="button" onClick={() => void viewMedia(employee.employeeId, "PROFILE")}>
+                          ดูรูปโปรไฟล์
+                        </button>
+                      ) : (
+                        <strong>ไม่ได้แนบ</strong>
+                      )}
+                    </div>
+                    <div>
+                      <span>ลายเซ็น</span>
+                      {employee.hasSignatureImage ? (
+                        <button className="secondary-button" type="button" onClick={() => void viewMedia(employee.employeeId, "SIGNATURE")}>
+                          ดูลายเซ็น
+                        </button>
+                      ) : (
+                        <strong>ไม่ได้แนบ</strong>
+                      )}
                     </div>
                   </div>
 

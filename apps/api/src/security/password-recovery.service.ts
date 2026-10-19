@@ -60,14 +60,81 @@ function safeSignatureEqual(left: string, right: string): boolean {
   }
 }
 
+export interface RecoverySender {
+  readonly channel: "LINE" | "EMAIL";
+  send(input: { to: string; title: string; body: string }): Promise<string | null>;
+}
+
+/** Senders and the public site address come from the runtime configuration; missing ones just skip that channel. */
+export const PASSWORD_RECOVERY_DELIVERY = "CKACE_PASSWORD_RECOVERY_DELIVERY";
+export interface PasswordRecoveryDelivery {
+  readonly baseUrl: string;
+  readonly senders: readonly RecoverySender[];
+}
+
+const REQUEST_COOLDOWN_MS = 60 * 1000;
+const MAX_REQUESTS_PER_HOUR = 3;
+const HOUR_MS = 60 * 60 * 1000;
+
 @Injectable()
 export class PasswordRecoveryService {
+  private readonly lastRequestAt = new Map<string, number>();
+  private readonly requestLog = new Map<string, number[]>();
+
   constructor(
     @Inject(PASSWORD_RECOVERY_REPOSITORY)
     private readonly repository: PasswordRecoveryRepository,
     @Inject(PASSWORD_RECOVERY_SECRET)
     private readonly secret: string,
+    @Inject(PASSWORD_RECOVERY_DELIVERY)
+    private readonly delivery: PasswordRecoveryDelivery = { baseUrl: "", senders: [] },
   ) {}
+
+  /**
+   * Self-service "forgot password": always succeeds from the caller's view (never reveals whether the
+   * login exists); when it does, a 15-minute link goes to the login e-mail and the linked LINE account.
+   */
+  async requestByLogin(identifier: unknown): Promise<{ readonly requested: true }> {
+    this.assertSecret();
+    const login = typeof identifier === "string" ? identifier.trim().toLowerCase() : "";
+    if (login.length < 3 || login.length > 120) return { requested: true };
+    const contact = await this.repository.findContactByLogin(login);
+    if (!contact || contact.account.state !== "ACTIVE") return { requested: true };
+
+    const now = Date.now();
+    const previous = this.lastRequestAt.get(contact.account.id) ?? 0;
+    if (now - previous < REQUEST_COOLDOWN_MS) return { requested: true };
+    const recent = (this.requestLog.get(contact.account.id) ?? []).filter((at) => now - at < HOUR_MS);
+    if (recent.length >= MAX_REQUESTS_PER_HOUR) return { requested: true };
+    this.requestLog.set(contact.account.id, [...recent, now]);
+    this.lastRequestAt.set(contact.account.id, now);
+
+    const { resetPath } = await this.issue(contact.account.employeeId);
+    const link = this.delivery.baseUrl.replace(/\/+$/, "") + resetPath;
+    const title = "ตั้งรหัสผ่านใหม่ CKACE HR";
+    const body =
+      "มีการขอตั้งรหัสผ่านใหม่สำหรับบัญชีของคุณ กดลิงก์นี้ภายใน 15 นาที:\n" +
+      link +
+      "\nถ้าคุณไม่ได้เป็นคนขอ ไม่ต้องทำอะไร";
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.loginName);
+    await Promise.all(
+      this.delivery.senders.map(async (sender) => {
+        const to =
+          sender.channel === "EMAIL" ? (emailOk ? contact.loginName : null) : contact.lineUserId;
+        if (!to) return;
+        try {
+          await sender.send({ to, title, body });
+        } catch (error) {
+          console.warn(
+            "password recovery delivery failed",
+            sender.channel,
+            error instanceof Error ? error.message : "unknown",
+          );
+        }
+      }),
+    );
+    return { requested: true };
+  }
 
   private assertSecret(): void {
     if (Buffer.byteLength(this.secret, "utf8") < 32) {
@@ -115,11 +182,8 @@ export class PasswordRecoveryService {
     };
   }
 
-  async reset(
-    token: string,
-    password: string,
-  ): Promise<PasswordRecoveryResetResult> {
-    this.assertSecret();
+  /** Checks a recovery token the same way for preview and reset; returns the account it belongs to. */
+  private async verifyToken(token: string): Promise<PasswordRecoveryAccount> {
     const [encodedPayload, signature, extra] = token.trim().split(".");
     if (!encodedPayload || !signature || extra) {
       throw new ForbiddenException("Invalid or expired recovery link");
@@ -158,6 +222,23 @@ export class PasswordRecoveryService {
     ) {
       throw new ForbiddenException("Invalid or expired recovery link");
     }
+    return account;
+  }
+
+  /** Shows which account a valid link belongs to, so the user knows who they are resetting. Only holders of a valid link see it. */
+  async preview(token: string): Promise<{ readonly account: string }> {
+    this.assertSecret();
+    const account = await this.verifyToken(token);
+    const login = (await this.repository.findLoginName(account.id)) ?? "";
+    return { account: login };
+  }
+
+  async reset(
+    token: string,
+    password: string,
+  ): Promise<PasswordRecoveryResetResult> {
+    this.assertSecret();
+    const account = await this.verifyToken(token);
 
     let passwordHash: string;
     try {

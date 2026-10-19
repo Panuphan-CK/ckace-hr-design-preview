@@ -241,6 +241,18 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
   }, [pathname]);
 
   useEffect(() => {
+    // Notice when the session ends while the page stays open (idle timeout, logged out elsewhere).
+    const timer = window.setInterval(() => {
+      void fetch("/api/security/session", { credentials: "same-origin", cache: "no-store" })
+        .then((response) => {
+          if (response.status === 401) router.replace("/login?expired=1");
+        })
+        .catch(() => undefined);
+    }, 60_000);
+    return () => window.clearInterval(timer);
+  }, [router]);
+
+  useEffect(() => {
     let cancelled = false;
     void fetch("/api/security/session", { credentials: "same-origin", cache: "no-store" })
       .then(async (response) => {
@@ -476,6 +488,17 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
           <span className="ck-tip">แอปพลิเคชัน</span>
         </button>
         {railSectionButton("settings", "ตั้งค่า HR", "gear")}
+        <button
+          type="button"
+          className="ck-ri"
+          disabled={loggingOut}
+          aria-busy={loggingOut}
+          aria-label="ออกจากระบบ"
+          onClick={() => void logout()}
+        >
+          <Icon name="logout" />
+          <span className="ck-tip">{loggingOut ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}</span>
+        </button>
       </nav>
 
       <aside id="ck-fly" className={flySection ? "ck-fly open" : "ck-fly"} aria-hidden={!flySection}>

@@ -10,6 +10,8 @@ import type {
 } from "@ckace/database";
 import {
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   ServiceUnavailableException,
@@ -47,9 +49,37 @@ function sessionSecret(): string {
   return value;
 }
 
+const MAX_FAILED_LOGINS = 5;
+const LOCK_MS = 5 * 60 * 1000;
+
 @Injectable()
 export class DesktopAuthService {
   private readonly identity: IdentityService;
+  /** Best-effort per-instance brute-force guard keyed by login name. */
+  private readonly failures = new Map<string, { count: number; lockedUntil: number }>();
+
+  private assertNotLocked(username: string): void {
+    const entry = this.failures.get(username);
+    if (entry && entry.lockedUntil > Date.now()) {
+      const retryAfterSeconds = Math.ceil((entry.lockedUntil - Date.now()) / 1000);
+      throw new HttpException(
+        { message: "Too many failed attempts", retryAfterSeconds },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+  }
+
+  private recordFailure(username: string): void {
+    const now = Date.now();
+    const previous = this.failures.get(username);
+    const expired = previous !== undefined && previous.count >= MAX_FAILED_LOGINS && previous.lockedUntil <= now;
+    const count = previous && !expired ? previous.count + 1 : 1;
+    this.failures.set(username, {
+      count,
+      lockedUntil: count >= MAX_FAILED_LOGINS ? now + LOCK_MS : 0,
+    });
+    if (this.failures.size > 5000) this.failures.clear();
+  }
 
   constructor(
     @Inject(DESKTOP_AUTH_REPOSITORY)
@@ -82,9 +112,11 @@ export class DesktopAuthService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
+    this.assertNotLocked(username);
     const credentials =
       await this.repository.findCredentials(username);
-    if (!credentials || credentials.accountState !== "ACTIVE") {
+    if (!credentials) {
+      this.recordFailure(username);
       throw new UnauthorizedException("Invalid credentials");
     }
 
@@ -106,7 +138,16 @@ export class DesktopAuthService {
         : false;
 
     if (!projectOk && !legacyOk) {
+      this.recordFailure(username);
       throw new UnauthorizedException("Invalid credentials");
+    }
+    this.failures.delete(username);
+    // Only reveal the account state after the password was proven correct.
+    if (credentials.accountState === "PENDING") {
+      throw new ForbiddenException("Account is pending approval");
+    }
+    if (credentials.accountState !== "ACTIVE") {
+      throw new ForbiddenException("Account is unavailable");
     }
 
     try {

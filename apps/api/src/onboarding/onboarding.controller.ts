@@ -22,6 +22,7 @@ import { AuthorizationGuard } from "../security/authorization.guard";
 import { RequirePermission } from "../security/require-permission.decorator";
 import type { SecurityRequest } from "../security/security-request";
 import { OnboardingService } from "./onboarding.service";
+import { RegistrationMediaService } from "./registration-media.service";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -36,11 +37,14 @@ function textValue(value: unknown, name: string): string {
 
 @Controller("onboarding")
 export class OnboardingController {
-  constructor(@Inject(OnboardingService) private readonly service: OnboardingService) {}
+  constructor(
+    @Inject(OnboardingService) private readonly service: OnboardingService,
+    @Inject(RegistrationMediaService) private readonly media: RegistrationMediaService,
+  ) {}
 
   @Post("register")
   @ModuleRoute("ONBOARDING_WRITE")
-  register(@Body() body: unknown) {
+  async register(@Body() body: unknown) {
     const value = obj(body);
     const input: EmployeeRegistrationInput = {
       username: textValue(value.username, "username"),
@@ -50,7 +54,37 @@ export class OnboardingController {
       dateOfBirth: textValue(value.dateOfBirth, "dateOfBirth"),
       employmentStart: textValue(value.employmentStart, "employmentStart"),
     };
-    return this.service.register(input);
+    const result = await this.service.register(input);
+    const employeeId = (result as { employeeId?: unknown }).employeeId;
+    const mediaToken = typeof employeeId === "string" ? this.media.issueToken(employeeId) : null;
+    return { ...result, mediaToken };
+  }
+
+  @Post("media/upload-intent")
+  @ModuleRoute("ONBOARDING_WRITE")
+  mediaUploadIntent(@Body() body: unknown) {
+    const value = obj(body);
+    const kind = value.kind;
+    if (kind !== "PROFILE" && kind !== "SIGNATURE") throw new BadRequestException("Invalid kind");
+    if (typeof value.sizeBytes !== "number") throw new BadRequestException("sizeBytes is required");
+    return this.media.createUploadIntent(textValue(value.token, "token"), {
+      kind,
+      originalFilename: textValue(value.originalFilename, "originalFilename").slice(0, 200),
+      mimeType: textValue(value.mimeType, "mimeType"),
+      sizeBytes: value.sizeBytes,
+      checksumSha256: textValue(value.checksumSha256, "checksumSha256"),
+    });
+  }
+
+  @Post("media/finalize")
+  @ModuleRoute("ONBOARDING_WRITE")
+  mediaFinalize(@Body() body: unknown) {
+    const value = obj(body);
+    const kind = value.kind;
+    if (kind !== "PROFILE" && kind !== "SIGNATURE") throw new BadRequestException("Invalid kind");
+    const attachmentId = textValue(value.attachmentId, "attachmentId");
+    if (!UUID.test(attachmentId)) throw new BadRequestException("Invalid attachment ID");
+    return this.media.finalize(textValue(value.token, "token"), attachmentId, kind);
   }
 
   @Post("desktop-activate")
@@ -92,6 +126,21 @@ export class OnboardingController {
   approvalOptions(@Req() request: SecurityRequest) {
     if (!request.actor) throw new UnauthorizedException();
     return this.service.getApprovalOptions();
+  }
+
+  @Get("employees/:id/media/:kind")
+  @ModuleRoute("ONBOARDING_READ")
+  @UseGuards(AuthorizationGuard)
+  @RequirePermission("onboarding.admin.approve", "GLOBAL")
+  mediaDownload(
+    @Req() request: SecurityRequest,
+    @Param("id") id: string,
+    @Param("kind") kind: string,
+  ) {
+    if (!request.actor) throw new UnauthorizedException();
+    if (!UUID.test(id)) throw new BadRequestException("Invalid employee ID");
+    if (kind !== "PROFILE" && kind !== "SIGNATURE") throw new BadRequestException("Invalid kind");
+    return this.media.createAdminDownload(id, kind);
   }
 
   @Post("employees/:id/approve")

@@ -144,6 +144,7 @@ export default function DesktopProfilePage() {
   const [busyAttachment, setBusyAttachment] =
     useState<string | null>(null);
   const [message, setMessage] = useState<Message | null>(null);
+  const [busyUpload, setBusyUpload] = useState<"PROFILE" | "SIGNATURE" | null>(null);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -182,6 +183,67 @@ export default function DesktopProfilePage() {
         : [],
     [state],
   );
+
+  async function uploadOwnImage(kind: "PROFILE" | "SIGNATURE", file: File) {
+    const label = kind === "SIGNATURE" ? "ลายเซ็น" : "รูปโปรไฟล์";
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setMessage({ kind: "error", text: "ใช้ได้เฉพาะไฟล์รูป JPG, PNG หรือ WebP" });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setMessage({ kind: "error", text: "ไฟล์ใหญ่เกิน 2 MB กรุณาลดขนาดรูป" });
+      return;
+    }
+    setBusyUpload(kind);
+    setMessage(null);
+    try {
+      const digest = await globalThis.crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+      const checksumSha256 = Array.from(new Uint8Array(digest))
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+      const intentResponse = await fetch("/api/attachments/upload-intent", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          privacyClass: "EMPLOYEE_PRIVATE",
+          originalFilename: file.name,
+          mimeType: file.type,
+          sizeBytes: file.size,
+          checksumSha256,
+        }),
+      });
+      if (!intentResponse.ok) throw new Error("upload-intent");
+      const intent = (await intentResponse.json()) as {
+        attachmentId: string;
+        upload: { url: string; method: string; requiredHeaders: Record<string, string> };
+      };
+      const put = await fetch(intent.upload.url, {
+        method: intent.upload.method,
+        headers: intent.upload.requiredHeaders,
+        body: file,
+      });
+      if (!put.ok) throw new Error("upload");
+      const finalize = await fetch(
+        "/api/attachments/" + encodeURIComponent(intent.attachmentId) + "/finalize",
+        { method: "POST", credentials: "same-origin" },
+      );
+      if (!finalize.ok) throw new Error("finalize");
+      const link = await fetch("/api/profile/media", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ kind, attachmentId: intent.attachmentId }),
+      });
+      if (!link.ok) throw new Error("link");
+      setMessage({ kind: "success", text: "บันทึก" + label + "เรียบร้อยแล้ว" });
+      await load();
+    } catch {
+      setMessage({ kind: "error", text: "อัปโหลด" + label + "ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" });
+    } finally {
+      setBusyUpload(null);
+    }
+  }
 
   async function handleAttachment(
     attachmentId: string,
@@ -229,6 +291,7 @@ export default function DesktopProfilePage() {
     label: string,
     media: { attachmentId: string } | null | undefined,
     openLabel: string,
+    kind: "PROFILE" | "SIGNATURE",
   ) {
     return (
       <div className="ck-field">
@@ -247,6 +310,20 @@ export default function DesktopProfilePage() {
               {busyAttachment === media.attachmentId ? "กำลังเปิด..." : openLabel}
             </button>
           ) : null}
+          <label className="ck-btn sm quiet" style={{ cursor: "pointer" }}>
+            {busyUpload === kind ? "กำลังอัปโหลด..." : media ? "เปลี่ยนไฟล์" : "อัปโหลด" + label}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              hidden
+              disabled={Boolean(busyUpload)}
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                event.currentTarget.value = "";
+                if (file) void uploadOwnImage(kind, file);
+              }}
+            />
+          </label>
         </div>
       </div>
     );
@@ -362,8 +439,8 @@ export default function DesktopProfilePage() {
         <section className="ck-fbox ck-c-accent">
           <SectionHead title="รูปโปรไฟล์และลายเซ็น" />
           <div className="ck-fgrid">
-            {mediaCard("รูปโปรไฟล์", profile.media.profile, "เปิดรูปโปรไฟล์")}
-            {mediaCard("ลายเซ็น", profile.media.signature, "เปิดลายเซ็น")}
+            {mediaCard("รูปโปรไฟล์", profile.media.profile, "เปิดรูปโปรไฟล์", "PROFILE")}
+            {mediaCard("ลายเซ็น", profile.media.signature, "เปิดลายเซ็น", "SIGNATURE")}
           </div>
           <p className="ck-muted" style={{ marginTop: 12 }}>
             ไฟล์ส่วนตัวเปิดผ่านลิงก์อายุสั้น ตรวจสิทธิ์ที่เซิร์ฟเวอร์ ชื่อ บัญชี รูปโปรไฟล์

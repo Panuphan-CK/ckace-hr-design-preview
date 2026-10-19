@@ -56,4 +56,18 @@ export class ProfileController {
       body,
     });
   }
+
+  @Post("media")
+  @ModuleRoute("IDENTITY_WRITE")
+  @RequireSelfPermission("profile.self.write")
+  async setMedia(
+    @Req() request: SecurityRequest,
+    @Body() body: unknown,
+  ): Promise<{ readonly linked: true }> {
+    if (!request.actor) {
+      throw new UnauthorizedException();
+    }
+
+    return this.profileService.linkOwnMedia(request.actor.employeeId, body);
+  }
 }

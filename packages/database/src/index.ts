@@ -26,3 +26,4 @@ export const DATABASE_PROVIDER = "postgresql" as const;
 export const DATABASE_M2_SCHEMA_STATE = "NEON_DEV_VERIFIED" as const;
 
 export * from "./request-status-repository";
+export * from "./registration-media-repository";

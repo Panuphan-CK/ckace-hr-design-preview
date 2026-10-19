@@ -41,6 +41,23 @@ export class PasswordRecoveryController {
     return this.service.issue(employeeId);
   }
 
+  @Post("request")
+  @ModuleRoute("IDENTITY_WRITE")
+  request(@Body() body: unknown) {
+    const value = bodyObject(body);
+    return this.service.requestByLogin(value.login);
+  }
+
+  @Post("preview")
+  @ModuleRoute("IDENTITY_WRITE")
+  preview(@Body() body: unknown) {
+    const value = bodyObject(body);
+    if (typeof value.token !== "string" || !value.token.trim()) {
+      throw new BadRequestException("token is required");
+    }
+    return this.service.preview(value.token);
+  }
+
   @Post("reset")
   @ModuleRoute("IDENTITY_WRITE")
   reset(@Body() body: unknown) {

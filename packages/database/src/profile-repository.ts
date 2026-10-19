@@ -41,6 +41,13 @@ export interface SelfProfileRepository {
     readonly passwordHash: string;
     readonly correlationId: string;
   }): Promise<void>;
+
+  /** Links an already-finalized own image as the profile photo / signature, replacing any previous one. */
+  linkOwnMedia(input: {
+    readonly employeeId: string;
+    readonly attachmentId: string;
+    readonly kind: "PROFILE" | "SIGNATURE";
+  }): Promise<void>;
 }
 
 const selfProfileSelect = {
@@ -138,7 +145,7 @@ function toDatabaseSelfProfile(
 
 type SelfProfilePrismaClient = Pick<
   PrismaClient,
-  "employee" | "userAccount" | "auditLog"
+  "employee" | "userAccount" | "auditLog" | "attachment" | "employeeMedia"
 >;
 
 export class PrismaSelfProfileRepository
@@ -186,6 +193,53 @@ implements SelfProfileRepository {
         entityId: input.employeeId,
         correlationId: input.correlationId,
       },
+    });
+  }
+
+  async linkOwnMedia(input: {
+    readonly employeeId: string;
+    readonly attachmentId: string;
+    readonly kind: "PROFILE" | "SIGNATURE";
+  }): Promise<void> {
+    await (this.prisma as unknown as PrismaClient).$transaction(async (tx) => {
+      const attachment = await tx.attachment.findFirst({
+        where: {
+          id: input.attachmentId,
+          ownerEmployeeId: input.employeeId,
+          privacyClass: "EMPLOYEE_PRIVATE",
+          finalizedAt: { not: null },
+          mimeType: { in: ["image/jpeg", "image/png", "image/webp"] },
+          leaveLink: null,
+          overtimeLink: null,
+          medicalLink: null,
+          announcementLink: null,
+          employeeMedia: null,
+        },
+        select: { id: true },
+      });
+      if (!attachment) throw new Error("Attachment is unavailable");
+      const previous = await tx.employeeMedia.findUnique({
+        where: { employeeId_kind: { employeeId: input.employeeId, kind: input.kind } },
+        select: { attachmentId: true },
+      });
+      if (previous) {
+        await tx.employeeMedia.delete({
+          where: { employeeId_kind: { employeeId: input.employeeId, kind: input.kind } },
+        });
+        await tx.attachment.deleteMany({ where: { id: previous.attachmentId } });
+      }
+      await tx.employeeMedia.create({
+        data: { employeeId: input.employeeId, attachmentId: input.attachmentId, kind: input.kind },
+      });
+      await tx.auditLog.create({
+        data: {
+          actorEmployeeId: input.employeeId,
+          action: input.kind === "PROFILE" ? "PROFILE_PHOTO_CHANGED_BY_OWNER" : "SIGNATURE_CHANGED_BY_OWNER",
+          entityType: "Employee",
+          entityId: input.employeeId,
+          correlationId: "profile-media",
+        },
+      });
     });
   }
 }

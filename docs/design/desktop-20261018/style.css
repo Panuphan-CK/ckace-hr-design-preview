@@ -8047,6 +8047,59 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
     cursor: grabbing;
     box-shadow: 0 12px 28px rgba(31,91,131,.28), 0 0 0 7px rgba(255,255,255,.46), inset 0 1px 0 rgba(255,255,255,.9) !important;
   }
+
+  .dashboard-v2 .dashboard-orb .orb-float .hero-drag-handle {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    z-index: 3;
+    width: 29px;
+    height: 29px;
+    display: grid;
+    place-items: center;
+    border: 2px solid rgba(255,255,255,.96);
+    border-radius: 50%;
+    color: #1f6f82;
+    background: linear-gradient(145deg, #ffffff, #dff7f4);
+    box-shadow: 0 5px 12px rgba(24,79,112,.24);
+    opacity: 0;
+    transform: scale(.82);
+    pointer-events: none;
+    transition: box-shadow .14s ease, background .14s ease, color .14s ease;
+  }
+
+  .dashboard-v2 .dashboard-orb .orb-float .hero-drag-handle svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float .hero-drag-handle {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+  }
+
+  .dashboard-v2 .dashboard-orb .orb-float.hero-handle-inset-top .hero-drag-handle {
+    top: 5px;
+  }
+
+  .dashboard-v2 .dashboard-orb .orb-float.hero-handle-inset-right .hero-drag-handle {
+    right: 5px;
+  }
+
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float:hover .hero-drag-handle,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float:focus-visible .hero-drag-handle,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float.is-layout-selected .hero-drag-handle,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float.is-dragging .hero-drag-handle {
+    color: #0d6675;
+    background: #fff;
+    box-shadow: 0 7px 16px rgba(24,79,112,.34), 0 0 0 4px rgba(132,238,221,.22);
+    transform: scale(1.08);
+  }
 }
 
 @media (max-width: 840px) {

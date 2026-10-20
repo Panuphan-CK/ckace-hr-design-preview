@@ -1,3 +1,4 @@
+import { allowanceHint } from "../overtime/overtime-view";
 import type { ApprovalHistoryItem, RequestStatusItem, UnifiedRequestKind } from "@ckace/contracts";
 
 export type KindFilter = "ALL" | UnifiedRequestKind;
@@ -153,7 +154,11 @@ export function requestFactLines(request: Pick<RequestStatusItem, "leave" | "ove
     lines.push(`วันที่ลา ${range} (${DURATION_LABEL[durationCode] ?? durationCode})`);
   }
   for (const segment of request.overtime?.segments ?? []) {
-    lines.push(`${dmy(segment.workDate)} เวลา ${segment.startTime}–${segment.endTime} น. (${formatMinutes(segment.requestedMinutes)})`);
+    const hint = allowanceHint(segment.endTime);
+    lines.push(
+      `${dmy(segment.workDate)} เวลา ${segment.startTime}–${segment.endTime} น. (${formatMinutes(segment.requestedMinutes)})` +
+        (hint.startsWith("คาดว่า") ? ` · ${hint}` : ""),
+    );
   }
   const total = (request.overtime?.segments ?? []).reduce((sum, segment) => sum + segment.requestedMinutes, 0);
   if (request.overtime && request.overtime.segments.length > 1) lines.push(`รวม ${formatMinutes(total)}`);

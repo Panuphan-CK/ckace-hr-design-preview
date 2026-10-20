@@ -1,3 +1,4 @@
+import { pendingApproverIds } from "./cancel-notice";
 import { createHash, randomUUID } from "node:crypto";
 
 import { formatRequestNo } from "./request-status-repository";
@@ -1017,6 +1018,7 @@ export class PrismaOvertimeRepository
 
         assertOvertimeCancelable(request.status);
         const decidedAt = this.clock();
+        const approverEmployeeIds = await pendingApproverIds(tx, request.approvalInstanceId);
 
         await tx.overtimeRequest.update({
           where: { id: request.id },
@@ -1062,6 +1064,7 @@ export class PrismaOvertimeRepository
                 requestId: request.id,
                 requesterEmployeeId:
                   input.employeeId,
+                approverEmployeeIds,
               },
             },
           }),

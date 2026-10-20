@@ -272,6 +272,12 @@ async function resolveRecipients(
 
       return [...ids];
     }
+    case "PRIOR_APPROVERS": {
+      const ids = Array.isArray(payload.approverEmployeeIds)
+        ? payload.approverEmployeeIds.filter((id): id is string => typeof id === "string")
+        : [];
+      return ids.filter((id) => id !== context.requesterEmployeeId);
+    }
     case "DELEGATE":
       return typeof payload.delegateEmployeeId === "string" ? [payload.delegateEmployeeId] : [];
     case "EMPLOYEE":

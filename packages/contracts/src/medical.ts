@@ -36,6 +36,8 @@ export interface MedicalEntitlementView {
 
 export interface MedicalSelfOverview {
   readonly entitlement: MedicalEntitlementView;
+  /** Per-claim limit of the active medical policy (HR setting). */
+  readonly perClaimLimit?: number;
   readonly claims: readonly MedicalClaimView[];
 }
 

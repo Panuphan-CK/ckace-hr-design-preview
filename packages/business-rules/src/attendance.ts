@@ -298,7 +298,7 @@ export function calculateAttendanceWorkMinutes(input: {
   const start = clockMinutes(input.checkInTime);
   const rawEnd = clockMinutes(input.checkOutTime);
 
-  if (rawEnd <= start) {
+  if (rawEnd < start) {
     throw new Error(
       "Attendance checkout must be after check-in",
     );

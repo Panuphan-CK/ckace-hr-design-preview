@@ -1,3 +1,4 @@
+import { pendingApproverIds } from "./cancel-notice";
 import {
   IdempotencyConflictError,
   createIdempotencyClaim,
@@ -980,6 +981,8 @@ export class PrismaLeaveRepository implements LeaveRepository {
           );
         }
 
+        const approverEmployeeIds = await pendingApproverIds(tx, request.approvalInstanceId);
+
         await tx.leaveRequest.update({
           where: { id: request.id },
           data: {
@@ -1017,6 +1020,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
               payload: {
                 requestId: request.id,
                 requesterEmployeeId: input.employeeId,
+                approverEmployeeIds,
               },
             },
           }),

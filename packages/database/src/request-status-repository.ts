@@ -23,7 +23,9 @@ function correctionSummary(row: {
 
   const time = (value: Date) => value.toISOString().slice(11, 16);
 
-  return `เพิ่มบันทึกลงเวลา ${row.attendanceDate.toISOString().slice(0, 10)} เข้า ${time(row.correctedCheckIn)} ออก ${time(row.correctedCheckOut)}: ${row.reason}`;
+  const [year, month, day] = row.attendanceDate.toISOString().slice(0, 10).split("-");
+
+  return `เพิ่มบันทึกลงเวลา ${day}/${month}/${Number(year) + 543} เข้า ${time(row.correctedCheckIn)} ออก ${time(row.correctedCheckOut)}: ${row.reason}`;
 }
 
 /** OT-0001 / MED-0001 / TC-0001 style numbers; grows past four digits when needed. */
@@ -361,6 +363,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
         comment: true,
         approvalInstance: {
           select: {
+            status: true,
             requesterEmployeeId: true,
             requester: { select: { fullName: true } },
             leaveRequest: {
@@ -431,6 +434,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
         employeeId: instance.requesterEmployeeId,
         employeeDisplayName: instance.requester.fullName,
         stepOrder: step.stepOrder,
+        awaitingNextStep: step.status === "APPROVED" && instance.status === "PENDING",
       } as const;
 
       if (instance.leaveRequest) {

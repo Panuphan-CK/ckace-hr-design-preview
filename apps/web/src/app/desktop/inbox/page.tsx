@@ -66,7 +66,7 @@ export default function InboxPage() {
       </PageHead>
       <div className="ck-wrap ck-stack">
         <section className="ck-panel ck-c-accent" aria-labelledby="ib-list">
-          <SectionHead title="การแจ้งเตือนล่าสุด" id="ib-list" count={data.items.length} />
+          <SectionHead title={`การแจ้งเตือนล่าสุด (ทั้งหมด ${data.items.length})`} id="ib-list" />
           {data.items.length === 0 ? (
             <EmptyState icon="bell" title="ยังไม่มีการแจ้งเตือน">เมื่อมีความเคลื่อนไหวใหม่ จะแสดงที่นี่</EmptyState>
           ) : (

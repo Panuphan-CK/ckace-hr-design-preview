@@ -150,6 +150,16 @@ describe("attendance business rules", () => {
     ).toBe(0);
   });
 
+  it("accepts a checkout in the same minute as the check-in as zero work minutes", () => {
+    expect(
+      calculateAttendanceWorkMinutes({
+        checkInTime: "17:19",
+        checkOutTime: "17:19",
+        policy,
+      }),
+    ).toBe(0);
+  });
+
   it("preserves the legacy full lunch deduction for attendance but partial overlap for corrections", () => {
     expect(
       calculateCorrectedWorkMinutes({

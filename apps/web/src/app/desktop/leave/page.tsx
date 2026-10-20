@@ -847,6 +847,7 @@ export default function LeaveDesktopPage() {
                 <h3>แก้ไขและส่งใหม่</h3>
                 {revision ? (
                   <div style={{ display: "grid", gap: 8 }}>
+                    <p className="ck-hint">แก้วันที่ ช่วงเวลา และเหตุผลได้ ถ้าต้องเปลี่ยนประเภทลา ให้ยกเลิกคำขอนี้แล้วยื่นใหม่</p>
                     <textarea
                       className="ck-in"
                       rows={3}

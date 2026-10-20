@@ -91,31 +91,40 @@ export default function DesktopAttendancePage() {
           return;
         }
         setLocation({ status: "requesting" });
+        const accept = (position: GeolocationPosition) => {
+          const value: AttendanceLocationInput = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracyMeters: position.coords.accuracy,
+          };
+          if (
+            !Number.isFinite(value.latitude) ||
+            !Number.isFinite(value.longitude) ||
+            !Number.isFinite(value.accuracyMeters) ||
+            value.accuracyMeters < 0
+          ) {
+            setLocation({ status: "error", message: "ข้อมูลตำแหน่งไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
+            resolve(null);
+            return;
+          }
+          setLocation({ status: "ready", value });
+          resolve(value);
+        };
+        const fail = (error: GeolocationPositionError) => {
+          setLocation({ status: "error", message: geolocationErrorMessage(error.code) });
+          resolve(null);
+        };
+        // A computer without GPS often times out on high accuracy, so fall back to a coarser (Wi-Fi) fix once.
         navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const value: AttendanceLocationInput = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              accuracyMeters: position.coords.accuracy,
-            };
-            if (
-              !Number.isFinite(value.latitude) ||
-              !Number.isFinite(value.longitude) ||
-              !Number.isFinite(value.accuracyMeters) ||
-              value.accuracyMeters < 0
-            ) {
-              setLocation({ status: "error", message: "ข้อมูลตำแหน่งไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
-              resolve(null);
+          accept,
+          (error) => {
+            if (error.code === 1) {
+              fail(error);
               return;
             }
-            setLocation({ status: "ready", value });
-            resolve(value);
+            navigator.geolocation.getCurrentPosition(accept, fail, { enableHighAccuracy: false, maximumAge: 120_000, timeout: 20_000 });
           },
-          (error) => {
-            setLocation({ status: "error", message: geolocationErrorMessage(error.code) });
-            resolve(null);
-          },
-          { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 },
+          { enableHighAccuracy: true, maximumAge: 30_000, timeout: 8_000 },
         );
       }),
     [],
@@ -215,12 +224,9 @@ export default function DesktopAttendancePage() {
                   ? `ได้รับตำแหน่งแล้ว ความแม่นยำประมาณ ${Math.round(location.value.accuracyMeters)} เมตร`
                   : location.status === "error"
                     ? location.message
-                    : "ระบบจะขอตำแหน่งทุกครั้งที่ลงเวลา"}
+                    : "กดลงเวลาแล้วระบบจะตรวจตำแหน่งให้เอง"}
             </span>
-            <button className="ck-btn quiet ck-ml" type="button" disabled={busy !== null || locating} onClick={() => void requestLocation()}>
-              ตรวจตำแหน่งอีกครั้ง
-            </button>
-            <button className="ck-btn tone" type="button" disabled={busy !== null || locating || !overview.canCheckIn} onClick={() => void submit("check-in")}>
+            <button className="ck-btn tone ck-ml" type="button" disabled={busy !== null || locating || !overview.canCheckIn} onClick={() => void submit("check-in")}>
               {busy === "check-in" ? "กำลังลงเวลาเข้า…" : "ลงเวลาเข้า"}
             </button>
             <button

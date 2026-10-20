@@ -71,6 +71,8 @@ export interface ApprovalHistoryItem {
   readonly employeeId: string;
   readonly employeeDisplayName?: string;
   readonly stepOrder: number;
+  /** True when this step approved but the request still waits on a later step. */
+  readonly awaitingNextStep?: boolean;
   /** Same facts the approver saw while deciding (dates, times, hours). */
   readonly leave?: { readonly startDate: string; readonly endDate: string; readonly durationCode: string };
   readonly overtime?: {

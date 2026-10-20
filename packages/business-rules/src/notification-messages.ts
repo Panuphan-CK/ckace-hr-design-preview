@@ -3,7 +3,7 @@
  * in-app inbox always). Pure rules: event classification and Thai message text.
  */
 
-export type NotificationAudience = "APPROVER" | "REQUESTER" | "DELEGATE" | "EMPLOYEE" | "NONE";
+export type NotificationAudience = "APPROVER" | "PRIOR_APPROVERS" | "REQUESTER" | "DELEGATE" | "EMPLOYEE" | "NONE";
 
 export type NotificationKind =
   | "REQUEST_WAITING"
@@ -11,6 +11,7 @@ export type NotificationKind =
   | "REQUEST_REJECTED"
   | "REQUEST_REVISION"
   | "REQUEST_WITHDRAWN"
+  | "REQUEST_CANCELLED"
   | "APPROVAL_REMINDER"
   | "DELEGATION_RECEIVED"
   | "ACCOUNT_APPROVED"
@@ -63,6 +64,13 @@ const WITHDRAWN_EVENTS = new Set([
   "TIME_CORRECTION_WITHDRAWN",
 ]);
 
+const CANCELLED_EVENTS = new Set([
+  "LEAVE_REQUEST_CANCELLED",
+  "OVERTIME_REQUEST_CANCELLED",
+  "MEDICAL_CLAIM_CANCELLED",
+  "TIME_CORRECTION_CANCELLED",
+]);
+
 /**
  * `requestStatus` is the status of the request when the event is processed; it only matters for
  * LEAVE_REQUEST_DECIDED, which covers advance, approval, rejection and send-back.
@@ -90,6 +98,7 @@ export function classifyNotificationEvent(
   if (APPROVED_EVENTS.has(eventType)) return { audience: "REQUESTER", kind: "REQUEST_APPROVED" };
   if (REJECTED_EVENTS.has(eventType)) return { audience: "REQUESTER", kind: "REQUEST_REJECTED" };
   if (REVISION_EVENTS.has(eventType)) return { audience: "REQUESTER", kind: "REQUEST_REVISION" };
+  if (CANCELLED_EVENTS.has(eventType)) return { audience: "PRIOR_APPROVERS", kind: "REQUEST_CANCELLED" };
   if (WITHDRAWN_EVENTS.has(eventType)) return { audience: "REQUESTER", kind: "REQUEST_WITHDRAWN" };
   if (eventType === "APPROVAL_REMINDER") return { audience: "APPROVER", kind: "APPROVAL_REMINDER" };
   if (eventType === "APPROVAL_DELEGATION_CREATED") return { audience: "DELEGATE", kind: "DELEGATION_RECEIVED" };
@@ -144,6 +153,11 @@ export function notificationText(input: NotificationTextInput): NotificationText
       return {
         title: `${spaced}ถูกส่งกลับให้แก้ไข${no}`,
         body: `${label}${no} ของคุณถูกส่งกลับให้แก้ไข กรุณาแก้ไขแล้วส่งใหม่${summary}${comment}`,
+      };
+    case "REQUEST_CANCELLED":
+      return {
+        title: `${spaced}ถูกยกเลิก${no}`,
+        body: `${label}${no}${who} ถูกผู้ขอยกเลิกแล้ว ไม่ต้องพิจารณาอีก${summary}`,
       };
     case "REQUEST_WITHDRAWN":
       return {

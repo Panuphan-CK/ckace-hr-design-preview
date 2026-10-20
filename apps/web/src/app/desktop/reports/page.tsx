@@ -7,7 +7,7 @@ import { Icon, type IconName } from "../ui/icons";
 import { DataGrid, EmptyState, ErrorState, LoadingState, PageHead, SectionHead, StatusDot, type Tone } from "../ui/kit";
 import { OvertimeCheckPanel } from "./overtime-check-panel";
 import { DonutChart, MonthlyChart, seriesColor } from "./report-charts";
-import { formatNumber, monthlyBuckets, personSummaries, rowType, typeShares } from "./report-stats";
+import { formatHours, formatNumber, monthlyBuckets, personSummaries, readableSummary, rowType, statusLabel, typeShares } from "./report-stats";
 import type {
   ManagementReportRow,
   MissingCheckOutItem,
@@ -104,8 +104,8 @@ function exportCsv(
         row.date,
         row.kind,
         row.employeeName,
-        row.status,
-        row.summary,
+        statusLabel(row.status),
+        readableSummary(row.summary),
         row.amount ?? "",
       ]
         .map(csvCell)
@@ -369,10 +369,12 @@ export default function DesktopReportsPage() {
                 <SectionHead title="สรุปรายเดือน" />
                 <MonthlyChart buckets={buckets} types={typeNames} />
               </section>
-              <section className={"ck-panel ck-c-" + selectedOption.tone}>
-                <SectionHead title="สัดส่วนตามประเภท" />
-                <DonutChart shares={shares} centerLabel={"รวม (" + selectedOption.unit + ")"} unit={selectedOption.unit} />
-              </section>
+              {selectedKind !== "ATTENDANCE" ? (
+                <section className={"ck-panel ck-c-" + selectedOption.tone}>
+                  <SectionHead title="สัดส่วนตามประเภท" />
+                  <DonutChart shares={shares} centerLabel={"รวม (" + selectedOption.unit + ")"} unit={selectedOption.unit} />
+                </section>
+              ) : null}
             </div>
 
             <section className={"ck-panel ck-c-" + selectedOption.tone}>
@@ -390,7 +392,7 @@ export default function DesktopReportsPage() {
                       const pct = person.value > 0 ? Math.round((value / person.value) * 100) : 0;
                       return (
                         <>
-                          {formatNumber(value)}
+                          {selectedOption.unit === "ชม." ? formatHours(value) : formatNumber(value)}
                           <div className="ck-track" style={{ ["--tc" as string]: seriesColor(index), marginTop: 4 }}>
                             <i style={{ width: pct + "%" }} />
                           </div>
@@ -403,7 +405,13 @@ export default function DesktopReportsPage() {
                     header: "รวม",
                     render: (person) => (
                       <>
-                        <b>{formatNumber(person.value)}</b> <small className="ck-muted">{selectedOption.unit}</small>
+                        {selectedOption.unit === "ชม." ? (
+                          <b>{formatHours(person.value)}</b>
+                        ) : (
+                          <>
+                            <b>{formatNumber(person.value)}</b> <small className="ck-muted">{selectedOption.unit}</small>
+                          </>
+                        )}
                       </>
                     ),
                   },
@@ -418,11 +426,11 @@ export default function DesktopReportsPage() {
                 rowKey={(row) => row.kind + "-" + row.id}
                 pageSize={20}
                 columns={[
-                  { key: "st", header: "", width: "48px", align: "center", render: (row) => <StatusDot tone="ok" label={row.status} /> },
+                  { key: "st", header: "", width: "48px", align: "center", render: (row) => <StatusDot tone="ok" label={statusLabel(row.status)} /> },
                   { key: "date", header: "วันที่", render: (row) => thaiDate(row.date) },
                   { key: "emp", header: "พนักงาน", render: (row) => row.employeeName },
-                  { key: "sum", header: "รายละเอียด", render: (row) => row.summary || rowType(row) },
-                  { key: "amt", header: "จำนวน", align: "right", render: (row) => row.amount ?? "—" },
+                  { key: "sum", header: "รายละเอียด", render: (row) => readableSummary(row.summary) || rowType(row) },
+                  { key: "amt", header: "จำนวน", align: "right", render: (row) => (row.amount !== null && row.amount !== undefined && selectedOption.unit === "ชม." && Number.isFinite(Number(row.amount)) ? formatHours(Number(row.amount)) : (row.amount ?? "—")) },
                 ]}
               />
             </section>

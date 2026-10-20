@@ -473,6 +473,7 @@ export class PrismaManagementRepository implements ManagementRepository {
           status: true,
           description: true,
           amount: true,
+          approvalInstanceId: true,
           employee: { select: { fullName: true } },
         },
         orderBy: [{ sicknessDate: "desc" }, { id: "desc" }],
@@ -536,7 +537,7 @@ export class PrismaManagementRepository implements ManagementRepository {
         kind: "MEDICAL" as const,
         date: dateOnly(row.sicknessDate),
         status: row.status,
-        summary: row.description,
+        summary: (row.approvalInstanceId ? "" : "[อนุมัติอัตโนมัติ] ") + row.description,
         amount: row.amount.toString(),
       })),
     ].sort((a, b) => b.date.localeCompare(a.date) || a.kind.localeCompare(b.kind));

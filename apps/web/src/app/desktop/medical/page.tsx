@@ -398,7 +398,8 @@ export default function DesktopMedicalPage() {
   if (state.status === "error") return <ErrorState title="เปิดหน้าค่ารักษาพยาบาลไม่สำเร็จ" message={state.message} onRetry={() => void load()} />;
 
   const { overview } = state;
-  const maxAmount = Math.max(0, Math.min(MEDICAL_DESKTOP_PER_CLAIM_LIMIT, overview.entitlement.remaining));
+  const perClaimLimit = overview.perClaimLimit ?? MEDICAL_DESKTOP_PER_CLAIM_LIMIT;
+  const maxAmount = Math.max(0, Math.min(perClaimLimit, overview.entitlement.remaining));
   const leaveOptions = leaveOverview?.requests.filter((request) => request.status !== "CANCELLED" && request.leaveTypeKey.toUpperCase() === "SICK") ?? [];
   const claims = [...overview.claims].sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   const filtered = filter === "ALL" ? claims : claims.filter((claim) => claim.status === filter);
@@ -425,14 +426,14 @@ export default function DesktopMedicalPage() {
         <Message value={message} />
 
         <form className="ck-fbox ck-c-med" onSubmit={submitClaim} noValidate>
-          <SectionHead title="ขอเบิกค่ารักษา" hint={`สูงสุด ${currency.format(MEDICAL_DESKTOP_PER_CLAIM_LIMIT)} ต่อครั้ง`} />
+          <SectionHead title="ขอเบิกค่ารักษา" hint={`สูงสุด ${currency.format(perClaimLimit)} ต่อครั้ง`} />
           {maxAmount <= 0 ? (
             <p className="ck-msg error" role="alert" style={{ marginBottom: 16 }}>
               วงเงินค่ารักษาของปีนี้ไม่เพียงพอสำหรับการเบิกเพิ่ม
             </p>
           ) : null}
           <div className="ck-fgrid">
-            <div className="ck-field">
+            <div className="ck-field req">
               <span>วันที่รักษา</span>
               <DatePicker mode="single" label="วันที่รักษา" start={sicknessDate} end={sicknessDate} max={today} onChange={(day) => setSicknessDate(day)} />
               <input type="hidden" name="sicknessDate" value={sicknessDate} />

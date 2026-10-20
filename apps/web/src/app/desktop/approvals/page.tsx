@@ -351,7 +351,7 @@ export default function DesktopApprovalsPage() {
                   header: "",
                   width: "48px",
                   align: "center",
-                  render: (row) => <StatusDot tone={DECISION[row.decision].tone as DotTone} label={DECISION[row.decision].label} />,
+                  render: (row) => <StatusDot tone={DECISION[row.decision].tone as DotTone} label={row.awaitingNextStep ? "อนุมัติขั้น " + row.stepOrder + " แล้ว รอขั้นถัดไป" : DECISION[row.decision].label} />,
                 },
                 {
                   key: "kind",
@@ -495,7 +495,7 @@ export default function DesktopApprovalsPage() {
           icon={KIND_ICON[detail.kind]}
           kicker={"รายละเอียด" + KIND_LABEL[detail.kind] + " " + detail.requestNo}
           title={detail.employeeDisplayName ?? "ไม่ระบุชื่อ"}
-          status={DECISION[detail.decision]}
+          status={detail.awaitingNextStep ? { ...DECISION[detail.decision], label: "อนุมัติขั้น " + detail.stepOrder + " แล้ว รอขั้นถัดไป" } : DECISION[detail.decision]}
           onClose={() => setDetail(null)}
         >
           <dl className="ck-dlg-grid">
@@ -525,7 +525,7 @@ export default function DesktopApprovalsPage() {
             <h3>ความเห็นของผู้อนุมัติ</h3>
             <p>{detail.comment || "—"}</p>
           </div>
-          {withdrawKinds.has(detail.kind) && detail.decision === "APPROVED" ? (
+          {withdrawKinds.has(detail.kind) && detail.decision === "APPROVED" && !detail.awaitingNextStep ? (
             <div className="ck-dlg-sec">
               <button type="button" className="ck-btn no" disabled={busyId !== null} onClick={() => void withdrawApproved(detail)}>
                 ถอน{detail.kind === "LEAVE" ? "ใบลา" : "คำขอ" + KIND_LABEL[detail.kind]}ที่อนุมัติแล้ว

@@ -87,7 +87,7 @@ body:has(.ck-app) { background: var(--ck-bg); }
 .ck-menu a:hover { background: color-mix(in srgb, var(--tc) 10%, #fff); color: var(--ck-ink); transform: translateX(2px); }
 .ck-menu a.on { background: color-mix(in srgb, var(--tc) 12%, #fff); color: var(--ck-ink); font-weight: 500; }
 .ck-menu a .ck-n { margin-left: auto; color: #fff; background: var(--ck-bad); border-radius: 9px; font-size: 11.5px; padding: 0 7px; }
-.ck-pop { left: auto; right: 16px; top: 68px; animation: ck-drop 0.18s ease-out; }
+.ck-pop { left: auto; right: 16px; top: 68px; max-height: calc(100vh - 84px); animation: ck-drop 0.18s ease-out; }
 @keyframes ck-drop { from { opacity: 0; transform: translate(var(--ck-dx, 0), -8px); } to { opacity: 1; transform: translate(var(--ck-dx, 0), 0); } }
 .ck-menu { --ck-dx: -50%; }
 

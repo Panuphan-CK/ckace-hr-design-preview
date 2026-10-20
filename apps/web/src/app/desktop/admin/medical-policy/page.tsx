@@ -81,7 +81,7 @@ export default function MedicalPolicyPage() {
         >
           <section className="ck-sgroup">
             <h2>วงเงิน</h2>
-            <p className="ck-sgroup-note">ยื่นเกินวงเงินต่อใบ ระบบตัดเหลือเท่าวงเงินต่อใบ ใบที่รออนุมัติยังนับรวมในวงเงินต่อปี</p>
+            <p className="ck-sgroup-note">หน้าเบิกค่ารักษาไม่ให้กรอกเกินวงเงินต่อใบ ใบที่รออนุมัติยังนับรวมในวงเงินต่อปี</p>
             {policy === null ? <p className="ck-sgroup-note">ยังไม่มีการตั้งค่า ค่าแนะนำ 1,000 ต่อใบ และ 10,000 ต่อปี</p> : null}
             <SettingRow label="วงเงินต่อใบ">
               <input className="ck-in ck-snum" aria-label="วงเงินต่อใบ (บาท)" type="number" min="1" step="1" required value={perClaim} disabled={busy} onChange={(e) => setPerClaim(e.currentTarget.value)} />

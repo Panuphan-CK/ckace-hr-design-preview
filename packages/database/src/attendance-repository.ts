@@ -1,3 +1,4 @@
+import { pendingApproverIds } from "./cancel-notice";
 import {
   IdempotencyConflictError,
   createIdempotencyClaim,
@@ -1857,6 +1858,8 @@ export class PrismaAttendanceRepository
           );
         }
 
+        const approverEmployeeIds = await pendingApproverIds(tx, request.approvalInstanceId);
+
         await tx.timeCorrectionRequest.update({
           where: { id: request.id },
           data: {
@@ -1906,7 +1909,7 @@ export class PrismaAttendanceRepository
               aggregateType: "TIME_CORRECTION",
               aggregateId: request.id,
               eventType: "TIME_CORRECTION_CANCELLED",
-              payload: { requestId: request.id },
+              payload: { requestId: request.id, approverEmployeeIds },
             },
           }),
         ]);

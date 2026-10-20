@@ -1,3 +1,4 @@
+import { pendingApproverIds } from "./cancel-notice";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -1034,6 +1035,8 @@ export class PrismaMedicalRepository
               }),
             ),
         }),
+      perClaimLimit:
+        await perClaimLimitFor(this.prisma, today),
       claims: claims.map(
         medicalClaimView,
       ),
@@ -1546,6 +1549,7 @@ export class PrismaMedicalRepository
 
         const decidedAt =
           this.clock();
+        const approverEmployeeIds = await pendingApproverIds(tx, claim.approvalInstanceId);
 
         await tx.medicalClaim.update({
           where: {
@@ -1602,6 +1606,7 @@ export class PrismaMedicalRepository
                   claim.id,
                 requesterEmployeeId:
                   input.employeeId,
+                approverEmployeeIds,
               },
             },
           }),

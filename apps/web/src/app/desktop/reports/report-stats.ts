@@ -1,3 +1,4 @@
+import { thaiDate } from "../ui/format";
 import type { ManagementReportRow } from "@ckace/contracts";
 
 export interface MonthBucket {
@@ -31,6 +32,7 @@ export function rowValue(row: ManagementReportRow): number {
 
 /** Sub-type label: the first word of the summary ("พักร้อน 1 วัน" -> "พักร้อน"). */
 export function rowType(row: ManagementReportRow): string {
+  if (row.kind === "MEDICAL") return "ค่ารักษา";
   return row.summary.trim().split(/\s+/)[0] || row.status;
 }
 
@@ -81,4 +83,43 @@ export function personSummaries(rows: readonly ManagementReportRow[]): readonly 
 
 export function formatNumber(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
+const STATUS_LABELS: Readonly<Record<string, string>> = {
+  APPROVED: "อนุมัติ",
+  PENDING: "รออนุมัติ",
+  REJECTED: "ไม่อนุมัติ",
+  CANCELLED: "ยกเลิก",
+  REVISION_REQUESTED: "ส่งกลับแก้ไข",
+  COMPLETED: "ลงเวลาครบ",
+  OPEN: "ยังไม่ลงเวลาออก",
+};
+
+/** Thai wording for a report row status. */
+export function statusLabel(status: string): string {
+  return STATUS_LABELS[status] ?? status;
+}
+
+/** ISO timestamp -> "HH:mm" in Thailand time. */
+function bangkokClock(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return new Intl.DateTimeFormat("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit", hour12: false }).format(date).replace(".", ":");
+}
+
+/** Turns ISO dates/timestamps inside a report summary into DD/MM/พ.ศ. (timestamps keep their local time). */
+export function readableSummary(summary: string): string {
+  return summary
+    .replace(/\d{4}-\d{2}-\d{2}T[\d:.]+Z/g, (iso) => bangkokClock(iso))
+    .replace(/(\d{4})-(\d{2})-(\d{2})/g, (iso) => thaiDate(iso));
+}
+
+/** Hours as "X ชม. Y นาที"; under one hour just minutes ("1 นาที"). */
+export function formatHours(hours: number): string {
+  const total = Math.round(hours * 60);
+  if (total <= 0) return "0 นาที";
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (h === 0) return `${m} นาที`;
+  return m === 0 ? `${h} ชม.` : `${h} ชม. ${m} นาที`;
 }

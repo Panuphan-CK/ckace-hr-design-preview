@@ -31,6 +31,22 @@ export function AddRecordForm({
   const [busy, setBusy] = useState(false);
   const intent = useRef<SubmissionIntent | null>(null);
   const today = bangkokToday(new Date());
+  const takenDates = new Set([
+    ...records.map((record) => record.workDate),
+    ...requests
+      .filter((request) => request.status === "PENDING" || request.status === "APPROVED" || request.status === "REVISION_REQUESTED")
+      .map((request) => request.attendanceDate),
+  ]);
+  const dateMark = (iso: string) => (takenDates.has(iso) ? ("booked" as const) : holidayMark(iso));
+
+  function pickDate(next: string) {
+    if (takenDates.has(next)) {
+      setDate("");
+      void onResult({ kind: "error", text: "วันที่นี้มีบันทึกลงเวลา หรือมีคำขอแก้เวลาอยู่แล้ว กรุณาเลือกวันอื่น" });
+      return;
+    }
+    setDate(next);
+  }
 
   function reset() {
     setDate("");
@@ -87,7 +103,7 @@ export function AddRecordForm({
       <div className="ck-fgrid">
         <div className="ck-field span2">
           <span>วันที่ไม่มีบันทึก</span>
-          <DateField label="วันที่ไม่มีบันทึก" value={date} max={today} marks={holidayMark} onChange={setDate} />
+          <DateField label="วันที่ไม่มีบันทึก" value={date} max={today} marks={dateMark} onChange={pickDate} />
         </div>
         <div className="ck-field">
           <span>เวลาเข้างาน</span>

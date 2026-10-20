@@ -16,6 +16,29 @@
   const getHero = () => document.querySelector('.dashboard-hero-v2');
   const getNode = (hero, key) => hero?.querySelector(`.orb-float-${key}`) || null;
   const getNodes = (hero) => metrics.map(([key]) => getNode(hero, key)).filter(Boolean);
+  const dragHandSvg = '<span class="hero-drag-handle" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.5 11V7.8a1.5 1.5 0 0 1 3 0V11 5.8a1.5 1.5 0 0 1 3 0V11 6.8a1.5 1.5 0 0 1 3 0V11 8.3a1.5 1.5 0 0 1 3 0v5.9c0 4.2-2.7 6.8-6.8 6.8h-1.1c-2.3 0-4.1-.9-5.4-2.7L3.7 15a1.7 1.7 0 0 1 2.6-2.1l1.2 1.3V11Z"/><path d="M7.5 14.2V11"/></svg></span>';
+
+  const ensureDragHandle = (node) => {
+    if (!node || node.querySelector('.hero-drag-handle')) return;
+    node.insertAdjacentHTML('afterbegin', dragHandSvg);
+  };
+
+  const placeDragHandles = (hero) => {
+    if (!hero) return;
+    const heroRect = hero.getBoundingClientRect();
+    getNodes(hero).forEach((node) => {
+      const rect = node.getBoundingClientRect();
+      node.classList.toggle('hero-handle-inset-top', rect.top - heroRect.top < 22);
+      node.classList.toggle('hero-handle-inset-right', heroRect.right - rect.right < 22);
+    });
+  };
+
+  const watchDragHandlePlacement = (hero) => {
+    if (!hero || hero.__heroHandlePlacementObserver || typeof MutationObserver !== 'function') return;
+    const observer = new MutationObserver(() => placeDragHandles(hero));
+    getNodes(hero).forEach((node) => observer.observe(node, { attributes: true, attributeFilter: ['style'] }));
+    hero.__heroHandlePlacementObserver = observer;
+  };
 
   const selectNode = (hero, key) => {
     getNodes(hero).forEach((node) => {
@@ -67,9 +90,12 @@
       const key = metrics.find(([candidate]) => node.classList.contains(`orb-float-${candidate}`))?.[0];
       if (!key) return;
       node.dataset.heroLayoutKey = key;
+      ensureDragHandle(node);
       node.addEventListener('focus', () => selectNode(hero, key));
       node.addEventListener('click', () => selectNode(hero, key));
     });
+    watchDragHandlePlacement(hero);
+    placeDragHandles(hero);
 
     const panel = document.createElement('div');
     panel.className = 'hero-layout-panel';
@@ -125,6 +151,7 @@
     const sync = () => {
       const active = hero.classList.contains('hero-layout-editor') || tools.classList.contains('is-active') || tools.querySelector('[aria-pressed="true"]');
       panel.classList.toggle('is-visible', Boolean(active));
+      if (active) placeDragHandles(hero);
       if (active && !hero.querySelector('.orb-float.is-layout-selected')) selectNode(hero, 'a');
       if (!active) {
         getNodes(hero).forEach((node) => node.classList.remove('is-layout-selected'));

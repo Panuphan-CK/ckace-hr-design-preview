@@ -7974,12 +7974,40 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
   .dashboard-v2 .dashboard-orb .orb-float-leave-sick { --orbit-x: 220px !important; --orbit-y: 80px !important; }
 }
 
+/* Hero editor-safe layout: keep the original centered Galaxy composition and
+   original top-right date/time placement, while making the core draggable. */
+@media (min-width: 841px) {
+  .dashboard-v2 .dashboard-hero-v2 {
+    overflow: clip !important;
+  }
+
+  .dashboard-v2 .dashboard-orb .orb-core {
+    --orbit-x: -4px;
+    --orbit-y: -14px;
+    --galaxy-core-translate: translate(-50%, -50%) translate(var(--orbit-x), var(--orbit-y));
+    transform: var(--galaxy-core-translate) !important;
+  }
+
+  /* Owner-locked Hero layout. Do not adjust without explicit Owner instruction. */
+  .dashboard-v2 .dashboard-orb .orb-float-a { --orbit-x: -250px !important; --orbit-y: -34px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-b { --orbit-x: 225px !important; --orbit-y: -62px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-c { --orbit-x: -384px !important; --orbit-y: 40px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-d { --orbit-x: 352px !important; --orbit-y: 1px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-e { --orbit-x: -104px !important; --orbit-y: -113px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-f { --orbit-x: 88px !important; --orbit-y: -113px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-leave-vacation { --orbit-x: -209px !important; --orbit-y: 91px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-leave-business { --orbit-x: -2px !important; --orbit-y: 111px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-leave-sick { --orbit-x: 210px !important; --orbit-y: 79px !important; }
+}
+
 /* Desktop-only layout editor: drag Hero satellites, then save the arrangement locally. */
 @media (min-width: 841px) {
   .dashboard-v2 .dashboard-hero-v2 .hero-layout-tools {
     position: absolute;
-    top: 58px;
-    right: 26px;
+    top: auto;
+    right: auto;
+    bottom: 14px;
+    left: 26px;
     z-index: 24;
     display: flex;
     align-items: center;
@@ -8030,6 +8058,11 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
     white-space: nowrap;
   }
 
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-hero-copy {
+    pointer-events: none;
+  }
+
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core,
   .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float {
     z-index: 30;
     pointer-events: auto !important;
@@ -8039,6 +8072,9 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
     animation: none !important;
   }
 
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core:hover,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core:focus-visible,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core.is-dragging,
   .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float:hover,
   .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float:focus-visible,
   .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float.is-dragging {
@@ -8048,6 +8084,7 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
     box-shadow: 0 12px 28px rgba(31,91,131,.28), 0 0 0 7px rgba(255,255,255,.46), inset 0 1px 0 rgba(255,255,255,.9) !important;
   }
 
+  .dashboard-v2 .dashboard-orb .orb-core .hero-drag-handle,
   .dashboard-v2 .dashboard-orb .orb-float .hero-drag-handle {
     position: absolute;
     top: -12px;
@@ -8068,6 +8105,7 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
     transition: box-shadow .14s ease, background .14s ease, color .14s ease;
   }
 
+  .dashboard-v2 .dashboard-orb .orb-core .hero-drag-handle svg,
   .dashboard-v2 .dashboard-orb .orb-float .hero-drag-handle svg {
     width: 17px;
     height: 17px;
@@ -8078,19 +8116,26 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
     stroke-linejoin: round;
   }
 
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core .hero-drag-handle,
   .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float .hero-drag-handle {
     opacity: 1 !important;
     transform: scale(1) !important;
   }
 
+  .dashboard-v2 .dashboard-orb .orb-core.hero-handle-inset-top .hero-drag-handle,
   .dashboard-v2 .dashboard-orb .orb-float.hero-handle-inset-top .hero-drag-handle {
     top: 5px;
   }
 
+  .dashboard-v2 .dashboard-orb .orb-core.hero-handle-inset-right .hero-drag-handle,
   .dashboard-v2 .dashboard-orb .orb-float.hero-handle-inset-right .hero-drag-handle {
     right: 5px;
   }
 
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core:hover .hero-drag-handle,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core:focus-visible .hero-drag-handle,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core.is-layout-selected .hero-drag-handle,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core.is-dragging .hero-drag-handle,
   .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float:hover .hero-drag-handle,
   .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float:focus-visible .hero-drag-handle,
   .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float.is-layout-selected .hero-drag-handle,
@@ -8109,8 +8154,10 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
 @media (min-width: 841px) {
   .dashboard-v2 .dashboard-hero-v2 .hero-layout-panel {
     position: absolute;
-    top: 104px;
-    right: 24px;
+    top: auto;
+    right: auto;
+    bottom: 54px;
+    left: 24px;
     z-index: 32;
     display: none;
     width: min(344px, calc(100% - 48px));
@@ -8120,8 +8167,10 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
     background: rgba(246, 251, 255, 0.92);
     box-shadow: 0 16px 34px rgba(69, 92, 137, 0.2), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
     backdrop-filter: blur(12px);
+    pointer-events: none;
   }
 
+  .dashboard-v2 .dashboard-hero-v2 .hero-layout-panel button { pointer-events: auto; }
   .dashboard-v2 .dashboard-hero-v2 .hero-layout-panel.is-visible { display: block; }
 
   .dashboard-v2 .hero-layout-panel__header {
@@ -8179,9 +8228,9 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
 
   .dashboard-v2 .hero-layout-picker__key {
     display: grid;
-    flex: 0 0 21px;
+    flex: 0 0 34px;
     place-items: center;
-    width: 21px;
+    width: 34px;
     height: 21px;
     border-radius: 7px;
     background: rgba(66, 134, 164, 0.12);
@@ -8236,6 +8285,7 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
     outline: none;
   }
 
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core.is-layout-selected,
   .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float.is-layout-selected {
     outline: 3px solid rgba(44, 151, 165, 0.76);
     outline-offset: 5px;
@@ -8321,6 +8371,1371 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
   color: #168f8b;
   border-color: #67c8bf;
   background: #ecfaf7;
+}
+
+/* Overview refinement — UI/UX Pro Max: reuse the established glass-pill language.
+   The Owner-locked Galaxy remains untouched; only personal attendance status and
+   compact awareness inside Recent Activity are added. */
+.dashboard-v2 .hero-attendance-status {
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.dashboard-v2 .hero-time-status {
+  min-height: 34px;
+  padding: 5px 10px 5px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(89, 156, 178, .24);
+  border-radius: 999px;
+  color: #28556f;
+  background: rgba(255,255,255,.5);
+  box-shadow: 0 5px 14px rgba(63, 122, 151, .08), inset 0 1px 0 rgba(255,255,255,.7);
+  backdrop-filter: blur(8px);
+  font-family: 'Mitr', 'Noto Sans Thai', sans-serif;
+  white-space: nowrap;
+}
+.dashboard-v2 .hero-time-status-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.dashboard-v2 .hero-time-status-icon svg { width: 13px; height: 13px; }
+.dashboard-v2 .hero-time-status.is-in .hero-time-status-icon { color: #137c74; background: rgba(210,244,235,.92); }
+.dashboard-v2 .hero-time-status.is-out .hero-time-status-icon { color: #966417; background: rgba(255,239,200,.94); }
+.dashboard-v2 .hero-time-status > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.05;
+}
+.dashboard-v2 .hero-time-status small {
+  color: #668096;
+  font-size: 8px;
+  font-weight: 600;
+}
+.dashboard-v2 .hero-time-status b {
+  margin-top: 2px;
+  color: #24445e;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 841px) {
+  .dashboard-v2 .hero-attendance-status {
+    position: absolute;
+    top: 54px;
+    right: 46px;
+  }
+}
+@media (max-width: 840px) {
+  .dashboard-v2 .hero-attendance-status {
+    position: relative;
+    align-self: flex-start;
+    flex-wrap: wrap;
+    margin-top: 9px;
+  }
+}
+
+.dashboard-v2 .today-overview-board {
+  overflow: hidden;
+}
+.dashboard-v2 .today-overview-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.dashboard-v2 .today-overview-card {
+  position: relative;
+  min-width: 0;
+  min-height: 112px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 36px minmax(0,1fr) 22px;
+  align-items: start;
+  gap: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(180, 200, 218, .72);
+  border-radius: 15px;
+  color: #24445e;
+  background: rgba(255,255,255,.68);
+  box-shadow: 0 8px 18px rgba(55,105,138,.07), inset 0 1px 0 rgba(255,255,255,.86);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.dashboard-v2 .today-overview-card::after {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -26px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  opacity: .38;
+  pointer-events: none;
+}
+.dashboard-v2 .today-overview-card.activity { border-color: #d6cfee; background: linear-gradient(145deg, rgba(253,251,255,.94), rgba(239,235,255,.7)); }
+.dashboard-v2 .today-overview-card.activity::after { background: #d9ccff; }
+.dashboard-v2 .today-overview-card.requests { border-color: #cbdfea; background: linear-gradient(145deg, rgba(250,253,255,.94), rgba(227,241,249,.74)); }
+.dashboard-v2 .today-overview-card.requests::after { background: #bdddf0; }
+.dashboard-v2 .today-overview-card.attendance { border-color: #c1e0dc; background: linear-gradient(145deg, rgba(250,255,254,.94), rgba(224,247,242,.72)); }
+.dashboard-v2 .today-overview-card.attendance::after { background: #afe9df; }
+.dashboard-v2 .today-overview-card.medical { border-color: #cbdfea; background: linear-gradient(145deg, rgba(250,253,255,.94), rgba(227,241,249,.74)); }
+.dashboard-v2 .today-overview-card.medical::after { background: #bdddf0; }
+.dashboard-v2 .today-overview-card.approvals { border-color: #efd1d7; background: linear-gradient(145deg, rgba(255,252,253,.94), rgba(253,232,237,.72)); }
+.dashboard-v2 .today-overview-card.approvals::after { background: #f6c4cf; }
+.dashboard-v2 .today-overview-card.leave { border-color: #d8cef0; background: linear-gradient(145deg, rgba(253,251,255,.94), rgba(239,235,255,.7)); }
+.dashboard-v2 .today-overview-card.leave::after { background: #d7c9ff; }
+.dashboard-v2 .today-overview-card.ot { border-color: #ead8ae; background: linear-gradient(145deg, rgba(255,254,249,.94), rgba(255,243,214,.72)); }
+.dashboard-v2 .today-overview-card.ot::after { background: #ffd995; }
+.dashboard-v2 .today-overview-card.correction { border-color: #d9d1eb; background: linear-gradient(145deg, rgba(252,251,255,.94), rgba(239,236,249,.72)); }
+.dashboard-v2 .today-overview-card.correction::after { background: #d7ccef; }
+.dashboard-v2 .today-overview-card.documents { border-color: #efd9b4; background: linear-gradient(145deg, rgba(255,254,249,.94), rgba(255,243,219,.72)); }
+.dashboard-v2 .today-overview-card.documents::after { background: #f6d59c; }
+
+.dashboard-v2 .today-overview-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82);
+}
+.dashboard-v2 .today-overview-icon svg { width: 17px; height: 17px; }
+.dashboard-v2 .today-overview-card.activity .today-overview-icon { color: #6755b2; background: #eee9ff; }
+.dashboard-v2 .today-overview-card.requests .today-overview-icon { color: #39739d; background: #e5f2fb; }
+.dashboard-v2 .today-overview-card.attendance .today-overview-icon { color: #14796f; background: #dcf5ef; }
+.dashboard-v2 .today-overview-card.medical .today-overview-icon { color: #39739d; background: #e5f2fb; }
+.dashboard-v2 .today-overview-card.approvals .today-overview-icon { color: #a34f62; background: #fde9ee; }
+.dashboard-v2 .today-overview-card.leave .today-overview-icon { color: #6755b2; background: #eee9ff; }
+.dashboard-v2 .today-overview-card.ot .today-overview-icon { color: #986515; background: #fff0ce; }
+.dashboard-v2 .today-overview-card.correction .today-overview-icon { color: #665a94; background: #efecf8; }
+.dashboard-v2 .today-overview-card.documents .today-overview-icon { color: #986515; background: #fff0ce; }
+
+.dashboard-v2 .today-overview-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dashboard-v2 .today-overview-copy > small {
+  color: #6b8093;
+  font-family: 'Prompt', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.dashboard-v2 .today-overview-copy > strong {
+  margin-top: 3px;
+  color: #17324f;
+  font-family: 'Mitr', 'Noto Sans Thai', sans-serif;
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-v2 .today-overview-copy > strong em {
+  margin-left: 2px;
+  color: #587188;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
+}
+.dashboard-v2 .today-overview-copy > b {
+  margin-top: 7px;
+  color: #31536e;
+  font-family: 'Prompt', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.dashboard-v2 .today-overview-copy > span {
+  margin-top: 3px;
+  overflow: hidden;
+  color: #6f8496;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-v2 .today-overview-arrow {
+  position: relative;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #71889a;
+  background: rgba(255,255,255,.82);
+}
+.dashboard-v2 .today-overview-arrow svg { width: 12px; height: 12px; }
+
+.dashboard-v2 .today-overview-card:hover,
+.dashboard-v2 .today-overview-card:focus-visible {
+  outline: none;
+  transform: translateY(-2px);
+  border-color: rgba(97,134,165,.52);
+  background-color: #fff;
+  box-shadow: 0 12px 24px rgba(55,105,138,.12), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.dashboard-v2 .today-overview-card:focus-visible {
+  box-shadow: 0 0 0 3px rgba(83,96,172,.14), 0 12px 24px rgba(55,105,138,.12);
+}
+.dashboard-v2 .today-overview-card.is-static {
+  grid-template-columns: 36px minmax(0,1fr);
+  cursor: default;
+}
+.dashboard-v2 .today-overview-card.is-static:hover {
+  transform: none;
+  border-color: rgba(180, 200, 218, .72);
+  box-shadow: 0 8px 18px rgba(55,105,138,.07), inset 0 1px 0 rgba(255,255,255,.86);
+}
+
+@media (max-width: 1180px) {
+  .dashboard-v2 .today-overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .dashboard-v2 .today-overview-grid { grid-template-columns: 1fr; }
+  .dashboard-v2 .today-overview-card { min-height: 104px; }
+}
+
+/* TODAY WORK & ACTIVITY — compact 8-card information pattern.
+   Outer dashboard composition and Owner-locked Hero are intentionally untouched. */
+.dashboard-v2 .today-overview-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.dashboard-v2 .today-overview-card {
+  min-height: 118px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.dashboard-v2 .today-card-head {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+}
+.dashboard-v2 .today-overview-icon {
+  width: 34px;
+  height: 34px;
+}
+.dashboard-v2 .today-overview-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.dashboard-v2 .today-card-title {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dashboard-v2 .today-card-title small {
+  overflow: hidden;
+  color: #6b8093;
+  font-family: 'Prompt', sans-serif;
+  font-size: 7.5px;
+  font-weight: 850;
+  letter-spacing: .055em;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-v2 .today-card-title b {
+  overflow: hidden;
+  color: #31536e;
+  font-family: 'Prompt', sans-serif;
+  font-size: 10.5px;
+  font-weight: 850;
+  line-height: 1.22;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-v2 .today-card-badge {
+  min-height: 27px;
+  padding: 4px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid rgba(164, 184, 204, .55);
+  border-radius: 999px;
+  color: #506b80;
+  background: rgba(255,255,255,.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+  white-space: nowrap;
+}
+.dashboard-v2 .today-card-badge svg {
+  width: 11px;
+  height: 11px;
+}
+.dashboard-v2 .today-card-badge strong {
+  color: #17324f;
+  font-family: 'Prompt', sans-serif;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-v2 .today-card-badge em {
+  color: #71869a;
+  font-family: 'Prompt', sans-serif;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+}
+.dashboard-v2 .today-card-badge.subtle {
+  min-height: 24px;
+  padding: 4px 5px;
+}
+.dashboard-v2 .today-card-badge.subtle strong {
+  font-size: 8.5px;
+}
+.dashboard-v2 .today-mini-stats {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+.dashboard-v2 .today-mini-stats > span {
+  min-width: 0;
+  min-height: 47px;
+  padding: 5px 2px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid rgba(200, 211, 222, .74);
+  border-radius: 9px;
+  text-align: center;
+  background: rgba(255,255,255,.58);
+}
+.dashboard-v2 .today-mini-stats > span:nth-child(1) { background: rgba(238,233,255,.72); border-color: #d6cfee; }
+.dashboard-v2 .today-mini-stats > span:nth-child(2) { background: rgba(255,240,206,.72); border-color: #ead8ae; }
+.dashboard-v2 .today-mini-stats > span:nth-child(3) { background: rgba(229,242,251,.74); border-color: #cbdfea; }
+.dashboard-v2 .today-mini-stats > span:nth-child(4) { background: rgba(220,245,239,.72); border-color: #c1e0dc; }
+.dashboard-v2 .today-mini-stats small {
+  overflow: hidden;
+  width: 100%;
+  color: #6b8093;
+  font-size: 6.5px;
+  font-weight: 750;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-v2 .today-mini-stats b {
+  color: #17324f;
+  font-family: 'Prompt', sans-serif;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-v2 .today-activity-detail {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  min-width: 0;
+  padding: 7px 8px;
+  display: grid;
+  gap: 2px;
+  border: 1px solid rgba(206, 214, 229, .68);
+  border-radius: 10px;
+  background: rgba(255,255,255,.56);
+}
+.dashboard-v2 .today-activity-detail b,
+.dashboard-v2 .today-activity-detail small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-v2 .today-activity-detail b {
+  color: #31536e;
+  font-size: 8.5px;
+  font-weight: 800;
+}
+.dashboard-v2 .today-activity-detail small {
+  color: #71869a;
+  font-size: 7.5px;
+  font-weight: 650;
+}
+.dashboard-v2 .today-activity-detail em {
+  justify-self: start;
+  margin-top: 2px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  color: #6652a8;
+  background: rgba(238,233,255,.86);
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 800;
+}
+.dashboard-v2 .today-overview-card.ot-activity {
+  border-color: #ead8ae;
+  background: linear-gradient(145deg, rgba(255,254,249,.94), rgba(255,243,214,.72));
+}
+.dashboard-v2 .today-overview-card.ot-activity::after { background: #ffd995; }
+.dashboard-v2 .today-overview-card.ot-activity .today-overview-icon { color: #986515; background: #fff0ce; }
+.dashboard-v2 .today-overview-card.medical-activity {
+  border-color: #cbdfea;
+  background: linear-gradient(145deg, rgba(250,253,255,.94), rgba(227,241,249,.74));
+}
+.dashboard-v2 .today-overview-card.medical-activity::after { background: #bdddf0; }
+.dashboard-v2 .today-overview-card.medical-activity .today-overview-icon { color: #39739d; background: #e5f2fb; }
+.dashboard-v2 .today-request-status {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 5px;
+}
+.dashboard-v2 .today-request-status > span {
+  min-width: 0;
+  min-height: 42px;
+  padding: 5px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  border: 1px solid rgba(199,211,222,.68);
+  border-radius: 9px;
+  background: rgba(255,255,255,.56);
+}
+.dashboard-v2 .today-request-status small {
+  overflow: hidden;
+  color: #6c8194;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-v2 .today-request-status b {
+  color: #17324f;
+  font-family: 'Prompt', sans-serif;
+  font-size: 14px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-v2 button.today-overview-card {
+  touch-action: manipulation;
+}
+.dashboard-v2 button.today-overview-card:hover,
+.dashboard-v2 button.today-overview-card:focus-visible {
+  transform: translateY(-2px);
+}
+.dashboard-v2 article.today-overview-card {
+  cursor: default;
+}
+.dashboard-v2 article.today-overview-card:hover {
+  transform: none;
+}
+@media (max-width: 1180px) {
+  .dashboard-v2 .today-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  .dashboard-v2 .today-overview-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-v2 .today-overview-card {
+    min-height: 112px;
+  }
+}
+
+/* TODAY WORK & ACTIVITY — role-aware final refinement.
+   Manager/employee visibility is prototype-only; production authorization remains server-authoritative. */
+.dashboard-v2 .today-overview-card {
+  min-height: 132px;
+}
+.dashboard-v2 .today-overview-card.approvals {
+  --today-accent: #a34f62;
+  --today-soft: rgba(253,233,238,.94);
+  --today-border: #e8bcc7;
+}
+.dashboard-v2 .today-overview-card.leave {
+  --today-accent: #6755b2;
+  --today-soft: rgba(238,233,255,.94);
+  --today-border: #d6cfee;
+}
+.dashboard-v2 .today-overview-card.ot {
+  --today-accent: #986515;
+  --today-soft: rgba(255,240,206,.94);
+  --today-border: #ead8ae;
+}
+.dashboard-v2 .today-overview-card.correction {
+  --today-accent: #665a94;
+  --today-soft: rgba(239,236,248,.94);
+  --today-border: #d9d1eb;
+}
+.dashboard-v2 .today-overview-card.medical {
+  --today-accent: #39739d;
+  --today-soft: rgba(229,242,251,.94);
+  --today-border: #cbdfea;
+}
+.dashboard-v2 .today-overview-card.requests {
+  --today-accent: #39739d;
+  --today-soft: rgba(229,242,251,.94);
+  --today-border: #cbdfea;
+}
+.dashboard-v2 .today-card-badge {
+  justify-self: end;
+  color: var(--today-accent, #506b80);
+  border-color: var(--today-border, rgba(164,184,204,.55));
+  background: var(--today-soft, rgba(255,255,255,.78));
+}
+.dashboard-v2 .today-card-badge svg,
+.dashboard-v2 .today-card-badge strong,
+.dashboard-v2 .today-card-badge em {
+  color: var(--today-accent, #506b80);
+}
+.dashboard-v2 .today-card-badge.approval-count,
+.dashboard-v2 .today-card-badge.request-count {
+  min-height: 29px;
+  padding: 5px 7px;
+}
+.dashboard-v2 .today-card-badge.approval-count svg,
+.dashboard-v2 .today-card-badge.request-count svg {
+  width: 12px;
+  height: 12px;
+}
+.dashboard-v2 .today-card-badge.approval-count strong,
+.dashboard-v2 .today-card-badge.request-count strong {
+  font-size: 12px;
+}
+.dashboard-v2 .today-card-badge.approval-count em,
+.dashboard-v2 .today-card-badge.request-count em {
+  font-size: 7.5px;
+}
+.dashboard-v2 .today-card-badge.activity-status {
+  min-height: 27px;
+  padding: 5px 7px;
+}
+.dashboard-v2 .today-card-badge.activity-status strong {
+  font-size: 8.3px;
+  line-height: 1;
+}
+.dashboard-v2 .today-card-badge.request-pending {
+  min-height: 29px;
+  padding: 5px 7px;
+}
+.dashboard-v2 .today-card-badge.request-pending strong {
+  font-size: 11px;
+}
+.dashboard-v2 .today-card-badge.request-pending em {
+  font-size: 7.2px;
+}
+.dashboard-v2 .approval-stats,
+.dashboard-v2 .request-stats {
+  width: 100%;
+  align-self: stretch;
+  gap: 5px;
+}
+.dashboard-v2 .approval-stats > span,
+.dashboard-v2 .request-stats > span {
+  min-height: 58px;
+  padding: 6px 3px;
+  gap: 4px;
+  border-radius: 10px;
+}
+.dashboard-v2 .approval-stats small,
+.dashboard-v2 .request-stats small {
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  color: #536f84;
+  font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+  font-size: 8.2px;
+  font-weight: 800;
+  line-height: 1.18;
+  text-overflow: clip;
+  white-space: normal;
+}
+.dashboard-v2 .approval-stats b,
+.dashboard-v2 .request-stats b {
+  font-size: 18px;
+}
+.dashboard-v2 .today-detail-full {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  margin-top: auto;
+  padding: 8px 9px;
+  display: grid;
+  gap: 3px;
+  border: 1px solid rgba(199,211,222,.72);
+  border-radius: 10px;
+  background: rgba(255,255,255,.62);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.84);
+}
+.dashboard-v2 .today-detail-full > span {
+  min-width: 0;
+  overflow: hidden;
+  color: #4f697e;
+  font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+  font-size: 8.3px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-v2 article.today-overview-card .today-detail-full,
+.dashboard-v2 button.today-overview-card .today-detail-full {
+  align-self: stretch;
+}
+.dashboard-v2 .today-overview-card.activity.is-static .today-card-head {
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+}
+.dashboard-v2 .today-overview-card.activity.is-static .today-card-title small,
+.dashboard-v2 .today-overview-card.request-card .today-card-title small {
+  font-size: 7.7px;
+}
+.dashboard-v2 .today-overview-card.activity.is-static .today-card-title b,
+.dashboard-v2 .today-overview-card.request-card .today-card-title b {
+  font-size: 10.4px;
+}
+.dashboard-v2 .today-overview-card.is-static {
+  grid-template-columns: none;
+}
+@media (max-width: 1180px) {
+  .dashboard-v2 .today-overview-card {
+    min-height: 126px;
+  }
+}
+@media (max-width: 620px) {
+  .dashboard-v2 .today-card-title small {
+    font-size: 8.5px;
+  }
+  .dashboard-v2 .today-card-title b {
+    font-size: 11px;
+  }
+  .dashboard-v2 .today-detail-full > span {
+    font-size: 9px;
+  }
+}
+
+/* TODAY WORK & ACTIVITY — corner badge + tighter detail spacing.
+   Review-mode inventory is prototype-only; production visibility remains permission-driven. */
+.dashboard-v2 .today-overview-card {
+  position: relative;
+}
+.dashboard-v2 .today-card-head {
+  position: static;
+  grid-template-columns: 34px minmax(0, 1fr);
+  padding-right: 84px;
+}
+.dashboard-v2 .today-card-badge {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 3;
+  justify-self: auto;
+  color: var(--today-accent, #506b80);
+  border-color: var(--today-border, rgba(164,184,204,.55));
+  background: #fff !important;
+  box-shadow: 0 4px 10px rgba(55,105,138,.09), inset 0 1px 0 rgba(255,255,255,.96);
+}
+.dashboard-v2 .today-card-badge svg,
+.dashboard-v2 .today-card-badge strong,
+.dashboard-v2 .today-card-badge em {
+  color: var(--today-accent, #506b80);
+}
+.dashboard-v2 .today-overview-card.activity {
+  gap: 2px;
+}
+.dashboard-v2 .today-overview-card.activity .today-detail-full {
+  margin-top: 0;
+  flex: 1 1 auto;
+  align-content: start;
+}
+.dashboard-v2 .today-overview-card.activity .today-card-head {
+  margin-bottom: 0;
+}
+.dashboard-v2 .today-overview-card.activity .today-card-title {
+  gap: 1px;
+}
+.dashboard-v2 .today-overview-card.request-card .today-detail-full {
+  margin-top: 2px;
+}
+.dashboard-v2 .today-overview-card.is-review-view {
+  min-height: 0;
+}
+.dashboard-v2 .today-overview-board.is-review-view .today-overview-grid {
+  align-items: stretch;
+}
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board.is-employee-view .today-overview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  .dashboard-v2 .today-card-head {
+    padding-right: 92px;
+  }
+}
+
+/* TODAY WORK & ACTIVITY — fill parent height + readable desktop scale. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board {
+    display: flex;
+    flex-direction: column;
+  }
+  .dashboard-v2 .today-overview-board .today-overview-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: stretch;
+    grid-auto-rows: minmax(0, 1fr);
+  }
+  .dashboard-v2 .today-overview-board .today-overview-card {
+    height: 100%;
+    min-height: 0;
+    padding: 14px;
+    gap: 10px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-head {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 9px;
+    padding-right: 78px;
+  }
+  .dashboard-v2 .today-overview-board .today-overview-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+  .dashboard-v2 .today-overview-board .today-overview-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-title small {
+    overflow: visible;
+    font-size: 9px;
+    line-height: 1.16;
+    letter-spacing: .045em;
+    text-overflow: clip;
+    white-space: normal;
+  }
+  .dashboard-v2 .today-overview-board .today-card-title b {
+    overflow: visible;
+    font-size: 13px;
+    line-height: 1.18;
+    text-overflow: clip;
+    white-space: normal;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge {
+    top: 9px;
+    right: 9px;
+    min-height: 31px;
+    padding: 6px 8px;
+    gap: 4px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge svg {
+    width: 13px;
+    height: 13px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge.approval-count strong,
+  .dashboard-v2 .today-overview-board .today-card-badge.request-count strong {
+    font-size: 14px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge.approval-count em,
+  .dashboard-v2 .today-overview-board .today-card-badge.request-count em {
+    font-size: 8.5px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge.activity-status strong {
+    font-size: 9.5px;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats,
+  .dashboard-v2 .today-overview-board .request-stats {
+    flex: 1 1 auto;
+    margin-top: 5px;
+    gap: 7px;
+    align-items: stretch;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats > span,
+  .dashboard-v2 .today-overview-board .request-stats > span {
+    height: 100%;
+    min-height: 0;
+    padding: 9px 4px;
+    gap: 6px;
+    border-radius: 12px;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats small,
+  .dashboard-v2 .today-overview-board .request-stats small {
+    min-height: 0;
+    font-size: 10px;
+    line-height: 1.25;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats b,
+  .dashboard-v2 .today-overview-board .request-stats b {
+    font-size: 24px;
+  }
+  .dashboard-v2 .today-overview-board .today-detail-full {
+    flex: 1 1 auto;
+    margin-top: 2px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+    border-radius: 12px;
+  }
+  .dashboard-v2 .today-overview-board .today-detail-full > span {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+}
+
+/* Keep activity-card headings on the same readable scale as the summary cards. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.is-static .today-card-title small {
+    overflow: visible;
+    font-size: 9px;
+    line-height: 1.16;
+    letter-spacing: .045em;
+    text-overflow: clip;
+    white-space: normal;
+  }
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.is-static .today-card-title b {
+    overflow: visible;
+    font-size: 13px;
+    line-height: 1.18;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
+
+/* TODAY WORK & ACTIVITY — English-first bilingual hierarchy + smaller corner badges. */
+.dashboard-v2 .today-overview-board .today-card-title small {
+  order: 1;
+  overflow: visible;
+  color: var(--today-accent, #506b80);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.12;
+  letter-spacing: .045em;
+  text-overflow: clip;
+  white-space: normal;
+}
+.dashboard-v2 .today-overview-board .today-card-title b {
+  order: 2;
+  overflow: visible;
+  margin-top: 2px;
+  color: #31536e;
+  font-size: 9.5px;
+  font-weight: 750;
+  line-height: 1.18;
+  text-overflow: clip;
+  white-space: normal;
+}
+.dashboard-v2 .today-overview-board .today-card-badge {
+  top: 8px;
+  right: 8px;
+  min-height: 25px;
+  padding: 4px 6px;
+  gap: 3px;
+}
+.dashboard-v2 .today-overview-board .today-card-badge svg {
+  width: 10px;
+  height: 10px;
+}
+.dashboard-v2 .today-overview-board .today-card-badge.approval-count strong,
+.dashboard-v2 .today-overview-board .today-card-badge.request-count strong {
+  font-size: 11px;
+}
+.dashboard-v2 .today-overview-board .today-card-badge.approval-count em,
+.dashboard-v2 .today-overview-board .today-card-badge.request-count em {
+  font-size: 7px;
+}
+.dashboard-v2 .today-overview-board .today-card-badge.activity-status strong {
+  font-size: 8.2px;
+}
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .today-card-head {
+    padding-right: 66px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-title small,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.is-static .today-card-title small {
+    font-size: 12px;
+    line-height: 1.1;
+  }
+  .dashboard-v2 .today-overview-board .today-card-title b,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.is-static .today-card-title b {
+    font-size: 10px;
+    line-height: 1.18;
+  }
+}
+@media (max-width: 620px) {
+  .dashboard-v2 .today-overview-board .today-card-title small {
+    font-size: 10px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-title b {
+    font-size: 9px;
+  }
+}
+
+/* TODAY WORK & ACTIVITY — soft proportion fix for summary cards. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .today-card-head {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 9px;
+    padding-right: 50px;
+    min-height: 40px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-title {
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-title small {
+    white-space: nowrap;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge {
+    top: 7px;
+    right: 7px;
+    min-height: 22px;
+    padding: 3px 5px;
+    gap: 3px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge svg {
+    width: 8px;
+    height: 8px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge.approval-count strong,
+  .dashboard-v2 .today-overview-board .today-card-badge.request-count strong {
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge.approval-count em,
+  .dashboard-v2 .today-overview-board .today-card-badge.request-count em {
+    font-size: 6.5px;
+    line-height: 1;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge.activity-status strong {
+    font-size: 7.5px;
+    line-height: 1;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats,
+  .dashboard-v2 .today-overview-board .request-stats {
+    flex: 0 0 104px;
+    height: 104px;
+    min-height: 104px;
+    margin-top: auto;
+    margin-bottom: 2px;
+    gap: 7px;
+    align-items: stretch;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats > span,
+  .dashboard-v2 .today-overview-board .request-stats > span {
+    height: 104px;
+    min-height: 104px;
+    padding: 8px 4px;
+    gap: 5px;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats small,
+  .dashboard-v2 .today-overview-board .request-stats small {
+    min-height: 0;
+    font-size: 9.5px;
+    line-height: 1.18;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats b,
+  .dashboard-v2 .today-overview-board .request-stats b {
+    font-size: 23px;
+    line-height: 1;
+  }
+}
+
+/* TODAY WORK & ACTIVITY — UXUI PRO alternate A: balanced metric matrix.
+   Preserved as the rollback baseline before PRO-B styling. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .today-overview-card {
+    padding: 13px;
+    border-radius: 17px;
+    box-shadow: 0 10px 24px rgba(55,105,138,.08), inset 0 1px 0 rgba(255,255,255,.9);
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,0) 42%),
+      var(--today-soft, rgba(255,255,255,.78));
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals::before,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    right: 13px;
+    top: 0;
+    height: 3px;
+    border-radius: 0 0 999px 999px;
+    background: var(--today-accent, #6c8aa1);
+    opacity: .42;
+    pointer-events: none;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats,
+  .dashboard-v2 .today-overview-board .request-stats {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+    margin-top: 5px;
+    margin-bottom: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats > span,
+  .dashboard-v2 .today-overview-board .request-stats > span {
+    height: auto;
+    min-height: 0;
+    padding: 8px 9px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 1fr;
+    align-items: center;
+    justify-items: start;
+    gap: 6px;
+    border-radius: 11px;
+    background: rgba(255,255,255,.7);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.92);
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats small,
+  .dashboard-v2 .today-overview-board .request-stats small {
+    min-height: 0;
+    display: block;
+    overflow: visible;
+    color: #526f84;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1.18;
+    text-align: left;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats b,
+  .dashboard-v2 .today-overview-board .request-stats b {
+    justify-self: end;
+    color: #17324f;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.activity {
+    padding-bottom: 12px;
+    gap: 5px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.activity .today-detail-full {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 4px;
+    padding: 5px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    border-radius: 11px;
+    background: rgba(255,255,255,.66);
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.activity .today-detail-full > span {
+    min-height: 31px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    color: #526b80;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.28;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.activity .today-detail-full > span + span {
+    border-top: 1px solid rgba(159,181,201,.22);
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge {
+    min-height: 24px;
+    padding: 4px 6px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals {
+    border-color: color-mix(in srgb, var(--today-accent, #a34f62) 30%, white);
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.requests {
+    border-color: color-mix(in srgb, var(--today-accent, #39739d) 30%, white);
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals .approval-stats > span {
+    border-color: color-mix(in srgb, var(--today-accent, #a34f62) 22%, white);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.94),
+      inset 0 0 0 1px color-mix(in srgb, var(--today-accent, #a34f62) 8%, transparent);
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.requests .request-stats > span {
+    border-color: color-mix(in srgb, var(--today-accent, #39739d) 22%, white);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.94),
+      inset 0 0 0 1px color-mix(in srgb, var(--today-accent, #39739d) 8%, transparent);
+  }
+
+  .dashboard-v2 button.today-overview-card.approvals:hover,
+  .dashboard-v2 button.today-overview-card.approvals:focus-visible {
+    border-color: var(--today-accent, #a34f62);
+    box-shadow: 0 12px 28px rgba(55,105,138,.12), 0 0 0 3px rgba(163,79,98,.08);
+  }
+}
+
+/* TODAY WORK & ACTIVITY — UXUI PRO B: unified toned cards + accented mini metrics. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.leave,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.ot {
+    border-color: color-mix(in srgb, var(--today-accent, #6c8aa1) 30%, white);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.08) 44%),
+      var(--today-soft, rgba(255,255,255,.82));
+    box-shadow:
+      0 11px 25px rgba(55,105,138,.085),
+      inset 0 1px 0 rgba(255,255,255,.94);
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals::before,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests::before,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.leave::before,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.ot::before {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 13px;
+    right: 13px;
+    height: 3px;
+    border-radius: 0 0 999px 999px;
+    background: var(--today-accent, #6c8aa1);
+    opacity: .48;
+    pointer-events: none;
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals .today-overview-icon,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests .today-overview-icon,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.leave .today-overview-icon,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.ot .today-overview-icon {
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--today-accent, #6c8aa1) 10%, transparent),
+      inset 0 1px 0 rgba(255,255,255,.88);
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-head {
+    padding-right: 66px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge {
+    top: 13px;
+    right: 9px;
+    min-height: 27px;
+    padding: 4px 7px 4px 5px;
+    gap: 4px;
+    border-color: color-mix(in srgb, var(--today-accent, #6c8aa1) 24%, white);
+    background: rgba(255,255,255,.92) !important;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge svg {
+    width: 12px;
+    height: 12px;
+    padding: 2px;
+    box-sizing: content-box;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    color: var(--today-accent, #6c8aa1);
+    background: color-mix(in srgb, var(--today-accent, #6c8aa1) 12%, white);
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge.approval-count strong,
+  .dashboard-v2 .today-overview-board .today-card-badge.request-count strong {
+    font-size: 10.5px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge.activity-status strong {
+    font-size: 8px;
+  }
+
+  .dashboard-v2 .today-overview-board .mini-stat {
+    --mini-accent: #70879a;
+    --mini-soft: #f5f8fa;
+    --mini-border: #dce6ec;
+  }
+  .dashboard-v2 .today-overview-board .mini-stat.leave {
+    --mini-accent: #765bc7;
+    --mini-soft: #f2edff;
+    --mini-border: #ddd2f6;
+  }
+  .dashboard-v2 .today-overview-board .mini-stat.ot {
+    --mini-accent: #a66d16;
+    --mini-soft: #fff3dc;
+    --mini-border: #ead6ae;
+  }
+  .dashboard-v2 .today-overview-board .mini-stat.correction {
+    --mini-accent: #4e78a6;
+    --mini-soft: #edf5ff;
+    --mini-border: #cdddec;
+  }
+  .dashboard-v2 .today-overview-board .mini-stat.medical {
+    --mini-accent: #27867c;
+    --mini-soft: #e9f7f3;
+    --mini-border: #c5e2dc;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat {
+    position: relative;
+    overflow: hidden;
+    padding: 8px 9px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 1fr;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--mini-border);
+    border-radius: 11px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.18)),
+      var(--mini-soft);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.96),
+      0 3px 9px color-mix(in srgb, var(--mini-accent) 7%, transparent);
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat::before,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: var(--mini-accent);
+    opacity: .42;
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals .approval-stats > .mini-stat,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests .request-stats > .mini-stat {
+    border-color: var(--mini-border);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.18)),
+      var(--mini-soft);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.96),
+      0 3px 9px color-mix(in srgb, var(--mini-accent) 7%, transparent);
+  }
+
+  .dashboard-v2 .today-overview-board .mini-stat-icon {
+    grid-column: 1;
+    grid-row: 1;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--mini-accent);
+    background: color-mix(in srgb, var(--mini-accent) 14%, white);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mini-accent) 12%, transparent);
+    font-style: normal;
+  }
+
+  .dashboard-v2 .today-overview-board .mini-stat-icon svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat small,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat small {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    color: color-mix(in srgb, var(--mini-accent) 72%, #314d63);
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1.16;
+    text-align: left;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat b,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat b {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    color: var(--mini-accent);
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.leave .today-detail-full,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.ot .today-detail-full {
+    border-color: color-mix(in srgb, var(--today-accent, #6c8aa1) 18%, white);
+    background: rgba(255,255,255,.72);
+  }
+
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.leave .today-detail-full > span + span,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.ot .today-detail-full > span + span {
+    border-top-color: color-mix(in srgb, var(--today-accent, #6c8aa1) 13%, transparent);
+  }
+}
+
+/* PRO-B alignment fix: activity headers match REQUESTS icon/title spacing. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.leave .today-card-head,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.ot .today-card-head {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 9px;
+  }
 }
 
 /* Leave detail pass: give the leave workspace the same information density as Overview. */

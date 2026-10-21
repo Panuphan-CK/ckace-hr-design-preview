@@ -2,19 +2,20 @@
   'use strict';
 
   const metrics = [
-    ['a', 'ลาวันนี้', '6 คน'],
-    ['b', 'OT สะสม', '42.5 ชั่วโมง'],
-    ['c', 'รออนุมัติ', '8 รายการ'],
-    ['d', 'ค่ารักษา', '฿3,840'],
-    ['e', 'ลงเวลา', '98.6%'],
-    ['f', 'พร้อมทำงาน', '86/103 คน'],
-    ['g', 'ลาพักร้อน', '3 / 15 วัน'],
-    ['h', 'ลากิจ', '1 / 3 วัน'],
-    ['i', 'ลาป่วย', '1 / 5 วัน']
+    ['core', 'ความพร้อมทีม', '92%', 'CORE'],
+    ['a', 'ลาวันนี้', '6 คน', 'A'],
+    ['b', 'OT สะสม', '42.5 ชั่วโมง', 'B'],
+    ['c', 'รออนุมัติ', '8 รายการ', 'C'],
+    ['d', 'ค่ารักษา', '฿3,840', 'D'],
+    ['e', 'ลงเวลา', '98.6%', 'E'],
+    ['f', 'พร้อมทำงาน', '86/103 คน', 'F'],
+    ['g', 'ลาพักร้อน', '3 / 15 วัน', 'G'],
+    ['h', 'ลากิจ', '1 / 3 วัน', 'H'],
+    ['i', 'ลาป่วย', '1 / 5 วัน', 'I']
   ];
 
   const getHero = () => document.querySelector('.dashboard-hero-v2');
-  const getNode = (hero, key) => hero?.querySelector(`.orb-float-${key}`) || null;
+  const getNode = (hero, key) => key === 'core' ? hero?.querySelector('.orb-core') || null : hero?.querySelector(`.orb-float-${key}`) || null;
   const getNodes = (hero) => metrics.map(([key]) => getNode(hero, key)).filter(Boolean);
   const dragHandSvg = '<span class="hero-drag-handle" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7.5 11V7.8a1.5 1.5 0 0 1 3 0V11 5.8a1.5 1.5 0 0 1 3 0V11 6.8a1.5 1.5 0 0 1 3 0V11 8.3a1.5 1.5 0 0 1 3 0v5.9c0 4.2-2.7 6.8-6.8 6.8h-1.1c-2.3 0-4.1-.9-5.4-2.7L3.7 15a1.7 1.7 0 0 1 2.6-2.1l1.2 1.3V11Z"/><path d="M7.5 14.2V11"/></svg></span>';
 
@@ -53,11 +54,13 @@
     });
   };
 
-  const selectedKey = (hero) => hero.querySelector('.orb-float.is-layout-selected')?.dataset.heroLayoutKey || 'a';
+  const selectedKey = (hero) => hero.querySelector('[data-hero-layout-key].is-layout-selected')?.dataset.heroLayoutKey || 'core';
 
   const readOffset = (node, axis) => {
-    const value = Number.parseFloat(node.style.getPropertyValue(`--orbit-${axis}`));
-    return Number.isFinite(value) ? value : 0;
+    const inline = Number.parseFloat(node.style.getPropertyValue(`--orbit-${axis}`));
+    if (Number.isFinite(inline)) return inline;
+    const computed = Number.parseFloat(window.getComputedStyle(node).getPropertyValue(`--orbit-${axis}`));
+    return Number.isFinite(computed) ? computed : 0;
   };
 
   const nudge = (hero, key, dx, dy) => {
@@ -84,10 +87,10 @@
     tools.dataset.layoutPickerReady = 'true';
 
     const hint = tools.querySelector('.hero-layout-hint');
-    if (hint) hint.textContent = 'เลือกวงรี แล้วลาก · ลูกศร = 4px · Shift = 12px';
+    if (hint) hint.textContent = 'เลือกจุด แล้วลาก · ลูกศร = 4px · Shift = 12px';
 
     getNodes(hero).forEach((node) => {
-      const key = metrics.find(([candidate]) => node.classList.contains(`orb-float-${candidate}`))?.[0];
+      const key = metrics.find(([candidate]) => getNode(hero, candidate) === node)?.[0];
       if (!key) return;
       node.dataset.heroLayoutKey = key;
       ensureDragHandle(node);
@@ -100,21 +103,21 @@
     const panel = document.createElement('div');
     panel.className = 'hero-layout-panel';
     panel.setAttribute('role', 'region');
-    panel.setAttribute('aria-label', 'จัดตำแหน่งวงรีทั้งหมด');
-    panel.innerHTML = '<div class="hero-layout-panel__header"><strong>จัดตำแหน่งวงรี</strong><span>9 / 9 จุด</span></div><p class="hero-layout-panel__help">เลือกชื่อแล้วลากวงรี หรือใช้ลูกศรขยับ 4px</p>';
+    panel.setAttribute('aria-label', 'จัดตำแหน่ง Hero ทั้งหมด');
+    panel.innerHTML = '<div class="hero-layout-panel__header"><strong>จัดตำแหน่ง Hero</strong><span>10 / 10 จุด</span></div><p class="hero-layout-panel__help">เลือกจุดแล้วลาก หรือใช้ลูกศรขยับ 4px</p>';
 
     const picker = document.createElement('div');
     picker.className = 'hero-layout-picker';
     picker.setAttribute('role', 'list');
     picker.setAttribute('aria-label', 'เลือกวงรี');
-    metrics.forEach(([key, label, value], index) => {
+    metrics.forEach(([key, label, value, displayKey]) => {
       const el = button('', 'hero-layout-picker__button', {
         'data-hero-layout-select': key,
         'aria-pressed': 'false',
         'aria-label': `${label} ${value} · เลือกเพื่อจัดตำแหน่ง`,
         title: `${label} ${value}`
       });
-      el.innerHTML = `<span class="hero-layout-picker__key">${String.fromCharCode(65 + index)}</span><span class="hero-layout-picker__copy"><b>${label}</b><small>${value}</small></span>`;
+      el.innerHTML = `<span class="hero-layout-picker__key">${displayKey}</span><span class="hero-layout-picker__copy"><b>${label}</b><small>${value}</small></span>`;
       picker.append(el);
     });
     panel.append(picker);
@@ -152,7 +155,7 @@
       const active = hero.classList.contains('hero-layout-editor') || tools.classList.contains('is-active') || tools.querySelector('[aria-pressed="true"]');
       panel.classList.toggle('is-visible', Boolean(active));
       if (active) placeDragHandles(hero);
-      if (active && !hero.querySelector('.orb-float.is-layout-selected')) selectNode(hero, 'a');
+      if (active && !hero.querySelector('[data-hero-layout-key].is-layout-selected')) selectNode(hero, 'core');
       if (!active) {
         getNodes(hero).forEach((node) => node.classList.remove('is-layout-selected'));
         panel.querySelectorAll('[data-hero-layout-select]').forEach((el) => el.setAttribute('aria-pressed', 'false'));

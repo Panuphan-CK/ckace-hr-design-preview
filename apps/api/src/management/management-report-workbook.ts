@@ -78,13 +78,15 @@ async function buildReportWorkbook(
       amountCell(row),
     ]);
   }
+  const totalValue = rows.reduce((sum, row) => sum + rowValue(row), 0);
   sheet.addRow([
     "รวมทั้งหมด",
     "",
     "",
     `${rows.length} รายการ`,
-    rows.reduce((sum, row) => sum + rowValue(row), 0),
+    totalValue,
   ]).font = { bold: true };
+  if (kind === "ATTENDANCE") sheet.getColumn(5).numFmt = "0.00";
   sheet.columns.forEach((column, index) => {
     column.width = index === 3 ? 40 : index === 1 ? 26 : 16;
   });
@@ -101,6 +103,7 @@ async function buildReportWorkbook(
   for (const entry of [...perPerson.values()].sort((a, b) => b.value - a.value)) {
     summary.addRow([safeCell(entry.name), entry.count, entry.value]);
   }
+  if (kind === "ATTENDANCE") summary.getColumn(3).numFmt = "0.00";
   summary.columns.forEach((column, index) => {
     column.width = index === 0 ? 26 : 16;
   });

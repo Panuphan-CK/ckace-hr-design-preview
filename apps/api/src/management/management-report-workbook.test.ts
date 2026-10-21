@@ -24,7 +24,7 @@ const row = (overrides: Partial<ManagementReportRow>): ManagementReportRow => ({
 const rows: readonly ManagementReportRow[] = [
   row({ id: "l1" }),
   row({ id: "l2", employeeId: "e2", employeeName: "=cmd", amount: "2" }),
-  row({ id: "a1", kind: "ATTENDANCE", summary: "เข้า 09:00 ออก 18:00", amount: "9" }),
+  row({ id: "a1", kind: "ATTENDANCE", summary: "เข้า 09:00 ออก 18:30", amount: "9.5" }),
   row({ id: "m1", kind: "MEDICAL", summary: "ค่ารักษา", amount: "1250.5" }),
   row({ id: "o1", kind: "OVERTIME", summary: "OT", amount: "3" }),
 ];
@@ -53,11 +53,15 @@ describe("management report workbooks", () => {
     expect(workbook.getWorksheet("สรุปรายบุคคล")?.rowCount).toBe(3);
   });
 
-  it("attendance: only attendance rows", async () => {
+  it("attendance: keeps decimal hours numeric for Excel sums", async () => {
     const workbook = await load(await buildAttendanceWorkbook(rows, range));
     const sheet = workbook.getWorksheet("รายงานเข้าออกงาน");
     expect(sheet?.rowCount).toBe(5);
-    expect(sheet?.getRow(4).getCell(5).value).toBe(9);
+    expect(sheet?.getRow(4).getCell(5).value).toBe(9.5);
+    expect(sheet?.getRow(5).getCell(5).value).toBe(9.5);
+    expect(sheet?.getColumn(5).numFmt).toBe("0.00");
+    expect(workbook.getWorksheet("สรุปรายบุคคล")?.getRow(2).getCell(3).value).toBe(9.5);
+    expect(workbook.getWorksheet("สรุปรายบุคคล")?.getColumn(3).numFmt).toBe("0.00");
   });
 
   it("medical: only medical rows with decimal amounts", async () => {

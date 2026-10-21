@@ -1,69 +1,45 @@
 # CKACE HR — Architecture Baseline
 
-## Final direction
+Last Updated: 2026-10-21
 
-Desktop/Web and LINE LIFF converge on the same backend services.
+CKACE_HR is a standalone platform. Project A / APP_Leave is no longer an active runtime, fallback, compatibility target, design baseline, or business-rule source.
 
-Public target:
+## Targets
 
-- https://hr.ckaceaccount.com
-- https://hr.ckaceaccount.com/liff
-- https://hr.ckaceaccount.com/api/*
+- Production: `https://hr.ckaceaccount.com`
+- LIFF: `https://hr.ckaceaccount.com/liff`
+- API: `https://hr.ckaceaccount.com/api/*`
+- TEST/UAT: `https://hr-test.ckaceaccount.com`
+- Owner-confirmed current TEST baseline: **TESTm67**
 
-Runtime:
+## Runtime
 
-- Next.js Web
-- NestJS API
-- Prisma
-- PostgreSQL / Neon
-- private Cloudflare R2
-- Cloud Run
-- Firebase Hosting / Google-managed HTTPS
+Next.js Web/LIFF · NestJS API · Prisma · PostgreSQL/Neon · private Cloudflare R2 · Google Cloud Run · Firebase Hosting
 
-## Migration transition
+## Boundaries
 
-Desktop:
-legacy Apps Script UI -> GAS compatibility adapter -> NestJS when a module is NEW.
+Presentation is never authorization authority.
 
-LINE:
-current LIFF -> existing Cloud Run adapter -> NestJS when a module is NEW.
+The server owns identity/session, authorization/capability, validation, idempotency, transactions, approval/workflow state, request numbering, audit, notifications and private attachment authorization.
 
-A server-only routing state controls read/write authority independently per module.
+Database uses UUID canonical IDs, explicit company/team/employee/role scope, and explicit reconciliation for imported/provenance data.
 
-Default routing is LEGACY for every module.
+Private file bytes live in R2; ownership/metadata live in PostgreSQL; protected downloads require server authorization.
 
-## Domain layering
+## Source-of-truth rule
 
-Adapters:
-- legacy DTO compatibility only
-- no long-lived business-rule duplication
+Every active domain has one authoritative source of truth. Do not introduce dual-write or compatibility layers merely to preserve retired Project A behavior.
 
-Application services:
-- identity
-- authorization
-- validation
-- idempotency
-- transactions
-- approval transitions
-- audit
-- outbox
+## Environments
 
-Database:
-- UUID canonical IDs
-- source-qualified legacy provenance
-- PostgreSQL source of truth after module write cutover
+Local may contain work newer than TESTm67 and must not be equated automatically with deployed TEST.
 
-Files:
-- metadata/ownership in PostgreSQL
-- bytes in private R2
-- no permanent public file URLs
+TEST current baseline: **TESTm67**.
 
-## M1 non-goals
+Production: NO-GO until TASK-40/TASK-41 are explicitly approved.
 
-- no Neon project
-- no Production database
-- no R2 bucket
-- no GCP/Firebase project
-- no Production LINE/DNS change
-- no Production migration/import
-- no GAS retirement
+## Desktop design architecture
+
+Current review direction: one People Operations system, persistent top tabs, dashboard-first command center, Galaxy metric/hero language, responsive one-page workspaces, and server-backed real data only when prototype decisions move into application code.
+
+Prototype-only UI is never business-rule or authorization authority.

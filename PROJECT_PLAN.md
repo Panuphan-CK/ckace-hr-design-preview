@@ -24,7 +24,8 @@ Last Updated: 2026-10-21 Asia/Bangkok
 | Management / policy administration | Implemented in current platform track |
 | TEST environment | **TESTm67 — Owner-confirmed current baseline** |
 | Desktop redesign | **TASK-39.9 — IN PROGRESS** |
-| Local/Git provenance reconciliation | **IN PROGRESS** |
+| Local dirty-tree provenance classification | **TASK-CX.1 PASS** |
+| Exact TESTm67 source/deployment lineage | **TASK-CX.2 PLANNED — P1** |
 | Production Readiness | TASK-40 — NOT STARTED |
 | Production Go / No-Go | TASK-41 — NOT STARTED |
 
@@ -54,14 +55,15 @@ Current design:
 
 Remaining:
 
-1. confirm prototype/design-system baseline;
-2. classify local dirty work and provenance vs TESTm67;
-3. map accepted prototype into real Next.js pages without importing fake data;
-4. preserve server-authoritative permissions/business contracts;
-5. complete remaining Desktop pages;
-6. run responsive/accessibility/keyboard/reduced-motion/Thai-content/state QA;
-7. reconcile against TESTm67 before next TEST rollout;
-8. obtain Owner visual acceptance.
+1. recover the exact TESTm67 source/deployment lineage under TASK-CX.2;
+2. integrate the confirmed TEST baseline into Local without losing the current TASK-39.9 prototype/local work;
+3. confirm the prototype/design-system baseline on the reconciled codebase;
+4. map accepted prototype into real Next.js pages without importing fake data;
+5. preserve server-authoritative permissions/business contracts;
+6. complete remaining Desktop pages;
+7. run responsive/accessibility/keyboard/reduced-motion/Thai-content/state QA;
+8. reconcile against TESTm67 before next TEST rollout;
+9. obtain Owner visual acceptance.
 
 ## TESTm67 reconciliation rule
 
@@ -69,12 +71,20 @@ Repository docs stopped around m16 while the Owner's latest TEST is m67. Treat T
 
 ## Git strategy
 
-At reconciliation start Local and origin/main shared HEAD `65a901b`, but Local had substantial dirty work.
+TASK-CX.1 established the current Git/provenance shape:
 
+- Local `main` remains at `65a901b` with preserved dirty/untracked work.
+- `origin/main` has advanced to the Codex Lead/documentation state (`ee42f38` at TASK-CX.1 inspection time).
+- `origin/claude/project-thread-j4idbg` diverges from the common implementation base `4e20dde` and contains the later TEST rounds plus m67 release configuration.
+- The exact live TESTm67 source commit is not yet proven from repository evidence alone.
+- Local Desktop-auth changes are not safe to promote as-is because they diverge from the later TEST branch authentication behavior.
+- Current TASK-39.9 prototype work is local/newer design work and must be preserved separately.
+
+Rules:
 - Never clean/reset/stash unknown work as housekeeping.
+- Recover exact TESTm67 deployment/source evidence before branch integration.
 - Commit documentation separately from source.
-- Classify source provenance before committing.
-- Keep prototype, API, LIFF, test tooling and agent tooling in bounded commits.
+- Keep prototype, API, LIFF, test tooling and agent tooling in bounded provenance groups.
 
 ## TASK-40 — Production Readiness Plan
 
@@ -103,4 +113,4 @@ Current Codex execution board: `docs/codex/TASKS.md`.
 
 ## Next action
 
-Execute **TASK-CX.1 — Local working-tree provenance reconciliation** as a read-only TASK. After Owner review, continue TASK-39.9 from the confirmed Local baseline.
+Execute **TASK-CX.2 — Recover exact TESTm67 source/deployment lineage**. Do not merge/reset/clean the Local tree before the exact TESTm67 source baseline and safe integration sequence are proven. TASK-39.9 remains the active product track but implementation changes wait for this P1 reconciliation gate.

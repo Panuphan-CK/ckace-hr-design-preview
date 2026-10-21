@@ -22,9 +22,9 @@ See `docs/CURRENT_STATE_TESTM67_20261021.md`.
 
 ## Documentation publication
 
-Active documentation is published on GitHub `main`. Initial reconciled-document publication SHA: `4a405cf7a969c231d759247dde986f1653c365c8`; later documentation-only metadata commits may advance `main`.
+Active documentation and Codex Lead Mode are published on GitHub `main`. At TASK-CX.1 inspection time, `origin/main` was `ee42f38ae11b051b745c444c2d0e904b6de75e29`.
 
-Local active-document contents match GitHub, but Local `main` was not force-reset/cleaned because unrelated dirty source/untracked work must be preserved and classified first.
+Local active-document contents had matched the published state before TASK-CX.1 documentation updates, but Local `main` remains intentionally at `65a901b` because unrelated dirty source/untracked work must be preserved until branch/source provenance is reconciled.
 
 ## Git/local state at reconciliation start
 
@@ -36,9 +36,16 @@ At the start of the 2026-10-21 reconciliation:
 - no committed ahead/behind divergence
 - local working tree dirty
 
-Dirty groups included root docs, Desktop auth API changes, current Desktop prototype changes, repo-local skills, TEST/admin tooling, LIFF assets/implementation, and `design-system/ckace-hr-workspace/MASTER.md`.
+TASK-CX.1 classified the dirty groups. Key result:
 
-Do not assume all local dirty work is part of TESTm67.
+- Desktop-auth API changes are a local LIFF-auth precursor/experimental implementation and **must not be merged as-is** over the later TEST branch.
+- `docs/design/desktop-20261018/` changes are current TASK-39.9 local design work, not TESTm67 deployment evidence.
+- `_ckace` LIFF source + `liff-assets` strongly align by timing/content with the LIFF effort later committed in a different form on the Claude branch; preserve, but do not treat them as current deploy source.
+- `.claude/test-admin/` is historical TEST-only mutation tooling.
+- 172 specialist-skill files are Local agent tooling, not product/TEST code.
+- controller/quality skills, `docs/codex/`, current-state docs, and the design-system master were already published to `origin/main`; they appear untracked locally because Local HEAD is behind.
+
+Detailed evidence: `docs/codex/TASK_CX1_PROVENANCE_20261021.md`.
 
 ## Platform maturity
 
@@ -97,9 +104,10 @@ Production remains NO-GO. Explicit Owner approval is required for Production dep
 
 ## Immediate next action
 
-1. Treat TESTm67 as the TEST baseline.
-2. Use **TASK-CX.1 — Local working-tree provenance reconciliation** from `docs/codex/TASKS.md` as the next Codex Lead task.
-3. Keep the provenance review read-only: do not clean/reset/stash/commit/push unknown source work.
-4. After Owner review of TASK-CX.1, continue TASK-39.9 from the confirmed Local baseline.
-5. Reconcile implementation against TESTm67 before the next TEST rollout.
-6. Do not start TASK-40 until TASK-39.9 and whole-system QA are Owner-accepted.
+1. Treat TESTm67 as the Owner-confirmed operational baseline.
+2. Execute **TASK-CX.2 — Recover exact TESTm67 source/deployment lineage**.
+3. Use Cloud Build/Cloud Run/Firebase TEST evidence plus Git history to identify the exact or best-provable source commit behind live TESTm67.
+4. Do not merge/reset/clean/stash the Local tree before the integration plan is proven.
+5. Preserve the current TASK-39.9 prototype and all uncertain local source artifacts during reconciliation.
+6. Resume TASK-39.9 implementation only after the TEST baseline is safely integrated.
+7. Do not start TASK-40 until TASK-39.9 and whole-system QA are Owner-accepted.

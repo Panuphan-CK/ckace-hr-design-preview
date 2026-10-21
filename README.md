@@ -1,63 +1,69 @@
-# CKACE HR — Project B
+# CKACE HR
 
-CKACE HR Project B is the new HR platform that will replace the legacy APP_Leave Google Apps Script + Google Sheets runtime module-by-module.
+CKACE HR is the active standalone employee and people-operations platform for C.K.ACE.
 
-## M1 foundation
+## Current status — 2026-10-21
 
-Current phase: M3 Identity / Auth / RBAC / Audit PASS. Next: Owner-gated M4 non-production GCP/Firebase/Cloud Run runtime.
+- **Latest Owner-confirmed TEST baseline:** `TESTm67`
+- **Active task:** `TASK-39.9 — Desktop full redesign`
+- **Production:** NO-GO; separate readiness/go-no-go approval required
+- **Project A / APP_Leave:** retired from active planning; historical evidence only
+- **Current active assistant:** Codex Local
+- **Collaboration:** Claude is paused and may resume from GitHub + continuity files
 
-Locked stack:
+See `docs/CURRENT_STATE_TESTM67_20261021.md` for the detailed reconciliation record.
 
-- TypeScript
-- Next.js + React for Web and LINE LIFF presentation
-- NestJS for backend API/business services
-- PostgreSQL / Neon V0
-- Prisma
-- Google Cloud Run
-- Firebase Hosting / Google-managed HTTPS
-- Cloudflare R2 private runtime attachments
+## Platform maturity
 
-Target domains:
+The platform is beyond foundation stage and contains mature TEST-stage work across identity/RBAC/audit, employee/company/team structure, Leave, OT, Attendance, Time Correction, Medical, approval routing, revisions/withdrawals/delegation, request numbers/timelines, notifications, policy administration, private R2, holiday/workday-aware dates, OT allowances, reports, Desktop and LIFF work.
 
-- Production: https://hr.ckaceaccount.com
-- TEST/UAT: https://hr-test.ckaceaccount.com
-- API: same-origin /api/*
-- LIFF: /liff
+## Current Desktop direction
+
+TASK-39.9 uses a People Operations Command Center with:
+
+- persistent top tabs;
+- dashboard-first navigation;
+- Galaxy hero/metric visual language;
+- Thai-first action copy;
+- single-workspace module pages;
+- responsive and reduced-motion behavior;
+- a review-only Overview Hero layout editor.
+
+## Locked stack
+
+TypeScript · Next.js/React · NestJS · PostgreSQL/Neon · Prisma · Cloud Run · Firebase Hosting · private Cloudflare R2
+
+## Runtime targets
+
+- Production: `https://hr.ckaceaccount.com`
+- TEST/UAT: `https://hr-test.ckaceaccount.com`
+- API: same-origin `/api/*`
+- LIFF: `/liff`
 
 ## Repository layout
 
-- apps/web — Next.js Web/LIFF presentation shell
-- apps/api — NestJS API foundation
-- packages/contracts — canonical DTO/routing/provenance contracts
-- packages/auth — internal actor/security boundaries
-- packages/validation — shared validation primitives
-- packages/business-rules — pure domain rules
-- packages/database — Prisma/PostgreSQL boundary
-- packages/migration — migration/reconciliation framework
-- docs — architecture and phase evidence
+- `apps/web` — Next.js Web / LIFF
+- `apps/api` — NestJS API/business services
+- `packages/*` — contracts/auth/business rules/database/storage/shared code
+- `docs` — active documentation and dated evidence
+- `docs/design/desktop-20261018` — current standalone Desktop review prototype
+- `design-system/ckace-hr-workspace` — current Desktop design system
 
-## Important migration rule
+## Documentation authority
 
-The redesigned UI does not block backend/data migration.
+Start with `AGENTS.md`, `HANDOFF.md`, `PROJECT_PLAN.md`, `docs/CURRENT_STATE_TESTM67_20261021.md`, `docs/README.md`, and `docs/ARCHITECTURE.md`.
 
-During migration:
-
-- legacy Desktop may call a bounded GAS compatibility bridge
-- current LINE LIFF may continue through its Cloud Run gateway
-- both adapters converge on NestJS services
-- module authority moves LEGACY -> shadow -> NEW read -> NEW write
-- indefinite dual-write is prohibited
+Dated M/WD/TASK/design documents are historical evidence and do not override current state.
 
 ## Local commands
 
+```text
 npm install
 npm run lint
 npm run typecheck
 npm test
 npm run build
-
-Prisma validation requires DATABASE_URL in the environment:
-
 npm run prisma:validate
+```
 
-No Production provider, DNS, LINE, database, R2 or routing change is part of M1.
+TEST work never authorizes Production mutation.

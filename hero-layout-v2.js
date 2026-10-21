@@ -82,7 +82,12 @@ function enhancePanel(h){
 }
 function applySaved(h){
  var raw=null;try{raw=localStorage.getItem(STORE);}catch(_){}
- if(!raw)return;try{var data=JSON.parse(raw);nodes(h).forEach(function(n){var p=data.positions&&data.positions[key(n)];if(p)pos(n,Number(p.x),Number(p.y));});}catch(_){}
+ if(!raw){
+   try{localStorage.removeItem('ckace.dashboard.hero.layout.v1');}catch(_){}
+   nodes(h).forEach(function(n){n.style.removeProperty('--orbit-x');n.style.removeProperty('--orbit-y');});
+   return;
+ }
+ try{var data=JSON.parse(raw);nodes(h).forEach(function(n){var p=data.positions&&data.positions[key(n)];if(p)pos(n,Number(p.x),Number(p.y));});}catch(_){}
 }
 function save(h){
  var p={};nodes(h).forEach(function(n){p[key(n)]={x:read(n,'x'),y:read(n,'y')};});

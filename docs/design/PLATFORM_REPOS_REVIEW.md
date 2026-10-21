@@ -1,5 +1,7 @@
 # ผลอ่าน GitHub โปรเจกต์อื่น + Handoff แพลตฟอร์มบริษัท (2026-10-15)
 
+> **Historical design evidence — updated authority 2026-10-21:** เอกสารนี้เก็บผลวิเคราะห์ ณ วันที่ 2026-10-15 เท่านั้น ไม่ใช่สถานะปัจจุบันของโปรเจกต์ ปัจจุบัน TEST baseline คือ **TESTm67**, TASK-39.9 คือ Desktop track ที่ active, Codex Local เป็นตัวทำงานปัจจุบันร่วมกับ Claude แบบ handoff และ Project A / APP_Leave ถูกยกเลิกจาก active planning แล้ว
+
 แหล่ง: `Panuphan-CK/app-audit`, `Panuphan-CK/ckrpa` (อ่านผ่าน GitHub API เฉพาะ README/คู่มือ/ไฟล์ API หลัก ไม่ได้ clone ทั้ง repo
 และไม่คัดลอกข้อมูลลูกค้า), และไฟล์ `CODEX_HANDOFF_COMPANY_PLATFORM.md` ที่ Owner แนบ
 
@@ -28,7 +30,7 @@
 | ชื่อสิทธิ์ | `module.resource.action` | มีคีย์สิทธิ์แล้ว (เช่น `calendar.leave.read`) | ตรงกันอยู่แล้ว; ตรวจให้ชื่อสม่ำเสมอ |
 | Audit log | ชั้นหนึ่งของระบบ | มี `AuditLog` | ใช้ต่อ เพิ่มฟิลด์ before/after, request id, IP ตามที่ Handoff ระบุ |
 | RPA | ห่อด้วย worker + คิว + งานสถานะ | ยังไม่มี | ขั้นหลังจาก HR; ใช้บัญชีบริการและ Secret Manager |
-| ความรับผิดชอบ | เขียนสำหรับ Codex | Claude ดูแล Project B; Codex ดูแล Project A (ตามที่ Owner สั่ง) | เอกสารนี้ใช้เป็นกรอบร่วม; งานใน Project A ไม่แตะจาก Project B |
+| ความรับผิดชอบ | เดิมเขียนสำหรับ Codex | **Historical only:** รูปแบบแบ่ง Claude/Project B และ Codex/Project A ถูกยกเลิกแล้ว | ใช้ Collaborative Codex + Claude บน CKACE_HR; Project A ไม่อยู่ใน active planning |
 
 ## 4) ลำดับความสำคัญ (Owner สั่ง: ระบบลาก่อนเป็นอันดับแรก)
 ตรงกับ Phase 2 ของ Handoff และงานที่ทำอยู่แล้ว ลำดับ "ระบบลา" ให้เสร็จก่อนแตะระบบอื่น:

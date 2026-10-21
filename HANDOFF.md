@@ -21,7 +21,7 @@ See `docs/CURRENT_STATE_TESTM67_20261021.md`.
 
 ## Documentation publication
 
-Active documentation is published on GitHub `main`; verified documentation publication SHA: `4a405cf7a969c231d759247dde986f1653c365c8`.
+Active documentation is published on GitHub `main`. Initial reconciled-document publication SHA: `4a405cf7a969c231d759247dde986f1653c365c8`; later documentation-only metadata commits may advance `main`.
 
 Local active-document contents match GitHub, but Local `main` was not force-reset/cleaned because unrelated dirty source/untracked work must be preserved and classified first.
 

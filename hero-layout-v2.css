@@ -1,0 +1,123 @@
+/* CKACE Hero Layout V2 — public design-preview override */
+@media (min-width: 1100px) {
+  .dashboard-v2 .dashboard-hero-v2 {
+    display: block !important;
+    position: relative !important;
+    height: 328px !important;
+    min-height: 328px !important;
+    padding: 4px 48px 4px 52px !important;
+    overflow: hidden !important;
+  }
+  .dashboard-v2 .dashboard-hero-copy {
+    position: relative !important;
+    z-index: 3 !important;
+    width: min(38%, 480px) !important;
+    padding-top: 58px !important;
+  }
+  .dashboard-v2 .dashboard-hero-copy > .dashboard-kicker {
+    top: 14px !important;
+    right: auto !important;
+    left: 52px !important;
+  }
+  .dashboard-v2 .dashboard-orb {
+    position: absolute !important;
+    top: 4px !important;
+    right: 14px !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: min(720px, 66%) !important;
+    min-width: 560px !important;
+    height: 320px !important;
+    margin: 0 !important;
+    transform: none !important;
+    justify-self: auto !important;
+    overflow: visible !important;
+  }
+  .dashboard-v2 .dashboard-orb .orb-core {
+    top: 50% !important;
+    left: 50% !important;
+    --orbit-x: 0px;
+    --orbit-y: 0px;
+    --galaxy-core-translate: translate(-50%, -50%) translate(var(--orbit-x), var(--orbit-y));
+    transform: var(--galaxy-core-translate) !important;
+  }
+  .dashboard-v2 .dashboard-orb .orb-float-a { --orbit-x: calc(-1 * clamp(175px, 15vw, 240px)) !important; --orbit-y: -115px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-e { --orbit-x: -80px !important; --orbit-y: -115px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-f { --orbit-x: 80px !important; --orbit-y: -115px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-b { --orbit-x: clamp(175px, 15vw, 240px) !important; --orbit-y: -115px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-c { --orbit-x: calc(-1 * clamp(205px, 17vw, 265px)) !important; --orbit-y: 0px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-d { --orbit-x: clamp(205px, 17vw, 265px) !important; --orbit-y: 0px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-leave-vacation { --orbit-x: calc(-1 * clamp(150px, 13vw, 190px)) !important; --orbit-y: 115px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-leave-business { --orbit-x: 0px !important; --orbit-y: 115px !important; }
+  .dashboard-v2 .dashboard-orb .orb-float-leave-sick { --orbit-x: clamp(150px, 13vw, 190px) !important; --orbit-y: 115px !important; }
+
+  .dashboard-v2 .dashboard-hero-v2 .hero-layout-tools {
+    top: auto !important;
+    right: auto !important;
+    bottom: 14px !important;
+    left: 26px !important;
+  }
+  .dashboard-v2 .dashboard-hero-v2 .hero-layout-panel {
+    top: auto !important;
+    right: auto !important;
+    bottom: 54px !important;
+    left: 24px !important;
+    pointer-events: none !important;
+  }
+  .dashboard-v2 .dashboard-hero-v2 .hero-layout-panel button { pointer-events: auto !important; }
+  .dashboard-v2 .hero-layout-picker__key { width: 34px !important; flex-basis: 34px !important; }
+}
+@media (min-width: 841px) {
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-hero-copy { pointer-events: none !important; }
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-float {
+    z-index: 30 !important;
+    pointer-events: auto !important;
+    cursor: grab !important;
+    touch-action: none !important;
+    user-select: none !important;
+    animation: none !important;
+  }
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core:hover,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core:focus-visible,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core.is-layout-selected,
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core.is-dragging {
+    outline: 3px solid rgba(44,151,165,.76) !important;
+    outline-offset: 5px !important;
+    cursor: grabbing !important;
+    box-shadow: 0 14px 30px rgba(31,91,131,.3),0 0 0 8px rgba(255,255,255,.72),0 1px 0 rgba(255,255,255,.92) inset !important;
+  }
+  .dashboard-v2 .dashboard-orb .orb-core .hero-drag-handle {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    z-index: 3;
+    width: 29px;
+    height: 29px;
+    display: grid;
+    place-items: center;
+    border: 2px solid rgba(255,255,255,.96);
+    border-radius: 50%;
+    color: #1f6f82;
+    background: linear-gradient(145deg,#fff,#dff7f4);
+    box-shadow: 0 5px 12px rgba(24,79,112,.24);
+    opacity: 0;
+    transform: scale(.82);
+    pointer-events: none;
+  }
+  .dashboard-v2 .dashboard-orb .orb-core .hero-drag-handle svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .dashboard-v2 .dashboard-hero-v2.hero-layout-editor .dashboard-orb .orb-core .hero-drag-handle {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+  }
+  .dashboard-v2 .dashboard-orb .orb-core.hero-handle-inset-top .hero-drag-handle { top: 5px; }
+  .dashboard-v2 .dashboard-orb .orb-core.hero-handle-inset-right .hero-drag-handle { right: 5px; }
+}

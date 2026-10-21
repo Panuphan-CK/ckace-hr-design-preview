@@ -1,49 +1,58 @@
 # CKACE HR · People Operations Command Center
 
-ต้นแบบรอบนี้รื้อ UX/UI เป็น **ระบบเดียว** สำหรับงานบุคคลทั้งหมด ไม่ใช้หน้าเลือกแอปและไม่มีเมนูซ้อนหลายชั้น ผู้ใช้เข้ามาแล้วเห็นภาพรวมของทีมทันที จากนั้นกดแท็บด้านบนเพื่อเข้า workflow ในบริบทเดียว
+Status: **TASK-39.9 active review prototype**  
+Updated: 2026-10-21  
+Operational TEST baseline: **TESTm67 (Owner-confirmed)**
 
-## โมดูลในระบบเดียว
+This directory is the current standalone Desktop review prototype. It is prototype-only and does not define production authorization, business rules, API behavior, or deployed TEST state.
 
-- **ภาพรวม** — Team Pulse, live dashboard, สัญญาณทีม และปฏิทินทีมไว้ล่างสุดของหน้า
-- **ลา** — สิทธิคงเหลือ, ฟอร์มยื่นคำขอ, สถานะคำขอ และรายการล่าสุดจบในหน้าเดียว
-- **OT** — ขอทำ OT, ประวัติคำขอ และภาพรวมชั่วโมงใน workspace เดียว
-- **ลงเวลา** — ลงเวลาเข้า/ออก, ตำแหน่ง, ไทม์ไลน์ และแก้ไขเวลาในหน้าเดียว
-- **ค่ารักษา** — ยื่นเบิก, แนบใบเสร็จ, วงเงิน และรายการล่าสุดจบในหน้าเดียว
-- **งานอนุมัติ** — Action Center รวมคำขอจากทุกโมดูล
-- **รายงาน** — Team Health, การลา, OT, ลงเวลา และสวัสดิการ
-- **ตั้งค่าระบบ** — ศูนย์กลางนโยบายของทุกโมดูลในหน้าเดียว
+## Current direction
 
-## แนวทางภาพ
+One People Operations system with persistent top tabs:
 
-หน้า Overview ใช้ expressive command deck เดียว: Welcome Hero, KPI Cards 5 ใบ, Team Status, Activity ล่าสุด, Workload / OT Chart, สรุปลงเวลาวันนี้, สรุปสิทธิ์ค่ารักษา และ Calendar ทีมพร้อมสรุปวันนี้ โดยใช้ hero ขนาดใหญ่, Team Pulse orb แบบ animated, stat rail สีเข้ม และพื้นผิว navy/gradient ที่ฝังอยู่กับ canvas สีฟ้าอ่อน
+- ภาพรวม
+- ลา
+- OT
+- ลงเวลา
+- ค่ารักษา
+- งานอนุมัติ
+- รายงาน
+- ตั้งค่าระบบ
 
-ตัวเลขรอบ Team Pulse ใช้ satellite nodes แบบวงกลมหกจุด ลอยเยื้องไปมาอย่างช้า ๆ เหมือนกลุ่มดาว และครอบคลุม KPI พนักงานทั้งหมด, พร้อมทำงาน, กำลังลา, รออนุมัติ, ลงเวลาครบ รวมถึงชั่วโมง OT วงแหวนขยับด้วยจังหวะนุ่มและไม่รบกวนการอ่าน
-วงแหวนหลักยังหมุนช้า ๆ หลายชั้น และ orb กลางลอยขึ้นลงเล็กน้อย เพื่อให้ศูนย์กลางของ visual มีการเคลื่อนไหวต่อเนื่อง
+Time Correction belongs to the Attendance workspace.
 
-กรอบ Hero มีชั้นดาวระยิบระยับแบบเคลื่อนไหวช้า เวลาใน Hero แสดงเป็นนาฬิกานับวินาทีจริง และใช้ชื่อเดือนภาษาไทยเต็ม เช่น “ตุลาคม” Hero ถูกลดความสูงให้พอดีกับข้อความและย้ายวันเวลาไว้ด้านบน การ์ดทุกกรอบใช้ sparkle เบา ๆ และ calendar/ประกาศบริษัทใช้พื้นผิว navy/teal แบบเดียวกับ command deck เพื่อให้เข้าธีมกาแล็กซีทั้งหน้า ดาวจะมีจำนวนมากขึ้นและมีจังหวะแวบสั้น ๆ เป็นช่วง ๆ ส่วนปฏิทินและประกาศใช้โทนสว่างนุ่มกว่าเดิม พร้อมตัวอักษรไทยที่ใหญ่และคอนทราสต์ชัดขึ้น
+## Visual direction
 
-ใต้ปฏิทินมีกรอบ “ประกาศบริษัท” สำหรับวันหยุด ข่าวสิทธิ์สวัสดิการ และกิจกรรมทีม
+Current rendered direction is the **Galaxy / People Operations Command Center**:
 
-Hero ไม่แสดงเมตา 09:20/103/98.6% ซ้ำอีก แทนด้วยวงกลมดาวบริวาร “พนักงานทั้งหมด 103” และ “ลงเวลาครบ 98.6%” ส่วน KPI แสดงพนักงานทั้งหมด, พร้อมทำงาน, กำลังลา, รออนุมัติ และลงเวลาครบ ปฏิทินด้านขวาแสดงชื่อคนลาและช่วงวันลาโดยตรง
+- compact Dashboard Hero;
+- live Thai date/time;
+- centered core/readiness metric;
+- readable pastel metric ovals;
+- shared elliptical Galaxy tracks;
+- light blue/white canvas and dark navy chrome;
+- teal/purple/amber/green accents;
+- Thai-first hierarchy and short action-first copy;
+- responsive and reduced-motion behavior.
 
-Overview แสดงสถานะลงเวลาของทีมเป็น 4 กลุ่ม: ปกติ, มาสาย, ลงเวลาออกก่อน และไม่ลงเวลา พร้อมแถบสัดส่วน 83.5% ปกติ ด้านข้างมีสิทธิ์ค่ารักษาใช้ไป/คงเหลือจากวงเงิน 10,000 บาทต่อปี และกำกับยอดเบิกต่อครั้งไม่เกิน 1,000 บาท
+Older cloud, Aurora Glass Garden, editorial neo-brutalist and parity-driven directions are historical experiments where they conflict with the current rendered prototype.
 
-รอบเนื้อหาใหม่ใช้ภาษาแบบแอป: เริ่มจากสิ่งที่ต้องรู้วันนี้ ตามด้วยสถานะ และจบด้วยการลงมือทำ คำอธิบายยาวถูกลดเหลือคำสั้น ๆ เช่น “เช็กสิทธิ์”, “ส่งได้เลย”, “รอการตัดสินใจ” และ “ดูสถานะล่าสุด” เพื่อให้แต่ละหน้าอ่านได้ในไม่กี่วินาที
+## Overview Hero layout editor
 
-## วิธีเปิดดู
+Desktop review supports named metric selection, dragging, keyboard fine movement, visible drag handles, browser-local save, and reset to the CSS layout.
 
-เปิด index.html ใน browser ที่รองรับ JavaScript ได้เลย หรือใช้ static server ของทีม แล้วทดลอง hash route เช่น #dashboard, #leave, #overtime, #attendance, #medical, #approvals, #reports, #settings
+The editor is review tooling only.
 
-## ไฟล์หลัก
+## Files
 
-- index.html — shell ระบบเดียว: brand, top tabs, profile และ dialog
-- style.css — visual system ของ command center, cards, forms, reports และ responsive layout
-- prototype.js — route, dashboard, module pages, forms และ interactions
-- flow-function-inventory.md — inventory จาก FlowAccount และ mapping มาสู่ CKACE
+- `index.html` — static review shell
+- `style.css` — current prototype visual system
+- `prototype.js` — fictional/in-memory route/content/interactions
+- `hero-layout-editor.js` — Desktop Hero layout review tooling
+- `flow-function-inventory.md` — usability/function reference inventory
 
-ต้นแบบนี้เป็นเอกสาร UX/UI สำหรับ review เท่านั้น ยังไม่เชื่อม API หรือเขียนข้อมูลจริง
+## TESTm67 relationship
 
+TESTm67 is the current deployed TEST baseline according to the Owner. This prototype may be newer than TESTm67 and must not be assumed to be deployed.
 
-## โครงสร้าง workspace ล่าสุด
-
-ทุกหน้าโมดูลหลักใช้โครงสร้างเดียวกับหน้าลา: Hero ภาษาไทยก่อนพร้อมคำอังกฤษด้านล่าง, วงโคจรแบบกาแล็กซี, KPI, พื้นที่ทำงานหน้าเดียว, สรุปด้านข้าง และกิจกรรมล่าสุด โดยหน้า `#attendance` รวมลงเวลาและแก้ไขเวลาไว้ด้วยกัน
+For current authority use the repository root continuity plus `docs/CURRENT_STATE_TESTM67_20261021.md`.

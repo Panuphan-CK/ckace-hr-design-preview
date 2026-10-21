@@ -6,7 +6,7 @@
     height: 328px !important;
     min-height: 328px !important;
     padding: 4px 48px 4px 52px !important;
-    overflow: hidden !important;
+    overflow: clip !important;
   }
   .dashboard-v2 .dashboard-hero-copy {
     position: relative !important;

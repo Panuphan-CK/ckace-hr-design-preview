@@ -181,7 +181,25 @@ steps:
         expected = os.environ["EXPECTED_REVISION"]
         payload = json.loads(os.environ["TRAFFIC_JSON"])
         traffic = payload.get("traffic", payload) if isinstance(payload, dict) else payload
-        matches = [item for item in traffic if item.get("revisionName") == expected and item.get("percent") == 100]
+        if isinstance(traffic, dict):
+            if "revisionName" in traffic:
+                traffic = [traffic]
+            elif "items" in traffic:
+                traffic = traffic["items"]
+            else:
+                traffic = [
+                    {"revisionName": revision, "percent": percent}
+                    for revision, percent in traffic.items()
+                ]
+        if not isinstance(traffic, list):
+            raise SystemExit(f"Unexpected traffic format: {traffic!r}")
+        matches = [
+            item
+            for item in traffic
+            if isinstance(item, dict)
+            and item.get("revisionName") == expected
+            and int(item.get("percent", 0)) == 100
+        ]
         if len(matches) != 1:
             raise SystemExit(f"Expected 100% traffic on {expected}, got {traffic}")
         '

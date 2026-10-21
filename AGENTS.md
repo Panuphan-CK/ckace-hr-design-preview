@@ -1,97 +1,95 @@
-# AGENTS.md — CKACE_HR Project B Worker Rules
+# AGENTS.md — CKACE_HR Worker Rules
 
 ## Role
 
-This repository is the new CKACE HR platform that will replace the legacy APP_Leave GAS/Sheets runtime module-by-module.
+This repository is the active standalone CKACE HR platform.
 
-Project A reference:
-\`D:\APP_Leave\`
+Active local repository: `D:\CKACE_HR`  
+GitHub: `Panuphan-CK/ckace-hr`
 
-Project B active repository:
-\`D:\CKACE_HR\`
+## Current authority
 
-Do not edit Project A from this repository unless the Owner explicitly authorizes a bounded compatibility change.
+Effective 2026-10-21:
 
-## Architecture Lock
+- **Owner-confirmed TEST baseline: TESTm67**
+- **Active implementation track: TASK-39.9 — Desktop full redesign**
+- Project A / APP_Leave is retired from active planning.
+- Production remains NO-GO until separate Owner approval.
+- Codex Local is the active implementation environment for the current work period.
+- Claude is paused but remains part of the collaborative workflow.
 
-- Language: TypeScript
-- Web / LINE LIFF UI: Next.js + React
-- Backend API: NestJS
-- Database: PostgreSQL
-- V0 provider: Neon
-- ORM: Prisma
-- Runtime: Google Cloud Run
-- Front door: Firebase Hosting / Google-managed HTTPS
-- Runtime file storage: Cloudflare R2 private storage
-- Production domain: hr.ckaceaccount.com
-- TEST/UAT domain: hr-test.ckaceaccount.com
-- Preferred public API surface: same-origin /api/*
-- app.ckaceaccount.com is reserved for a future platform portal.
+Priority of truth:
 
-## Migration Rules
+1. current Owner direction;
+2. `AGENTS.md`;
+3. `HANDOFF.md`;
+4. `PROJECT_PLAN.md`;
+5. `docs/CURRENT_STATE_TESTM67_20261021.md`;
+6. current CKACE_HR source/contracts/schema and verified TEST evidence;
+7. dated historical documents only where not superseded.
 
-- Backend/data migration may proceed before the redesigned Web/LIFF UI is complete.
-- Current Desktop and LINE LIFF contracts must remain compatible during bounded migration.
-- No Big Bang cutover.
-- No indefinite GAS + PostgreSQL dual-write.
-- A migrated module must end with exactly one authoritative source of truth.
-- Legacy extraction is read-only.
-- Preserve source-qualified legacy provenance. Never assume legacy_id is globally unique.
-- Do not silently repair migration anomalies. Record explicit reconciliation disposition.
-- Project B uses UUID canonical IDs.
+## Project independence lock
+
+For new work:
+
+- Do not read, edit, query, compare against, or depend on Project A / APP_Leave.
+- Do not use Project A as runtime fallback, source of truth, compatibility target, UI/UX baseline, business-rule baseline, test oracle, migration source, or acceptance criterion.
+- Do not create new parity or bridge work whose purpose is to preserve retired behavior.
+- Historical Project A references may remain only as audit evidence.
+
+## TESTm67 rule
+
+TESTm67 is the latest Owner-confirmed TEST baseline.
+
+Do not infer that the local dirty working tree exactly equals TESTm67. Local files may contain deployed TESTm67 work, newer work, prototype-only work, tooling, or uncertain provenance. Classify relevant local changes before changing source.
+
+## Collaborative Codex + Claude mode
+
+- Before editing, read active continuity, current branch, Git status, and relevant diffs.
+- Do not work concurrently on the same files or overlapping scope.
+- Preserve commits and uncommitted work from the other assistant.
+- Never reset, clean, stash, discard, or rewrite another assistant's work without explicit Owner approval.
+- Treat assistant switches as handoffs, not project resets.
+- GitHub plus active continuity files are the shared handoff surface.
+
+## Architecture lock
+
+- TypeScript
+- Next.js + React
+- NestJS
+- PostgreSQL / Neon
+- Prisma
+- Google Cloud Run
+- Firebase Hosting / Google-managed HTTPS
+- Cloudflare R2 private storage
+- Production domain: `hr.ckaceaccount.com`
+- TEST/UAT domain: `hr-test.ckaceaccount.com`
+- preferred API: same-origin `/api/*`
 
 ## Security
 
 - Frontend is never authorization authority.
 - Server derives actor identity and capability.
 - Fail closed.
-- Do not expose secrets, tokens, passwords, API keys, private medical data, or production credentials.
-- Do not commit .env files or credentials.
-- Use Secret Manager/runtime secret configuration for production secrets.
-- Private files stay private and require server authorization.
-- Business writes must be idempotent and must not be automatically retried after an ambiguous commit.
+- Never expose or commit secrets, credentials, private medical data, tokens, or production keys.
+- Private files require server authorization.
+- Business writes must be idempotent and must not be blindly retried after ambiguous commit.
 
-## Production Gates
+## Production gates
 
-Do not perform without explicit Owner approval:
+Explicit Owner approval is required for Production deploy/traffic, DNS/Firebase routing, LINE configuration, Production data/source-of-truth mutation, Neon PROD changes, paid upgrades, destructive operations, or production credential/security changes.
 
-- Production DNS mutation
-- Production LINE configuration mutation
-- Production data import/write
-- Production source-of-truth switch
-- GAS retirement
-- paid provider purchase/upgrade
-- destructive migration or deletion
-- credential/security changes with Production impact
-
-M1 repository/local foundation work does not authorize any of those gates.
-
-## Development
+## Development workflow
 
 Before editing:
 
-1. Inspect relevant files.
-2. Check Git status.
-3. Preserve unrelated changes.
-4. Make the smallest architecture-consistent change.
-5. Use real package scripts; do not invent verification commands.
+1. read active continuity;
+2. check Git status and relevant diff;
+3. preserve unrelated local changes;
+4. identify whether target work is TESTm67 baseline, newer local work, or prototype-only work;
+5. make the smallest architecture-consistent change;
+6. use real package scripts.
 
-## Continuity Files
+Before completion run relevant lint/typecheck/tests/build, Prisma validation when applicable, review Git diff/status, and update continuity truthfully.
 
-- Root `HANDOFF.md` and `PROJECT_PLAN.md` are canonical **Project B only** continuity files.
-- Do not place Project A `D:\APP_Leave` status, task history, or handoff material in these files.
-- Keep root continuity concise and current. Detailed historical evidence belongs in dated files under `docs/` or `docs/archive/`.
-- Project A may be mentioned only as a scope boundary or compatibility reference, never as Project B progress.
-
-Before completion:
-
-1. Run lint.
-2. Run typecheck.
-3. Run tests.
-4. Run build.
-5. Run Prisma validation when database configuration changes.
-6. Review Git diff/status.
-7. Update HANDOFF.md and PROJECT_PLAN.md truthfully.
-
-Do not commit or push unless explicitly requested.
-Do not use destructive Git commands.
+Do not commit or push unless explicitly requested. Do not use destructive Git commands.

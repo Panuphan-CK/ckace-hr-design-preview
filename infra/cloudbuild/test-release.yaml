@@ -1,0 +1,190 @@
+substitutions:
+  _VERSION: m67
+
+timeout: 1800s
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  # The release must not reach Cloud Run until the repository checks pass.
+  - id: verify
+    name: node:22.22-bookworm
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        npm ci --no-audit --no-fund
+        npm run lint
+        npm run typecheck
+        npm run test
+
+  - id: build-api-image
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - infra/cloudrun/api.Dockerfile
+      - -t
+      - asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-test:${_VERSION}
+      - .
+
+  - id: build-web-image
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - infra/cloudrun/web.Dockerfile
+      - -t
+      - asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-test:${_VERSION}
+      - .
+
+  - id: push-api-image
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-test:${_VERSION}
+
+  - id: push-web-image
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-test:${_VERSION}
+
+  - id: migrate-test
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        gcloud run jobs update ckace-hr-migrate-test \
+          --image=asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-test:${_VERSION} \
+          --region=asia-southeast1 \
+          --project=ckrr-leave-system-2026
+        gcloud run jobs execute ckace-hr-migrate-test \
+          --region=asia-southeast1 \
+          --project=ckrr-leave-system-2026 \
+          --wait
+
+  - id: deploy-and-verify-test
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -ceuE
+      - |
+        api_image="asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-test:${_VERSION}"
+        web_image="asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-test:${_VERSION}"
+        api_revision=""
+        web_revision=""
+
+        rollback_test_traffic() {
+          exit_code="$$?"
+          set +e
+          echo "TEST release failed; restoring m66 traffic."
+          gcloud run services update-traffic ckace-hr-api-test \
+            --region=asia-southeast1 \
+            --project=ckrr-leave-system-2026 \
+            --to-revisions=ckace-hr-api-test-m66a=100
+          gcloud run services update-traffic ckace-hr-web-test \
+            --region=asia-southeast1 \
+            --project=ckrr-leave-system-2026 \
+            --to-revisions=ckace-hr-web-test-m66a=100
+          exit "$$exit_code"
+        }
+        trap rollback_test_traffic ERR
+
+        api_revision="$$(gcloud run deploy ckace-hr-api-test \
+          --image="$$api_image" \
+          --region=asia-southeast1 \
+          --project=ckrr-leave-system-2026 \
+          --revision-suffix=${_VERSION} \
+          --no-traffic \
+          --format='value(status.latestReadyRevisionName)')"
+        test -n "$$api_revision"
+
+        web_revision="$$(gcloud run deploy ckace-hr-web-test \
+          --image="$$web_image" \
+          --region=asia-southeast1 \
+          --project=ckrr-leave-system-2026 \
+          --revision-suffix=${_VERSION} \
+          --no-traffic \
+          --format='value(status.latestReadyRevisionName)')"
+        test -n "$$web_revision"
+
+        gcloud run services update-traffic ckace-hr-api-test \
+          --region=asia-southeast1 \
+          --project=ckrr-leave-system-2026 \
+          --to-revisions="$$api_revision=100"
+        gcloud run services update-traffic ckace-hr-web-test \
+          --region=asia-southeast1 \
+          --project=ckrr-leave-system-2026 \
+          --to-revisions="$$web_revision=100"
+
+        access_token="$$(gcloud auth print-access-token --project=ckrr-leave-system-2026)"
+        hosting_root="https://firebasehosting.googleapis.com/v1beta1/projects/ckrr-leave-system-2026/sites/ckrr-leave-system-2026"
+        live_channel="$$(curl --fail --silent --show-error \
+          -H "Authorization: Bearer $$access_token" \
+          "$$hosting_root/channels/live")"
+        live_version="$$(printf '%s' "$$live_channel" | python3 -c 'import json, sys; print(json.load(sys.stdin)["release"]["version"]["name"])')"
+        test -n "$$live_version"
+
+        clone_operation="$$(curl --fail --silent --show-error \
+          -X POST \
+          -H "Authorization: Bearer $$access_token" \
+          -H 'Content-Type: application/json' \
+          -d "{\"sourceVersion\":\"$$live_version\",\"finalize\":true}" \
+          "$$hosting_root/versions:clone")"
+        operation_name="$$(printf '%s' "$$clone_operation" | python3 -c 'import json, sys; print(json.load(sys.stdin)["name"])')"
+        test -n "$$operation_name"
+
+        for attempt in $$(seq 1 60); do
+          operation="$$(curl --fail --silent --show-error \
+            -H "Authorization: Bearer $$access_token" \
+            "https://firebasehosting.googleapis.com/v1beta1/$$operation_name")"
+          done_flag="$$(printf '%s' "$$operation" | python3 -c 'import json, sys; print("yes" if json.load(sys.stdin).get("done") else "no")')"
+          if [ "$$done_flag" = yes ]; then
+            clone_error="$$(printf '%s' "$$operation" | python3 -c 'import json, sys; print("yes" if "error" in json.load(sys.stdin) else "no")')"
+            test "$$clone_error" = no
+            break
+          fi
+          sleep 5
+        done
+        test "$$done_flag" = yes
+
+        cloned_version="$$(printf '%s' "$$operation" | python3 -c 'import json, sys; print(json.load(sys.stdin)["response"]["name"])')"
+        version_query="$$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$$cloned_version")"
+        curl --fail --silent --show-error \
+          -X POST \
+          -H "Authorization: Bearer $$access_token" \
+          -H 'Content-Type: application/json' \
+          --data '{"message":"CKACE HR TEST '${_VERSION}'"}' \
+          "$$hosting_root/releases?versionName=$$version_query"
+
+        health="$$(curl --fail --silent --show-error https://ckrr-leave-system-2026.web.app/api/health)"
+        health_revision="$$(printf '%s' "$$health" | python3 -c 'import json, sys; print(json.load(sys.stdin)["serviceRevision"])')"
+        test "$$health_revision" = "$$api_revision"
+
+        for service in ckace-hr-api-test ckace-hr-web-test; do
+          traffic_json="$$(gcloud run services describe "$$service" \
+            --region=asia-southeast1 \
+            --project=ckrr-leave-system-2026 \
+            --format='json(status.traffic)')"
+          expected_revision="$$api_revision"
+          if [ "$$service" = ckace-hr-web-test ]; then
+            expected_revision="$$web_revision"
+          fi
+          EXPECTED_REVISION="$$expected_revision" TRAFFIC_JSON="$$traffic_json" python3 -c '
+        import json
+        import os
+
+        expected = os.environ["EXPECTED_REVISION"]
+        payload = json.loads(os.environ["TRAFFIC_JSON"])
+        traffic = payload.get("traffic", payload) if isinstance(payload, dict) else payload
+        matches = [item for item in traffic if item.get("revisionName") == expected and item.get("percent") == 100]
+        if len(matches) != 1:
+            raise SystemExit(f"Expected 100% traffic on {expected}, got {traffic}")
+        '
+        done
+
+        trap - ERR
+        echo "TEST release ${_VERSION} verified: API=$$api_revision WEB=$$web_revision"

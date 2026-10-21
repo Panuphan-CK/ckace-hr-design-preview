@@ -11,7 +11,7 @@ The repository previously recorded explicit deployment details only through roug
 
 ## Documentation publication
 
-The reconciled active documentation was published to GitHub `main` on 2026-10-21. Latest documentation publication SHA at verification: `4a405cf7a969c231d759247dde986f1653c365c8`.
+The reconciled active documentation was published to GitHub `main` on 2026-10-21. Initial reconciled-document publication SHA: `4a405cf7a969c231d759247dde986f1653c365c8`; later documentation-only metadata commits may advance `main`.
 
 Local active-document file contents were verified to match the published GitHub versions. The Local branch HEAD was intentionally **not** force-reset/cleaned to that SHA because unrelated dirty source and untracked work still require provenance review.
 

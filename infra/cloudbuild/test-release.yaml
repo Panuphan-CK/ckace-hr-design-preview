@@ -180,7 +180,14 @@ steps:
 
         expected = os.environ["EXPECTED_REVISION"]
         payload = json.loads(os.environ["TRAFFIC_JSON"])
-        traffic = payload.get("traffic", payload) if isinstance(payload, dict) else payload
+        if isinstance(payload, dict):
+            traffic = payload.get("traffic")
+            if traffic is None and isinstance(payload.get("status"), dict):
+                traffic = payload["status"].get("traffic")
+            if traffic is None:
+                traffic = payload
+        else:
+            traffic = payload
         if isinstance(traffic, dict):
             if "revisionName" in traffic:
                 traffic = [traffic]

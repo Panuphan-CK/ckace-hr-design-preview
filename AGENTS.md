@@ -12,9 +12,35 @@ This repository is the CK Leave / CKACE HR Desktop UX/UI design preview. It is a
 
 External skills are advisory; they do not authorize a global redesign.
 
+## Controller model
+For non-trivial work, use **one Controller/Orchestrator** as the single coordinator.
+
+The Controller:
+- owns scope, plan, task decomposition, file ownership, integration order, review, and final readiness
+- should not make production UI edits itself unless the owner explicitly asks for single-agent execution
+- may delegate to up to **3 Workers** in parallel when scopes are independent
+- must prevent two Workers from editing the same files at the same time
+- must review every Worker result against this AGENTS.md and the locked design system
+- is the only agent allowed to declare a task ready for owner approval
+
+Workers:
+- receive a bounded objective, allowed files, forbidden files, acceptance checks, and required evidence
+- do not broaden scope
+- do not merge or declare final completion
+- return changed files, verification evidence, unresolved risks, and recommendations to the Controller
+
+Preferred team:
+1. Controller — planning/integration/acceptance
+2. Design & UX Worker — audit/design delta/UUPM evidence
+3. Implementation Worker — bounded UI implementation
+4. QA Worker — Vercel audit/accessibility/responsive/regression
+
+For small tasks, the Controller may use only one Worker. Do not create parallelism merely to use more agents.
+
 ## Required workflow
 For non-trivial UI/UX work:
-- use $using-superpowers first when available
+- use $ck-leave-controller first
+- use $using-superpowers when available
 - use $ck-leave-desktop-design before changing layout, navigation, components, typography, colors, motion, responsive behavior, charts, or design-system rules
 - use $ui-ux-pro-max for focused design evidence
 - before completion use $web-design-guidelines on changed UI files

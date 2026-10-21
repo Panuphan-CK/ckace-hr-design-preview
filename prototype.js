@@ -485,22 +485,23 @@ function openDetail(title) {
   dialog.innerHTML = '<div class=\"dialog-head\"><div><span class=\"eyebrow\">PEOPLE OPERATIONS / DETAIL</span><h2 id=\"dialog-title\">' + title + '</h2><p>รายละเอียดเปิดในบริบทของระบบเดียว</p></div><button class=\"dialog-close\" type=\"button\" data-close aria-label=\"ปิด\">' + icon('close') + '</button></div><div class=\"dialog-body\"><div class=\"dialog-info\">' + icon('check') + '<span><strong>ข้อมูลพร้อมสำหรับการตรวจสอบ</strong><small>ต้นแบบนี้แสดงเส้นทางและสิทธิ์เบื้องต้น ข้อมูลจริงต้องตรวจจากเซิร์ฟเวอร์ก่อนบันทึก</small></span></div><div class=\"dialog-detail-grid\"><span><small>รหัสรายการ</small><strong>CK-2026-0108</strong></span><span><small>อัปเดตล่าสุด</small><strong>วันนี้ 09:20</strong></span></div></div><div class=\"dialog-foot\"><button class=\"btn outline\" type=\"button\" data-close>ปิด</button><button class=\"btn primary\" type=\"button\" data-action=\"open-detail\">เปิดรายการ ' + icon('arrow') + '</button></div>';
   if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
 }
-var dashboardLayoutStorageKey = 'ckace.dashboard.hero.layout.v1';
-var dashboardLayoutKeys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
+var dashboardLayoutStorageKey = 'ckace.dashboard.hero.layout.v2';
+var dashboardLayoutKeys = ['core', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
 
 function dashboardLayoutIsDesktop() {
   return !window.matchMedia || window.matchMedia('(min-width: 841px)').matches;
 }
 
 function dashboardLayoutKey(node) {
+  if (node.classList.contains('orb-core')) return 'core';
   for (var i = 0; i < dashboardLayoutKeys.length; i += 1) {
-    if (node.classList.contains('orb-float-' + dashboardLayoutKeys[i])) return dashboardLayoutKeys[i];
+    if (dashboardLayoutKeys[i] !== 'core' && node.classList.contains('orb-float-' + dashboardLayoutKeys[i])) return dashboardLayoutKeys[i];
   }
   return '';
 }
 
 function dashboardLayoutNodes(hero) {
-  return Array.prototype.slice.call(hero.querySelectorAll('.dashboard-orb .orb-float'));
+  return Array.prototype.slice.call(hero.querySelectorAll('.dashboard-orb .orb-core, .dashboard-orb .orb-float'));
 }
 
 function readDashboardLayout() {
@@ -645,7 +646,7 @@ function ensureDashboardLayoutTools(hero) {
   tools.innerHTML = '<button class="hero-layout-button" type="button" data-hero-layout="toggle" aria-pressed="false">จัด Layout</button>' +
     '<button class="hero-layout-button save" type="button" data-hero-layout="save" hidden>บันทึก</button>' +
     '<button class="hero-layout-button reset" type="button" data-hero-layout="reset" hidden>รีเซ็ต</button>' +
-    '<span class="hero-layout-hint" hidden>ลากวงรี · Shift + ลูกศร = ขยับเร็ว</span>';
+    '<span class="hero-layout-hint" hidden>ลากจุด · Shift + ลูกศร = ขยับเร็ว</span>';
   hero.appendChild(tools);
   updateDashboardLayoutTools(hero);
 }

@@ -75,8 +75,8 @@ steps:
       - |
         api_image="asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-api-test:${_VERSION}"
         web_image="asia-southeast1-docker.pkg.dev/ckrr-leave-system-2026/cloud-run-source-deploy/ckace-hr-web-test:${_VERSION}"
-        api_revision=""
-        web_revision=""
+        api_revision="ckace-hr-api-test-${_VERSION}"
+        web_revision="ckace-hr-web-test-${_VERSION}"
 
         rollback_test_traffic() {
           exit_code="$$?"
@@ -94,23 +94,33 @@ steps:
         }
         trap rollback_test_traffic ERR
 
-        api_revision="$$(gcloud run deploy ckace-hr-api-test \
-          --image="$$api_image" \
+        if gcloud run revisions describe "$$api_revision" \
           --region=asia-southeast1 \
           --project=ckrr-leave-system-2026 \
-          --revision-suffix=${_VERSION} \
-          --no-traffic \
-          --format='value(status.latestReadyRevisionName)')"
-        test -n "$$api_revision"
+          --format='value(metadata.name)' >/dev/null 2>&1; then
+          echo "Using existing ready revision $$api_revision."
+        else
+          gcloud run deploy ckace-hr-api-test \
+            --image="$$api_image" \
+            --region=asia-southeast1 \
+            --project=ckrr-leave-system-2026 \
+            --revision-suffix=${_VERSION} \
+            --no-traffic
+        fi
 
-        web_revision="$$(gcloud run deploy ckace-hr-web-test \
-          --image="$$web_image" \
+        if gcloud run revisions describe "$$web_revision" \
           --region=asia-southeast1 \
           --project=ckrr-leave-system-2026 \
-          --revision-suffix=${_VERSION} \
-          --no-traffic \
-          --format='value(status.latestReadyRevisionName)')"
-        test -n "$$web_revision"
+          --format='value(metadata.name)' >/dev/null 2>&1; then
+          echo "Using existing ready revision $$web_revision."
+        else
+          gcloud run deploy ckace-hr-web-test \
+            --image="$$web_image" \
+            --region=asia-southeast1 \
+            --project=ckrr-leave-system-2026 \
+            --revision-suffix=${_VERSION} \
+            --no-traffic
+        fi
 
         gcloud run services update-traffic ckace-hr-api-test \
           --region=asia-southeast1 \

@@ -9,6 +9,12 @@ Authority: Owner-confirmed operational status + Local/Git inspection
 
 The repository previously recorded explicit deployment details only through roughly m16. Exact m17–m67 Cloud Run revisions, image tags, builds, Firebase releases, migrations and rollback targets were not present in continuity during this reconciliation and must not be guessed.
 
+## Documentation publication
+
+The reconciled active documentation was published to GitHub `main` on 2026-10-21. Latest documentation publication SHA at verification: `4a405cf7a969c231d759247dde986f1653c365c8`.
+
+Local active-document file contents were verified to match the published GitHub versions. The Local branch HEAD was intentionally **not** force-reset/cleaned to that SHA because unrelated dirty source and untracked work still require provenance review.
+
 ## Git baseline at reconciliation start
 
 - Local branch: `main`

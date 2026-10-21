@@ -84,6 +84,8 @@ export interface OvertimeRequestView {
 
 export interface OvertimeSelfOverview {
   readonly requests: readonly OvertimeRequestView[];
+  /** Clock-out times (HH:mm) from which meal / transport allowance is paid, as set by HR. */
+  readonly allowanceThresholds?: { readonly meal: string | null; readonly transport: string | null };
 }
 
 export interface OvertimeCreateResult {

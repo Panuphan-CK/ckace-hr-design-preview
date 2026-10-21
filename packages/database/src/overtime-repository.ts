@@ -620,8 +620,15 @@ export class PrismaOvertimeRepository
       ],
     });
 
+    const policies = await this.prisma.overtimeAllowancePolicy.findMany();
+    const threshold = (kind: string) => {
+      const row = policies.find((policy) => policy.kind === kind);
+      return row && row.active ? row.paidWhenEndsAtOrAfter : null;
+    };
+
     return {
       requests: rows.map(requestView),
+      allowanceThresholds: { meal: threshold("MEAL"), transport: threshold("TRANSPORT") },
     };
   }
 

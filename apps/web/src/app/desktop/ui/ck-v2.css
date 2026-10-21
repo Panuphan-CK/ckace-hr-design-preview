@@ -233,3 +233,6 @@ body:has(.ck-app) { background: var(--ck-bg); }
 /* required fields carry a red star so the form says what must be filled */
 .ck-field:has(input:required, select:required, textarea:required) > span:first-child::after,
 .ck-field.req > span:first-child::after { content: " *"; color: #dc2626; font-weight: 600; }
+
+/* Result messages stay in view while a long settings page is scrolled. */
+.ck-msg { position: sticky; top: 8px; z-index: 20; box-shadow: 0 6px 18px rgba(17, 24, 39, 0.12); }

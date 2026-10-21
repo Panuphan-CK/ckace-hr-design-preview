@@ -139,10 +139,19 @@ export function overtimeBreakDeduction(
  * Allowances an OT that ends at `endTime` is expected to earn (company defaults: meal from 20:00,
  * transport from 21:30). The payout itself is worked out from the real clock-out.
  */
-export function allowanceHint(endTime: string): string {
+export interface AllowanceThresholds {
+  readonly meal: string | null;
+  readonly transport: string | null;
+}
+
+export const DEFAULT_ALLOWANCE_THRESHOLDS: AllowanceThresholds = { meal: "20:00", transport: "21:30" };
+
+export function allowanceHint(endTime: string, thresholds: AllowanceThresholds = DEFAULT_ALLOWANCE_THRESHOLDS): string {
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(endTime)) return "";
   const parts: string[] = [];
-  if (endTime >= "20:00") parts.push("ค่าข้าว");
-  if (endTime >= "21:30") parts.push("ค่าเดินทาง");
-  return parts.length === 0 ? "ยังไม่ถึงเกณฑ์ค่าข้าว (20:00) และค่าเดินทาง (21:30)" : "คาดว่าได้" + parts.join(" และ ");
+  if (thresholds.meal && endTime >= thresholds.meal) parts.push("ค่าข้าว");
+  if (thresholds.transport && endTime >= thresholds.transport) parts.push("ค่าเดินทาง");
+  if (parts.length > 0) return "คาดว่าได้" + parts.join(" และ ");
+  const rules = [thresholds.meal ? `ค่าข้าว (${thresholds.meal})` : null, thresholds.transport ? `ค่าเดินทาง (${thresholds.transport})` : null].filter(Boolean);
+  return rules.length === 0 ? "" : "ยังไม่ถึงเกณฑ์" + rules.join(" และ ");
 }

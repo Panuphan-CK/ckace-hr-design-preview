@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import "../ck-v2-pages.css";
 import { preparePrivateDownloadTab, showPrivateDownload } from "../private-download";
+import { useAllowanceThresholds } from "../ui/allowance-thresholds";
 import { thaiDate, thaiDateTime } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
 import { DataGrid, DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, StatusDot, type DotTone } from "../ui/kit";
@@ -58,6 +59,7 @@ const DECISION_FILTERS: readonly { id: DecisionFilter; label: string }[] = [
 ];
 
 export default function DesktopApprovalsPage() {
+  const allowance = useAllowanceThresholds();
   const [state, setState] = useState<State>({ status: "loading" });
   const [kind, setKind] = useState<KindFilter>("ALL");
   const [decisionFilter, setDecisionFilter] = useState<DecisionFilter>("ALL");
@@ -307,7 +309,7 @@ export default function DesktopApprovalsPage() {
                   key: "sum",
                   header: "รายละเอียด",
                   render: (request) => {
-                    const facts = requestFactLines(request);
+                    const facts = requestFactLines(request, allowance);
                     return (
                       <>
                         {facts.map((line) => (
@@ -380,7 +382,7 @@ export default function DesktopApprovalsPage() {
                   header: "รายละเอียด",
                   render: (row) => (
                     <>
-                      {requestFactLines(row).map((line) => (
+                      {requestFactLines(row, allowance).map((line) => (
                         <div key={line}>
                           <b>{line}</b>
                         </div>
@@ -433,7 +435,7 @@ export default function DesktopApprovalsPage() {
           </dl>
           <div className="ck-dlg-sec">
             <h3>รายละเอียดคำขอ</h3>
-            {requestFactLines(pendingDetail).map((line) => (
+            {requestFactLines(pendingDetail, allowance).map((line) => (
               <p key={line}>
                 <b>{line}</b>
               </p>
@@ -514,7 +516,7 @@ export default function DesktopApprovalsPage() {
           </dl>
           <div className="ck-dlg-sec">
             <h3>รายละเอียดคำขอ</h3>
-            {requestFactLines(detail).map((line) => (
+            {requestFactLines(detail, allowance).map((line) => (
               <p key={line}>
                 <b>{line}</b>
               </p>

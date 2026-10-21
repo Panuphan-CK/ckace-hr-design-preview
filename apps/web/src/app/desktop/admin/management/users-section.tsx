@@ -222,7 +222,7 @@ function UserDialog({
   const [exempt, setExempt] = useState(user.attendanceExempt);
 
   const [roleIds, setRoleIds] = useState<readonly string[]>(user.roles.map((role) => role.id));
-  const [scopeType, setScopeType] = useState<string>(first?.scopeType ?? "PLATFORM");
+  const [scopeType, setScopeType] = useState<string>(first?.scopeType ?? "SELF");
   const [scopeCompanyId, setScopeCompanyId] = useState(first?.scopeCompanyId ?? "");
   const [scopeAgencyIds, setScopeAgencyIds] = useState<readonly string[]>(first?.scopeAgencyIds ?? []);
 

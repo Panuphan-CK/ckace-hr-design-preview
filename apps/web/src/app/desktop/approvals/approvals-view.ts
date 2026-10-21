@@ -1,4 +1,4 @@
-import { allowanceHint } from "../overtime/overtime-view";
+import { allowanceHint, type AllowanceThresholds } from "../overtime/overtime-view";
 import type { ApprovalHistoryItem, RequestStatusItem, UnifiedRequestKind } from "@ckace/contracts";
 
 export type KindFilter = "ALL" | UnifiedRequestKind;
@@ -146,7 +146,7 @@ export function formatMinutes(minutes: number): string {
 }
 
 /** Key facts an approver needs (dates, times, hours) as lines; empty when the request carries none. */
-export function requestFactLines(request: Pick<RequestStatusItem, "leave" | "overtime">): string[] {
+export function requestFactLines(request: Pick<RequestStatusItem, "leave" | "overtime">, thresholds?: AllowanceThresholds): string[] {
   const lines: string[] = [];
   if (request.leave) {
     const { startDate, endDate, durationCode } = request.leave;
@@ -154,7 +154,7 @@ export function requestFactLines(request: Pick<RequestStatusItem, "leave" | "ove
     lines.push(`วันที่ลา ${range} (${DURATION_LABEL[durationCode] ?? durationCode})`);
   }
   for (const segment of request.overtime?.segments ?? []) {
-    const hint = allowanceHint(segment.endTime);
+    const hint = allowanceHint(segment.endTime, thresholds);
     lines.push(
       `${dmy(segment.workDate)} เวลา ${segment.startTime}–${segment.endTime} น. (${formatMinutes(segment.requestedMinutes)})` +
         (hint.startsWith("คาดว่า") ? ` · ${hint}` : ""),

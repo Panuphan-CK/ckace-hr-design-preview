@@ -123,8 +123,32 @@ export default function AttendancePolicyPage() {
             <SettingRow label="ลองจิจูด">
               <input className="ck-in ck-snum" aria-label="ลองจิจูดสำนักงาน" type="number" step="any" required value={draft.officeLongitude} disabled={busy} onChange={(e) => set("officeLongitude", e.currentTarget.value)} />
             </SettingRow>
+            <SettingRow label="ตำแหน่งสำนักงาน" hint="ยืนอยู่ที่สำนักงานแล้วกดปุ่ม ระบบจะกรอกละติจูด/ลองจิจูดให้">
+              <button
+                type="button"
+                className="ck-btn quiet"
+                disabled={busy}
+                onClick={() => {
+                  if (!navigator.geolocation) {
+                    setMessage({ kind: "error", text: "เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง" });
+                    return;
+                  }
+                  navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                      set("officeLatitude", position.coords.latitude.toFixed(6));
+                      set("officeLongitude", position.coords.longitude.toFixed(6));
+                      setMessage({ kind: "success", text: "ใส่ตำแหน่งปัจจุบันแล้ว กดบันทึกเพื่อใช้งาน" });
+                    },
+                    () => setMessage({ kind: "error", text: "ไม่สามารถระบุตำแหน่งได้ กรุณาอนุญาตตำแหน่งในเบราว์เซอร์" }),
+                    { enableHighAccuracy: true, timeout: 15_000 },
+                  );
+                }}
+              >
+                ใช้ตำแหน่งปัจจุบันของฉัน
+              </button>
+            </SettingRow>
             <SettingRow label="รัศมีที่ลงเวลาได้">
-              <input className="ck-in ck-snum" aria-label="รัศมีที่ลงเวลาได้ (กม.)" type="number" step="0.1" min="0.1" max="100" required value={draft.radiusKm} disabled={busy} onChange={(e) => set("radiusKm", e.currentTarget.value)} />
+              <input className="ck-in ck-snum" aria-label="รัศมีที่ลงเวลาได้ (กม.)" type="number" step="0.1" min="0.1" max="100" required title="กรอกรัศมีตั้งแต่ 0.1 ถึง 100 กม." onInvalid={(e) => e.currentTarget.setCustomValidity("กรอกรัศมีตั้งแต่ 0.1 ถึง 100 กม.")} onInput={(e) => e.currentTarget.setCustomValidity("")} value={draft.radiusKm} disabled={busy} onChange={(e) => set("radiusKm", e.currentTarget.value)} />
               <span className="ck-sunit">กม.</span>
             </SettingRow>
           </section>

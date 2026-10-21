@@ -15,7 +15,7 @@ import "../requests-common/ck-v2-requests.css";
 import { ApproverChainNotice } from "../ui/approver-chain";
 import { RequestTimelineSection } from "../ui/request-timeline";
 import { ResubmitPanel, type ResubmitOutcome } from "../ui/resubmit-panel";
-import { allowanceHint, attendanceLinkLabel, OVERTIME_BREAK_OPTIONS, overtimeBreakDeduction, overtimeMetrics, overtimeRequestMinutes } from "./overtime-view";
+import { allowanceHint, attendanceLinkLabel, DEFAULT_ALLOWANCE_THRESHOLDS, OVERTIME_BREAK_OPTIONS, overtimeBreakDeduction, overtimeMetrics, overtimeRequestMinutes } from "./overtime-view";
 
 type State = { status: "loading" } | { status: "ready"; overview: OvertimeSelfOverview } | { status: "error"; message: string };
 type Filter = "ALL" | OvertimeRequestStatus;
@@ -96,6 +96,7 @@ export default function DesktopOvertimePage() {
   }, [load]);
 
   const holidayMark = useHolidayMarks();
+  const thresholds = state.status === "ready" ? (state.overview.allowanceThresholds ?? DEFAULT_ALLOWANCE_THRESHOLDS) : DEFAULT_ALLOWANCE_THRESHOLDS;
 
   const metrics = useMemo(() => (state.status === "ready" ? overtimeMetrics(state.overview) : null), [state]);
   const requests = useMemo(
@@ -279,7 +280,7 @@ export default function DesktopOvertimePage() {
               <Icon name="clock" size={18} />
               {startDate && perDay > 0 ? (
                 <>
-                  รวม <b>{minutesLabel(perDay)}</b> ต่อวัน {days > 1 ? <>จำนวน <b>{days} วัน</b></> : null} วันที่ <b>{thaiDateRange(startDate, endDate || startDate)}</b> · {allowanceHint(endTime)}
+                  รวม <b>{minutesLabel(perDay)}</b> ต่อวัน {days > 1 ? <>จำนวน <b>{days} วัน</b></> : null} วันที่ <b>{thaiDateRange(startDate, endDate || startDate)}</b> · {allowanceHint(endTime, thresholds)}
                 </>
               ) : (
                 "เลือกวันและเวลา"
@@ -379,7 +380,7 @@ export default function DesktopOvertimePage() {
                 <div key={segment.id}>
                   <dt>{thaiDateRange(segment.workDate, segment.workDate)}</dt>
                   <dd>
-                    {segment.startTime} ถึง {segment.endTime} ({minutesLabel(segment.requestedMinutes)}) · {allowanceHint(segment.endTime)} {attendanceLinkLabel(segment.attendanceRecordId)}
+                    {segment.startTime} ถึง {segment.endTime} ({minutesLabel(segment.requestedMinutes)}) · {allowanceHint(segment.endTime, thresholds)} {attendanceLinkLabel(segment.attendanceRecordId)}
                   </dd>
                 </div>
               ))}

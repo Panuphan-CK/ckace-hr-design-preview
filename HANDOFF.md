@@ -1,9 +1,10 @@
 # CKACE_HR — Project B HANDOFF
 
-Last Updated: 2026-10-15 Asia/Bangkok
+Last Updated: 2026-10-21 Asia/Bangkok (see docs/HANDOFF_20261021.md)
 
 > Canonical continuity file for **Project B only**: `D:\CKACE_HR`.
 > Project A `D:\APP_Leave` must remain separate.
+> **2026-10-21: current state, deploy routine and open items are in `docs/HANDOFF_20261021.md`. The "Current Goal" below is stale.**
 > Historical pre-split snapshot: `docs/archive/project-b-split-20261008/HANDOFF_MIXED_BEFORE_SPLIT.md`.
 
 ## Current Goal

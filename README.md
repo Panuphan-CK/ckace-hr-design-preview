@@ -8,8 +8,9 @@ CKACE HR is the active standalone employee and people-operations platform for C.
 - **Active task:** `TASK-39.9 — Desktop full redesign`
 - **Production:** NO-GO; separate readiness/go-no-go approval required
 - **Project A / APP_Leave:** retired from active planning; historical evidence only
-- **Current active assistant:** Codex Local
-- **Collaboration:** Claude is paused and may resume from GitHub + continuity files
+- **Current active assistant:** Codex Local only
+- **Development mode:** CKACE HR Codex Lead Mode
+- **Claude:** paused; may resume only through an explicit handoff
 
 See `docs/CURRENT_STATE_TESTM67_20261021.md` for the detailed reconciliation record.
 
@@ -51,7 +52,7 @@ TypeScript · Next.js/React · NestJS · PostgreSQL/Neon · Prisma · Cloud Run 
 
 ## Documentation authority
 
-Start with `AGENTS.md`, `HANDOFF.md`, `PROJECT_PLAN.md`, `docs/CURRENT_STATE_TESTM67_20261021.md`, `docs/README.md`, and `docs/ARCHITECTURE.md`.
+Start with `AGENTS.md`, `HANDOFF.md`, `PROJECT_PLAN.md`, `docs/CURRENT_STATE_TESTM67_20261021.md`, `docs/codex/WORKFLOW.md`, `docs/codex/TASKS.md`, `docs/README.md`, and `docs/ARCHITECTURE.md`.
 
 Dated M/WD/TASK/design documents are historical evidence and do not override current state.
 

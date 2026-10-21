@@ -8,8 +8,9 @@ Last Updated: 2026-10-21 Asia/Bangkok
 - **Active track: TASK-39.9 — Desktop full redesign**
 - **Production: NO-GO**
 - Project A / APP_Leave: retired from active planning
-- Codex Local: active implementation environment
-- Claude: paused; may resume through GitHub/continuity handoff
+- Codex Local: **only active implementation assistant for the current work period**
+- Claude: paused; may resume only through an explicit handoff
+- Codex operating mode: **CKACE HR Codex Lead Mode** — inspect → targeted discovery → TASK → specialist skill routing → implementation → verification → session summary
 
 ## TEST baseline
 
@@ -61,7 +62,7 @@ Earlier TASK-28 through TASK-39.x documents remain historical evidence.
 
 ## TASK-39.9 — active Desktop work
 
-Current review prototype: `docs/design/desktop-20261018/`  
+Current review prototype: `docs/design/desktop-20261018/`
 Current design system: `design-system/ckace-hr-workspace/MASTER.md`
 
 Latest Local direction:
@@ -82,9 +83,13 @@ Older v18/parity and neo-brutalist directions are historical/superseded where th
 
 Project A / APP_Leave is not an active dependency, runtime fallback, compatibility target, UI/UX baseline, business-rule baseline, migration source, test oracle, or acceptance criterion. Historical references remain audit evidence only.
 
-## Collaboration
+## Development operating mode
 
-Codex and Claude may both work on CKACE_HR, but never on overlapping scope at the same time. Update continuity and preserve working-tree provenance before handoff.
+Current mode is **Codex-only active development**.
+
+Codex must follow `docs/codex/WORKFLOW.md` and `.agents/skills/ckace-hr-controller/SKILL.md`: inspect first, ask only material Owner questions, plan meaningful work as bounded TASKs, route specialist skills, avoid repeated failed approaches, verify before completion, update `docs/codex/TASKS.md` + `PROJECT_PLAN.md` + `HANDOFF.md` after every completed work session, end with the mandatory summary, and always ask the Owner whether to commit and push to GitHub.
+
+Claude is paused. If the Owner reactivates Claude later, stop overlapping work and perform an explicit continuity/Git handoff first.
 
 ## Production gates
 
@@ -93,8 +98,8 @@ Production remains NO-GO. Explicit Owner approval is required for Production dep
 ## Immediate next action
 
 1. Treat TESTm67 as the TEST baseline.
-2. Finish documentation/Git reconciliation separately from source work.
-3. Read-only classify remaining dirty source/untracked groups.
-4. Continue TASK-39.9 from the current prototype/design system.
+2. Use **TASK-CX.1 — Local working-tree provenance reconciliation** from `docs/codex/TASKS.md` as the next Codex Lead task.
+3. Keep the provenance review read-only: do not clean/reset/stash/commit/push unknown source work.
+4. After Owner review of TASK-CX.1, continue TASK-39.9 from the confirmed Local baseline.
 5. Reconcile implementation against TESTm67 before the next TEST rollout.
 6. Do not start TASK-40 until TASK-39.9 and whole-system QA are Owner-accepted.

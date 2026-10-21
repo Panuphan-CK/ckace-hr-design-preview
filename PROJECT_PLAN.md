@@ -9,6 +9,7 @@ Last Updated: 2026-10-21 Asia/Bangkok
 - Project A / APP_Leave is retired from active planning.
 - Production remains NO-GO.
 - Historical M/WD/TASK documents remain evidence only unless explicitly reactivated.
+- **Development mode: Codex Local only, using CKACE HR Codex Lead Mode. Claude is paused.**
 
 ## Current state
 
@@ -83,6 +84,23 @@ NOT STARTED. Explicit Owner approval required. Planning does not authorize Produ
 
 NOT STARTED. Separate explicit Owner approval required.
 
+## Codex execution model
+
+Codex follows `docs/codex/WORKFLOW.md`:
+
+- inspect before asking;
+- ask only material Owner questions;
+- keep one primary active TASK;
+- prioritize P0–P2 over cleanup/nice-to-have work;
+- route UI work through `ui-ux-pro-max` / `design-system` / `ui-styling` as applicable;
+- use systematic debugging for failures;
+- verify before PASS;
+- update `docs/codex/TASKS.md`, `PROJECT_PLAN.md`, and `HANDOFF.md` after every completed work session;
+- summarize every meaningful session;
+- always ask the Owner at the end whether to commit and push the verified Local work to GitHub, and wait for explicit confirmation.
+
+Current Codex execution board: `docs/codex/TASKS.md`.
+
 ## Next action
 
-Complete TESTm67 documentation/Git reconciliation, then perform a read-only provenance review of remaining local source work before continuing TASK-39.9 implementation.
+Execute **TASK-CX.1 — Local working-tree provenance reconciliation** as a read-only TASK. After Owner review, continue TASK-39.9 from the confirmed Local baseline.

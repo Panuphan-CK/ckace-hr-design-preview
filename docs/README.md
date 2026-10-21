@@ -12,12 +12,21 @@ Last Updated: 2026-10-21
 6. `../README.md`
 7. `../design-system/ckace-hr-workspace/MASTER.md`
 8. `design/desktop-20261018/README.md`
+9. `codex/WORKFLOW.md`
+10. `codex/TASKS.md`
+11. `codex/DECISION_LOG.md`
 
 ## Current baseline
 
 **TESTm67** — Owner-confirmed latest TEST environment.
 
 Older rollout history around m12–m16 is historical and does not override TESTm67.
+
+## Current development mode
+
+**Codex Local only — CKACE HR Codex Lead Mode**
+
+Codex must inspect first, ask only material questions, plan bounded TASKs, use the installed specialist skills, verify before completion, and summarize every meaningful session. See `codex/WORKFLOW.md`.
 
 ## Current implementation track
 

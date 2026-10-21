@@ -1,6 +1,6 @@
 # FlowAccount reference inventory for CKACE HR
 
-> **Current-use note (2026-10-21):** FlowAccount is a usability/reference inventory only. It is not the CKACE visual baseline, business-rule authority, or deployment baseline. Active Desktop direction is TASK-39.9 and the Owner-confirmed TEST baseline is TESTm67.
+> **Current-use note (2026-10-21):** FlowAccount is a usability/reference inventory only. It is not the CKACE visual baseline, business-rule authority, or deployment baseline. This protected Local prototype is the current Owner review artifact; the Owner-confirmed TEST baseline remains TESTm67.
 
 วันที่ตรวจ: 18 ตุลาคม 2569 · วิธีตรวจ: อ่านด้วย CUA จากหน้าที่เปิดอยู่และเปิดเส้นทางภายในแบบ read-only · ไม่มีการสร้าง แก้ไข บันทึก ส่ง หรืออัปโหลดข้อมูลจริง
 

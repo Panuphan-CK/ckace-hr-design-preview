@@ -25,8 +25,6 @@ import { RuntimeReadinessService } from "./runtime/runtime-readiness.service";
 import { BridgeActorMiddleware } from "./security/bridge-actor.middleware";
 import { DesktopSessionMiddleware } from "./security/desktop-session.middleware";
 import { SecurityModule } from "./security/security.module";
-import { Task32R2Module } from "./task32/task32-r2.module";
-import { Task34R2Module } from "./task34/task34-r2.module";
 
 @Module({
   imports: [
@@ -46,8 +44,6 @@ import { Task34R2Module } from "./task34/task34-r2.module";
     AttachmentModule,
     AdminModule,
     OnboardingModule,
-    Task32R2Module,
-    Task34R2Module,
   ],
   controllers: [HealthController],
   providers: [

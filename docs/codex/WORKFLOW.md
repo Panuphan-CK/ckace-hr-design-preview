@@ -1,176 +1,102 @@
-# CKACE HR — Codex Lead Workflow
+﻿# CKACE HR — Codex Lead Workflow
 
 Updated: 2026-10-21
 Mode: **Codex Local only active development**
 Repository: `D:\CKACE_HR`
 
-## Purpose
-
-This workflow makes Codex behave as a Development Lead:
+## Core flow
 
 ```text
 Owner request
-   ↓
-Inspect current truth
-   ↓
-Discovery questions only when material
-   ↓
-Confirm outcome / constraints
-   ↓
-Create or activate one TASK
-   ↓
-Route specialist skills
-   ↓
-Implement Local-first
-   ↓
-Verify acceptance criteria
-   ↓
-Update TASK + continuity
-   ↓
-Session Summary
-   ↓
-Commit / push only when requested
+→ inspect current baseline
+→ ask only material questions
+→ define one active task
+→ route specialist skills
+→ implement Local-first
+→ verify acceptance criteria
+→ update ACTIVE_TASK.md + PROJECT_PLAN.md + HANDOFF.md
+→ replace the finished task with the next active task
+→ final git status/diff
+→ session summary
+→ ask Owner: commit + push?
 ```
 
-## 1. Intake
+## Active-only task rule
 
-For every meaningful request, determine:
+- `ACTIVE_TASK.md` contains exactly one active task.
+- Never add a Completed or Recently Completed section.
+- When the task finishes, summarize current state in `HANDOFF.md` / `PROJECT_PLAN.md`, then overwrite `ACTIVE_TASK.md` with the next task.
+- Do not create archive task files.
+- Never delete or replace `docs/design/desktop-20261018/**` as part of cleanup; it is the Owner-protected current Local review artifact.
+- Git history preserves finished task content.
 
-- What outcome does the Owner actually want?
-- Is the request already covered by the active TASK?
-- Is the request clear enough to implement safely?
-- What is the priority?
-- What evidence will prove completion?
+## Intake
 
-Do not start implementation merely because a likely solution is obvious.
+Determine desired outcome, whether the request is clear enough, priority, and evidence required for completion.
 
-## 2. Inspect before asking
+Inspect source/tests/history before asking the Owner questions.
 
-Read the relevant source, tests, contracts, design, current TASK and Git diff first.
+## Discovery
 
-Only ask questions whose answers materially change the result.
+Ask only questions whose answers materially change UX/IA, business rules, permissions, data model, destructive behavior, release decisions, or acceptance criteria.
 
-## 3. Discovery
+Normally ask 1–5 targeted questions at a time.
 
-Discovery is required for ambiguous:
-
-- UX/IA;
-- business rules;
-- permissions;
-- data model;
-- destructive behavior;
-- release decisions;
-- materially different valid outcomes.
-
-Question batches should normally contain 1–5 targeted questions.
-
-After answers, restate:
-
-```text
-Desired outcome:
-Required behavior:
-Constraints:
-Out of scope:
-Open assumptions:
-```
-
-## 4. TASK planning
-
-Use `TASK_TEMPLATE.md`.
-
-Keep one primary active TASK.
-
-Do not make a TASK for every file or tiny code edit. Group work by meaningful outcome.
-
-Maintain current state in `TASKS.md`.
-
-## 5. Skill routing
+## Skill routing
 
 ### UI/UX
 
-- `ui-ux-pro-max` — mandatory for UX/layout/interaction/responsive/accessibility/visual reasoning.
-- `design-system` — mandatory when shared tokens/components/specs change.
-- `ui-styling` — mandatory for React/Next.js/Tailwind/interface implementation.
+- `ui-ux-pro-max`
+- `design-system`
+- `ui-styling`
 
 ### Quality
 
-- `systematic-debugging` — failures/bugs/regressions.
-- `verification-before-completion` — every completion claim.
+- `systematic-debugging`
+- `verification-before-completion`
 
-### Optional
+Load optional design skills only when the active task requires them.
 
-Load `design`, `brand`, `banner-design`, or `slides` only when the TASK requires those deliverables.
-
-## 6. Priority
+## Priority
 
 ```text
 P0  Security / data loss / broken critical environment
 P1  Blocks the Owner's current goal
-P2  Required behavior of active TASK
+P2  Required behavior of active task
 P3  Acceptance-quality UX / robustness
 P4  Cleanup / refactor / optimization
 P5  Nice-to-have
 ```
 
-Do not let P4/P5 interrupt P0–P2.
+## Anti-loop
 
-## 7. Anti-loop
-
-After failure:
-
-```text
-What failed:
-Current hypothesis:
-New evidence:
-What changes in the next attempt:
-```
+After failure record what failed, current hypothesis, new evidence, and what changes in the next attempt.
 
 Maximum two attempts per hypothesis.
 
-If still blocked, stop random trial-and-error and report the blocker.
-
-## 8. Local-first Git workflow
-
-Default:
+## Local-first Git workflow
 
 ```text
 Local edit
 → Local verification
 → git status / diff
-→ update TASKS.md + PROJECT_PLAN.md + HANDOFF.md
+→ update ACTIVE_TASK.md + PROJECT_PLAN.md + HANDOFF.md
 → final git status / diff
 → SESSION SUMMARY
 → ask Owner: commit + push?
-→ wait for explicit answer
+→ wait for explicit yes
 → commit
 → push
 ```
 
-After every completed work session, Codex must explicitly ask whether the Owner wants the verified Local work committed and pushed. Do not commit/push until the Owner answers yes to that end-of-session question.
+Never commit/push before the final Owner confirmation.
 
-This final confirmation is required every time, even if publication looked implied earlier.
+## Verification
 
-Do not edit GitHub directly as the normal workflow.
-
-## 9. Verification
-
-A TASK cannot be PASS until the acceptance criteria have evidence.
+A task cannot be PASS until its acceptance criteria have evidence.
 
 Use `verification-before-completion`.
 
-## 10. End every session
+## Session close
 
-Use `SESSION_SUMMARY_TEMPLATE.md`.
-
-Always state:
-
-- what finished;
-- what was verified;
-- what changed;
-- what was intentionally not changed;
-- known issues;
-- PASS/PARTIAL/BLOCKED;
-- exactly one recommended next TASK;
-- any Owner decision needed;
-- confirmation that `TASKS.md`, `PROJECT_PLAN.md`, and `HANDOFF.md` were updated;
-- the mandatory question: whether to commit and push the completed Local work to GitHub.
+Always state what finished, what was verified, what changed, what was intentionally not changed, known issues, PASS/PARTIAL/BLOCKED, exactly one next active task, any Owner decision needed, plan/continuity updated, and the commit/push question.

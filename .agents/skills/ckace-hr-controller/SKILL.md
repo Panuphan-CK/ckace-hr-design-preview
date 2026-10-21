@@ -29,7 +29,7 @@ The controller does **not** replace specialist skills.
    - `AGENTS.md`
    - `HANDOFF.md`
    - `PROJECT_PLAN.md`
-   - `docs/codex/TASKS.md`
+   - `docs/codex/ACTIVE_TASK.md`
 2. Check:
    - current branch;
    - `git status`;
@@ -97,9 +97,11 @@ A TASK must include:
 - Evidence/Result;
 - Next TASK.
 
-Use `docs/codex/TASKS.md` as the current queue.
+Use `docs/codex/ACTIVE_TASK.md` as the single current task record.
 
-Do not create dozens of micro-TASKs. A TASK should represent a meaningful user-visible, architectural, security, or verification outcome.
+Protected artifact: `docs/design/desktop-20261018/**` must not be deleted or replaced during cleanup unless the Owner explicitly requests it.
+
+Do not keep completed tasks or queues in the working tree.
 
 ## Priority
 
@@ -167,9 +169,9 @@ Before PASS:
 1. compare the result to acceptance criteria;
 2. use `verification-before-completion`;
 3. review diff/status;
-4. update `docs/codex/TASKS.md` with result/evidence/next TASK;
-5. update `PROJECT_PLAN.md` every completed work session;
-6. update `HANDOFF.md` every completed work session;
+4. update `PROJECT_PLAN.md` every completed work session;
+5. update `HANDOFF.md` every completed work session;
+6. replace `docs/codex/ACTIVE_TASK.md` with the next active task;
 7. review final diff/status again after documentation updates;
 8. produce the mandatory SESSION SUMMARY;
 9. always ask the Owner whether to commit and push to GitHub;

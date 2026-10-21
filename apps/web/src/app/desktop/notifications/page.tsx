@@ -176,7 +176,7 @@ export default function DesktopNotificationsPage() {
         <div className="spinner" aria-hidden="true" />
         <h1>กำลังโหลด Notification Operations</h1>
         <p>
-          กำลังอ่านสถานะ Outbox และ Delivery จาก Project B
+          กำลังอ่านสถานะ Outbox และ Delivery จาก CKACE HR
         </p>
       </section>
     );
@@ -224,7 +224,7 @@ export default function DesktopNotificationsPage() {
       </section>
 
       <section className="notifications-contract-note">
-        <strong>ขอบเขต M9D.10</strong>
+        <strong>ขอบเขตการแจ้งเตือน</strong>
         <span>
           ระบบปัจจุบันเป็น operational outbox สำหรับผู้ดูแล
           และยังไม่มี employee inbox / unread-read contract

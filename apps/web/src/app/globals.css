@@ -2683,7 +2683,7 @@ a {
   }
 }
 \n
-/* M9D.12-13 Desktop onboarding/admin */
+/* Desktop onboarding/admin */
 .onboarding-list,
 .ot-history-list {
   display: grid;
@@ -2754,7 +2754,7 @@ a {
   }
 }
 
-/* TASK-39.5 Production Desktop visual parity baseline */
+/* Desktop visual baseline */
 :root {
   --bs-white: #fff;
   --bs-gray: #6c757d;
@@ -5840,7 +5840,7 @@ body.dark .production-entitlement-create {
   }
 }
 
-/* TASK-39.6 — Leave-first Desktop UX/UI redesign */
+/* Leave-first Desktop UX/UI */
 :root {
   --padding-body: 1rem;
   --sidebar-width: 292px;
@@ -6493,7 +6493,7 @@ body.dark .task396-shell .data-table thead th {
   }
 }
 
-/* TASK-39.6 approval history + dashboard announcements */
+/* Approval history + dashboard announcements */
 .task396-workspace-tabs {
   width: fit-content;
   display: flex;
@@ -7028,7 +7028,7 @@ body.dark .task396-shell .data-table thead th {
   }
 }
 
-/* TASK-39.7 — restore Production visual quality while retaining the new IA */
+/* Desktop visual quality with the current information architecture */
 :root {
   --padding-body: 1.25rem;
   --sidebar-width: 280px;
@@ -7880,7 +7880,7 @@ body.dark .task397-calendar .calendar-day-cell:hover:not(.empty) {
   }
 }
 
-/* TASK-39.8 Wave 1 — Production visual parity for My Requests */
+/* My Requests visual section */
 .task398-request-page {
   gap: 1.25rem;
 }
@@ -8436,7 +8436,7 @@ body.dark .task398-request-page .correction-row:hover {
   }
 }
 
-/* TASK-39.8 Wave 2 — Production visual parity for Approval Work */
+/* Approval Work visual section */
 .task398-approval-page {
   gap: 1.25rem;
 }
@@ -8953,7 +8953,7 @@ body.dark .task398-approval-page .approval-kind-card.active {
   }
 }
 
-/* TASK-39.8 Wave 3 — Production visual parity for Reports */
+/* Reports visual section */
 .task398-reports-page {
   gap: 1.25rem;
 }
@@ -9182,7 +9182,7 @@ body.dark .task398-approval-page .approval-kind-card.active {
   }
 }
 
-/* TASK-39.8 Wave 4 — Production visual parity for management/settings */
+/* Management and settings visual section */
 .task398-management-page,
 .task398-settings-page {
   gap: 1.25rem;

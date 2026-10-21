@@ -134,7 +134,7 @@ export default function DesktopRequestStatusPage() {
           <p className="eyebrow">UNIFIED REQUEST STATUS</p>
           <h1>สถานะคำขอ</h1>
           <p>
-            รวมคำขอการลา แก้ไขเวลา โอที และค่ารักษาพยาบาลจาก Project B
+            รวมคำขอการลา แก้ไขเวลา โอที และค่ารักษาพยาบาลจาก CKACE HR
           </p>
         </div>
         <button className="secondary-button" onClick={() => void load()}>

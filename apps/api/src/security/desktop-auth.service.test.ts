@@ -71,7 +71,7 @@ describe("DesktopAuthService", () => {
     delete process.env.CKACE_LEGACY_PASSWORD_SALT;
   });
 
-  it("authenticates an ACTIVE Project B password and resolves a fresh actor", async () => {
+  it("authenticates an ACTIVE CKACE HR password and resolves a fresh actor", async () => {
     const service = new DesktopAuthService(
       repository({
         employeeId: "employee-1",

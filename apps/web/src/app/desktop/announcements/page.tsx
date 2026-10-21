@@ -352,7 +352,7 @@ export default function DesktopAnnouncementsPage() {
           <span className="status-badge">ยังไม่เชื่อมข้อมูล</span>
         </div>
         <p className="panel-description">
-          Project B รุ่นปัจจุบันยังไม่มีแหล่งข้อมูลกิจกรรมบริษัท
+          CKACE HR รุ่นปัจจุบันยังไม่มีแหล่งข้อมูลกิจกรรมบริษัท
           ที่เป็น contract/API แยกจากข่าวประกาศ
           จึงยังไม่แสดงข้อมูลกิจกรรมในหน้านี้
         </p>

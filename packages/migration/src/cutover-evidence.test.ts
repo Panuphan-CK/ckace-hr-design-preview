@@ -106,7 +106,7 @@ const runtimePass = {
   idempotency: true,
 } as const;
 
-describe("M9.3 final delta capture", () => {
+describe("final delta capture", () => {
   it("captures added, changed and removed rows with bounded import snapshots", async () => {
     const baseline = await snapshot({
       runId: "baseline",
@@ -276,7 +276,7 @@ describe("M9.3 final delta capture", () => {
   });
 });
 
-describe("M9.3 module cutover evidence", () => {
+describe("module cutover evidence", () => {
   it("passes a fully reconciled bounded delta while authority is frozen on LEGACY", async () => {
     const baseline = await snapshot({
       runId: "baseline",

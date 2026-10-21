@@ -61,7 +61,7 @@ const BUSINESS_CONTROLLERS = [
   PasswordRecoveryController,
 ] as const;
 
-describe("M9.1 module route coverage", () => {
+describe("module route coverage", () => {
   it("requires server-side route metadata on every business HTTP handler", () => {
     const intentionallyUnrouted = new Set(["SecurityController.getContract"]);
     const missing: string[] = [];

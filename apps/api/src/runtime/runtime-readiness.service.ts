@@ -11,7 +11,7 @@ import {
   readRuntimeConfig,
   type RuntimeConfig,
 } from "./runtime-config";
-import { attestWd13TestRuntime } from "../security/wd13-test-boundary";
+import { attestTestRuntime } from "../security/test-runtime-boundary";
 
 export interface ReadinessSnapshot {
   ok: boolean;
@@ -29,9 +29,9 @@ export class RuntimeReadinessService implements OnApplicationShutdown {
     return this.config;
   }
 
-  async attestWd13TestDatabase(env: NodeJS.ProcessEnv = process.env) {
+  async attestTestDatabase(env: NodeJS.ProcessEnv = process.env) {
     if (this.config.stage !== "test") {
-      throw new Error("WD13_TEST_ATTESTATION_REJECTED");
+      throw new Error("TEST_RUNTIME_ATTESTATION_REJECTED");
     }
 
     const rows = await getPrismaClient().$queryRawUnsafe<Array<{ database_name: string }>>(
@@ -42,7 +42,7 @@ export class RuntimeReadinessService implements OnApplicationShutdown {
     return {
       ok: true as const,
       attestation: "VERIFIED" as const,
-      ...attestWd13TestRuntime({
+      ...attestTestRuntime({
         databaseUrl: env.DATABASE_URL,
         runtimeStage: this.config.stage,
         serviceName: env.K_SERVICE,

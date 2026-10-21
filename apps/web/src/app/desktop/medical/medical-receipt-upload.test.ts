@@ -9,7 +9,7 @@ import {
 
 /** No R2/DB/network. Controlled Fetch responses verify actual Desktop upload path. */
 const file = {
-  name: "wd13-receipt.pdf", type: "application/pdf", size: 512,
+  name: "test-receipt.pdf", type: "application/pdf", size: 512,
 } as File;
 const hash = async () => "a".repeat(64);
 const id = "00000000-0000-4000-8000-000000000015";
@@ -26,7 +26,7 @@ const bad = (status: number) => ({ ok: false, status }) as Response;
 const withIntent = () => ({ ok: true, status: 200, json: async () => intent }) as unknown as Response;
 
 
-describe("WD-13 explicit retry of ambiguous private receipt finalize", () => {
+describe("explicit retry of ambiguous private receipt finalize", () => {
   const receipt2 = "00000000-0000-4000-8000-000000000016";
   const receipt3 = "00000000-0000-4000-8000-000000000017";
   const files = [file, { ...file, name: "second.pdf" } as File, { ...file, name: "third.pdf" } as File];

@@ -792,7 +792,7 @@ export class PrismaManagementRepository implements ManagementRepository {
 
   /**
    * Past working days (before today in Bangkok) with a check-in and no check-out. Replaces the
-   * legacy nightly job that only flagged these rows; Project B lists them and the employee fixes
+   * nightly job that only flagged these rows; CKACE HR lists them and the employee fixes
    * them through a time correction, so no record is silently rewritten.
    */
   async missingCheckOuts(from: Date, to: Date): Promise<readonly MissingCheckOutItem[]> {

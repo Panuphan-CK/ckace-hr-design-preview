@@ -38,7 +38,7 @@ export class HealthController {
     }
 
     try {
-      return await this.readiness.attestWd13TestDatabase();
+      return await this.readiness.attestTestDatabase();
     } catch {
       throw new ServiceUnavailableException({
         ok: false,

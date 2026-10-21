@@ -12,7 +12,7 @@ function fakeReadiness(stage: "test" | "production") {
       databaseRequired: true,
       serviceRevision: "test-revision",
     }),
-    attestWd13TestDatabase: vi.fn().mockResolvedValue({
+    attestTestDatabase: vi.fn().mockResolvedValue({
       ok: true,
       attestation: "VERIFIED",
       verifiedProject: "CKACE_HR_DEV",
@@ -26,7 +26,7 @@ function fakeReadiness(stage: "test" | "production") {
   } as unknown as RuntimeReadinessService;
 }
 
-describe("HealthController WD-13 non-disclosing TEST database attestation", () => {
+describe("HealthController non-disclosing TEST database attestation", () => {
   it("returns only safe attestation metadata in TEST", async () => {
     const readiness = fakeReadiness("test");
     const result = await new HealthController(readiness).getTestDatabaseAttestation();
@@ -55,7 +55,7 @@ describe("HealthController WD-13 non-disclosing TEST database attestation", () =
 
   it("fails closed without leaking internal attestation errors", async () => {
     const readiness = fakeReadiness("test");
-    vi.mocked(readiness.attestWd13TestDatabase).mockRejectedValueOnce(
+    vi.mocked(readiness.attestTestDatabase).mockRejectedValueOnce(
       new Error("sensitive runtime detail"),
     );
 

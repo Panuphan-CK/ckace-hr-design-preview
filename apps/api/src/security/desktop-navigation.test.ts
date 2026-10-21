@@ -58,7 +58,7 @@ describe("Desktop navigation capabilities", () => {
     });
   });
 
-  it("exposes TASK-39.5B surfaces only from their narrow server permissions", () => {
+  it("exposes desktop surfaces only from their narrow server permissions", () => {
     expect(
       desktopNavigationForPermissions([
         "calendar.leave.read",
@@ -146,7 +146,7 @@ describe("Desktop navigation capabilities", () => {
     });
   });
 
-  it("keeps TASK-39.6 module navigation granular for approval and admin read capabilities", () => {
+  it("keeps module navigation granular for approval and admin read capabilities", () => {
     expect(
       desktopNavigationForPermissions([
         "overtime.approve",

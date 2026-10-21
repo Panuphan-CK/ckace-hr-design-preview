@@ -20,14 +20,12 @@ import {
   PASSWORD_RECOVERY_SECRET,
   PasswordRecoveryService,
 } from "./password-recovery.service";
-import { Wd13TestUatController } from "./wd13-test-uat.controller";
 
 @Module({
   controllers: [
     SecurityController,
     DesktopAuthController,
     PasswordRecoveryController,
-    Wd13TestUatController,
   ],
   providers: [
     AuthorizationGuard,

@@ -1,38 +1,40 @@
 # CKACE HR
 
-CKACE HR is the active standalone employee and people-operations platform for C.K.ACE.
+CKACE HR is the active employee and people-operations platform for C.K.ACE.
 
-## Current status — 2026-10-21
+## Current status
 
-- **Latest Owner-confirmed TEST baseline:** `TESTm67`
-- **Active task:** `TASK-39.9 — Desktop full redesign`
-- **Production:** NO-GO; separate readiness/go-no-go approval required
-- **Project A / APP_Leave:** retired from active planning; historical evidence only
-- **Current active assistant:** Codex Local only
-- **Development mode:** CKACE HR Codex Lead Mode
-- **Claude:** paused; may resume only through an explicit handoff
+- Active executor: **Codex Local**
+- Primary implementation baseline: `origin/claude/project-thread-j4idbg`
+- TEST baseline: **TESTm67**
+- Current workstream: **m67 stabilization**
+- Production: **NO-GO**
 
-See `docs/CURRENT_STATE_TESTM67_20261021.md` for the detailed reconciliation record.
+## Start here
 
-## Platform maturity
+1. `AGENTS.md`
+2. `HANDOFF.md`
+3. `PROJECT_PLAN.md`
+4. `docs/codex/ACTIVE_TASK.md`
+5. `docs/CURRENT_STATE_TESTM67_20261021.md`
+6. `docs/ARCHITECTURE.md`
 
-The platform is beyond foundation stage and contains mature TEST-stage work across identity/RBAC/audit, employee/company/team structure, Leave, OT, Attendance, Time Correction, Medical, approval routing, revisions/withdrawals/delegation, request numbers/timelines, notifications, policy administration, private R2, holiday/workday-aware dates, OT allowances, reports, Desktop and LIFF work.
+## Documentation policy
 
-## Current Desktop direction
+The working tree contains current documentation only.
 
-TASK-39.9 uses a People Operations Command Center with:
+Completed or obsolete tasks are removed instead of archived in the repository. Git history is the archive and can recover older material when explicitly needed.
 
-- persistent top tabs;
-- dashboard-first navigation;
-- Galaxy hero/metric visual language;
-- Thai-first action copy;
-- single-workspace module pages;
-- responsive and reduced-motion behavior;
-- a review-only Overview Hero layout editor.
+## Locked platform
 
-## Locked stack
-
-TypeScript · Next.js/React · NestJS · PostgreSQL/Neon · Prisma · Cloud Run · Firebase Hosting · private Cloudflare R2
+- TypeScript
+- Next.js + React
+- NestJS
+- PostgreSQL / Neon
+- Prisma
+- Google Cloud Run
+- Firebase Hosting
+- private Cloudflare R2
 
 ## Runtime targets
 
@@ -41,30 +43,14 @@ TypeScript · Next.js/React · NestJS · PostgreSQL/Neon · Prisma · Cloud Run 
 - API: same-origin `/api/*`
 - LIFF: `/liff`
 
-## Repository layout
-
-- `apps/web` — Next.js Web / LIFF
-- `apps/api` — NestJS API/business services
-- `packages/*` — contracts/auth/business rules/database/storage/shared code
-- `docs` — active documentation and dated evidence
-- `docs/design/desktop-20261018` — current standalone Desktop review prototype
-- `design-system/ckace-hr-workspace` — current Desktop design system
-
-## Documentation authority
-
-Start with `AGENTS.md`, `HANDOFF.md`, `PROJECT_PLAN.md`, `docs/CURRENT_STATE_TESTM67_20261021.md`, `docs/codex/WORKFLOW.md`, `docs/codex/TASKS.md`, `docs/README.md`, and `docs/ARCHITECTURE.md`.
-
-Dated M/WD/TASK/design documents are historical evidence and do not override current state.
-
-## Local commands
+## Development workflow
 
 ```text
-npm install
-npm run lint
-npm run typecheck
-npm test
-npm run build
-npm run prisma:validate
+inspect current baseline
+→ plan one active task
+→ implement Local
+→ verify
+→ update ACTIVE_TASK / PROJECT_PLAN / HANDOFF
+→ summarize
+→ ask Owner whether to commit/push
 ```
-
-TEST work never authorizes Production mutation.

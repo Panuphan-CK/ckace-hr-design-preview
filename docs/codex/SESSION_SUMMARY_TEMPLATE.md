@@ -5,8 +5,8 @@ Every meaningful Codex work session ends with this structure.
 ```text
 SESSION SUMMARY
 
-Active TASK:
-TASK-...
+Active task:
+...
 
 Completed:
 - ...
@@ -26,8 +26,8 @@ Known issues:
 Current status:
 PASS / PARTIAL / BLOCKED
 
-Next recommended TASK:
-TASK-...
+Next active task:
+...
 
 Why this is next:
 ...
@@ -39,7 +39,7 @@ or
 2. ...
 
 Plan/continuity updated:
-- docs/codex/TASKS.md: YES
+- docs/codex/ACTIVE_TASK.md: YES
 - PROJECT_PLAN.md: YES
 - HANDOFF.md: YES
 
@@ -53,6 +53,6 @@ ASK OWNER — Commit and push to GitHub now?
 - Do not list multiple competing “next” tasks unless the Owner requested options.
 - If blocked, state the missing evidence/access/decision precisely.
 - If no Owner decision is needed, write `None`.
-- `docs/codex/TASKS.md`, `PROJECT_PLAN.md`, and `HANDOFF.md` must be updated before presenting the final session summary.
+- `docs/codex/ACTIVE_TASK.md`, `PROJECT_PLAN.md`, and `HANDOFF.md` must be updated before presenting the final session summary.
 - After the summary, always ask whether to commit and push to GitHub.
 - Never commit or push before the Owner answers that final publication question affirmatively.

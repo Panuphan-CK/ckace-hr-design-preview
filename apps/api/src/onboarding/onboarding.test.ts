@@ -8,7 +8,7 @@ import {
 import { OnboardingService } from "./onboarding.service";
 
 describe("Pending LINE onboarding", () => {
-  it("uses a modern password hash for new Project B registrations", () => {
+  it("uses a modern password hash for new CKACE HR registrations", () => {
     const hash = hashProjectPassword("correct-horse");
     expect(hash).toMatch(/^scrypt-v1\$/);
     expect(verifyProjectPassword("correct-horse", hash)).toBe(true);

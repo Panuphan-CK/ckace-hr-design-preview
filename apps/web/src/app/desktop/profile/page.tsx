@@ -220,7 +220,7 @@ export default function DesktopProfilePage() {
         <div className="spinner" aria-hidden="true" />
         <h1>กำลังโหลดข้อมูลโปรไฟล์</h1>
         <p>
-          กำลังอ่าน Identity และสิทธิ์ใช้งานจาก Project B Server
+          กำลังอ่าน Identity และสิทธิ์ใช้งานจาก CKACE HR Server
         </p>
       </section>
     );
@@ -255,7 +255,7 @@ export default function DesktopProfilePage() {
           <h1>โปรไฟล์ของฉัน</h1>
           <p>
             ข้อมูลตัวตน บัญชี องค์กร และสิทธิ์ใช้งานที่มาจาก
-            Project B Server โดยไม่เปิดเผย credential หรือ provider metadata
+            CKACE HR Server โดยไม่เปิดเผย credential หรือ provider metadata
           </p>
         </div>
         <button

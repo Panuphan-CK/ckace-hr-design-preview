@@ -3,7 +3,7 @@
 Use this template for a meaningful unit of work.
 
 ```text
-TASK-XX.X — Title
+ID — Title
 
 Status:
 PLANNED | IN PROGRESS | BLOCKED | PASS
@@ -60,8 +60,8 @@ PASS | PARTIAL | BLOCKED
 Known issues:
 - None / ...
 
-Next recommended TASK:
-TASK-XX.Y — ...
+Next active task:
+...
 
 Why next:
 ...

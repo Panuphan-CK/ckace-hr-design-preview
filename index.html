@@ -14,15 +14,16 @@
   <link rel="stylesheet" href="ot-overview-dna.css">
   <link rel="stylesheet" href="correction-overview-dna.css">
   <link rel="stylesheet" href="medical-overview-dna.css">
+  <link rel="stylesheet" href="navbar-pastel.css">
 </head>
 <body>
   <a class="skip" href="#main">ข้ามไปเนื้อหา</a>
   <div class="site-shell">
-    <header class="topbar" aria-label="เมนูระบบ People Operations">
+    <header class="topbar ck-navbar" aria-label="เมนูระบบ People Operations">
       <button class="brand" type="button" data-route="dashboard" aria-label="กลับหน้าภาพรวม">
-        <span class="brand-mark">C</span>
-        <span class="brand-copy"><strong>CKACE</strong><small>TEAM WORKSPACE</small></span>
+        <img class="brand-logo" src="ckace-logo.svg" alt="C.K.ACE Accounting">
       </button>
+      <div class="ck-app-switch"><button class="ck-app-trigger" type="button" data-action="app-switch" aria-expanded="false" aria-controls="ck-app-panel"><span aria-hidden="true">▦</span><span class="ck-app-label">เปลี่ยนแอป</span></button><div id="ck-app-panel" class="ck-app-panel" hidden><h2>เลือกแอปพลิเคชัน</h2><button type="button" class="ck-app-option" data-app="hr" aria-current="true"><span class="ck-app-symbol">♧</span><span><strong>CKACE HR</strong><small>ระบบงานบุคคล · แอปปัจจุบัน</small></span></button><button type="button" class="ck-app-option" data-app="accounting"><span class="ck-app-symbol">▦</span><span><strong>สำนักงานบัญชี</strong><small>ยังไม่เชื่อม URL</small></span></button><button type="button" class="ck-app-option" data-app="audit"><span class="ck-app-symbol">✓</span><span><strong>สำนักงานตรวจสอบ</strong><small>ยังไม่เชื่อม URL</small></span></button></div></div>
       <nav class="main-nav" id="main-nav" aria-label="เมนูหลัก"></nav>
       <div class="topbar-actions">
         <button class="topbar-action" type="button" data-action="search" aria-label="ค้นหา">ค้นหา <span class="key-hint">⌘ K</span></button>
@@ -41,5 +42,6 @@
   <script src="ot-rebuild.js"></script>
   <script src="correction-rebuild.js"></script>
   <script src="medical-rebuild.js"></script>
+  <script src="navbar-appswitch.js"></script>
 </body>
 </html>

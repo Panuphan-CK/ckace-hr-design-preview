@@ -1,181 +1,288 @@
 (function () {
   'use strict';
 
-  var leaveMarkup = `
-    <div class="leave-rebuild-page">
-      <section class="leave-rebuild-hero" aria-labelledby="leave-rebuild-title">
-        <div class="leave-rebuild-hero-copy">
-          <div class="leave-rebuild-eyebrow"><span class="live-dot"></span><span class="leave-rebuild-date"></span><span class="leave-rebuild-time"></span></div>
-          <p class="leave-rebuild-kicker">LEAVE CENTER</p>
-          <h1 id="leave-rebuild-title">ขอลางาน <em>อย่างเป็นระบบ</em></h1>
-          <p class="leave-rebuild-lead">เลือกสิทธิ์ วางแผนวันลา และติดตามสถานะคำขอได้จากหน้าเดียว</p>
-          <div class="leave-rebuild-hero-actions">
-            <button type="button" class="leave-rebuild-hero-button" data-leave-scroll="leave-request-section">เริ่มขอลางาน <span>↓</span></button>
-            <span class="leave-rebuild-hero-note">อัปเดตข้อมูลล่าสุดแบบเรียลไทม์</span>
-          </div>
-        </div>
-        <div class="leave-rebuild-hero-orbit" aria-hidden="true">
-          <span class="leave-rebuild-orbit leave-rebuild-orbit-one"></span>
-          <span class="leave-rebuild-orbit leave-rebuild-orbit-two"></span>
-          <span class="leave-rebuild-orbit leave-rebuild-orbit-three"></span>
-          <span class="leave-rebuild-hero-core"><small>สิทธิ์คงเหลือ</small><strong>18<span>วัน</span></strong><em>จาก 23 วัน</em></span>
-          <span class="leave-rebuild-metric leave-rebuild-metric-one"><b>8</b><small>รออนุมัติ</small></span>
-          <span class="leave-rebuild-metric leave-rebuild-metric-two"><b>6</b><small>ลาวันนี้</small></span>
-          <span class="leave-rebuild-metric leave-rebuild-metric-three"><b>3</b><small>ทีมกำลังลา</small></span>
-          <i class="leave-rebuild-star leave-rebuild-star-one"></i><i class="leave-rebuild-star leave-rebuild-star-two"></i><i class="leave-rebuild-star leave-rebuild-star-three"></i>
-        </div>
-      </section>
+  function svg(name) {
+    return typeof icon === 'function' ? icon(name) : '';
+  }
 
-      <nav class="leave-rebuild-tabs" aria-label="ส่วนของหน้าการลา">
-        <div class="leave-rebuild-tabs-title"><span class="leave-rebuild-tabs-icon">✦</span><span><b>LEAVE WORKSPACE</b><small>จัดการเรื่องลาจากหน้าเดียว</small></span></div>
-        <div class="leave-rebuild-tab-list">
-          <button class="is-active" type="button" data-leave-scroll="leave-request-section"><span>01</span><b>ขอลางาน</b><small>สร้างคำขอใหม่</small></button>
-          <button type="button" data-leave-scroll="leave-statistics-section"><span>02</span><b>สถิติลา</b><small>สิทธิ์และภาพรวม</small></button>
-          <button type="button" data-leave-scroll="leave-history-section"><span>03</span><b>ประวัติลา</b><small>ติดตามคำขอเดิม</small></button>
-        </div>
-      </nav>
+  function role() {
+    return new URLSearchParams(window.location.search || '').get('role') || 'employee';
+  }
 
-      <section id="leave-request-section" class="leave-rebuild-section leave-rebuild-request" aria-labelledby="leave-request-title">
-        <div class="leave-rebuild-section-heading">
-          <div><p class="leave-rebuild-section-kicker">01 / REQUEST LEAVE</p><h2 id="leave-request-title">ขออนุญาตลางาน</h2><p>กรอกข้อมูลตามลำดับ แล้วส่งให้หัวหน้าตรวจสอบ</p></div>
-          <span class="leave-rebuild-heading-status"><i></i> ยังไม่ได้ส่งคำขอ</span>
-        </div>
-        <div class="leave-rebuild-request-layout">
-          <form id="leave-rebuild-form" class="leave-rebuild-form" novalidate>
-            <div class="leave-rebuild-step">
-              <span class="leave-rebuild-step-number">01</span><div><b>เลือกประเภทลา</b><small>สิทธิ์คงเหลืออัปเดตตามประเภทที่เลือก</small></div>
-            </div>
-            <div class="leave-rebuild-type-grid" role="radiogroup" aria-label="ประเภทลา">
-              <label class="leave-rebuild-type-card is-selected" data-leave-type="vacation"><input type="radio" name="leave-type" value="vacation" checked><span class="leave-rebuild-type-icon">☼</span><span><b>ลาพักร้อน</b><small>Vacation · เหลือ 12 วัน</small></span><strong>03 / 15</strong></label>
-              <label class="leave-rebuild-type-card" data-leave-type="business"><input type="radio" name="leave-type" value="business"><span class="leave-rebuild-type-icon">✦</span><span><b>ลากิจ</b><small>Business · เหลือ 2 วัน</small></span><strong>01 / 03</strong></label>
-              <label class="leave-rebuild-type-card" data-leave-type="sick"><input type="radio" name="leave-type" value="sick"><span class="leave-rebuild-type-icon">＋</span><span><b>ลาป่วย</b><small>Sick leave · เหลือ 4 วัน</small></span><strong>01 / 05</strong></label>
-            </div>
+  function overviewLeaveStats() {
+    if (typeof personalLeaveStatsBlock === 'function') return personalLeaveStatsBlock();
+    return '';
+  }
 
-            <div class="leave-rebuild-step leave-rebuild-step-spaced">
-              <span class="leave-rebuild-step-number">02</span><div><b>เลือกวันลา</b><small>กำหนดช่วงวันที่ต้องการลา</small></div>
-            </div>
-            <div class="leave-rebuild-date-grid">
-              <label><span>วันเริ่มลา</span><input type="date" name="leave-start" value="2026-10-21"></label>
-              <label><span>วันสิ้นสุดลา</span><input type="date" name="leave-end" value="2026-10-22"></label>
-            </div>
+  function overviewCalendar() {
+    if (typeof calendarBlock === 'function') return calendarBlock();
+    return '';
+  }
 
-            <div class="leave-rebuild-step leave-rebuild-step-spaced">
-              <span class="leave-rebuild-step-number">03</span><div><b>ช่วงเวลาที่ลา</b><small>เลือกให้ตรงกับคำขอ</small></div>
-            </div>
-            <div class="leave-rebuild-duration-grid" role="radiogroup" aria-label="ช่วงเวลาที่ลา">
-              <label class="is-selected"><input type="radio" name="leave-duration" value="full" checked><span>เต็มวัน</span><small>1 วัน</small></label>
-              <label><input type="radio" name="leave-duration" value="morning"><span>ครึ่งวันเช้า</span><small>0.5 วัน</small></label>
-              <label><input type="radio" name="leave-duration" value="afternoon"><span>ครึ่งวันบ่าย</span><small>0.5 วัน</small></label>
-              <label><input type="radio" name="leave-duration" value="hourly"><span>รายชั่วโมง</span><small>ระบุเวลา</small></label>
-            </div>
+  function leaveHero() {
+    return '<section class="dashboard-hero-v2 leave-v3-hero">' +
+      '<div class="hero-v2-grid"></div>' +
+      '<div class="dashboard-hero-copy">' +
+        '<span class="dashboard-kicker"><span class="live-dot"></span> <span data-leave-v3-date></span> เวลา <time class="dashboard-live-clock" data-leave-v3-clock></time></span>' +
+        '<h1><span>LEAVE</span> <em>WORKSPACE</em></h1>' +
+        '<p>จัดการสิทธิ์ ยื่นคำขอ และติดตามสถานะการลา</p>' +
+      '</div>' +
+      '<div class="dashboard-orb" aria-hidden="true">' +
+        '<span class="orb-ring ring-a"></span>' +
+        '<span class="orb-ring ring-b"></span>' +
+        '<span class="orb-ring ring-c"></span>' +
+        '<span class="orb-core"><small>สิทธิ์คงเหลือ</small><strong>18<span>วัน</span></strong></span>' +
+        '<span class="orb-float orb-float-a"><b>12</b><small>พักร้อนคงเหลือ</small></span>' +
+        '<span class="orb-float orb-float-b"><b>4</b><small>ลาป่วยคงเหลือ</small></span>' +
+        '<span class="orb-float orb-float-c"><b>2</b><small>ลากิจคงเหลือ</small></span>' +
+        '<span class="orb-float orb-float-d"><b>2</b><small>รออนุมัติ</small></span>' +
+        '<span class="orb-float orb-float-e"><b>1</b><small>ต้องแก้ไข</small></span>' +
+        '<span class="orb-float orb-float-f"><b>3</b><small>ทีมกำลังลา</small></span>' +
+        '<i class="dashboard-star dashboard-star-a"></i>' +
+        '<i class="dashboard-star dashboard-star-b"></i>' +
+        '<i class="dashboard-star dashboard-star-c"></i>' +
+      '</div>' +
+      '<div class="hero-v2-shine"></div>' +
+    '</section>';
+  }
 
-            <div class="leave-rebuild-details-grid">
-              <label class="leave-rebuild-details"><span>รายละเอียด / เหตุผลการลา</span><textarea name="leave-reason" rows="3" placeholder="เช่น ไปเที่ยวกับครอบครัว หรือธุระส่วนตัว"></textarea></label>
-              <label class="leave-rebuild-upload"><span>เอกสารประกอบ <small>(ถ้ามี)</small></span><input type="file" name="leave-attachment" accept="image/*,.pdf"><b>วางไฟล์ที่นี่ หรือคลิกเพื่อเลือก</b><small>JPG, PNG หรือ PDF · สูงสุด 3 ไฟล์</small></label>
-            </div>
-            <div class="leave-rebuild-submit-row"><span class="leave-rebuild-approval"><i>✓</i><span><b>เส้นทางอนุมัติ</b><small>หัวหน้าตรง · HR</small></span></span><button class="leave-rebuild-submit" type="submit">ส่งคำขอลา <span>→</span></button></div>
-            <p class="leave-rebuild-feedback" aria-live="polite"></p>
-          </form>
+  function requestTypeCard(type, english, title, remain, iconName, tone, selected) {
+    return '<label class="today-overview-card request-card leave-v3-type-card ' + tone + (selected ? ' is-selected' : '') + '">' +
+      '<input type="radio" name="leave-v3-type" value="' + type + '"' + (selected ? ' checked' : '') + '>' +
+      '<span class="today-card-head">' +
+        '<span class="today-overview-icon">' + svg(iconName) + '</span>' +
+        '<span class="today-card-title"><small>' + english + '</small><b>' + title + '</b></span>' +
+        '<span class="today-card-badge request-pending">' + svg('calendar') + '<strong>' + remain + '</strong><em>วันคงเหลือ</em></span>' +
+      '</span>' +
+      '<span class="today-detail-full"><span>เลือกประเภทการลา</span><span>ระบบจะตรวจสิทธิ์อีกครั้งก่อนส่งคำขอ</span></span>' +
+    '</label>';
+  }
 
-          <aside class="leave-rebuild-side-stack" aria-label="สรุปสิทธิ์และกำลังจะลา">
-            <article class="leave-rebuild-side-card leave-rebuild-balance-card">
-              <div class="leave-rebuild-card-head"><div><p>MY BALANCE</p><h3>สิทธิ์ของฉัน</h3></div><span>ปี 2569</span></div>
-              <div class="leave-rebuild-balance-total"><strong>18</strong><span>วัน<br><small>คงเหลือรวม</small></span></div>
-              <div class="leave-rebuild-mini-progress"><div><span><b>พักร้อน</b><em>80%</em></span><i><u style="width:80%"></u></i></div><div><span><b>ลากิจ</b><em>67%</em></span><i><u style="width:67%"></u></i></div><div><span><b>ลาป่วย</b><em>80%</em></span><i><u style="width:80%"></u></i></div></div>
-              <button type="button" class="leave-rebuild-text-link" data-leave-scroll="leave-statistics-section">ดูรายละเอียดสิทธิ์ <span>→</span></button>
-            </article>
-            <article class="leave-rebuild-side-card leave-rebuild-upcoming-card">
-              <div class="leave-rebuild-card-head"><div><p>UPCOMING LEAVE</p><h3>กำลังจะลา</h3></div><span class="leave-rebuild-count-chip">3 คน</span></div>
-              <ul class="leave-rebuild-upcoming-list"><li><b>21</b><span><strong>นภัสสร ใจดี</strong><small>ลาพักร้อน · 2 วัน</small></span><em>ลา</em></li><li><b>22</b><span><strong>อธิป วัฒนกุล</strong><small>ลาพักร้อน · 1 วัน</small></span><em>ลา</em></li><li><b>20</b><span><strong>กาญจนา นุกูลการ</strong><small>ลากิจ · 1 วัน</small></span><em>ลา</em></li></ul>
-            </article>
-          </aside>
-        </div>
-      </section>
+  function requestFormBoard() {
+    return '<section class="dashboard-board activity-board today-overview-board leave-v3-request-board">' +
+      '<div class="board-head">' +
+        '<div class="board-title"><span class="board-icon teal">' + svg('calendar') + '</span><span><b>ยื่นคำขอลา</b><small>NEW LEAVE REQUEST</small></span></div>' +
+        '<span class="board-live">' + svg('check') + 'กรอก 3 ขั้นตอน</span>' +
+      '</div>' +
+      '<form id="leave-v3-form" class="leave-v3-form">' +
+        '<div class="leave-v3-step-head"><span>01</span><div><b>เลือกประเภทการลา</b><small>เลือกสิทธิ์ที่ต้องการใช้</small></div></div>' +
+        '<div class="today-overview-grid leave-v3-type-grid">' +
+          requestTypeCard('vacation','VACATION','ลาพักร้อน','12','beach','leave',true) +
+          requestTypeCard('sick','SICK LEAVE','ลาป่วย','4','medicalCross','medical',false) +
+          requestTypeCard('business','BUSINESS','ลากิจ','2','briefcase','ot',false) +
+        '</div>' +
 
-      <section id="leave-statistics-section" class="leave-rebuild-section leave-rebuild-statistics" aria-labelledby="leave-statistics-title">
-        <div class="leave-rebuild-section-heading"><div><p class="leave-rebuild-section-kicker">02 / LEAVE STATISTICS</p><h2 id="leave-statistics-title">สถิติการลา</h2><p>ดูภาพรวมการลา สิทธิ์ของฉัน และจังหวะการลาของทีม</p></div><span class="leave-rebuild-heading-period">ข้อมูลเดือนตุลาคม 2569</span></div>
-        <div class="leave-rebuild-stat-grid">
-          <article class="leave-rebuild-stat-card leave-rebuild-stat-team"><div class="leave-rebuild-stat-top"><span class="leave-rebuild-stat-icon">◌</span><span><p>TEAM LEAVE</p><small>ทีมลาวันนี้</small></span><strong>06</strong></div><div class="leave-rebuild-stat-main"><b>6 คน</b><small>จากทีมทั้งหมด 103 คน</small></div><div class="leave-rebuild-stat-breakdown"><span><i></i>ลาพักร้อน <b>3</b></span><span><i></i>ลากิจ <b>2</b></span><span><i></i>ลาป่วย <b>1</b></span></div></article>
-          <article class="leave-rebuild-stat-card leave-rebuild-stat-personal"><div class="leave-rebuild-stat-top"><span class="leave-rebuild-stat-icon">✦</span><span><p>MY LEAVE</p><small>สิทธิ์ของฉัน</small></span><strong>18</strong></div><div class="leave-rebuild-stat-main"><b>18 วัน</b><small>เหลือจากสิทธิ์รวม 23 วัน</small></div><div class="leave-rebuild-stat-ring"><span>78%<small>คงเหลือ</small></span></div><div class="leave-rebuild-stat-caption"><span>ใช้ไป 5 วัน</span><span>เหลือ 18 วัน</span></div></article>
-          <article class="leave-rebuild-stat-card leave-rebuild-stat-trend"><div class="leave-rebuild-stat-top"><span class="leave-rebuild-stat-icon">↗</span><span><p>LEAVE TREND</p><small>แนวโน้ม 7 วัน</small></span><strong>03</strong></div><div class="leave-rebuild-trend-bars"><span style="height:36%"><b>จ.</b></span><span style="height:56%"><b>อ.</b></span><span style="height:78%"><b>พ.</b></span><span style="height:44%"><b>พฤ.</b></span><span style="height:68%"><b>ศ.</b></span><span style="height:25%"><b>ส.</b></span><span style="height:48%"><b>อา.</b></span></div><small class="leave-rebuild-trend-note">วันลาเฉลี่ย 1.4 คน / วัน</small></article>
-        </div>
-        <div class="leave-rebuild-entitlements"><div class="leave-rebuild-entitlements-heading"><div><p>ENTITLEMENT BREAKDOWN</p><h3>สิทธิ์ลาแยกตามประเภท</h3></div><span>ใช้ไป / ทั้งหมด</span></div><div class="leave-rebuild-entitlement-list"><div><span class="leave-rebuild-entitlement-dot vacation"></span><b>ลาพักร้อน</b><small>Vacation</small><strong>3 / 15 วัน</strong><i><u style="width:20%"></u></i><em>เหลือ 12 วัน</em></div><div><span class="leave-rebuild-entitlement-dot business"></span><b>ลากิจ</b><small>Business</small><strong>1 / 3 วัน</strong><i><u style="width:33%"></u></i><em>เหลือ 2 วัน</em></div><div><span class="leave-rebuild-entitlement-dot sick"></span><b>ลาป่วย</b><small>Sick leave</small><strong>1 / 5 วัน</strong><i><u style="width:20%"></u></i><em>เหลือ 4 วัน</em></div></div></div>
-      </section>
+        '<div class="leave-v3-step-head"><span>02</span><div><b>วันที่และระยะเวลา</b><small>กำหนดวันลาและรูปแบบการลา</small></div></div>' +
+        '<div class="leave-v3-form-row">' +
+          '<label class="leave-v3-field"><span>วันเริ่มลา</span><input type="date" name="leave-v3-start" value="2026-10-26"></label>' +
+          '<label class="leave-v3-field"><span>วันสิ้นสุดลา</span><input type="date" name="leave-v3-end" value="2026-10-28"></label>' +
+          '<label class="leave-v3-field"><span>รูปแบบ</span><select name="leave-v3-duration"><option value="full">เต็มวัน</option><option value="morning">ครึ่งวันเช้า</option><option value="afternoon">ครึ่งวันบ่าย</option><option value="hourly">รายชั่วโมง</option></select></label>' +
+        '</div>' +
 
-      <section id="leave-history-section" class="leave-rebuild-section leave-rebuild-history" aria-labelledby="leave-history-title">
-        <div class="leave-rebuild-section-heading"><div><p class="leave-rebuild-section-kicker">03 / LEAVE HISTORY</p><h2 id="leave-history-title">ประวัติการลา</h2><p>ติดตามสถานะคำขอที่ผ่านมาและรายการที่ปิดแล้ว</p></div><span class="leave-rebuild-heading-period">3 รายการ</span></div>
-        <div class="leave-rebuild-history-toolbar"><div class="leave-rebuild-filter-list"><button class="is-active" type="button">ทั้งหมด <b>3</b></button><button type="button">รออนุมัติ <b>1</b></button><button type="button">อนุมัติแล้ว <b>2</b></button></div><button type="button" class="leave-rebuild-export">ส่งออกประวัติ <span>↓</span></button></div>
-        <div class="leave-rebuild-history-table" role="table" aria-label="ประวัติการลา"><div class="leave-rebuild-history-header" role="row"><span>รายการลา</span><span>ช่วงวันที่</span><span>จำนวน</span><span>สถานะ</span><span></span></div><div class="leave-rebuild-history-row" role="row"><span class="leave-rebuild-history-kind vacation"><i>☼</i><b>ลาพักร้อน</b><small>LV-2026-0108</small></span><span><b>21–22 ตุลาคม 2569</b><small>ส่งเมื่อ 16 ตุลาคม 2569</small></span><strong>2 วัน</strong><em class="pending">รออนุมัติ</em><button type="button" aria-label="ดูรายละเอียดลาพักร้อน">→</button></div><div class="leave-rebuild-history-row" role="row"><span class="leave-rebuild-history-kind business"><i>✦</i><b>ลากิจ</b><small>LV-2026-0104</small></span><span><b>04 ตุลาคม 2569</b><small>ปิดรายการแล้ว</small></span><strong>1 วัน</strong><em class="approved">อนุมัติแล้ว</em><button type="button" aria-label="ดูรายละเอียดลากิจ">→</button></div><div class="leave-rebuild-history-row" role="row"><span class="leave-rebuild-history-kind sick"><i>＋</i><b>ลาป่วย</b><small>LV-2026-0092</small></span><span><b>28 กันยายน 2569</b><small>ครึ่งวัน</small></span><strong>0.5 วัน</strong><em class="approved">อนุมัติแล้ว</em><button type="button" aria-label="ดูรายละเอียดลาป่วย">→</button></div></div>
-      </section>
-      <p class="leave-rebuild-footer-note">ข้อมูลตัวอย่างสำหรับต้นแบบ UX/UI · การบันทึกจริงต้องใช้ API และสิทธิ์จากเซิร์ฟเวอร์</p>
-    </div>`;
+        '<div class="leave-v3-step-head"><span>03</span><div><b>เหตุผลและเอกสาร</b><small>ใส่ข้อมูลที่จำเป็นต่อการพิจารณา</small></div></div>' +
+        '<div class="leave-v3-detail-grid">' +
+          '<label class="leave-v3-field"><span>เหตุผลการลา</span><textarea name="leave-v3-reason" rows="4" placeholder="เช่น เดินทางกับครอบครัว"></textarea></label>' +
+          '<label class="leave-v3-upload"><input type="file" accept="image/*,.pdf"><span class="today-overview-icon">' + svg('upload') + '</span><b>เอกสารประกอบ</b><small>JPG / PNG / PDF · ถ้ามี</small></label>' +
+        '</div>' +
+
+        '<div class="leave-v3-form-actions"><span class="rhythm-score">' + svg('shield') + 'ตรวจสิทธิ์ก่อนบันทึกจริง</span><button type="submit" class="btn primary teal-btn">ตรวจสอบและส่ง ' + svg('arrow') + '</button></div>' +
+        '<p class="leave-v3-feedback" aria-live="polite"></p>' +
+      '</form>' +
+    '</section>';
+  }
+
+  function summaryBoard() {
+    return '<section class="dashboard-board status-board leave-v3-summary-board">' +
+      '<div class="board-head">' +
+        '<div class="board-title"><span class="board-icon purple">' + svg('file') + '</span><span><b>สรุปคำขอ</b><small>REQUEST SUMMARY</small></span></div>' +
+        '<span class="rhythm-score leave-v3-summary-ready">' + svg('check') + 'พร้อมตรวจสอบ</span>' +
+      '</div>' +
+      '<article class="today-overview-card requests today-requests-summary is-static leave-v3-summary-card">' +
+        '<span class="today-card-head">' +
+          '<span class="today-overview-icon">' + svg('beach') + '</span>' +
+          '<span class="today-card-title"><small data-summary-en>VACATION</small><b data-summary-type>ลาพักร้อน</b></span>' +
+          '<span class="today-card-badge request-count">' + svg('calendar') + '<strong data-summary-days>3</strong><em>วัน</em></span>' +
+        '</span>' +
+        '<span class="today-mini-stats request-stats leave-v3-summary-stats">' +
+          '<span class="mini-stat leave"><small>ก่อนลา</small><b data-summary-before>12</b></span>' +
+          '<span class="mini-stat ot"><small>ใช้ครั้งนี้</small><b data-summary-use>3</b></span>' +
+          '<span class="mini-stat correction"><small>หลังลา</small><b data-summary-after>9</b></span>' +
+          '<span class="mini-stat medical"><small>ผู้อนุมัติ</small><b>2</b></span>' +
+        '</span>' +
+      '</article>' +
+      '<div class="status-list-rich leave-v3-summary-list">' +
+        '<div class="status-row-rich"><span class="status-dot-rich teal"></span><span><b>ช่วงวันที่</b></span><span class="status-bar-rich"><i style="width:100%"></i></span><strong data-summary-period>26–28 OCT 26</strong></div>' +
+        '<div class="status-row-rich"><span class="status-dot-rich purple"></span><span><b>หัวหน้าตรง</b></span><span class="status-bar-rich leave-bar-purple"><i style="width:50%"></i></span><strong>ขั้นที่ 1</strong></div>' +
+        '<div class="status-row-rich"><span class="status-dot-rich amber"></span><span><b>HR</b></span><span class="status-bar-rich leave-bar-amber"><i style="width:100%"></i></span><strong>ขั้นที่ 2</strong></div>' +
+      '</div>' +
+    '</section>';
+  }
+
+  function leaveStatusBoard() {
+    return '<section class="dashboard-board leave-board leave-v3-status-board">' +
+      '<div class="board-head"><div class="board-title"><span class="board-icon purple">' + svg('calendar') + '</span><span><b>สถานะคำขอ</b><small>LEAVE STATUS</small></span></div><span class="rhythm-score leave-score">' + svg('clock') + '2 รอดำเนินการ</span></div>' +
+      '<div class="status-score-rich leave-score-rich"><strong>คำขอปีนี้ <span>4 รายการ</span></strong></div>' +
+      '<div class="status-list-rich leave-list-rich">' +
+        '<div class="status-row-rich"><span class="status-dot-rich teal"></span><span><b>อนุมัติแล้ว 1</b></span><span class="status-bar-rich"><i style="width:25%"></i></span><strong>25%</strong></div>' +
+        '<div class="status-row-rich"><span class="status-dot-rich purple"></span><span><b>รออนุมัติ 1</b></span><span class="status-bar-rich leave-bar-purple"><i style="width:25%"></i></span><strong>25%</strong></div>' +
+        '<div class="status-row-rich"><span class="status-dot-rich amber"></span><span><b>ต้องแก้ไข / ยกเลิก 2</b></span><span class="status-bar-rich leave-bar-amber"><i style="width:50%"></i></span><strong>50%</strong></div>' +
+      '</div>' +
+    '</section>';
+  }
+
+  function myRequestsBoard() {
+    var cards = [
+      {status:'รออนุมัติ',cls:'is-pending',id:'LEV-0048',date:'22 Oct 26',period:'26–28 Oct 26 | 3 วัน',reason:'เดินทางกับครอบครัว'},
+      {status:'อนุมัติแล้ว',cls:'is-approved',id:'LEV-0043',date:'11 Oct 26',period:'12 Oct 26 | 1 วัน',reason:'ติดต่อหน่วยงานราชการ'},
+      {status:'ต้องแก้ไข',cls:'is-revision',id:'LEV-0041',date:'7 Oct 26',period:'7 Oct 26 | 1 วัน',reason:'HR ขอเอกสารประกอบเพิ่มเติม'},
+      {status:'ยกเลิก',cls:'is-cancelled',id:'LEV-0038',date:'29 Sep 26',period:'30 Sep–2 Oct 26 | 3 วัน',reason:'ยกเลิกโดยผู้ยื่น'}
+    ].map(function (item, idx) {
+      var iconName = idx === 2 ? 'medicalCross' : idx === 1 ? 'briefcase' : 'calendar';
+      var english = idx === 2 ? 'SICK LEAVE' : idx === 1 ? 'BUSINESS' : 'VACATION';
+      var title = idx === 2 ? 'ลาป่วย' : idx === 1 ? 'ลากิจ' : 'ลาพักร้อน';
+      return '<article class="today-overview-card activity leave is-static leave-v3-history-card">' +
+        '<span class="today-card-head"><span class="today-overview-icon">' + svg(iconName) + '</span><span class="today-card-title"><small>' + english + '</small><b>' + title + '</b></span>' +
+        '<span class="today-card-status-stack"><span class="today-card-badge activity-status ' + item.cls + '">' + svg(item.status === 'ยกเลิก' || item.status === 'ต้องแก้ไข' ? 'alert' : item.status === 'รออนุมัติ' ? 'clock' : 'check') + '<strong>' + item.status + '</strong></span><small class="today-card-request-id">' + item.id + '</small></span></span>' +
+        '<span class="today-detail-full activity-detail-pro"><span>วันคำขอ : ' + item.date + '</span><span class="activity-person-line">นักวิเคราะห์ | Team B | บัญชี</span><span>วันที่ลา : ' + item.period + '</span><span>เหตุผล : ' + item.reason + '</span></span>' +
+      '</article>';
+    }).join('');
+
+    return '<section class="dashboard-board activity-board today-overview-board is-approver-view leave-v3-history-board">' +
+      '<div class="board-head"><div class="board-title"><span class="board-icon amber">' + svg('file') + '</span><span><b>คำขอของฉัน</b><small>MY REQUESTS</small></span></div><span class="board-live">' + svg('check') + '4 รายการ</span></div>' +
+      '<div class="today-overview-grid">' + cards + '</div>' +
+    '</section>';
+  }
+
+  function approvalBoard() {
+    if (role() === 'employee') return '';
+    var items = [
+      {route:'approvals',tone:'leave',icon:'calendar',english:'VACATION',title:'ลาพักร้อน',pendingCount:'3',pendingLabel:'วัน',name:'คุณจิรัญญา พลเจริญ (Jo)',dateTime:'26–28 Oct 26 · Team B',reason:'เดินทางกับครอบครัว'},
+      {route:'approvals',tone:'medical',icon:'medicalCross',english:'SICK LEAVE',title:'ลาป่วย',pendingCount:'1',pendingLabel:'วัน',name:'คุณอธิป ศรีสุข (Top)',dateTime:'23 Oct 26 · Team B',reason:'ไม่สบาย · มีเอกสารแนบ'},
+      {route:'approvals',tone:'ot',icon:'briefcase',english:'BUSINESS',title:'ลากิจ',pendingCount:'1',pendingLabel:'วัน',name:'คุณกาญจนา นุกูลการ',dateTime:'27 Oct 26 · Team A',reason:'ติดต่อหน่วยงานราชการ'}
+    ];
+    var cards = items.map(function (item) {
+      return typeof dashboardRequestCard === 'function' ? dashboardRequestCard(item) : '';
+    }).join('');
+    return '<section class="dashboard-board activity-board today-overview-board is-employee-view leave-v3-approval-board">' +
+      '<div class="board-head"><div class="board-title"><span class="board-icon purple">' + svg('check') + '</span><span><b>คำขอที่รอคุณพิจารณา</b><small>APPROVAL QUEUE</small></span></div><span class="board-live">' + svg('clock') + '5 รออนุมัติ</span></div>' +
+      '<div class="today-overview-grid">' + cards + '</div>' +
+    '</section>';
+  }
+
+  function buildMarkup() {
+    return '<div class="leave-v3-page dashboard-v2">' +
+      leaveHero() +
+      '<section class="dashboard-deck dashboard-deck-cards leave-v3-deck">' +
+        requestFormBoard() +
+        summaryBoard() +
+        leaveStatusBoard() +
+        overviewLeaveStats() +
+      '</section>' +
+      myRequestsBoard() +
+      approvalBoard() +
+      overviewCalendar() +
+      '<p class="leave-v3-footer-note">ต้นแบบ UX/UI · ข้อมูลตัวอย่าง · การบันทึกจริงต้องใช้ API และสิทธิ์จากเซิร์ฟเวอร์</p>' +
+    '</div>';
+  }
+
+  function typeInfo(type) {
+    if (type === 'sick') return {title:'ลาป่วย',en:'SICK LEAVE',remain:4};
+    if (type === 'business') return {title:'ลากิจ',en:'BUSINESS',remain:2};
+    return {title:'ลาพักร้อน',en:'VACATION',remain:12};
+  }
+
+  function daysBetween(start, end, duration) {
+    if (!start || !end) return 0;
+    var s = new Date(start + 'T00:00:00');
+    var e = new Date(end + 'T00:00:00');
+    var n = Math.max(0, Math.round((e - s) / 86400000) + 1);
+    if (duration === 'morning' || duration === 'afternoon') return n ? 0.5 : 0;
+    if (duration === 'hourly') return n ? 0.25 : 0;
+    return n;
+  }
+
+  function periodText(start, end) {
+    if (!start || !end) return 'ยังไม่เลือกวันที่';
+    var mon = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    var s = new Date(start + 'T00:00:00');
+    var e = new Date(end + 'T00:00:00');
+    if (s.getMonth() === e.getMonth()) return s.getDate() + '–' + e.getDate() + ' ' + mon[e.getMonth()] + ' ' + String(e.getFullYear()).slice(-2);
+    return s.getDate() + ' ' + mon[s.getMonth()] + '–' + e.getDate() + ' ' + mon[e.getMonth()] + ' ' + String(e.getFullYear()).slice(-2);
+  }
+
+  function updateSummary(root) {
+    var checked = root.querySelector('[name="leave-v3-type"]:checked');
+    var type = checked ? checked.value : 'vacation';
+    var info = typeInfo(type);
+    var start = root.querySelector('[name="leave-v3-start"]')?.value || '';
+    var end = root.querySelector('[name="leave-v3-end"]')?.value || '';
+    var duration = root.querySelector('[name="leave-v3-duration"]')?.value || 'full';
+    var days = daysBetween(start,end,duration);
+
+    var set = function (sel, value) { var el = root.querySelector(sel); if (el) el.textContent = value; };
+    set('[data-summary-en]', info.en);
+    set('[data-summary-type]', info.title);
+    set('[data-summary-days]', String(days));
+    set('[data-summary-before]', String(info.remain));
+    set('[data-summary-use]', String(days));
+    set('[data-summary-after]', String(Math.max(0, info.remain - days)));
+    set('[data-summary-period]', periodText(start,end));
+
+    root.querySelectorAll('.leave-v3-type-card').forEach(function (card) {
+      var radio = card.querySelector('input');
+      card.classList.toggle('is-selected', !!radio && radio.checked);
+    });
+  }
 
   function updateClock(root) {
     var now = new Date();
-    var date = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    var time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    var dateNode = root.querySelector('.leave-rebuild-date');
-    var timeNode = root.querySelector('.leave-rebuild-time');
-    if (dateNode) dateNode.textContent = date;
-    if (timeNode) timeNode.textContent = 'เวลา ' + time;
+    var d = root.querySelector('[data-leave-v3-date]');
+    var t = root.querySelector('[data-leave-v3-clock]');
+    if (d) d.textContent = now.toLocaleDateString('th-TH', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    if (t) t.textContent = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   }
 
   function bind(root) {
     updateClock(root);
-    root.querySelectorAll('[data-leave-scroll]').forEach(function (button) {
-      button.addEventListener('click', function () {
-        var section = document.getElementById(button.dataset.leaveScroll);
-        if (!section) return;
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        root.querySelectorAll('.leave-rebuild-tab-list button').forEach(function (item) {
-          item.classList.toggle('is-active', item.dataset.leaveScroll === button.dataset.leaveScroll);
-        });
-      });
+    updateSummary(root);
+
+    root.querySelectorAll('[name="leave-v3-type"],[name="leave-v3-start"],[name="leave-v3-end"],[name="leave-v3-duration"]').forEach(function (el) {
+      el.addEventListener('change', function () { updateSummary(root); });
     });
-    root.querySelectorAll('.leave-rebuild-type-card').forEach(function (card) {
-      card.addEventListener('click', function () {
-        root.querySelectorAll('.leave-rebuild-type-card').forEach(function (item) { item.classList.remove('is-selected'); });
-        card.classList.add('is-selected');
-        var radio = card.querySelector('input');
-        if (radio) radio.checked = true;
-      });
-    });
-    root.querySelectorAll('.leave-rebuild-duration-grid label').forEach(function (card) {
-      card.addEventListener('click', function () {
-        root.querySelectorAll('.leave-rebuild-duration-grid label').forEach(function (item) { item.classList.remove('is-selected'); });
-        card.classList.add('is-selected');
-      });
-    });
-    root.querySelectorAll('.leave-rebuild-filter-list button').forEach(function (button) {
-      button.addEventListener('click', function () {
-        root.querySelectorAll('.leave-rebuild-filter-list button').forEach(function (item) { item.classList.remove('is-active'); });
-        button.classList.add('is-active');
-      });
-    });
-    var form = root.querySelector('#leave-rebuild-form');
-    var feedback = root.querySelector('.leave-rebuild-feedback');
+
+    var form = root.querySelector('#leave-v3-form');
     if (form) form.addEventListener('submit', function (event) {
       event.preventDefault();
-      if (feedback) feedback.textContent = 'บันทึกคำขอไว้เป็นแบบร่างแล้ว · ตรวจสอบข้อมูลก่อนส่งจริง';
+      var feedback = root.querySelector('.leave-v3-feedback');
+      if (feedback) feedback.textContent = 'ตรวจสอบข้อมูลครบแล้ว · Design Preview ยังไม่ส่งข้อมูลจริง';
     });
-    root.querySelectorAll('.leave-rebuild-upload').forEach(function (box) {
-      box.addEventListener('click', function () { var input = box.querySelector('input'); if (input) input.click(); });
-    });
-    window.setInterval(function () { if (document.body.contains(root)) updateClock(root); }, 1000);
+
+    var timer = window.setInterval(function () {
+      if (!document.body.contains(root)) {
+        window.clearInterval(timer);
+        return;
+      }
+      updateClock(root);
+    },1000);
   }
 
   function mount() {
-    if (window.location.hash !== '#leave') return;
+    if (!window.location.hash.startsWith('#leave')) return;
     var workspace = document.querySelector('.leave-workspace');
-    if (!workspace || workspace.dataset.leaveRebuild === 'true') return;
-    workspace.dataset.leaveRebuild = 'true';
+    if (!workspace || workspace.dataset.leaveV3 === 'true') return;
+
+    workspace.dataset.leaveV3 = 'true';
     var prototypeNote = document.querySelector('.page-shell.leave-page > .prototype-note');
     if (prototypeNote) prototypeNote.hidden = true;
-    workspace.innerHTML = leaveMarkup;
+
+    workspace.innerHTML = buildMarkup();
     bind(workspace);
   }
 
-  window.addEventListener('hashchange', function () { window.setTimeout(mount, 50); });
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { window.setTimeout(mount, 0); });
-  else window.setTimeout(mount, 0);
+  window.addEventListener('hashchange', function () { window.setTimeout(mount,30); });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { window.setTimeout(mount,0); });
+  } else {
+    window.setTimeout(mount,0);
+  }
 }());

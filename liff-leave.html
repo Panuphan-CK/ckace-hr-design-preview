@@ -27,7 +27,7 @@
 
     <section class="liff-leave-head">
       <div><small>LEAVE REQUEST</small><h1>ยื่นคำขอลา</h1><p>เลือกให้ครบ แล้วตรวจสอบก่อนส่ง</p></div>
-      <span class="liff-step-badge">1 / 5</span>
+      <span class="liff-step-badge">1 / 7</span>
     </section>
 
     <section class="liff-wallet" aria-label="สิทธิ์การลา">
@@ -73,16 +73,27 @@
     </section>
 
     <section class="liff-card">
-      <div class="liff-card-head"><span>04</span><div><b>เหตุผลและเอกสาร</b><small>ให้ผู้อนุมัติเข้าใจในครั้งเดียว</small></div></div>
-      <label class="liff-field"><span>เหตุผลการลา</span><textarea rows="3" placeholder="เช่น เดินทางกับครอบครัว"></textarea></label>
-      <label class="liff-upload"><input type="file" multiple accept="image/jpeg,image/png,application/pdf"><span>⇧</span><div><b>แนบเอกสาร</b><small>JPG / PNG / PDF · สูงสุด 3 ไฟล์</small></div></label>
+      <div class="liff-card-head"><span>04</span><div><b>รายละเอียดการลา</b><small>กรอกเหตุผลให้ผู้อนุมัติเข้าใจในครั้งเดียว</small></div></div>
+      <label class="liff-field"><span>เหตุผล / รายละเอียด</span><textarea rows="3" placeholder="เช่น เดินทางกับครอบครัว"></textarea></label>
+    </section>
+
+    <section class="liff-card liff-approver-card">
+      <div class="liff-card-head"><span>05</span><div><b>สายการอนุมัติ</b><small>โหลดอัตโนมัติตาม UID และสังกัดจาก Production</small></div></div>
+      <div class="liff-approver-list">
+        <article><span>1</span><div><b>คุณอธิป ศรีสุข (Top)</b><small>Approver · Team B</small></div><em>พิจารณาคำขอลา</em></article>
+        <article><span>2</span><div><b>คุณกาญจนา นุกูลการ</b><small>SuperAdmin</small></div><em>ขั้นสุดท้าย</em></article>
+      </div>
+    </section>
+
+    <section class="liff-card">
+      <div class="liff-card-head"><span>06</span><div><b>ไฟล์เอกสารแนบ</b><small>JPG / PNG / PDF ตามข้อจำกัด Production LIFF</small></div></div>
+      <label class="liff-upload"><input type="file" multiple accept="image/jpeg,image/png,application/pdf"><span>⇧</span><div><b>เลือกไฟล์ หรือวางไฟล์ที่นี่</b><small>สูงสุด 3 ไฟล์ · 2 MB/ไฟล์ · รวมไม่เกิน 4 MB</small></div></label>
     </section>
 
     <section class="liff-card liff-review">
-      <div class="liff-card-head"><span>05</span><div><b>ตรวจสอบก่อนส่ง</b><small>Production จะตรวจซ้ำอีกครั้งก่อนบันทึก</small></div></div>
+      <div class="liff-card-head"><span>07</span><div><b>ตรวจสอบก่อนส่ง</b><small>Production จะตรวจสิทธิ์และสายอนุมัติซ้ำก่อนบันทึก</small></div></div>
       <div class="liff-review-main"><span class="review-icon">🏖️</span><div><small id="reviewEn">VACATION</small><b id="reviewType">ลาพักร้อน</b><em>26–28 OCT 26</em></div><strong><b id="reviewDays">3</b><small>วัน</small></strong></div>
       <div class="liff-review-grid"><span><small>ก่อนลา</small><b id="reviewBefore">12 วัน</b></span><span><small>ใช้ครั้งนี้</small><b id="reviewUse">3 วัน</b></span><span><small>หลังลา</small><b id="reviewAfter">9 วัน</b></span></div>
-      <div class="liff-route"><small>APPROVAL ROUTE</small><div><span class="done">✓</span><b>คุณ</b><i></i><span>1</span><b>ผู้อนุมัติทีม</b><i></i><span>2</span><b>HR</b></div></div>
       <button class="liff-submit" type="button">ส่งคำขอลา</button>
       <p class="liff-note">Design Preview · ไม่ส่งข้อมูลจริง</p>
     </section>

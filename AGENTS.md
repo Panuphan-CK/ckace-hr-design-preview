@@ -36,8 +36,9 @@ Do not promote stale plan text over newer verified implementation evidence.
 - Keep exactly one active task in `docs/codex/ACTIVE_TASK.md`.
 - When a task finishes, update `HANDOFF.md` and `PROJECT_PLAN.md`, then replace `ACTIVE_TASK.md` with the next active task.
 - Do not keep completed-task sections, old task queues, superseded plans, historical task documents, or repository archive folders.
-- **Protected current design artifact:** `docs/design/desktop-20261018/**` must be preserved exactly as working design material unless the Owner explicitly asks to replace or delete it.
-- Owner review route: `http://127.0.0.1:4184/?role=employee&cards=v5#dashboard`.
+- **Design preview ownership moved out of this repository.** Do not add or publish UX/UI preview artifacts under `docs/design/desktop-20261018/**` here.
+- All CKACE HR design-preview work must be maintained and published in `Panuphan-CK/ckace-hr-design-preview`.
+- This repository remains the source/runtime/TEST repository; design-preview publication must not be reintroduced here.
 - Git history is the archive.
 - Historical material is retrieved only when the Owner explicitly asks.
 

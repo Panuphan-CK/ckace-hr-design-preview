@@ -1,36 +1,53 @@
 # CKACE HR — ACTIVE TASK
 
-Updated: 2026-10-21
+Updated: 2026-10-22 Asia/Bangkok
 
-## UI-OVERVIEW-REVIEW — Owner Overview visual review
+## M67-R5 — Prepare the next TEST release from verified Claude lineage
 
-Status: **IN REVIEW**
-Priority: **P1 — current explicit Owner direction**
+Status: **READY**
+Priority: **P1 — TESTm67 stabilization**
 
 Objective:
-Keep the Local `docs/design/desktop-20261018` Overview prototype stable for Owner visual review and iterate only on requested Overview design changes. Do not change TEST/Production behavior.
+Prepare a concrete next-TEST release plan from the verified Claude candidate `5a29241`, proving the current API/Web image and traffic provenance and rollback targets before requesting a TEST build.
 
-Current accepted structure:
-- Manager/approver: **4 cards** in one desktop row — Pending Approvals, My Requests, Latest Activity, Latest Activity.
-- Employee: **3 cards** in one desktop row — My Requests, Latest Activity, Latest Activity.
-- My Requests is one aggregate card with four module mini-stats.
-- TODAY WORK & ACTIVITY child cards fill the available parent-board content height on desktop.
-- Desktop review typography is enlarged: English heading 9px, Thai heading 13px, mini-stat number 24px, detail text 11px.
-- Owner-locked Hero layout remains unchanged.
+Why now:
+Authenticated TESTm67 checks verified OT threshold behavior, attendance-policy save/persistence, holiday-table refresh, and numeric attendance Excel exports. The remaining candidate difference is explicit two-decimal Excel formatting. No urgent build blocker was reproduced in the exercised paths.
 
-Verification:
-- Manager cards: 4 × 197px, all in one row.
-- Employee cards: 3 × 197px, all in one row.
-- Child-card height equals Today grid height.
-- No horizontal overflow.
-- Hero remains 10/10 layout nodes and 10/10 drag handles.
-- `node --check docs/design/desktop-20261018/prototype.js` PASS.
-- relevant `git diff --check` PASS.
+Scope:
+- inspect TEST-only deployment metadata through available read-only access;
+- identify API/Web revisions, image digests, traffic allocation, build source and rollback targets where evidence permits;
+- review `infra/cloudbuild/test-release.yaml` at the Claude candidate for safe revision naming and rollback;
+- prepare one batched TEST change set and post-deploy verification plan;
+- preserve the original dirty Local tree and the protected design artifact.
 
-Guard:
-- `docs/design/desktop-20261018/**` is protected active review material; do not delete, cleanup, replace, or rebase it during Owner review.
-- Do not Commit / Push until the Owner explicitly says `commit`.
-- TEST/Production remain untouched.
+Out of scope:
+- TEST build/deploy/traffic until the Owner explicitly requests it;
+- any Production operation;
+- automatic integration of uncertain Local-only desktop-auth/LIFF work;
+- Project A / APP_Leave work;
+- role/access expansion or approval-policy changes without concrete required confirmation.
+
+Acceptance criteria:
+- release candidate is pinned to a verified source SHA;
+- current TEST API/Web deployment evidence and any evidence gaps are recorded;
+- intended revisions and rollback targets cannot accidentally reuse or promote stale m67 images;
+- release change set and post-deploy checks are concrete and reviewable;
+- source/continuity diff and Git status are reviewed before publication;
+- Owner approval is obtained before deployment or commit/push.
+
+Current evidence:
+- Live health: `ckace-hr-api-test-m67`, `stage=test`, `NON_PRODUCTION`.
+- Claude candidate: `5a29241`; prior Local gates passed: lint, typecheck, 110 files / 821 tests, Prisma validation and full build.
+- TEST attendance export: seven numeric hour values; E11 total `34.269999999999996`; both sheets use General number format. Candidate adds `0.00` formatting while retaining numeric values.
+- OT threshold was tested at 20:00 -> 20:30 -> 20:00. A 20:15 end changed from meal-eligible to below-threshold; exactly 20:30 was meal-eligible. Original policy restored and verified after reload.
+- Holiday description and attendance-policy name were temporarily edited, saved, reloaded where applicable, restored and verified. Holiday table refreshed immediately after save.
+- Baseline attendance radius remains 0.1 km. NEWTEST remains inactive, with no selected roles and SELF scope. Four active approval policies use ADMIN (same team) then SUPERADMIN (all teams).
+- Owner selected B and clarified on 2026-10-22 that TEST changes do not require automatic restoration. Record what changed and its test purpose; retain useful TEST settings/data unless restoration is needed for another check or the Owner requests it. This does not authorize destructive actions, security-sensitive access expansion, deployment or Production changes. Owner personally logged in; session is available.
+
+Verification limits:
+- No GPS clock action, role/access mutation, approval-chain mutation or new request submission was performed in the authenticated check.
+- Workbook values/types were read directly from XLSX XML using bundled Python after the artifact-tool import failed in node_repl (`node:process` restricted). No workbook was edited.
+- Exact live build SHA, Web revision and Cloud Run traffic allocation are still unproven.
 
 Next:
-Wait for the Owner's next visual feedback. After Owner accepts the Overview review cycle, resume M67 reconciliation unless superseded by newer Owner direction.
+Gather TEST-only deployment provenance and prepare the next release plan. Keep the existing authenticated browser session for further read-only verification; do not ask the Owner to log in again unless the session expires.

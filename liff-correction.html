@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#eef7fc">
+  <title>CKACE Time Correction — Web LIFF Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Prompt:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="liff-leave.css">
+  <link rel="stylesheet" href="liff-leave-overview-dna.css">
+  <link rel="stylesheet" href="liff-correction.css">
+</head>
+<body>
+  <main class="liff-shell liff-correction-shell">
+    <header class="liff-brand">
+      <div class="liff-logo">C</div>
+      <div><b>CKACE</b><small>EMPLOYEE SERVICES</small></div>
+      <time id="correctionLiffClock">–</time>
+    </header>
+
+    <section class="liff-profile">
+      <img src="assets/profile-clean.webp" alt="">
+      <div><small>สวัสดี 👋</small><b>คุณนภัสสร ใจดี</b><span>Team B · บัญชี</span></div>
+      <button type="button" id="correctionHistoryShortcut">ประวัติ</button>
+    </section>
+
+    <section class="liff-leave-head liff-correction-head">
+      <div><small>TIME CORRECTION</small><h1>แก้ไขเวลา</h1><p>เลือกวันที่และเวลาที่ถูกต้อง</p></div>
+      <span class="liff-step-badge">1 / 6</span>
+    </section>
+
+    <section class="liff-wallet liff-correction-stats">
+      <article class="sick"><small>COMPLETE</small><b>13</b><span>วันลงเวลาครบ</span><i><em style="width:82%"></em></i></article>
+      <article class="personal"><small>MISSING</small><b>1</b><span>รายการ</span><i><em style="width:18%"></em></i></article>
+      <article class="vacation"><small>PENDING</small><b>1</b><span>คำขอ</span><i><em style="width:25%"></em></i></article>
+    </section>
+
+    <section class="liff-card">
+      <div class="liff-card-head"><span>01</span><div><b>เลือกวันที่</b><small>Production ไม่ให้เลือกวันในอนาคต</small></div></div>
+      <label class="liff-field"><span>วันที่ต้องการแก้ไข</span><input id="correctionLiffDate" type="date" value="2026-10-20" max="2026-10-22"></label>
+      <div class="liff-correction-log" id="correctionLiffLog"></div>
+    </section>
+
+    <section class="liff-card">
+      <div class="liff-card-head"><span>02</span><div><b>เลือกรายการ</b><small>Check-in หรือ Check-out</small></div></div>
+      <div class="liff-correction-types">
+        <button class="active" type="button" data-correction-type="checkin"><small>CHECK-IN</small><b>เวลาเข้างาน</b><em id="correctionLiffIn">09:04</em></button>
+        <button type="button" data-correction-type="checkout"><small>CHECK-OUT</small><b>เวลาออกงาน</b><em id="correctionLiffOut">17:28</em></button>
+      </div>
+    </section>
+
+    <section class="liff-card">
+      <div class="liff-card-head"><span>03</span><div><b>เวลาเดิม → เวลาใหม่</b><small>เวลาใหม่ต้องอยู่ในช่วง Production ที่รองรับ</small></div></div>
+      <div class="liff-correction-compare">
+        <span><small>เวลาเดิม</small><b id="correctionLiffOriginal">09:04</b></span>
+        <i>→</i>
+        <label><small>เวลาใหม่</small><input id="correctionLiffTime" type="time" value="09:00"></label>
+      </div>
+      <div class="liff-date-readout liff-correction-check"><div><small>ผลต่าง</small><b id="correctionLiffDelta">−4 นาที</b></div><strong id="correctionLiffDuplicate">พร้อมส่ง</strong></div>
+    </section>
+
+    <section class="liff-card">
+      <div class="liff-card-head"><span>04</span><div><b>เหตุผล</b><small>สูงสุด 1,000 ตัวอักษรตาม Production</small></div></div>
+      <label class="liff-field"><span>เหตุผล / รายละเอียด</span><textarea id="correctionLiffReason" rows="3" maxlength="1000" placeholder="เช่น ลงเวลาเข้าช้ากว่าเวลาจริงเนื่องจากระบบเปิดช้า"></textarea></label>
+    </section>
+
+    <section class="liff-card liff-approver-card">
+      <div class="liff-card-head"><span>05</span><div><b>สายการอนุมัติ</b><small>โหลดจากสิทธิ์และสังกัด</small></div></div>
+      <div class="liff-approver-list">
+        <article><span>1</span><div><b>คุณอธิป ศรีสุข (Top)</b><small>Approver · Team B</small></div><em>พิจารณาแก้ไขเวลา</em></article>
+      </div>
+    </section>
+
+    <section class="liff-card liff-review liff-correction-review">
+      <div class="liff-card-head"><span>06</span><div><b>ตรวจสอบก่อนส่ง</b><small>Production ตรวจวันที่ ประเภท เวลา และคำขอซ้ำอีกครั้ง</small></div></div>
+      <div class="liff-review-main"><span class="review-icon">↺</span><div><small id="correctionReviewType">CHECK-IN</small><b id="correctionReviewDate">20 OCT 26</b><em id="correctionReviewChange">09:04 → 09:00</em></div><strong><b id="correctionReviewDelta">−4</b><small>นาที</small></strong></div>
+      <div class="liff-review-grid"><span><small>ผู้อนุมัติ</small><b>1 คน</b></span><span><small>คำขอซ้ำ</small><b id="correctionReviewDuplicate">ไม่พบ</b></span><span><small>สถานะ</small><b>พร้อมส่ง</b></span></div>
+      <button class="liff-submit" id="correctionLiffSubmit" type="button">ส่งคำขอแก้ไขเวลา</button>
+      <p class="liff-note">Design Preview · ไม่ส่งข้อมูลจริง</p>
+    </section>
+
+    <section class="liff-card liff-recent" id="correctionLiffRecent">
+      <div class="liff-card-head plain"><div><b>ประวัติแก้ไขเวลา</b><small>RECENT CORRECTIONS</small></div><button type="button">ดูทั้งหมด</button></div>
+      <article><span class="req-icon">↺</span><div><small>TC-00108 · 14 OCT 26</small><b>CHECK-OUT · 14 OCT</b><em>ไม่มีข้อมูล → 17:25</em></div><strong class="pending">รออนุมัติ</strong></article>
+      <article><span class="req-icon sick">✓</span><div><small>TC-00094 · 7 OCT 26</small><b>CHECK-IN · 7 OCT</b><em>09:18 → 09:00</em></div><strong class="approved">อนุมัติแล้ว</strong></article>
+    </section>
+  </main>
+
+  <nav class="liff-bottom">
+    <button type="button"><span>⌂</span><b>หน้าหลัก</b></button>
+    <button type="button"><span>▣</span><b>ลา</b></button>
+    <button type="button"><span>◷</span><b>OT</b></button>
+    <button type="button" class="active"><span>↺</span><b>แก้เวลา</b></button>
+  </nav>
+  <script src="liff-correction.js"></script>
+</body>
+</html>

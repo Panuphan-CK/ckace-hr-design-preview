@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#eef7fc">
+  <title>CKACE OT — Web LIFF Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Prompt:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="liff-leave.css">
+  <link rel="stylesheet" href="liff-leave-overview-dna.css">
+  <link rel="stylesheet" href="liff-ot.css">
+</head>
+<body>
+  <main class="liff-shell liff-ot-shell">
+    <header class="liff-brand">
+      <div class="liff-logo">C</div>
+      <div><b>CKACE</b><small>EMPLOYEE SERVICES</small></div>
+      <time id="otLiffClock">–</time>
+    </header>
+
+    <section class="liff-profile">
+      <img src="assets/profile-clean.webp" alt="">
+      <div><small>สวัสดี 👋</small><b>คุณนภัสสร ใจดี</b><span>Team B · บัญชี</span></div>
+      <button type="button" id="otHistoryShortcut">ประวัติ</button>
+    </section>
+
+    <section class="liff-leave-head liff-ot-head">
+      <div><small>OVERTIME REQUEST</small><h1>ขอทำ OT</h1><p>เลือกวัน เวลา และรายละเอียดงาน</p></div>
+      <span class="liff-step-badge">1 / 6</span>
+    </section>
+
+    <section class="liff-wallet liff-ot-stats">
+      <article class="personal"><small>THIS MONTH</small><b>18.5</b><span>ชั่วโมง OT</span><i><em style="width:62%"></em></i></article>
+      <article class="sick"><small>APPROVED</small><b>12</b><span>ชั่วโมง</span><i><em style="width:55%"></em></i></article>
+      <article class="vacation"><small>PENDING</small><b>2.5</b><span>ชั่วโมง</span><i><em style="width:25%"></em></i></article>
+    </section>
+
+    <section class="liff-card">
+      <div class="liff-card-head"><span>01</span><div><b>เลือกวันทำ OT</b><small>Production LIFF เลือก 1 วันต่อคำขอ</small></div></div>
+      <label class="liff-field"><span>วันที่ทำ OT</span><input id="otLiffDate" type="date" value="2026-10-22"></label>
+      <div class="liff-ot-day-type"><span>ประเภทวัน</span><b id="otLiffDayType">วันทำงาน</b></div>
+    </section>
+
+    <section class="liff-card">
+      <div class="liff-card-head"><span>02</span><div><b>เลือกช่วงเวลา</b><small>ระบบคำนวณชั่วโมงตามกฎ Production</small></div></div>
+      <div class="liff-hourly liff-ot-times">
+        <label><span>เวลาเริ่ม</span><input id="otLiffStart" type="time" value="18:00"></label>
+        <label><span>เวลาสิ้นสุด</span><input id="otLiffEnd" type="time" value="20:30"></label>
+      </div>
+      <div class="liff-date-readout liff-ot-hours"><div><small>ชั่วโมง OT</small><b id="otLiffHours">2.5 ชม.</b></div><strong id="otLiffDuplicate">ไม่พบเวลาซ้อน</strong></div>
+    </section>
+
+    <section class="liff-card">
+      <div class="liff-card-head"><span>03</span><div><b>รายละเอียดงาน</b><small>ระบุงานที่ต้องทำล่วงเวลา</small></div></div>
+      <label class="liff-field"><span>เหตุผล / รายละเอียด</span><textarea rows="3" placeholder="เช่น ปิดงบไตรมาส 4"></textarea></label>
+    </section>
+
+    <section class="liff-card liff-approver-card">
+      <div class="liff-card-head"><span>04</span><div><b>สายการอนุมัติ</b><small>โหลดจาก UID และสังกัด</small></div></div>
+      <div class="liff-approver-list">
+        <article><span>1</span><div><b>คุณอธิป ศรีสุข (Top)</b><small>Approver · Team B</small></div><em>พิจารณา OT</em></article>
+        <article><span>2</span><div><b>คุณกาญจนา นุกูลการ</b><small>SuperAdmin</small></div><em>ขั้นสุดท้าย</em></article>
+      </div>
+    </section>
+
+    <section class="liff-card">
+      <div class="liff-card-head"><span>05</span><div><b>เอกสารแนบ</b><small>LIFF Production รองรับไฟล์แนบในคำขอสิทธิประโยชน์</small></div></div>
+      <label class="liff-upload"><input type="file" multiple accept="image/jpeg,image/png,application/pdf"><span>⇧</span><div><b>เลือกไฟล์ (ถ้ามี)</b><small>JPG / PNG / PDF</small></div></label>
+    </section>
+
+    <section class="liff-card liff-review liff-ot-review">
+      <div class="liff-card-head"><span>06</span><div><b>ตรวจสอบก่อนส่ง</b><small>Production ตรวจเวลาซ้อนและสายอนุมัติอีกครั้ง</small></div></div>
+      <div class="liff-review-main"><span class="review-icon">🕒</span><div><small>OVERTIME</small><b id="otReviewDate">22 OCT 26</b><em id="otReviewTime">18:00–20:30 · วันทำงาน</em></div><strong><b id="otReviewHours">2.5</b><small>ชม.</small></strong></div>
+      <div class="liff-review-grid"><span><small>ผู้อนุมัติ</small><b>2 ขั้น</b></span><span><small>สถานะ</small><b id="otReviewDuplicate">พร้อมส่ง</b></span><span><small>สร้างคำขอ</small><b>1 รายการ</b></span></div>
+      <button class="liff-submit" id="otLiffSubmit" type="button">ส่งคำขอ OT</button>
+      <p class="liff-note">Design Preview · ไม่ส่งข้อมูลจริง</p>
+    </section>
+
+    <section class="liff-card liff-recent" id="otLiffRecent">
+      <div class="liff-card-head plain"><div><b>ประวัติ OT</b><small>RECENT OVERTIME</small></div><button type="button">ดูทั้งหมด</button></div>
+      <article><span class="req-icon">🕒</span><div><small>OT-00108 · 16 OCT 26</small><b>23 OCT · 18:00–20:30</b><em>2.5 ชม. · ปิดงบไตรมาส 4</em></div><strong class="pending">รออนุมัติ</strong></article>
+      <article><span class="req-icon sick">✓</span><div><small>OT-00102 · 14 OCT 26</small><b>17 OCT · 09:00–13:00</b><em>3 ชม. · ตรวจเอกสารลูกค้า</em></div><strong class="approved">อนุมัติแล้ว</strong></article>
+    </section>
+  </main>
+
+  <nav class="liff-bottom">
+    <button type="button"><span>⌂</span><b>หน้าหลัก</b></button>
+    <button type="button"><span>▣</span><b>ลา</b></button>
+    <button type="button" class="active"><span>◷</span><b>OT</b></button>
+    <button type="button"><span>◎</span><b>โปรไฟล์</b></button>
+  </nav>
+  <script src="liff-ot.js"></script>
+</body>
+</html>

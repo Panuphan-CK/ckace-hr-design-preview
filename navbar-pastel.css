@@ -30,3 +30,28 @@
 .ck-navbar .topbar-divider{background:#c3d9e8}
 @media(max-width:1250px){.topbar.ck-navbar{flex-wrap:wrap}.ck-navbar .main-nav{order:3;flex-basis:100%;width:100%;overflow-x:auto;justify-content:flex-start}.ck-navbar .nav-item{flex:1 0 74px}.ck-navbar .topbar-actions{margin-left:auto}}
 @media(max-width:690px){.ck-navbar .brand{min-width:108px;max-width:116px}.ck-navbar .brand-logo{height:40px}.ck-navbar .ck-app-trigger{padding:0 9px}.ck-navbar .ck-app-trigger .ck-app-label{display:none}.ck-navbar .profile-name,.ck-navbar .profile-chip .chevron{display:none}.ck-navbar .main-nav{margin:0}.ck-navbar .nav-item{font-size:10px}.ck-navbar .nav-item .nav-item-icon{display:block}.ck-navbar .topbar-action{display:none}.ck-navbar .ck-app-panel{left:-100px;max-width:calc(100vw - 24px)}}
+
+/* Pastel glass relief / raised controls matching the Overview dashboard */
+.topbar.ck-navbar{background:linear-gradient(110deg,#f6fbff 0%,#e5f3ff 38%,#edefff 78%,#fff7e6 100%);border-bottom:2px solid #bad7eb;box-shadow:inset 0 2px 0 #ffffff,0 5px 0 #bcd9ee,0 15px 31px #437fa12e}
+.ck-navbar .brand{min-width:160px;max-width:185px}.ck-navbar .brand-logo{width:171px;height:60px}
+.ck-navbar .nav-item{transition:background .18s,transform .18s,box-shadow .18s;border:1px solid transparent}
+.ck-navbar .nav-item svg{width:22px;height:22px;filter:drop-shadow(0 2px 1px #4e79a72e)}
+.ck-navbar .nav-item:hover{transform:translateY(-2px);background:linear-gradient(160deg,#fff,#e5f2ff);box-shadow:0 7px 15px #729ac42d;border-color:#d4e7fa}
+.ck-navbar .nav-item.active{color:#0d55ab;background:linear-gradient(160deg,#f7fcff,#c5e5ff 56%,#dce2ff);box-shadow:inset 0 2px 1px white,0 5px 0 #93c4e3,0 9px 18px #659fbe50;border:1px solid #a8d2f0}
+.ck-navbar .ck-app-trigger{width:43px;height:43px;min-height:43px;padding:0;border-radius:50%;background:linear-gradient(150deg,#fff,#d5eafd);box-shadow:inset 0 2px #fff,0 4px 0 #b4d3e8,0 8px 12px #528ab62e}
+.ck-navbar .ck-app-trigger svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9}
+.ck-navbar .ck-menu-anchor{position:relative;flex:none}
+.ck-navbar .icon-action,.ck-navbar .profile-chip{box-shadow:inset 0 2px 1px white,0 4px 0 #b9d4e9,0 8px 15px #528ab62d;background:linear-gradient(145deg,#fff,#e2f1ff);cursor:pointer}
+.ck-navbar .icon-action:hover,.ck-navbar .profile-chip:hover,.ck-navbar .ck-app-trigger:hover{background:linear-gradient(140deg,#fff,#d3e9ff);transform:translateY(-1px)}
+.ck-navbar .ck-popover{position:absolute;right:0;top:calc(100% + 16px);width:320px;max-width:calc(100vw - 24px);z-index:100;border:1px solid #c7ddec;border-radius:19px;padding:16px;background:linear-gradient(145deg,#fff,#edf7ff);box-shadow:0 20px 42px #346a9150;color:#173e5b}
+.ck-navbar .ck-popover[hidden],.ck-navbar .ck-notice-count[hidden]{display:none}
+.ck-navbar .ck-popover h2{margin:0 0 14px;font:700 18px 'Mitr',sans-serif}
+.ck-navbar .ck-popover p{line-height:1.65;color:#607f97}
+.ck-navbar .ck-notice-list article{border-top:1px solid #dce9f0;padding:11px 0}
+.ck-navbar .ck-notice-list strong{font-weight:800}
+.ck-navbar .ck-notice-list p{margin:3px 0;font-size:12px}
+.ck-navbar .ck-profile-panel dl{margin:0}.ck-navbar .ck-profile-panel dl div{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #dce7ee}
+.ck-navbar .ck-profile-panel dt{color:#6f889b}.ck-navbar .ck-profile-panel dd{margin:0;text-align:right;font-weight:800;overflow-wrap:anywhere}
+.ck-navbar .ck-notice-count{position:absolute;right:-5px;top:-8px;font-size:10px;line-height:19px;border-radius:50%;min-width:19px;color:#fff;background:#d95765}
+@media(max-width:1250px){.ck-navbar .brand{min-width:140px;max-width:160px}.ck-navbar .brand-logo{width:150px}}
+@media(max-width:690px){.ck-navbar .brand{min-width:115px;max-width:128px}.ck-navbar .brand-logo{width:125px;height:43px}.ck-navbar .ck-app-panel{left:auto;right:0}.ck-navbar .ck-popover{right:-45px}}

@@ -4,12 +4,21 @@
 
 Local: `D:\CKACE_HR`
 GitHub: `Panuphan-CK/ckace-hr`
+Local remote: `source`
+
+Repository role:
+- This is the primary application/source/runtime repository.
+- **Push implementation work here**, including Web Leave, `apps/**`, `packages/**`, API/runtime, tests, migrations, and implementation documentation.
+- Do not publish design-preview artifacts here; design-preview work belongs in `Panuphan-CK/ckace-hr-design-preview`.
+- Because the shared local clone also has a design-preview remote, every push must explicitly name `source`.
+- `push.default=nothing` is intentional.
+- Never force-push unless the Owner explicitly authorizes that specific recovery.
 
 ## Current Owner direction — 2026-10-21
 
 - **Codex Local is the only active implementation assistant for now.**
 - **Use Claude's latest implementation plan and branch history as the primary product/work baseline.**
-- Primary Claude lineage: `origin/claude/project-thread-j4idbg`.
+- Primary Claude lineage: `source/claude/project-thread-j4idbg`.
 - Primary Claude handoff snapshot: `docs/HANDOFF_20261021.md` on that branch.
 - **Owner-confirmed current TEST baseline: TESTm67.**
 - Continue the m67 workstream first.

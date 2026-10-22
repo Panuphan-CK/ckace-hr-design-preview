@@ -344,6 +344,7 @@ async function approvalOptionsFor(
   for (const step of policy.steps) {
     const candidates = await prisma.employee.findMany({
       where: {
+        id: { not: employeeId },
         ...buildLeaveApproverScopeWhere(
           step.scope,
           requester,
@@ -392,9 +393,10 @@ async function approvalOptionsFor(
   };
 }
 
-function validateSelectedApprovers(
+export function validateSelectedApprovers(
   selected: readonly string[],
   options: readonly LeaveApprovalStepOptions[],
+  requesterEmployeeId: string,
 ): void {
   if (selected.length !== options.length) {
     throw new Error("Leave approval chain selection is incomplete");
@@ -420,6 +422,10 @@ function validateSelectedApprovers(
       throw new Error(
         `Selected approver is not eligible for leave step ${step?.stepOrder ?? index + 1}`,
       );
+    }
+
+    if (employeeId === requesterEmployeeId) {
+      throw new Error("Selected approver cannot be the requester");
     }
   }
 }
@@ -775,6 +781,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
           validateSelectedApprovers(
             input.request.approverEmployeeIds,
             approval.options,
+            input.employeeId,
           );
 
           const approvalInstance =

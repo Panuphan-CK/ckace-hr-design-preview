@@ -9740,6 +9740,1794 @@ body::before { background: radial-gradient(circle, rgba(121, 177, 220, .16), tra
   }
 }
 
+/* OWNER FINAL OVERVIEW PRO — 2026-10-22
+   Keep mini metrics icon-free; use color, hierarchy and top accents instead. */
+.dashboard-v2 {
+  --overview-icon-shadow: 0 7px 16px rgba(48, 88, 120, .11), inset 0 1px 0 rgba(255,255,255,.92);
+}
+
+/* Unified soft icon containers across Overview. */
+.dashboard-v2 .stat-icon,
+.dashboard-v2 .board-icon,
+.dashboard-v2 .insight-heading-icon,
+.dashboard-v2 .section-heading-icon,
+.dashboard-v2 .announcement-icon,
+.dashboard-v2 .today-overview-icon,
+.dashboard-v2 .personal-leave-pro-icon,
+.dashboard-v2 .hero-time-status-icon {
+  border: 1px solid rgba(255,255,255,.82);
+  box-shadow: var(--overview-icon-shadow);
+}
+.dashboard-v2 .insight-heading-icon,
+.dashboard-v2 .section-heading-icon,
+.dashboard-v2 .announcement-icon,
+.dashboard-v2 .personal-leave-pro-icon,
+.dashboard-v2 .hero-time-status-icon {
+  border-radius: 11px;
+}
+
+/* TODAY WORK & ACTIVITY — final PRO language for APPROVE / REQUESTS / LEAVE / OVERTIME. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .today-overview-card {
+    overflow: hidden;
+    border-radius: 17px;
+  }
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.leave,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.ot {
+    border-color: color-mix(in srgb, var(--today-accent, #6c8aa1) 31%, white);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,255,255,.10) 45%),
+      var(--today-soft, rgba(255,255,255,.82));
+  }
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals::before,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests::before,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.leave::before,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.ot::before {
+    height: 3px;
+    opacity: .56;
+  }
+  .dashboard-v2 .today-overview-board .today-card-head {
+    position: relative;
+    padding-right: 84px;
+    min-height: 42px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge {
+    top: 11px;
+    right: 10px;
+    min-height: 29px;
+    padding: 4px 8px 4px 6px;
+    gap: 5px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    padding: 2px;
+    box-sizing: content-box;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--today-accent, #6c8aa1) 13%, white);
+  }
+  .dashboard-v2 .today-overview-board .today-card-status-stack {
+    position: absolute;
+    z-index: 4;
+    top: 11px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-status-stack .today-card-badge {
+    position: static;
+    min-height: 29px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-request-id {
+    padding-right: 3px;
+    color: var(--today-accent, #5c7285);
+    font-family: 'Prompt', sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    white-space: nowrap;
+  }
+
+  /* Icon-free 2x2 mini metrics with soft module tones and top highlights. */
+  .dashboard-v2 .today-overview-board .approval-stats,
+  .dashboard-v2 .today-overview-board .request-stats {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    grid-template-rows: repeat(2, minmax(0,1fr));
+    gap: 8px;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat {
+    position: relative;
+    overflow: hidden;
+    padding: 10px 10px 8px;
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--mini-border);
+    border-radius: 12px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.16)),
+      var(--mini-soft);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.96), 0 4px 10px color-mix(in srgb, var(--mini-accent) 7%, transparent);
+  }
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat::before,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--mini-accent);
+    opacity: .48;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat small,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat small {
+    color: color-mix(in srgb, var(--mini-accent) 72%, #314d63);
+    font-size: 9.5px;
+    font-weight: 800;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat b,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat b {
+    color: #17324f;
+    font-size: 21px;
+    font-weight: 850;
+  }
+
+  /* Activity detail: compact five-line audit-style record. */
+  .dashboard-v2 .today-overview-board .activity-detail-pro {
+    margin-top: 5px;
+    padding: 7px 10px;
+    justify-content: center;
+    gap: 0;
+  }
+  .dashboard-v2 .today-overview-board .activity-detail-pro > span {
+    min-height: 22px !important;
+    padding: 2px 0;
+    font-family: 'Prompt', 'Noto Sans Thai', sans-serif;
+    font-size: 9px !important;
+    font-weight: 650;
+    line-height: 1.25 !important;
+  }
+  .dashboard-v2 .today-overview-board .activity-detail-pro > span + span {
+    border-top: 1px solid rgba(125,151,173,.14);
+  }
+  .dashboard-v2 .today-overview-board .activity-detail-pro .activity-person {
+    color: #274f6b;
+    font-weight: 800;
+  }
+  .dashboard-v2 .today-overview-board .activity-detail-pro .activity-org {
+    color: var(--today-accent, #566f84);
+    font-size: 8.5px !important;
+    font-weight: 750;
+  }
+}
+
+/* TODAY WORK & ACTIVITY — PRO-B final color + badge alignment.
+   Mini metrics stay icon-free by Owner decision. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.leave,
+  .dashboard-v2 .today-overview-board .today-overview-card.activity.ot {
+    background-color: var(--today-soft, #f6f9fb);
+    background-image: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.14) 46%);
+    border-color: color-mix(in srgb, var(--today-accent, #6c8aa1) 34%, white);
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-head {
+    align-items: start;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-title {
+    align-self: start;
+    padding-top: 1px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge,
+  .dashboard-v2 .today-overview-board .today-card-status-stack {
+    top: 7px;
+    right: 9px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge,
+  .dashboard-v2 .today-overview-board .today-card-status-stack .today-card-badge {
+    min-height: 28px;
+    padding: 4px 7px 4px 6px;
+    gap: 4px;
+  }
+
+  .dashboard-v2 .today-overview-board .today-card-badge svg {
+    width: 14px;
+    height: 14px;
+    padding: 1px;
+    flex: 0 0 14px;
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat {
+    background-color: var(--mini-soft);
+    background-image: linear-gradient(180deg, rgba(255,255,255,.76), rgba(255,255,255,.16));
+    border-color: var(--mini-border);
+  }
+
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat::before,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat::before {
+    height: 3px;
+    opacity: .52;
+  }
+
+  .dashboard-v2 .today-overview-board .mini-stat-icon {
+    display: none !important;
+  }
+}
+
+/* MY LEAVE STATISTICS — three PRO cards. */
+.dashboard-v2 .personal-leave-pro {
+  min-height: 0;
+}
+.dashboard-v2 .personal-leave-pro-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 12px;
+}
+.dashboard-v2 .personal-leave-pro-card {
+  --leave-accent: #765bc7;
+  --leave-soft: #f1edff;
+  --leave-border: #d9cff4;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--leave-border);
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(255,255,255,.76), var(--leave-soft));
+  box-shadow: 0 8px 18px rgba(64,99,130,.07), inset 0 1px 0 rgba(255,255,255,.94);
+}
+.dashboard-v2 .personal-leave-pro-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--leave-accent);
+  opacity: .5;
+}
+.dashboard-v2 .personal-leave-pro-card.sick {
+  --leave-accent: #258b7e;
+  --leave-soft: #e9f8f3;
+  --leave-border: #c8e5dd;
+}
+.dashboard-v2 .personal-leave-pro-card.business {
+  --leave-accent: #a66d16;
+  --leave-soft: #fff4dd;
+  --leave-border: #ead7ae;
+}
+.dashboard-v2 .personal-leave-pro-head {
+  display: grid;
+  grid-template-columns: 38px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 9px;
+}
+.dashboard-v2 .personal-leave-pro-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  color: var(--leave-accent);
+  background: color-mix(in srgb, var(--leave-accent) 13%, white);
+}
+.dashboard-v2 .personal-leave-pro-icon svg { width: 18px; height: 18px; }
+.dashboard-v2 .personal-leave-pro-head > span:nth-child(2) {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.dashboard-v2 .personal-leave-pro-head small {
+  color: var(--leave-accent);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .05em;
+}
+.dashboard-v2 .personal-leave-pro-head b {
+  color: #31536e;
+  font-size: 12px;
+}
+.dashboard-v2 .personal-leave-pro-quota {
+  padding: 4px 7px;
+  border: 1px solid var(--leave-border);
+  border-radius: 999px;
+  color: var(--leave-accent);
+  background: #fff;
+  font-size: 9px;
+  font-weight: 800;
+}
+.dashboard-v2 .personal-leave-pro-values {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.dashboard-v2 .personal-leave-pro-values em {
+  color: #58778c;
+  font-size: 10.5px;
+  font-style: italic;
+  font-weight: 700;
+}
+.dashboard-v2 .personal-leave-pro-track {
+  height: 7px;
+  display: block;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--leave-accent) 12%, white);
+}
+.dashboard-v2 .personal-leave-pro-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--leave-accent);
+  opacity: .72;
+}
+
+/* ATTENDANCE / TODAY mini cards — REQUESTS-style accent top bars. */
+.dashboard-v2 .attendance-insight .attendance-stat-grid-rich > span {
+  position: relative;
+  overflow: hidden;
+}
+.dashboard-v2 .attendance-insight .attendance-stat-grid-rich > span::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  opacity: .52;
+}
+.dashboard-v2 .attendance-insight .attendance-stat-grid-rich > span:nth-child(1)::before { background: #258b7e; }
+.dashboard-v2 .attendance-insight .attendance-stat-grid-rich > span:nth-child(2)::before { background: #a66d16; }
+.dashboard-v2 .attendance-insight .attendance-stat-grid-rich > span:nth-child(3)::before { background: #765bc7; }
+.dashboard-v2 .attendance-insight .attendance-stat-grid-rich > span:nth-child(4)::before { background: #b4567e; }
+
+/* TEAM CALENDAR PRO. */
+.dashboard-calendar-v2.calendar-pro {
+  padding: 24px;
+  border-color: #c8dced;
+  background:
+    radial-gradient(circle at 86% 10%, rgba(111,141,224,.13), transparent 28%),
+    linear-gradient(145deg, #f7fbff, #edf4ff 58%, #edf9f7);
+}
+.calendar-pro-head {
+  align-items: center;
+}
+.calendar-pro-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.calendar-pro-summary {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.calendar-pro-summary span {
+  padding: 4px 7px;
+  border: 1px solid #d5e2eb;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 9px;
+  font-weight: 800;
+}
+.calendar-pro-summary .teal { color: #258b7e; border-color: #c8e5dd; background: #effaf7; }
+.calendar-pro-summary .purple { color: #765bc7; border-color: #d9cff4; background: #f4f0ff; }
+.calendar-pro-summary .amber { color: #a66d16; border-color: #ead7ae; background: #fff8e9; }
+.calendar-pro-body {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 250px;
+  gap: 16px;
+}
+.calendar-pro-month {
+  min-width: 0;
+}
+.calendar-pro-grid {
+  overflow: hidden;
+  border: 1px solid #d5e3eb;
+  border-radius: 16px;
+  background: rgba(255,255,255,.72);
+}
+.calendar-pro-grid .calendar-v2-weekday {
+  min-height: 30px;
+  display: grid;
+  place-items: center;
+  color: #668096;
+  background: #f1f6fa;
+  font-size: 9px;
+  font-weight: 800;
+}
+.calendar-pro-grid .calendar-v2-day {
+  position: relative;
+  min-height: 58px;
+  padding: 8px;
+  background: rgba(255,255,255,.74);
+}
+.calendar-pro-grid .calendar-v2-day > small {
+  color: #48677d;
+  font-size: 10px;
+  font-weight: 800;
+}
+.calendar-pro-grid .calendar-v2-day.today {
+  background: linear-gradient(145deg, #e9f8f5, #edf1ff);
+  box-shadow: inset 0 0 0 2px rgba(37,139,126,.28);
+}
+.calendar-pro-grid .calendar-v2-day.holiday {
+  background: linear-gradient(145deg, #f4f0ff, #fff);
+}
+.calendar-pro-dots {
+  position: absolute;
+  left: 8px;
+  bottom: 7px;
+  display: flex;
+  gap: 4px;
+}
+.calendar-pro-dots i,
+.calendar-pro-legend i {
+  width: 6px;
+  height: 6px;
+  display: inline-block;
+  border-radius: 50%;
+}
+.calendar-pro-dots .teal, .calendar-pro-legend .teal { background: #38b6a3; }
+.calendar-pro-dots .purple, .calendar-pro-legend .purple { background: #8068d4; }
+.calendar-pro-dots .amber, .calendar-pro-legend .amber { background: #dda63f; }
+.calendar-pro-legend {
+  margin-top: 9px;
+  display: flex;
+  gap: 14px;
+  color: #6b8193;
+  font-size: 9px;
+  font-weight: 700;
+}
+.calendar-pro-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.calendar-pro-agenda {
+  padding: 16px;
+  border: 1px solid #d4e2eb;
+  border-radius: 16px;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 9px 20px rgba(50,94,126,.07);
+}
+.calendar-pro-date {
+  display: grid;
+  justify-items: start;
+}
+.calendar-pro-date small {
+  color: #2b6691;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+.calendar-pro-date strong {
+  color: #17324f;
+  font-family: 'Prompt', sans-serif;
+  font-size: 38px;
+  line-height: 1;
+}
+.calendar-pro-date span {
+  margin-top: 2px;
+  color: #668096;
+  font-size: 10px;
+  font-weight: 750;
+}
+.calendar-pro-agenda-list {
+  margin-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+.calendar-pro-agenda-list article {
+  min-width: 0;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: 30px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e0e8ee;
+  border-radius: 11px;
+  background: #fff;
+}
+.calendar-pro-avatar {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  font-size: 8px;
+  font-weight: 850;
+}
+.calendar-pro-avatar.teal { color: #177f74; background: #e4f7f2; }
+.calendar-pro-avatar.purple { color: #6650b8; background: #eee9ff; }
+.calendar-pro-avatar.amber { color: #9d6819; background: #fff1d5; }
+.calendar-pro-agenda-list article > span:nth-child(2) {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.calendar-pro-agenda-list b {
+  overflow: hidden;
+  color: #31536e;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.calendar-pro-agenda-list small {
+  overflow: hidden;
+  color: #74899a;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.calendar-pro-agenda-list em {
+  color: #668096;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.calendar-pro-next {
+  margin-top: 12px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 2px 8px;
+  border-radius: 11px;
+  background: linear-gradient(145deg, #f2edff, #fff7e8);
+}
+.calendar-pro-next small { grid-column: 1 / -1; color: #765bc7; font-size: 8px; font-weight: 850; }
+.calendar-pro-next b { color: #17324f; font-size: 12px; }
+.calendar-pro-next span { color: #667f91; font-size: 9px; }
+
+/* COMPANY UPDATE PRO. */
+.dashboard-announcements.announcements-pro {
+  padding: 24px;
+  border-color: #ead7d1;
+  background:
+    radial-gradient(circle at 86% 10%, rgba(229,161,133,.14), transparent 28%),
+    linear-gradient(145deg, #fff9f4, #f6f1ff 58%, #edf8fb);
+}
+.announcement-pro-grid {
+  margin-top: 18px;
+  gap: 12px;
+}
+.announcement-pro-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 148px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.80);
+}
+.announcement-pro-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  opacity: .52;
+}
+.announcement-pro-card.holiday::before { background: #258b7e; }
+.announcement-pro-card.medical::before { background: #765bc7; }
+.announcement-pro-card.townhall::before { background: #a66d16; }
+.announcement-pro-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.announcement-pro-tag {
+  padding: 4px 7px;
+  border: 1px solid #d6e1e8;
+  border-radius: 999px;
+  color: #60788b;
+  background: #fff;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .06em;
+}
+.announcement-pro-copy {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.announcement-pro-copy strong {
+  color: #17324f;
+  font-size: 14px;
+}
+.announcement-pro-copy small {
+  overflow: visible;
+  color: #58778c;
+  font-size: 10px;
+  line-height: 1.45;
+  white-space: normal;
+}
+.announcement-pro-foot {
+  margin-top: auto;
+  padding-top: 9px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid rgba(128,153,173,.16);
+}
+.announcement-pro-foot span {
+  color: #31536e;
+  font-size: 9px;
+  font-weight: 850;
+}
+.announcement-pro-foot em {
+  color: #75899a;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@media (max-width: 1180px) {
+  .dashboard-v2 .personal-leave-pro-grid { grid-template-columns: 1fr; }
+  .calendar-pro-head-actions { align-items: flex-end; flex-direction: column; }
+  .calendar-pro-body { grid-template-columns: 1fr; }
+}
+@media (max-width: 620px) {
+  .calendar-pro-summary { justify-content: flex-start; }
+  .calendar-pro-legend { flex-wrap: wrap; }
+  .announcement-pro-card { min-height: 126px; }
+}
+
+/* OWNER OVERVIEW FINAL REVIEW — 2026-10-22
+   UI/UX Pro Max targeted overrides. */
+
+/* 1) TODAY WORK & ACTIVITY: true-card corner badges, icon-free mini metrics,
+      unified soft icon language across APPROVE / REQUESTS / LEAVE / OVERTIME. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .today-overview-card {
+    position: relative;
+  }
+  .dashboard-v2 .today-overview-board .today-card-head {
+    position: static;
+    padding-right: 86px;
+    align-items: flex-start;
+  }
+  .dashboard-v2 .today-overview-board .today-card-title {
+    align-self: flex-start;
+    padding-top: 1px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge,
+  .dashboard-v2 .today-overview-board .today-card-status-stack {
+    right: 8px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge {
+    top: 7px;
+    min-height: 30px;
+    padding: 4px 8px 4px 7px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-badge svg {
+    width: 15px;
+    height: 15px;
+    flex-basis: 15px;
+    padding: 1px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-status-stack {
+    top: 7px;
+  }
+  .dashboard-v2 .today-overview-board .today-card-status-stack .today-card-badge {
+    min-height: 30px;
+  }
+  .dashboard-v2 .today-overview-board .today-overview-card.approvals .approval-stats,
+  .dashboard-v2 .today-overview-board .today-overview-card.requests .request-stats {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    grid-template-rows: repeat(2, minmax(0,1fr));
+    gap: 8px;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat {
+    min-height: 54px;
+    padding: 8px 10px;
+    grid-template-columns: minmax(0,1fr) auto;
+    border-radius: 12px;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat small,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat small {
+    font-size: 9.5px;
+  }
+  .dashboard-v2 .today-overview-board .approval-stats > .mini-stat b,
+  .dashboard-v2 .today-overview-board .request-stats > .mini-stat b {
+    font-size: 21px;
+  }
+  .dashboard-v2 .today-overview-board .activity-person-line {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* 2) Overview icon family: same soft tinted tile treatment as REQUESTS. */
+.dashboard-v2 .stat-icon,
+.dashboard-v2 .board-icon,
+.dashboard-v2 .insight-heading-icon,
+.dashboard-v2 .section-heading-icon,
+.dashboard-v2 .announcement-icon,
+.dashboard-v2 .today-overview-icon,
+.dashboard-v2 .hero-time-status-icon {
+  border: 2px solid rgba(255,255,255,.86);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, currentColor 7%, transparent),
+    0 6px 14px rgba(48,88,120,.09),
+    inset 0 1px 0 rgba(255,255,255,.94);
+}
+.dashboard-v2 .status-board .board-icon.teal,
+.dashboard-v2 .attendance-heading-icon,
+.dashboard-v2 .hero-time-status.is-in .hero-time-status-icon {
+  color: #258b7e;
+  background: #e8f7f3;
+}
+.dashboard-v2 .leave-board .board-icon.purple,
+.dashboard-v2 .calendar-heading-icon,
+.dashboard-v2 .announcement-heading-icon {
+  color: #765bc7;
+  background: #f0ebff;
+}
+.dashboard-v2 .workload-board .board-icon.amber,
+.dashboard-v2 .hero-time-status.is-out .hero-time-status-icon {
+  color: #a66d16;
+  background: #fff1d4;
+}
+.dashboard-v2 .medical-heading-icon {
+  color: #39739d;
+  background: #e9f4fb;
+}
+
+/* 3) Hero attendance: compact PRO tiles, not loose pills. */
+.dashboard-v2 .hero-attendance-status {
+  gap: 9px;
+}
+.dashboard-v2 .hero-time-status {
+  min-height: 44px;
+  padding: 7px 12px 7px 8px;
+  gap: 8px;
+  border-radius: 14px;
+  border-color: rgba(123,158,180,.25);
+  background: rgba(255,255,255,.68);
+  box-shadow: 0 8px 18px rgba(55,105,138,.09), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.dashboard-v2 .hero-time-status-icon {
+  width: 30px;
+  height: 30px;
+  flex-basis: 30px;
+  border-radius: 10px;
+}
+.dashboard-v2 .hero-time-status-icon svg {
+  width: 15px;
+  height: 15px;
+}
+.dashboard-v2 .hero-time-status small {
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 8.5px;
+  font-weight: 750;
+  letter-spacing: .03em;
+}
+.dashboard-v2 .hero-time-status b {
+  margin-top: 3px;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* 4) MY LEAVE STATISTICS: preserve classic layout; highlight only used / remaining values. */
+.dashboard-v2 .personal-leave-classic {
+  background: linear-gradient(145deg, rgba(255,255,255,.94), rgba(247,249,252,.88));
+}
+.dashboard-v2 .personal-leave-classic .status-row-rich {
+  background: transparent;
+}
+.dashboard-v2 .personal-leave-classic .leave-progress-title {
+  align-items: center;
+}
+.dashboard-v2 .personal-leave-classic .leave-classic-values {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.dashboard-v2 .personal-leave-classic .leave-classic-values em,
+.dashboard-v2 .personal-leave-classic .leave-classic-values strong {
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.dashboard-v2 .personal-leave-classic .leave-classic-values em {
+  color: #9b6416;
+  background: #fff1d5;
+}
+.dashboard-v2 .personal-leave-classic .leave-classic-values strong {
+  color: #22796f;
+  background: #e4f7f2;
+}
+
+/* 5) TEAM CALENDAR: no legend-summary box; profile photos under day number,
+      compact TODAY/NEXT records and a grey company holiday. */
+.calendar-pro-summary,
+.calendar-pro-legend {
+  display: none !important;
+}
+.calendar-pro-body {
+  grid-template-columns: minmax(0,1fr) 300px;
+}
+.calendar-pro-grid .calendar-v2-day {
+  min-height: 64px;
+  padding: 7px 8px;
+}
+.calendar-pro-grid .calendar-v2-day > small {
+  display: block;
+  line-height: 1;
+}
+.calendar-profile-stack {
+  position: absolute;
+  top: 24px;
+  left: 7px;
+  right: 7px;
+  max-height: 34px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 2px;
+  overflow: hidden;
+}
+.calendar-profile-stack img {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 5px rgba(49,83,110,.14);
+}
+.calendar-pro-grid .calendar-v2-day.company-holiday {
+  color: #697783;
+  background: #eef1f3;
+  box-shadow: inset 0 0 0 1px #d9dfe3;
+}
+.calendar-pro-grid .calendar-v2-day.company-holiday > small {
+  color: #66737d;
+}
+.calendar-holiday-label {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 7px;
+  overflow: hidden;
+  color: #717d86;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 7.5px;
+  font-weight: 750;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.calendar-pro-agenda {
+  padding: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.calendar-agenda-section {
+  display: grid;
+  gap: 6px;
+}
+.calendar-pro-date {
+  display: block;
+}
+.calendar-pro-date strong {
+  display: block;
+  color: #31536e;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 10.5px;
+  font-weight: 850;
+  line-height: 1.2;
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+.calendar-pro-date.next strong {
+  color: #765bc7;
+}
+.calendar-agenda-card {
+  min-width: 0;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: 30px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #dce6ec;
+  border-radius: 12px;
+  background: #fff;
+}
+.calendar-agenda-card > img {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  object-fit: cover;
+}
+.calendar-agenda-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.calendar-agenda-copy b,
+.calendar-agenda-copy small,
+.calendar-status,
+.calendar-pro-next small,
+.calendar-pro-next span {
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+}
+.calendar-agenda-copy b {
+  overflow: hidden;
+  color: #31536e;
+  font-size: 8.5px;
+  font-weight: 750;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.calendar-agenda-copy small {
+  color: #60798d;
+  font-size: 8.5px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+.calendar-status {
+  justify-self: end;
+  padding: 4px 7px;
+  border-radius: 999px;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.calendar-status.approved {
+  color: #22796f;
+  background: #e4f7f2;
+}
+.calendar-status.pending {
+  color: #9b6416;
+  background: #fff1d5;
+}
+.calendar-pro-next {
+  margin-top: 0;
+  padding: 9px 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3px;
+  border: 1px solid #e2d9f5;
+  background: #f7f3ff;
+}
+.calendar-pro-next small {
+  color: #765bc7;
+  font-size: 8.5px;
+  font-weight: 850;
+}
+.calendar-pro-next span {
+  color: #31536e;
+  font-size: 8.5px;
+  font-weight: 750;
+}
+
+/* 6) COMPANY UPDATE: 4 equal compact cards with icon + date + source + Thai title. */
+.announcements-pro .announcements-head h2 {
+  margin-bottom: 0;
+}
+.announcement-pro-grid {
+  grid-template-columns: repeat(4, minmax(0,1fr));
+}
+.announcement-pro-card {
+  min-height: 132px;
+  padding: 12px;
+  gap: 7px;
+  border: 1px solid #dce6ec;
+}
+.announcement-pro-top {
+  align-items: center;
+}
+.announcement-pro-top .announcement-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+}
+.announcement-pro-top .announcement-icon svg {
+  width: 15px;
+  height: 15px;
+}
+.announcement-date {
+  margin-left: auto;
+  color: #60778a;
+  font-family: 'Prompt',sans-serif;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .04em;
+}
+.announcement-source {
+  color: #718697;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 8px;
+  font-weight: 750;
+}
+.announcement-pro-copy {
+  gap: 4px;
+}
+.announcement-pro-copy strong,
+.announcement-pro-copy small {
+  color: #31536e;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+}
+.announcement-pro-copy strong {
+  font-size: 11px;
+  font-weight: 850;
+}
+.announcement-pro-copy small {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.announcement-pro-card.holiday .announcement-pro-copy strong,
+.announcement-pro-card.holiday .announcement-pro-copy small {
+  color: #258b7e;
+}
+
+@media (max-width: 1180px) {
+  .announcement-pro-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+@media (max-width: 620px) {
+  .calendar-pro-body,
+  .announcement-pro-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Keep the employee/team/department identity on one line in compact activity cards. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .activity-detail-pro > .activity-person-line {
+    font-size: 7.8px !important;
+    letter-spacing: -.015em;
+    white-space: nowrap;
+  }
+}
+
+/* Announcement metadata alignment: date with source directly below at the top-right. */
+.announcement-meta {
+  margin-left: auto;
+  min-width: 0;
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+}
+.announcement-meta .announcement-date,
+.announcement-meta .announcement-source {
+  display: block;
+  text-align: right;
+  white-space: nowrap;
+}
+.announcement-icon.blue {
+  color: #4e78a6;
+  background: #edf5ff;
+}
+.announcement-pro-card.people::before {
+  background: #4e78a6;
+}
+
+/* OWNER OVERVIEW REVIEW — 2026-10-22
+   UXUI PRO: restore mini leave cards, align section icons, calendar and company update. */
+.dashboard-v2 .owner-leave-mini > .board-head .board-icon.purple {
+  color: #c76b3b !important;
+  background: #ffeadd !important;
+  border-color: #efc3aa !important;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-card {
+  min-height: 154px;
+  padding: 14px;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-head {
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-icon {
+  border: 1px solid color-mix(in srgb, var(--leave-accent) 30%, white);
+  border-radius: 12px;
+  color: var(--leave-accent);
+  background: color-mix(in srgb, var(--leave-accent) 12%, white);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-quota {
+  min-height: 27px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-quota svg {
+  width: 12px;
+  height: 12px;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-values {
+  margin-top: 12px;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-values em {
+  padding: 0;
+  color: var(--leave-accent);
+  background: transparent !important;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 10.5px;
+  font-style: italic;
+  font-weight: 750;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-track {
+  height: 25px;
+  margin-top: 9px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--leave-accent) 20%, white);
+  background: color-mix(in srgb, var(--leave-accent) 10%, white);
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-track i {
+  min-width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  opacity: .86;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-track i b {
+  padding-left: 9px;
+  color: #fff;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 10.5px;
+  font-style: italic;
+  font-weight: 850;
+  line-height: 1;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-track > em {
+  position: absolute;
+  right: 9px;
+  color: var(--leave-accent);
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 10.5px;
+  font-style: italic;
+  font-weight: 850;
+  line-height: 1;
+}
+
+/* TEAM CALENDAR follows its blue/teal main-card tone instead of the global purple icon. */
+.dashboard-v2 .calendar-heading-icon {
+  color: #39739d !important;
+  background: #e9f4fb !important;
+  border-color: #c8dced !important;
+}
+.calendar-pro-grid .calendar-v2-day {
+  display: flex;
+  flex-direction: column;
+}
+.calendar-day-head {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.calendar-pro-grid .calendar-day-head > small {
+  flex: 0 0 auto;
+  color: #48677d;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1;
+}
+.calendar-profile-stack {
+  position: static !important;
+  inset: auto !important;
+  max-height: none !important;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 2px;
+  overflow: visible;
+}
+.calendar-profile-stack img {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border-width: 2px;
+}
+.calendar-pro-grid .calendar-v2-day.company-holiday {
+  color: #a23e47;
+  background: linear-gradient(145deg, #fff1f2, #fff8f8);
+  box-shadow: inset 0 0 0 1px #efc9cd;
+}
+.calendar-pro-grid .calendar-v2-day.company-holiday .calendar-day-head > small {
+  color: #c83f49;
+}
+.calendar-holiday-label {
+  position: static !important;
+  inset: auto !important;
+  margin: auto 0;
+  overflow: visible;
+  color: #c83f49 !important;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 10.5px !important;
+  font-weight: 850 !important;
+  line-height: 1.25;
+  text-align: center;
+  text-overflow: clip;
+  white-space: normal !important;
+}
+.calendar-agenda-holiday-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #efc9cd;
+  border-radius: 9px;
+  color: #c83f49;
+  background: #fff0f1;
+}
+.calendar-agenda-holiday-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.calendar-holiday-card {
+  border-color: #efc9cd;
+  background: #fffafa;
+}
+.calendar-holiday-card .calendar-agenda-copy b {
+  color: #9f3741;
+}
+.calendar-status.holiday {
+  color: #b43f49;
+  background: #ffe8ea;
+}
+
+/* COMPANY UPDATE follows its warm main-card tone and restores compact corner badges. */
+.dashboard-v2 .announcement-heading-icon {
+  color: #b36d49 !important;
+  background: #fff0e8 !important;
+  border-color: #ead0c4 !important;
+}
+.announcement-pro-card {
+  min-height: 140px;
+}
+.announcement-pro-top {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+}
+.announcement-pro-top .announcement-icon {
+  width: 34px;
+  height: 34px;
+}
+.announcement-pro-top .announcement-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.announcement-meta {
+  margin-left: 0;
+  justify-items: start;
+  gap: 2px;
+}
+.announcement-meta .announcement-date,
+.announcement-meta .announcement-source {
+  margin-left: 0;
+  text-align: left;
+}
+.announcement-date {
+  color: #4f6c82;
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: .035em;
+}
+.announcement-source {
+  color: #718697;
+  font-size: 9.5px;
+  font-weight: 750;
+}
+.announcement-pro-tag {
+  align-self: start;
+  justify-self: end;
+  min-height: 25px;
+  padding: 5px 8px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 8.5px;
+  font-weight: 850;
+  line-height: 1;
+}
+.announcement-pro-tag.is-new {
+  color: #a15e18;
+  border-color: #efd3a7;
+  background: #fff3dd;
+}
+.announcement-pro-tag.is-benefit {
+  color: #6752bb;
+  border-color: #d4c8f4;
+  background: #f1edff;
+}
+.announcement-pro-tag.is-event {
+  color: #167d74;
+  border-color: #bee1d9;
+  background: #e9f8f3;
+}
+.announcement-pro-copy {
+  gap: 5px;
+}
+.announcement-pro-copy strong {
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+.announcement-pro-copy small {
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+@media (max-width: 1180px) {
+  .dashboard-v2 .owner-leave-mini .personal-leave-pro-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 620px) {
+  .announcement-pro-top {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+  }
+}
+
+/* OWNER OVERVIEW REVIEW ROUND 2 — 2026-10-22
+   Typography normalization, semantic leave icons, calendar alignment,
+   announcement metadata cleanup, and stacked PRO attendance status. */
+
+/* MY LEAVE STATISTICS — use the same Prompt/Noto card hierarchy as Overview. */
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-card {
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-icon {
+  width: 40px;
+  height: 40px;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-icon svg {
+  width: 21px;
+  height: 21px;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-head small {
+  color: var(--leave-accent);
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .045em;
+  line-height: 1.15;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-head b {
+  margin-top: 2px;
+  color: #17324f;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 13.5px;
+  font-weight: 850;
+  line-height: 1.25;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-quota {
+  padding: 5px 8px;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-values {
+  margin-top: 14px;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-values em {
+  color: var(--leave-accent);
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-track i b,
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-track > em {
+  font-size: 11px;
+}
+
+/* ATTENDANCE / TODAY date badge — same typography as other Overview badges. */
+.dashboard-v2 .attendance-insight .attendance-date-badge {
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: .025em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* TEAM CALENDAR — true vertical centering for the company holiday and larger agenda text. */
+.calendar-pro-body {
+  grid-template-columns: minmax(0,1fr) 360px;
+}
+.calendar-pro-grid .calendar-v2-day.company-holiday {
+  position: relative;
+}
+.calendar-pro-grid .calendar-v2-day.company-holiday .calendar-holiday-label {
+  position: absolute !important;
+  top: 50% !important;
+  right: 7px !important;
+  bottom: auto !important;
+  left: 7px !important;
+  margin: 0 !important;
+  transform: translateY(-50%);
+  font-size: 11px !important;
+  line-height: 1.2;
+}
+.calendar-pro-agenda .calendar-agenda-card {
+  padding: 9px;
+  grid-template-columns: 32px minmax(0,1fr) auto;
+  gap: 9px;
+}
+.calendar-pro-agenda .calendar-agenda-card > img {
+  width: 32px;
+  height: 32px;
+}
+.calendar-pro-agenda .calendar-agenda-copy {
+  gap: 3px;
+}
+.calendar-pro-agenda .calendar-agenda-copy b {
+  overflow: visible;
+  font-size: 10.25px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-overflow: clip;
+  white-space: normal;
+}
+.calendar-pro-agenda .calendar-agenda-copy small {
+  overflow: visible;
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1.35;
+  text-overflow: clip;
+  white-space: normal;
+}
+.calendar-pro-agenda .calendar-status {
+  font-size: 8.5px;
+}
+
+/* COMPANY UPDATE — date/source use one typography scale; date has no chip background. */
+.announcement-pro-card .announcement-date,
+.announcement-pro-card .announcement-source {
+  margin: 0;
+  padding: 0;
+  color: #60778a;
+  background: transparent !important;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: .02em;
+  line-height: 1.3;
+}
+.announcement-pro-card .announcement-source {
+  color: #60778a;
+  letter-spacing: 0;
+}
+
+/* CHECK IN / CHECK OUT — stacked, right-aligned PRO status cards. */
+@media (min-width: 841px) {
+  .dashboard-v2 .hero-attendance-status {
+    top: 58px;
+    right: 46px;
+    width: 202px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+  }
+}
+.dashboard-v2 .hero-time-status {
+  position: relative;
+  min-height: 50px;
+  padding: 8px 11px 8px 9px;
+  overflow: hidden;
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(255,255,255,.91), rgba(244,250,253,.74));
+  box-shadow: 0 10px 22px rgba(45,94,126,.12), inset 0 1px 0 rgba(255,255,255,.96);
+}
+.dashboard-v2 .hero-time-status::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: 3px;
+}
+.dashboard-v2 .hero-time-status.is-in {
+  border-color: rgba(74,184,165,.34);
+}
+.dashboard-v2 .hero-time-status.is-in::before {
+  background: #38ad9e;
+}
+.dashboard-v2 .hero-time-status.is-out {
+  border-color: rgba(224,171,77,.38);
+}
+.dashboard-v2 .hero-time-status.is-out::before {
+  background: #d69a34;
+}
+.dashboard-v2 .hero-time-status-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+}
+.dashboard-v2 .hero-time-status small {
+  color: #668096;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .025em;
+  line-height: 1.15;
+}
+.dashboard-v2 .hero-time-status b {
+  margin-top: 4px;
+  color: #17324f;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 12.5px;
+  font-weight: 850;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 840px) {
+  .dashboard-v2 .hero-attendance-status {
+    flex-direction: column;
+    align-items: stretch;
+    width: min(100%, 240px);
+  }
+}
+
+/* OWNER OVERVIEW MANAGER POLISH ROUND 3 — 2026-10-22
+   Larger activity details, corrected vacation icon, compact right-aligned
+   CHECK-IN/CHECK-OUT cards, and TEAM STATUS-style company metadata. */
+
+/* LEAVE / OVERTIME activity audit lines — readable at manager 4-card density. */
+@media (min-width: 1181px) {
+  .dashboard-v2 .today-overview-board .activity-detail-pro {
+    margin-top: 6px;
+    padding: 8px 10px;
+    justify-content: flex-start;
+  }
+  .dashboard-v2 .today-overview-board .activity-detail-pro > span {
+    min-height: 24px !important;
+    padding: 3px 0;
+    overflow: visible !important;
+    font-family: 'Prompt','Noto Sans Thai',sans-serif;
+    font-size: 10.5px !important;
+    font-weight: 700;
+    line-height: 1.35 !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+  }
+  .dashboard-v2 .today-overview-board .activity-detail-pro > .activity-person-line {
+    color: #274f6b;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.01em !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+  }
+}
+
+/* VACATION semantic icon — cloud + beach chair + sea waves. */
+.dashboard-v2 .owner-leave-mini .personal-leave-pro-card.vacation .personal-leave-pro-icon svg {
+  width: 23px;
+  height: 23px;
+  stroke-width: 1.75;
+}
+
+/* CHECK-IN / CHECK-OUT — same label typography as REQUESTS, compact to content. */
+@media (min-width: 841px) {
+  .dashboard-v2 .hero-attendance-status {
+    top: 58px;
+    right: 46px;
+    width: auto !important;
+    align-items: flex-end !important;
+    gap: 7px;
+  }
+}
+.dashboard-v2 .hero-time-status {
+  width: 141px !important;
+  min-width: 141px !important;
+  max-width: 141px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  flex: 0 0 141px;
+  padding: 7px 11px 7px 9px;
+  gap: 8px;
+}
+.dashboard-v2 .hero-time-status small {
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: .035em;
+  line-height: 1.05;
+}
+.dashboard-v2 .hero-time-status b {
+  margin-top: 4px;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+.dashboard-v2 .hero-time-status.is-in {
+  color: #177e75;
+  border-color: #a9d8d5;
+  background: linear-gradient(145deg, #fbfffe 0%, #e8f8f4 100%);
+  box-shadow: 0 9px 20px rgba(29,126,117,.12), inset 0 1px 0 rgba(255,255,255,.96);
+}
+.dashboard-v2 .hero-time-status.is-in::before {
+  background: #2aa395;
+}
+.dashboard-v2 .hero-time-status.is-in .hero-time-status-icon {
+  color: #177e75;
+  border-color: #b9e1dc;
+  background: #ddf5ef;
+}
+.dashboard-v2 .hero-time-status.is-in small {
+  color: #177e75;
+}
+.dashboard-v2 .hero-time-status.is-in b {
+  color: #28556f;
+}
+.dashboard-v2 .hero-time-status.is-out {
+  color: #b75569;
+  border-color: #efc7d0;
+  background: linear-gradient(145deg, #fffdfd 0%, #fff0f3 100%);
+  box-shadow: 0 9px 20px rgba(183,85,105,.10), inset 0 1px 0 rgba(255,255,255,.96);
+}
+.dashboard-v2 .hero-time-status.is-out::before {
+  background: #dc7d90;
+}
+.dashboard-v2 .hero-time-status.is-out .hero-time-status-icon {
+  color: #c45f73;
+  border-color: #f0cad2;
+  background: #ffe5ea;
+}
+.dashboard-v2 .hero-time-status.is-out small {
+  color: #c45f73;
+}
+.dashboard-v2 .hero-time-status.is-out b {
+  color: #7e5360;
+}
+@media (max-width: 840px) {
+  .dashboard-v2 .hero-attendance-status {
+    width: auto !important;
+    align-items: flex-start;
+  }
+  .dashboard-v2 .hero-time-status {
+    width: 141px !important;
+    min-width: 141px !important;
+    max-width: 141px !important;
+  }
+}
+
+/* COMPANY UPDATE metadata — TEAM STATUS typography/color language. */
+.announcement-pro-card .announcement-meta {
+  gap: 1px;
+}
+.announcement-pro-card .announcement-date,
+.announcement-pro-card .announcement-source {
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  border: 0;
+  box-shadow: none;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1.25;
+}
+.announcement-pro-card .announcement-date {
+  color: var(--announcement-accent);
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .025em;
+}
+.announcement-pro-card .announcement-source {
+  color: #111827;
+  background: none !important;
+  background-image: none !important;
+  -webkit-text-fill-color: currentColor;
+  font-family: 'Prompt','Noto Sans Thai',sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+/* OWNER OVERVIEW MANAGER POLISH ROUND 4 — 2026-10-22
+   COMPANY UPDATE subcards now follow REQUESTS mini-card color logic. */
+.announcement-pro-card {
+  --announcement-accent: #70879a;
+  --announcement-soft: #f5f8fa;
+  --announcement-border: #dce6ec;
+  border: 1px solid var(--announcement-border) !important;
+  background-color: var(--announcement-soft) !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.18)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.96),
+    0 5px 13px color-mix(in srgb, var(--announcement-accent) 9%, transparent);
+}
+.announcement-pro-card.holiday {
+  --announcement-accent: #258b7e;
+  --announcement-soft: #e9f7f3;
+  --announcement-border: #c5e2dc;
+}
+.announcement-pro-card.medical {
+  --announcement-accent: #765bc7;
+  --announcement-soft: #f2edff;
+  --announcement-border: #ddd2f6;
+}
+.announcement-pro-card.townhall {
+  --announcement-accent: #a66d16;
+  --announcement-soft: #fff3dc;
+  --announcement-border: #ead6ae;
+}
+.announcement-pro-card.people {
+  --announcement-accent: #4e78a6;
+  --announcement-soft: #edf5ff;
+  --announcement-border: #cdddec;
+}
+.announcement-pro-card::before {
+  background: var(--announcement-accent) !important;
+  opacity: .48;
+}
+.announcement-pro-card .announcement-icon {
+  color: var(--announcement-accent) !important;
+  border-color: color-mix(in srgb, var(--announcement-accent) 24%, white) !important;
+  background: color-mix(in srgb, var(--announcement-accent) 12%, white) !important;
+}
+.announcement-pro-card .announcement-pro-copy strong {
+  color: var(--announcement-accent) !important;
+}
+.announcement-pro-card .announcement-pro-copy small {
+  color: color-mix(in srgb, var(--announcement-accent) 56%, #314d63) !important;
+}
+.announcement-pro-card .announcement-pro-tag {
+  border-color: color-mix(in srgb, var(--announcement-accent) 28%, white) !important;
+  color: var(--announcement-accent) !important;
+  background: color-mix(in srgb, var(--announcement-accent) 10%, white) !important;
+}
+
 /* Leave detail pass: give the leave workspace the same information density as Overview. */
 .page-shell.leave-page .leave-detail-grid {
   margin-top: 18px;

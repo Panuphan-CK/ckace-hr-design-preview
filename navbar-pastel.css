@@ -1,0 +1,32 @@
+/* CKACE pastel navigation — design preview only; scoped to existing header */
+.topbar.ck-navbar{min-height:82px;padding:10px clamp(12px,2vw,30px);gap:12px;display:flex;flex-wrap:nowrap;color:#173d60;background:linear-gradient(115deg,rgba(250,253,255,.98),rgba(228,244,255,.98) 50%,rgba(240,237,255,.96));border-bottom:1px solid #cbdfea;box-shadow:0 12px 32px #386b8e20;backdrop-filter:blur(16px);isolation:isolate}
+.ck-navbar .brand{gap:7px;max-width:170px;min-width:125px;color:#163e64}
+.ck-navbar .brand-logo{width:152px;max-width:100%;height:52px;display:block;object-fit:contain}
+.ck-navbar .ck-app-switch{position:relative;flex:none}
+.ck-navbar .ck-app-trigger{display:flex;gap:7px;align-items:center;justify-content:center;background:linear-gradient(145deg,#fff,#ebf5ff);border:1px solid #c4ddee;border-radius:15px;min-height:43px;padding:0 12px;color:#245b88;font-weight:800;cursor:pointer;box-shadow:0 5px 15px #6485a31c}
+.ck-navbar .ck-app-trigger svg{width:18px;height:18px}
+.ck-navbar .ck-app-trigger[aria-expanded=true]{background:#dff3f5;border-color:#8cc9d0}
+.ck-navbar .ck-app-panel{position:absolute;top:calc(100% + 12px);left:0;width:290px;padding:14px;z-index:100;background:#f8fcff;border:1px solid #c8deee;box-shadow:0 22px 48px #2b526947;border-radius:20px}
+.ck-navbar .ck-app-panel[hidden]{display:none}
+.ck-navbar .ck-app-panel h2{margin:0 0 9px;font:700 15px 'Mitr',sans-serif}
+.ck-navbar .ck-app-option{width:100%;display:flex;align-items:center;text-align:left;gap:10px;padding:11px;border:1px solid transparent;border-radius:13px;background:transparent;color:#234a6d;cursor:pointer}
+.ck-navbar .ck-app-option:hover,.ck-navbar .ck-app-option:focus-visible{background:#eaf4ff}
+.ck-navbar .ck-app-option .ck-app-symbol{display:grid;place-items:center;flex:none;width:38px;height:38px;background:#e2edff;border-radius:12px;color:#3875ae}
+.ck-navbar .ck-app-option span:nth-child(2){display:flex;flex-direction:column;gap:2px}
+.ck-navbar .ck-app-option small{color:#6d889b;font-size:10px}
+.ck-navbar .ck-app-option[aria-current=true]{background:#e2f6ed;border-color:#b9e0d1}
+.ck-navbar .main-nav{display:flex;align-items:center;justify-content:center;gap:3px;min-width:0;flex:1}
+.ck-navbar .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:1 1 auto;min-width:54px;min-height:56px;padding:7px 5px;border-radius:15px;color:#386b91;font-size:11px;font-weight:800;white-space:nowrap}
+.ck-navbar .nav-item .nav-item-icon{display:block}
+.ck-navbar .nav-item svg{width:19px;height:19px}
+.ck-navbar .nav-item:hover{background:#ebf5ff;color:#205d93}
+.ck-navbar .nav-item.active{background:linear-gradient(145deg,#c8e8ff,#e0ebff);border:1px solid #9ecde9;color:#175687;box-shadow:0 5px 14px #85b7d52e}
+.ck-navbar .nav-item.active:after{display:none}
+.ck-navbar .topbar-actions{display:flex;flex:none;margin-left:0;gap:6px}
+.ck-navbar .icon-action,.ck-navbar .topbar-action,.ck-navbar .profile-chip{border:1px solid #c5dceb;color:#2a648a;background:#f7fbff;border-radius:13px;min-height:38px}
+.ck-navbar .icon-action{width:38px;height:38px}
+.ck-navbar .profile-chip{padding:4px 8px}
+.ck-navbar .avatar{background:#d9eeff;color:#1b6a96}
+.ck-navbar .topbar-divider{background:#c3d9e8}
+@media(max-width:1250px){.topbar.ck-navbar{flex-wrap:wrap}.ck-navbar .main-nav{order:3;flex-basis:100%;width:100%;overflow-x:auto;justify-content:flex-start}.ck-navbar .nav-item{flex:1 0 74px}.ck-navbar .topbar-actions{margin-left:auto}}
+@media(max-width:690px){.ck-navbar .brand{min-width:108px;max-width:116px}.ck-navbar .brand-logo{height:40px}.ck-navbar .ck-app-trigger{padding:0 9px}.ck-navbar .ck-app-trigger .ck-app-label{display:none}.ck-navbar .profile-name,.ck-navbar .profile-chip .chevron{display:none}.ck-navbar .main-nav{margin:0}.ck-navbar .nav-item{font-size:10px}.ck-navbar .nav-item .nav-item-icon{display:block}.ck-navbar .topbar-action{display:none}.ck-navbar .ck-app-panel{left:-100px;max-width:calc(100vw - 24px)}}

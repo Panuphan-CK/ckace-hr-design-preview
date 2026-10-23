@@ -220,6 +220,15 @@ body:has(.ck-app) { background: var(--ck-bg); }
   .ck-orb { width: 88px; height: 88px; }
   .ck-eform { grid-template-columns: 1fr; }
   .ck-wrap, .ck-legacy.ck-wrap, .ck-main .ck-legacy.desktop-content.main-content { padding: 20px 14px 80px; }
+  /* Setting controls sit on the right edge; keep their accessible tooltip inside the viewport. */
+  .ck-srow-c .ck-dot-tip {
+    left: auto;
+    right: 0;
+    transform: none;
+    max-width: calc(100vw - 32px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }
 
 .ck-hero-act { margin-top: 18px; }

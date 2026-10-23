@@ -4,7 +4,7 @@ Updated: 2026-10-23 Asia/Bangkok
 
 ## WEB-LEAVE-05 — TEST rollout + authenticated role matrix rerun
 
-Status: **PARTIAL — TESTm70 rollout passed; employee/manager hosted sessions remain unverified**
+Status: **PARTIAL — role matrix verified; local responsive fix ready, TESTm71 verification pending**
 Priority: **P1 — current TEST verification**
 
 Objective / why now:
@@ -42,12 +42,19 @@ TESTm70 rollout evidence (Owner explicitly said `Build`):
 - Public `/api/health` = `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m70`.
 - Firebase TEST release `projects/ckrr-leave-system-2026/sites/ckrr-leave-system-2026/releases/1792730304686000` completed in the approved pipeline.
 - Authenticated browser rerun for current elevated `TEST` / `EMPLOYEE SUPERADMIN` session: `/desktop`, Leave, Leave approvals, Reports and role-management routes loaded without route denial; narrow viewport `695x668` had `documentWidth=690`, `clientWidth=690`, and no `.ck-sh` overflow offender.
+- Authenticated Manager session (`หัวหน้า`) on TESTm70: self-service (`/desktop`, Leave, Attendance, Overtime, Time correction, Medical, Calendar, Requests), all four approval hashes, Reports, Announcements, and permitted admin routes loaded without denial; `/desktop/admin/management#roles` failed closed with `ไม่มีสิทธิ์ใช้งานหน้านี้` as expected. No business action was submitted.
+- Manager responsive check at the hosted viewport (`innerWidth=695`): all tested routes were within the viewport except `/desktop/admin`, where `documentWidth=696` vs `clientWidth=690`; the only identified offender was `.ck-dot-tip` ending at `right=695.9`. Record as a P3 responsive follow-up; do not claim full no-overflow PASS for Manager until resolved or explicitly accepted.
+- The Owner-opened session currently displays `TEST` and Profile roles `EMPLOYEE`, `SUPERADMIN` with `58` permissions. Treat it as the already-known elevated/superadmin fixture, not as the plain Employee deny-case. Its approvals/reports/admin access therefore does not satisfy the Employee acceptance criterion.
+- Read-only Users view confirms the plain Employee fixture is the separate account labelled `พนักงาน`; `TEST` and `SuperAdmin คนที่สอง` are elevated, while `หัวหน้า` is the Manager fixture.
+- Plain Employee session (`พนักงาน`) on TESTm70 passed the matrix: Home, Attendance, Leave, Overtime, Time correction, Medical, Calendar, Requests, Profile, Inbox, Benefits and read-only Announcements loaded; all approval hashes, Reports, announcement management, Admin, Management, Professional roles and Approval policies failed closed with `ไม่มีสิทธิ์ใช้งานหน้านี้`. Dashboard NAV exposed only permitted self-service links and had no horizontal overflow at `innerWidth=695` (`documentWidth=690`, `clientWidth=690`). No business action was submitted.
+- Local fix applied in `apps/web/src/app/desktop/ui/ck-v2.css`: at `max-width: 760px`, `SettingRow` status-dot tooltips anchor to the right edge, wrap long labels, and cap width to the viewport. This targets the proven `.ck-dot-tip` overflow without changing permissions or business behavior.
+- Local verification: web lint **PASS**; targeted `desktop-route-access.test.ts` **7/7 PASS**; Webpack production build compiled successfully before the existing TypeScript contract errors stopped the build. Turbopack build remains blocked by the isolated-worktree `node_modules` symlink error. No TESTm71 build/deploy was run.
 
 Read-only preflight evidence:
 - API `ckace-hr-api-test-m69` = 100%; Web `ckace-hr-web-test-m69` = 100%.
 - Migration job latest execution `ckace-hr-migrate-test-n9x6v` succeeded.
 - Existing regional Trigger is present and points to the Project B GitHub connection; no Trigger/configuration mutation was made.
-- Current browser session is `TEST`, roles `EMPLOYEE SUPERADMIN`, 58 permissions. Separate employee/manager authenticated sessions are still required; no credentials were created, changed or requested in chat.
+- Current verification covered the elevated `TEST` / `EMPLOYEE SUPERADMIN` fixture, Manager `หัวหน้า`, and plain Employee `พนักงาน`; no credentials were created, changed or requested in chat.
 
 Next action:
-Keep this TASK active until the Owner supplies/opens the employee and manager TEST sessions one at a time, then rerun their allowed/denied NAV and direct-URL matrix on m70 without changing any business data. Do not start a new release or touch Production.
+Keep this TASK active until the Owner explicitly says `Build`; then use the approved TEST trigger for m71 and recheck Manager `/desktop/admin` at the hosted viewport, including no overflow and tooltip readability. Do not touch Production.

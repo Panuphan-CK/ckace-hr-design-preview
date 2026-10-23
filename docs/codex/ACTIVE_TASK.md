@@ -2,46 +2,50 @@
 
 Updated: 2026-10-23 Asia/Bangkok
 
-## WEB-LEAVE-05 — Fix Manager tooltip readability and prepare TESTm72
+## WEB-LEAVE-06 — Full authenticated NAV + direct-URL regression on TESTm72
 
-Status: **PARTIAL — TESTm71 has no overflow but tooltip readability fails; local CSS fix ready, Build authorization pending**
-Priority: **P1 — current TEST acceptance gate**
+Status: **READY — TESTm72 rollout and Manager responsive tooltip gate PASS; full role regression is next**
+Priority: **P1 — current TEST confidence gate**
 
 Objective / why now:
-Correct the remaining hosted Manager responsive defect found on TESTm71: status-dot tooltips stay inside the viewport but collapse to the 28px status-dot width and wrap each label into an excessively tall column. Promote the local fix only after the Owner explicitly says `Build`, then rerun the Manager check on TESTm72.
+Re-run the complete authenticated Employee/Manager/SuperAdmin NAV and direct-URL matrix on the final TESTm72 release after the responsive tooltip fix, proving that the CSS-only change did not regress permissions, navigation or narrow-viewport behavior.
 
 Scope:
-- Local CSS fix in `apps/web/src/app/desktop/ui/ck-v2.css` only: keep the right-edge tooltip within the viewport while allowing natural readable width, capped at 320px.
-- After explicit Owner `Build` authorization, use only the approved regional trigger for TESTm72 and then verify with the Owner-controlled Manager fixture `หัวหน้า`.
-- Recheck `/desktop/admin` at the hosted narrow viewport (target `innerWidth=695`): `document.documentElement.scrollWidth <= clientWidth`, no right-edge tooltip overflow, and tooltip labels render as readable horizontal text.
-- Do not submit business actions.
+- Use Owner-controlled TEST sessions for plain Employee `พนักงาน`, Manager `หัวหน้า`, and the elevated `TEST`/SuperAdmin fixture as available; never create or set passwords.
+- Check every exposed NAV group and its representative direct URLs, including allowed and failed-closed boundaries recorded by the previous role matrix.
+- Repeat narrow viewport checks at the hosted Codex viewport (`innerWidth=695`) for Dashboard and relevant admin/approval pages.
+- Read-only verification only; do not submit leave, OT, medical, time-correction or approval actions.
 
 Out of scope:
-- Build/deploy before explicit Owner `Build` authorization; Production services/traffic/DB/DNS/Firebase, `ckrr-line-gateway*`, Secret Manager, IAM, project settings or new grants.
+- Any source change unless a fresh regression is proven; Production services/traffic/DB/DNS/Firebase, `ckrr-line-gateway*`, Secret Manager, IAM, project settings or new grants.
 - Project A, protected `docs/design/desktop-20261018/**`, destructive cleanup and unrelated refactors.
 
 Acceptance / verification:
-- Owner explicitly says `Build` before the TESTm72 mutation.
-- Manager identity is confirmed as `หัวหน้า` before recording hosted evidence.
-- Hosted `/desktop/admin` at the narrow viewport has no horizontal overflow and every visible `.ck-dot-tip` stays within the viewport with readable label layout.
-- Existing Manager permission/direct-URL matrix remains unchanged and no business action is submitted.
+- Employee: all permitted self-service NAV routes load; approval/report/admin direct URLs fail closed; no narrow NAV overflow.
+- Manager: self-service, approvals, Reports, Announcements and permitted admin routes load; unrelated admin routes fail closed; no narrow overflow.
+- SuperAdmin/elevated fixture: management, reports and approval destinations load; no narrow overflow.
+- Every checked direct URL shows the expected route/permission outcome and no business mutation is performed.
+- TESTm72 remains healthy during the run; Production remains untouched.
 
-TESTm71 rollout evidence (Owner-authorized `Build`):
-- Cloud Build `eb8a317b-5146-4d80-ac81-4f7fc315069f` = **SUCCESS**, source SHA `4345fa2d6391a815bbf900a2fd67387da97f7370`, branch `codex/web-leave-05-role-gate`, `_VERSION=m71`.
-- Verify step passed lint, typecheck and tests; API/Web image build and push steps passed.
-- API image/revision digest: `sha256:d3d058d7ff95298fddfd3a8ec86d101a58ab38749343e14a5765d408235c6d10`; `ckace-hr-api-test-m71` Ready.
-- Web image/revision digest: `sha256:c0cac395fe32d1b5cb3a1026100a90db53c0d79311ab4fa7cb9aecfaa0904311`; `ckace-hr-web-test-m71` Ready.
-- `ckace-hr-migrate-test-qbwfp` completed successfully; the m71 image digest was used by the execution.
-- Cloud Run API and Web each show 100% traffic on the m71 revision; no rollback was needed.
-- Public `https://ckrr-leave-system-2026.web.app/api/health` returned `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m71`.
-- The approved pipeline completed Firebase Hosting live re-release and its deploy-and-verify step passed; local Firebase REST readback was blocked by ADC quota-project configuration, so no release ID is claimed from local evidence.
+TESTm72 rollout evidence (Owner-authorized `Build`):
+- Cloud Build `60b80e24-6eb4-4c62-b158-75b725b62222` = **SUCCESS**, source SHA `85c75295c735e618cf2f3def86f095350f7a9e8b`, branch `codex/web-leave-05-role-gate`, `_VERSION=m72`.
+- Cloud verify, API/Web image build and push, migration, deploy, traffic switch and Hosting/health verification all passed.
+- API `ckace-hr-api-test-m72` Ready with 100% traffic; image digest `sha256:b420b95e650c37c8f4b739929a705dd0ef0aedd6a358c8e65f5b1e279c85101a`.
+- Web `ckace-hr-web-test-m72` Ready with 100% traffic; image digest `sha256:15a9f5918d441bdce282f7b7b3a10688585fbda2b422d27e75646fd4f52d33ff`.
+- Migration execution `ckace-hr-migrate-test-s9k7f` completed successfully.
+- Public `/api/health` returned `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`.
+- No rollback was needed. Local Firebase REST readback is unavailable because of ADC quota-project configuration; the approved pipeline's deploy-and-verify step passed.
 
-Responsive evidence after m71:
+Manager responsive evidence on TESTm72:
 - Manager identity `หัวหน้า` was confirmed in the Codex in-app tab.
-- Hosted `/desktop/admin` at `innerWidth=695` had no horizontal overflow: `documentWidth=690`, `clientWidth=690`, `bodyWidth=690`, `offenders=[]`.
-- Readability **failed**: visible `.ck-dot-tip` elements were only about `28–30px` wide and `104–241px` tall because the tooltip's auto width collapsed to the status-dot containing block. This is the remaining defect; do not mark the task PASS.
-- Local fix applied: `width: max-content`, `max-width: min(320px, calc(100vw - 32px))`, `box-sizing: border-box`, `white-space: normal`, and `overflow-wrap: anywhere` for narrow `SettingRow` tooltips.
-- Local verification after the fix: Web lint **PASS**; targeted `desktop-route-access.test.ts` **7/7 PASS**. Hosted TESTm71 remains unchanged until a new Build is authorized.
+- `/desktop/admin` at `innerWidth=695` measured `documentWidth=690`, `clientWidth=690`, `bodyWidth=690`, and `offenders=[]`.
+- All visible `.ck-dot-tip` labels were readable: widths approximately `56–113px`, heights `27.375px`, and right edge `651.6 <= 690`.
+- Focused tooltip `ปิดอยู่ (ปลอดภัย)` rendered with `opacity=1`, normal wrapping and no overflow. No business action was submitted.
+
+Local verification:
+- Web lint **PASS**.
+- Targeted `desktop-route-access.test.ts` **7/7 PASS**.
+- Source commit `85c75295c735e618cf2f3def86f095350f7a9e8b` is pushed to `source/codex/web-leave-05-role-gate`.
 
 Next action:
-Owner says `Build`; then run TESTm72 with the approved trigger and rerun the hosted Manager `/desktop/admin` overflow + tooltip readability check. Do not touch Production.
+Run the full authenticated NAV/direct-URL matrix on TESTm72 using the Owner-controlled role sessions. Do not touch Production.

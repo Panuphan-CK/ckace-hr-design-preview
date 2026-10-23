@@ -9,13 +9,13 @@ Last Updated: 2026-10-23 Asia/Bangkok (see docs/HANDOFF_20261021.md)
 
 ## Current Continuity Override — 2026-10-23
 
-The active workstream is **WEB-LEAVE-05 — Fix Manager tooltip readability and prepare TESTm72**. The responsive source fix and continuity state were committed/pushed as `4345fa2d6391a815bbf900a2fd67387da97f7370` on `codex/web-leave-05-role-gate` to the application `source` remote; a follow-up tooltip-width patch is currently local and uncommitted.
+The active workstream is **WEB-LEAVE-06 — Full authenticated NAV + direct-URL regression on TESTm72**. The responsive fix is committed/pushed as `85c75295c735e618cf2f3def86f095350f7a9e8b` on `codex/web-leave-05-role-gate` to the application `source` remote.
 
-The approved regional Trigger is `ckace-hr-test-manual-release` (`4f54907f-eed2-4813-b51e-25af6a3dbf01`). Build m71 was explicitly authorized and completed **SUCCESS** as `eb8a317b-5146-4d80-ac81-4f7fc315069f` with `_VERSION=m71`; verify, image build/push, migration and TEST deploy/verify all passed. API/Web m71 are Ready with 100% traffic, migration `ckace-hr-migrate-test-qbwfp` succeeded, public health reports `serviceRevision=ckrr-hr-api-test-m71`, and no rollback was needed.
+The approved regional Trigger is `ckace-hr-test-manual-release` (`4f54907f-eed2-4813-b51e-25af6a3dbf01`). Build m72 was explicitly authorized and completed **SUCCESS** as `60b80e24-6eb4-4c62-b158-75b725b62222` with `_VERSION=m72`; verify, image build/push, migration and TEST deploy/verify all passed. API/Web m72 are Ready with 100% traffic, migration `ckace-hr-migrate-test-s9k7f` succeeded, public health reports `serviceRevision=ckace-hr-api-test-m72`, and no rollback was needed.
 
-The Owner then logged into the Manager fixture `หัวหน้า` in the Codex in-app tab. Hosted `/desktop/admin` at `innerWidth=695` has no horizontal overflow (`documentWidth=690`, `clientWidth=690`, `bodyWidth=690`, `offenders=[]`), but tooltip readability **fails**: `.ck-dot-tip` elements are only about `28–30px` wide and up to `241px` tall, wrapping labels into a vertical column. The local patch in `apps/web/src/app/desktop/ui/ck-v2.css` adds `width: max-content`, a `320px`/viewport max-width and `box-sizing: border-box` while retaining wrapping. Web lint and targeted route-access tests pass locally. Do not mark the task PASS until m72 is built and the Manager tooltip is readable. No business action was submitted.
+Manager `หัวหน้า` was reloaded after deployment and `/desktop/admin` at `innerWidth=695` measured `documentWidth=690`, `clientWidth=690`, `bodyWidth=690`, `offenders=[]`. The focused tooltip `ปิดอยู่ (ปลอดภัย)` rendered with `opacity=1`, width `112.625px`, height `27.375px`, right edge `651.6 <= 690`; all visible tooltips were readable and inside the viewport. The responsive gate is **PASS**. The next step is the full authenticated NAV/direct-URL regression across Employee, Manager and elevated SuperAdmin fixtures. No business action was submitted.
 
-No credentials were created, changed or requested in chat. No Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made. The next step is verification-only; do not rebuild or touch Production.
+No credentials were created, changed or requested in chat. No Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made.
 
 ## Current Goal
 

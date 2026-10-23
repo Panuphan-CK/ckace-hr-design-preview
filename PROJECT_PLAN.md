@@ -1,6 +1,6 @@
 # CKACE_HR — Project B PROJECT PLAN
 
-Last Updated: 2026-10-17 Asia/Bangkok
+Last Updated: 2026-10-23 Asia/Bangkok
 
 > Canonical plan for **Project B only**: `D:\CKACE_HR`.
 > Project A `D:\APP_Leave` has separate continuity and must not be tracked here.
@@ -9,10 +9,11 @@ Last Updated: 2026-10-17 Asia/Bangkok
 
 **WEB-LEAVE-05 — TEST rollout + authenticated role matrix rerun** is the current P1 task. The source fix is committed/pushed as `2355d5246d1819899161c0b3c90ee86e3ffd37d2` on `codex/web-leave-05-role-gate`.
 
-- Read-only preflight: API/Web `m69` each serve 100%; latest migrate execution `ckace-hr-migrate-test-n9x6v` succeeded.
-- Use only the regional Trigger `ckace-hr-test-manual-release` (`4f54907f-eed2-4813-b51e-25af6a3dbf01`). The Owner must explicitly say `Build` before any Cloud Build/deploy mutation.
-- Candidate is the next TEST version (`m70`); verify both TEST services, migration job, public health and Firebase Hosting, with rollback to m69 if required.
-- Authenticated matrix still needs separate Owner-controlled employee and manager logins; current session is elevated `EMPLOYEE SUPERADMIN` with 58 permissions.
+- Read-only preflight captured API/Web `m69` at 100%; latest prior migrate execution `ckace-hr-migrate-test-n9x6v` succeeded.
+- The Owner explicitly said `Build`; only the approved regional Trigger `ckace-hr-test-manual-release` (`4f54907f-eed2-4813-b51e-25af6a3dbf01`) was used.
+- Cloud Build `fd4404e6-4bea-4d21-9cab-96eae051c19c` = **SUCCESS** from source SHA `7ea2c7f2b3ea75c044aeeb6e7d990593e1d65ffd`, including `111` test files / `830` tests PASS, image build/push, migration and TEST deploy.
+- TESTm70 verification: API `ckace-hr-api-test-m70` and Web `ckace-hr-web-test-m70` are Ready with 100% traffic; migration `ckace-hr-migrate-test-fcckm` succeeded; public health reports `serviceRevision=ckace-hr-api-test-m70`, `stage=test`, `runtime=NON_PRODUCTION`; Firebase release `1792730304686000` completed.
+- Authenticated rerun passed for the current elevated `TEST` / `EMPLOYEE SUPERADMIN` session on representative Home, Leave, Leave approvals, Reports and role-management routes, including narrow `695x668` overflow check. Employee/manager hosted sessions remain pending because no credentials were created, changed or requested.
 
 Production remains NO-GO. Do not touch Project A, protected design artifacts, Production services, Secret Manager, IAM or project settings.
 

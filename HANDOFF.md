@@ -1,6 +1,6 @@
 # CKACE_HR — Project B HANDOFF
 
-Last Updated: 2026-10-21 Asia/Bangkok (see docs/HANDOFF_20261021.md)
+Last Updated: 2026-10-23 Asia/Bangkok (see docs/HANDOFF_20261021.md)
 
 > Canonical continuity file for **Project B only**: `D:\CKACE_HR`.
 > Project A `D:\APP_Leave` must remain separate.
@@ -9,11 +9,13 @@ Last Updated: 2026-10-21 Asia/Bangkok (see docs/HANDOFF_20261021.md)
 
 ## Current Continuity Override — 2026-10-23
 
-The active workstream is **WEB-LEAVE-05 — TEST rollout + authenticated role matrix rerun**. The role-gate source is committed and pushed as `2355d5246d1819899161c0b3c90ee86e3ffd37d2` on `codex/web-leave-05-role-gate`. Read-only preflight confirms TEST API/Web m69 are each at 100% and the latest migration execution succeeded.
+The active workstream is **WEB-LEAVE-05 — TEST rollout + authenticated role matrix rerun**. The role-gate source is committed and pushed as `2355d5246d1819899161c0b3c90ee86e3ffd37d2` on `codex/web-leave-05-role-gate`; continuity docs are pushed as `7ea2c7f2b3ea75c044aeeb6e7d990593e1d65ffd`.
 
 The approved regional Trigger is `ckace-hr-test-manual-release` (`4f54907f-eed2-4813-b51e-25af6a3dbf01`). The handoff rule remains binding: do not run Cloud Build/deploy until the Owner explicitly says `Build`; never create or set test passwords. The current browser session is elevated (`EMPLOYEE SUPERADMIN`, 58 permissions), so employee/manager deny-case evidence still needs Owner-controlled separate logins.
 
-No Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made. Candidate rollout should use only the approved TEST services/job/Hosting and must verify the new health revision, Ready/100% traffic and Hosting release, with rollback to captured m69 if any check fails.
+Build `fd4404e6-4bea-4d21-9cab-96eae051c19c` completed **SUCCESS** using the approved regional Trigger and `_VERSION=m70`. Verify step passed lint, workspace typecheck and `111` test files / `830` tests; API/Web images were pushed; `ckace-hr-migrate-test-fcckm` succeeded; API/Web `m70` are Ready and at 100%; public health reports `serviceRevision=ckace-hr-api-test-m70`, `stage=test`, `runtime=NON_PRODUCTION`; Firebase TEST release `1792730304686000` completed. No rollback was needed.
+
+Authenticated read-only rerun currently proves the elevated `TEST` / `EMPLOYEE SUPERADMIN` session: Home, Leave, Leave approvals, Reports and role-management routes loaded without route denial, and narrow `695x668` NAV overflow checks passed. Employee and manager hosted sessions remain the only open evidence; no credentials were created, changed or requested in chat. No Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made.
 
 ## Current Goal
 

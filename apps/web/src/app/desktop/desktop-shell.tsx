@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { requestDesktopLogout } from "./logout-request";
+import { canAccessDesktopRoute } from "./desktop-route-access";
 import { installHashChangeEvents } from "./ui/hash-events";
 import { Icon, type IconName } from "./ui/icons";
 import { PageHead, type Tone as PageTone } from "./ui/kit";
@@ -424,6 +425,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
   }
 
   const nav = state.session.navigation;
+  const routeAllowed = canAccessDesktopRoute(nav, pathname, hash);
   const flySection = sections.find((section) => section.id === openSection) ?? null;
   const displayName = profile?.fullName ?? "บัญชีพนักงาน";
   const subtitle = [profile?.roles[0], profile?.department?.name].filter(Boolean).join(" ") || "พนักงาน";
@@ -652,7 +654,15 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
       ) : null}
 
       <main className="ck-main">
-        {REDESIGNED_PATHS.has(pathname) ? (
+        {!routeAllowed ? (
+          <div className="ck-state" role="alert" aria-live="assertive">
+            <h1>ไม่มีสิทธิ์ใช้งานหน้านี้</h1>
+            <p>บัญชีนี้ไม่มีสิทธิ์เข้าถึงเมนูดังกล่าว</p>
+            <Link className="ck-btn sky" href="/desktop">
+              กลับหน้าหลัก
+            </Link>
+          </div>
+        ) : REDESIGNED_PATHS.has(pathname) ? (
           children
         ) : (
           <>

@@ -5,6 +5,19 @@ Last Updated: 2026-10-17 Asia/Bangkok
 > Canonical plan for **Project B only**: `D:\CKACE_HR`.
 > Project A `D:\APP_Leave` has separate continuity and must not be tracked here.
 
+## Current Active Task — 2026-10-23
+
+**WEB-LEAVE-05 — Complete Role Matrix + Responsive NAV Gate** is the current P1 task. A local source implementation is in the isolated `codex/web-leave-05-role-gate` worktree:
+
+- `apps/web/src/app/desktop/desktop-route-access.ts` maps every supported Desktop route/hash to the server-derived navigation capability and fails closed for denied direct URLs.
+- `desktop-shell.tsx` now applies the gate before mounting the route page; hash changes remain reactive.
+- `ck.css` removes the measured narrow-viewport `.ck-sh` overflow on management pages.
+- Focused tests pass 7/7 and targeted ESLint passes.
+- Full web typecheck remains blocked by pre-existing contract drift in unrelated pages; no TEST rollout has been performed for this local change.
+- TESTm69 browser evidence is read-only and elevated (`EMPLOYEE SUPERADMIN`); employee/manager denied-role evidence still requires separate authenticated sessions.
+
+Production remains NO-GO. Do not touch Project A, protected design artifacts, Production services, Secret Manager, IAM or project settings.
+
 ## Current Phase
 
 **Phase A — Project B Web Desktop Functional + Security QA — PASS**

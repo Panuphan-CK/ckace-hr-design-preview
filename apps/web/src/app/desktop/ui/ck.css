@@ -690,6 +690,14 @@ button.ck-hcard:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgb
   .ck-field.span2, .ck-field.span3 { grid-column: auto; }
   .ck-wrap { padding: 20px 16px 80px; }
   .ck-phead .ck-wrap { flex-wrap: wrap; }
+  .ck-wrap > .ck-c-biz > .ck-sh,
+  .ck-wrap > .ck-c-gray > .ck-sh,
+  .ck-wrap > .ck-c-med > .ck-sh,
+  .ck-wrap > .ck-c-ot > .ck-sh,
+  .ck-wrap > .ck-c-time > .ck-sh {
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .ck-app *, .ck-app *::before { animation: none !important; transition: none !important; }

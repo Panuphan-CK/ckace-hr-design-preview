@@ -7,14 +7,12 @@ Last Updated: 2026-10-17 Asia/Bangkok
 
 ## Current Active Task — 2026-10-23
 
-**WEB-LEAVE-05 — Complete Role Matrix + Responsive NAV Gate** is the current P1 task. A local source implementation is in the isolated `codex/web-leave-05-role-gate` worktree:
+**WEB-LEAVE-05 — TEST rollout + authenticated role matrix rerun** is the current P1 task. The source fix is committed/pushed as `2355d5246d1819899161c0b3c90ee86e3ffd37d2` on `codex/web-leave-05-role-gate`.
 
-- `apps/web/src/app/desktop/desktop-route-access.ts` maps every supported Desktop route/hash to the server-derived navigation capability and fails closed for denied direct URLs.
-- `desktop-shell.tsx` now applies the gate before mounting the route page; hash changes remain reactive.
-- `ck.css` removes the measured narrow-viewport `.ck-sh` overflow on management pages.
-- Focused tests pass 7/7 and targeted ESLint passes.
-- Full web typecheck remains blocked by pre-existing contract drift in unrelated pages; no TEST rollout has been performed for this local change.
-- TESTm69 browser evidence is read-only and elevated (`EMPLOYEE SUPERADMIN`); employee/manager denied-role evidence still requires separate authenticated sessions.
+- Read-only preflight: API/Web `m69` each serve 100%; latest migrate execution `ckace-hr-migrate-test-n9x6v` succeeded.
+- Use only the regional Trigger `ckace-hr-test-manual-release` (`4f54907f-eed2-4813-b51e-25af6a3dbf01`). The Owner must explicitly say `Build` before any Cloud Build/deploy mutation.
+- Candidate is the next TEST version (`m70`); verify both TEST services, migration job, public health and Firebase Hosting, with rollback to m69 if required.
+- Authenticated matrix still needs separate Owner-controlled employee and manager logins; current session is elevated `EMPLOYEE SUPERADMIN` with 58 permissions.
 
 Production remains NO-GO. Do not touch Project A, protected design artifacts, Production services, Secret Manager, IAM or project settings.
 

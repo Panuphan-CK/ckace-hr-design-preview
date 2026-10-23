@@ -9,11 +9,11 @@ Last Updated: 2026-10-21 Asia/Bangkok (see docs/HANDOFF_20261021.md)
 
 ## Current Continuity Override — 2026-10-23
 
-The active workstream is **WEB-LEAVE-05 — Complete Role Matrix + Responsive NAV Gate**. Local implementation is being developed in the isolated worktree `codex/web-leave-05-role-gate` from the TESTm69 source lineage. The route gate is server-capability driven and fail-closed for direct URLs; the narrow management-header overflow is fixed locally. Focused route tests are 7/7 PASS and targeted ESLint is PASS.
+The active workstream is **WEB-LEAVE-05 — TEST rollout + authenticated role matrix rerun**. The role-gate source is committed and pushed as `2355d5246d1819899161c0b3c90ee86e3ffd37d2` on `codex/web-leave-05-role-gate`. Read-only preflight confirms TEST API/Web m69 are each at 100% and the latest migration execution succeeded.
 
-The current TEST browser session is elevated (`EMPLOYEE SUPERADMIN`), so it cannot prove employee/manager denied-role behavior. Read-only TESTm69 evidence reproduces the pre-fix 695px overflow on `/desktop/admin/professional-roles` (`documentWidth=698`, `clientWidth=690`, `.ck-sh` left `-8`, right `698.4`). The local CSS correction has not been deployed. Full web typecheck remains blocked by pre-existing contract drift outside this task.
+The approved regional Trigger is `ckace-hr-test-manual-release` (`4f54907f-eed2-4813-b51e-25af6a3dbf01`). The handoff rule remains binding: do not run Cloud Build/deploy until the Owner explicitly says `Build`; never create or set test passwords. The current browser session is elevated (`EMPLOYEE SUPERADMIN`, 58 permissions), so employee/manager deny-case evidence still needs Owner-controlled separate logins.
 
-No Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made. Before this task can be marked PASS, obtain explicit Owner authorization for commit/push, then TEST rollout and separate employee/manager/superadmin authenticated rerun with responsive NAV evidence.
+No Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made. Candidate rollout should use only the approved TEST services/job/Hosting and must verify the new health revision, Ready/100% traffic and Hosting release, with rollback to captured m69 if any check fails.
 
 ## Current Goal
 

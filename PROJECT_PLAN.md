@@ -7,14 +7,14 @@ Last Updated: 2026-10-23 Asia/Bangkok
 
 ## Current Active Task — 2026-10-23
 
-**WEB-LEAVE-06 — Full authenticated NAV + direct-URL regression on TESTm72** is the current P1 TEST confidence gate. The completed responsive fix is committed/pushed as `85c75295c735e618cf2f3def86f095350f7a9e8b` on `codex/web-leave-05-role-gate`.
+**WEB-LEAVE-07 — Full authenticated Leave workflow regression on TESTm72** is the next P1 TEST confidence gate after WEB-LEAVE-06 passed across all three role sessions.
 
-- Cloud Build `60b80e24-6eb4-4c62-b158-75b725b62222` = **SUCCESS** from source SHA `85c75295c735e618cf2f3def86f095350f7a9e8b` with `_VERSION=m72`; verify, image build/push, migration, deploy, traffic and Hosting/health verification all passed.
-- API `ckace-hr-api-test-m72` and Web `ckace-hr-web-test-m72` are Ready with 100% traffic. API digest is `sha256:b420b95e650c37c8f4b739929a705dd0ef0aedd6a358c8e65f5b1e279c85101a`; Web digest is `sha256:15a9f5918d441bdce282f7b7b3a10688585fbda2b422d27e75646fd4f52d33ff`.
-- Migration execution `ckace-hr-migrate-test-s9k7f` completed successfully. Public health reports `serviceRevision=ckace-hr-api-test-m72`, `stage=test`, `runtime=NON_PRODUCTION`; no rollback was needed.
-- Manager identity `หัวหน้า` was confirmed in the Codex in-app tab. Hosted `/desktop/admin` at `innerWidth=695` measured `documentWidth=690`, `clientWidth=690`, `bodyWidth=690`, `offenders=[]`.
-- Tooltip readability now passes: visible labels measured roughly `56–113px` wide and `27.375px` high; focused `ปิดอยู่ (ปลอดภัย)` had `opacity=1`, right edge `651.6 <= 690`, and normal wrapping.
-- Next: run the complete authenticated Employee/Manager/SuperAdmin NAV and direct-URL matrix on TESTm72. Production remains NO-GO; no additional build is needed before that read-only regression.
+- Employee `พนักงาน`: 35 direct URLs checked; 12 granted self-service/news routes and 23 expected denials. Profile confirmed `EMPLOYEE`, 22 permissions.
+- Manager `หัวหน้า`: 35 direct URLs checked; 33 granted and 2 expected denials (`/desktop/admin/management#roles`, `/desktop/admin/approval-policies`). Profile confirmed `ADMIN + EMPLOYEE`, 46 permissions.
+- Elevated `SuperAdmin คนที่สอง`: 35 direct URLs checked; all 35 granted. Profile confirmed `SUPERADMIN + EMPLOYEE`, 58 permissions.
+- Narrow viewport checks at `innerWidth=695` passed for Dashboard and representative Leave/Approval/Reports/Admin pages with no page-level horizontal overflow. Employee Leave's wide history table is contained in its intended internal scroll surface.
+- Public `/api/health` still reports `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`. Read-only Cloud Run traffic confirms API/Web m72 at 100%.
+- No business mutation was performed during WEB-LEAVE-06. Next: run one bounded synthetic Leave workflow on TESTm72. Production remains NO-GO; no additional build is needed before that flow gate.
 
 Production remains NO-GO. Do not touch Project A, protected design artifacts, Production services, Secret Manager, IAM or project settings.
 

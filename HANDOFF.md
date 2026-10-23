@@ -9,11 +9,15 @@ Last Updated: 2026-10-23 Asia/Bangkok (see docs/HANDOFF_20261021.md)
 
 ## Current Continuity Override — 2026-10-23
 
-The active workstream is **WEB-LEAVE-06 — Full authenticated NAV + direct-URL regression on TESTm72**. The responsive fix is committed/pushed as `85c75295c735e618cf2f3def86f095350f7a9e8b` on `codex/web-leave-05-role-gate` to the application `source` remote.
+The active workstream is now **WEB-LEAVE-07 — Full authenticated Leave workflow regression on TESTm72**. WEB-LEAVE-06 passed its complete role/NAV/direct-URL gate on the hosted TESTm72 release; no source files changed during that verification.
 
-The approved regional Trigger is `ckace-hr-test-manual-release` (`4f54907f-eed2-4813-b51e-25af6a3dbf01`). Build m72 was explicitly authorized and completed **SUCCESS** as `60b80e24-6eb4-4c62-b158-75b725b62222` with `_VERSION=m72`; verify, image build/push, migration and TEST deploy/verify all passed. API/Web m72 are Ready with 100% traffic, migration `ckace-hr-migrate-test-s9k7f` succeeded, public health reports `serviceRevision=ckace-hr-api-test-m72`, and no rollback was needed.
+Role matrix evidence on TESTm72:
+- Employee `พนักงาน`: 35 URLs, 12 granted self-service/news routes, 23 expected fail-closed denials; profile `EMPLOYEE`, 22 permissions.
+- Manager `หัวหน้า`: 35 URLs, 33 granted and 2 expected fail-closed denials (`#roles`, `approval-policies`); profile `ADMIN + EMPLOYEE`, 46 permissions.
+- Elevated `SuperAdmin คนที่สอง`: 35 URLs, all 35 granted; profile `SUPERADMIN + EMPLOYEE`, 58 permissions.
+- Narrow `innerWidth=695` checks passed for Dashboard and representative Leave/Approval/Reports/Admin pages without page-level horizontal overflow. The Employee Leave history table is contained in its intended internal scroll area.
 
-Manager `หัวหน้า` was reloaded after deployment and `/desktop/admin` at `innerWidth=695` measured `documentWidth=690`, `clientWidth=690`, `bodyWidth=690`, `offenders=[]`. The focused tooltip `ปิดอยู่ (ปลอดภัย)` rendered with `opacity=1`, width `112.625px`, height `27.375px`, right edge `651.6 <= 690`; all visible tooltips were readable and inside the viewport. The responsive gate is **PASS**. The next step is the full authenticated NAV/direct-URL regression across Employee, Manager and elevated SuperAdmin fixtures. No business action was submitted.
+TESTm72 health/traffic remained healthy after the read-only run: public health reports `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`; read-only Cloud Run status reports API/Web m72 at 100% traffic. No business action was submitted.
 
 No credentials were created, changed or requested in chat. No Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made.
 

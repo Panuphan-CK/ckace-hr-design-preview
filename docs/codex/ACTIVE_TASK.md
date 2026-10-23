@@ -2,50 +2,44 @@
 
 Updated: 2026-10-23 Asia/Bangkok
 
-## WEB-LEAVE-06 — Full authenticated NAV + direct-URL regression on TESTm72
+## WEB-LEAVE-07 — Full authenticated Leave workflow regression on TESTm72
 
-Status: **READY — TESTm72 rollout and Manager responsive tooltip gate PASS; full role regression is next**
+Status: **READY — WEB-LEAVE-06 role/NAV matrix PASS; next TEST business-flow gate**
 Priority: **P1 — current TEST confidence gate**
 
 Objective / why now:
-Re-run the complete authenticated Employee/Manager/SuperAdmin NAV and direct-URL matrix on the final TESTm72 release after the responsive tooltip fix, proving that the CSS-only change did not regress permissions, navigation or narrow-viewport behavior.
+Verify the complete Leave request lifecycle on the healthy TESTm72 release after all three role boundaries passed: Employee submit/history, Manager approval visibility/decision path, and elevated SuperAdmin approval/history boundary.
 
 Scope:
-- Use Owner-controlled TEST sessions for plain Employee `พนักงาน`, Manager `หัวหน้า`, and the elevated `TEST`/SuperAdmin fixture as available; never create or set passwords.
-- Check every exposed NAV group and its representative direct URLs, including allowed and failed-closed boundaries recorded by the previous role matrix.
-- Repeat narrow viewport checks at the hosted Codex viewport (`innerWidth=695`) for Dashboard and relevant admin/approval pages.
-- Read-only verification only; do not submit leave, OT, medical, time-correction or approval actions.
+- Use only Owner-controlled TEST sessions `พนักงาน`, `หัวหน้า` and elevated `TEST/SuperAdmin`; never create or set passwords.
+- Use a clearly synthetic TEST fixture and complete one bounded Leave flow end-to-end, including status/history readback and the existing approval chain.
+- Record every state transition and confirm no duplicate or unintended second request is created.
+- TEST only; no Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting changes.
 
 Out of scope:
-- Any source change unless a fresh regression is proven; Production services/traffic/DB/DNS/Firebase, `ckrr-line-gateway*`, Secret Manager, IAM, project settings or new grants.
-- Project A, protected `docs/design/desktop-20261018/**`, destructive cleanup and unrelated refactors.
+- OT, Medical, Time Correction, attendance writes and unrelated refactors unless a Leave regression proves a shared blocker.
+- Production services/traffic/DB/DNS/Firebase and destructive cleanup.
 
 Acceptance / verification:
-- Employee: all permitted self-service NAV routes load; approval/report/admin direct URLs fail closed; no narrow NAV overflow.
-- Manager: self-service, approvals, Reports, Announcements and permitted admin routes load; unrelated admin routes fail closed; no narrow overflow.
-- SuperAdmin/elevated fixture: management, reports and approval destinations load; no narrow overflow.
-- Every checked direct URL shows the expected route/permission outcome and no business mutation is performed.
-- TESTm72 remains healthy during the run; Production remains untouched.
+- Employee can open Leave, submit one synthetic request through the existing form, and see the expected pending/history state.
+- Manager can open the Leave approval destination, see the request in the correct queue, and complete the approved TEST decision path without duplicate decisions.
+- Elevated SuperAdmin can read the resulting approval/history state and the server remains authoritative.
+- No unintended route denial, page-level horizontal overflow or console/runtime blocker on the tested Leave pages.
+- TESTm72 health and 100% traffic remain unchanged; Production remains untouched.
 
-TESTm72 rollout evidence (Owner-authorized `Build`):
-- Cloud Build `60b80e24-6eb4-4c62-b158-75b725b62222` = **SUCCESS**, source SHA `85c75295c735e618cf2f3def86f095350f7a9e8b`, branch `codex/web-leave-05-role-gate`, `_VERSION=m72`.
-- Cloud verify, API/Web image build and push, migration, deploy, traffic switch and Hosting/health verification all passed.
-- API `ckace-hr-api-test-m72` Ready with 100% traffic; image digest `sha256:b420b95e650c37c8f4b739929a705dd0ef0aedd6a358c8e65f5b1e279c85101a`.
-- Web `ckace-hr-web-test-m72` Ready with 100% traffic; image digest `sha256:15a9f5918d441bdce282f7b7b3a10688585fbda2b422d27e75646fd4f52d33ff`.
-- Migration execution `ckace-hr-migrate-test-s9k7f` completed successfully.
-- Public `/api/health` returned `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`.
-- No rollback was needed. Local Firebase REST readback is unavailable because of ADC quota-project configuration; the approved pipeline's deploy-and-verify step passed.
-
-Manager responsive evidence on TESTm72:
-- Manager identity `หัวหน้า` was confirmed in the Codex in-app tab.
-- `/desktop/admin` at `innerWidth=695` measured `documentWidth=690`, `clientWidth=690`, `bodyWidth=690`, and `offenders=[]`.
-- All visible `.ck-dot-tip` labels were readable: widths approximately `56–113px`, heights `27.375px`, and right edge `651.6 <= 690`.
-- Focused tooltip `ปิดอยู่ (ปลอดภัย)` rendered with `opacity=1`, normal wrapping and no overflow. No business action was submitted.
+Completed WEB-LEAVE-06 evidence:
+- Employee `พนักงาน`: 35 direct URLs — 12 granted self-service/news routes, 23 expected denials; profile showed `EMPLOYEE`, 22 permissions.
+- Manager `หัวหน้า`: 35 direct URLs — 33 granted, 2 expected denials (`/desktop/admin/management#roles`, `/desktop/admin/approval-policies`); profile showed `ADMIN + EMPLOYEE`, 46 permissions.
+- Elevated `SuperAdmin คนที่สอง`: 35 direct URLs — all 35 granted; profile showed `SUPERADMIN + EMPLOYEE`, 58 permissions.
+- Narrow viewport `innerWidth=695`: Dashboard metrics had `documentWidth/clientWidth/bodyWidth` within the viewport and zero page-level offenders for Employee, Manager and SuperAdmin key pages; Employee Leave's wide table remained inside its intended internal scroll surface.
+- Public health readback: `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`.
+- Cloud Run readback: `ckace-hr-api-test-m72` and `ckace-hr-web-test-m72` each report `percent=100` traffic.
+- No business action was performed during WEB-LEAVE-06; no source files changed.
 
 Local verification:
 - Web lint **PASS**.
 - Targeted `desktop-route-access.test.ts` **7/7 PASS**.
-- Source commit `85c75295c735e618cf2f3def86f095350f7a9e8b` is pushed to `source/codex/web-leave-05-role-gate`.
+- `git diff --check` **PASS**; only the three expected continuity Markdown files are modified for publication.
 
 Next action:
-Run the full authenticated NAV/direct-URL matrix on TESTm72 using the Owner-controlled role sessions. Do not touch Production.
+Run the bounded synthetic Leave workflow on TESTm72. Do not build or touch Production unless the Owner explicitly requests a separate release action.

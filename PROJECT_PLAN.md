@@ -7,20 +7,15 @@ Last Updated: 2026-10-23 Asia/Bangkok
 
 ## Current Active Task — 2026-10-23
 
-**WEB-LEAVE-05 — TEST rollout + authenticated role matrix rerun** is the current P1 task. The source fix is committed/pushed as `2355d5246d1819899161c0b3c90ee86e3ffd37d2` on `codex/web-leave-05-role-gate`.
+**WEB-LEAVE-05 — Fix Manager tooltip readability and prepare TESTm72** is the current P1 acceptance gate. The source fix is based on pushed commit `4345fa2d6391a815bbf900a2fd67387da97f7370` on `codex/web-leave-05-role-gate`, with an additional local tooltip-width patch pending promotion.
 
-- Read-only preflight captured API/Web `m69` at 100%; latest prior migrate execution `ckace-hr-migrate-test-n9x6v` succeeded.
-- The Owner explicitly said `Build`; only the approved regional Trigger `ckace-hr-test-manual-release` (`4f54907f-eed2-4813-b51e-25af6a3dbf01`) was used.
-- Cloud Build `fd4404e6-4bea-4d21-9cab-96eae051c19c` = **SUCCESS** from source SHA `7ea2c7f2b3ea75c044aeeb6e7d990593e1d65ffd`, including `111` test files / `830` tests PASS, image build/push, migration and TEST deploy.
-- TESTm70 verification: API `ckace-hr-api-test-m70` and Web `ckace-hr-web-test-m70` are Ready with 100% traffic; migration `ckace-hr-migrate-test-fcckm` succeeded; public health reports `serviceRevision=ckace-hr-api-test-m70`, `stage=test`, `runtime=NON_PRODUCTION`; Firebase release `1792730304686000` completed.
-- Authenticated rerun passed for the elevated `TEST` / `EMPLOYEE SUPERADMIN` session on representative Home, Leave, Leave approvals, Reports and role-management routes, including narrow `695x668` overflow check. The Manager session (`หัวหน้า`) then passed self-service, all approval hashes, Reports, Announcements and permitted admin direct URLs; `admin/management#roles` correctly failed closed. The separate plain Employee session (`พนักงาน`) also passed its allowed/denied matrix.
-- Manager responsive follow-up: `/desktop/admin` measured `documentWidth=696` vs `clientWidth=690` at the hosted `695px` viewport, caused by the `.ck-dot-tip` edge tooltip; other tested Manager routes had no horizontal overflow. This remains a P3 acceptance issue until fixed or Owner-accepted.
-- The Owner-opened `TEST` login is confirmed by Profile as `EMPLOYEE` + `SUPERADMIN` with `58` permissions, so its successful approvals/reports/admin direct URLs are elevated-session evidence, not plain Employee deny-case evidence. A separate plain Employee login is still required.
-- Read-only Users view identifies the required plain Employee fixture by the account label `พนักงาน`, separate from `TEST` and `หัวหน้า`.
-- Plain Employee (`พนักงาน`) hosted matrix passed: self-service, Profile, Inbox, Benefits and read-only Announcements loaded; approvals, Reports and Admin/Management/Professional roles/Approval policies direct URLs failed closed; visible Dashboard NAV contained only permitted self-service links and no horizontal overflow at the hosted `695px` viewport.
-- Responsive fix prepared locally in `apps/web/src/app/desktop/ui/ck-v2.css`: narrow `SettingRow` status-dot tooltips now right-anchor and wrap within the viewport. Web lint and targeted route-access tests pass; full Web typecheck/build remains blocked by pre-existing contract errors (Webpack compiled before typecheck) and Turbopack worktree symlink handling. TESTm71 build/deploy is not authorized until the Owner says `Build`.
+- TESTm71 rollout remains healthy: Cloud Build `eb8a317b-5146-4d80-ac81-4f7fc315069f` = **SUCCESS**; API/Web `m71` are Ready with 100% traffic; migration `ckace-hr-migrate-test-qbwfp` succeeded; public health reports `serviceRevision=ckace-hr-api-test-m71`; no rollback was needed.
+- Manager identity `หัวหน้า` was confirmed in the Codex in-app tab and `/desktop/admin` was checked at `innerWidth=695`: `documentWidth=690`, `clientWidth=690`, `bodyWidth=690`, `offenders=[]`.
+- The m71 responsive check found no horizontal overflow, but tooltip readability failed: `.ck-dot-tip` widths were about `28–30px` with heights up to `241px`, so labels wrapped into an impractical vertical column.
+- Local patch in `apps/web/src/app/desktop/ui/ck-v2.css` now uses `width: max-content`, `max-width: min(320px, calc(100vw - 32px))` and `box-sizing: border-box` while retaining wrapping and viewport safety.
+- Local verification after the patch: Web lint **PASS**; targeted `desktop-route-access.test.ts` **7/7 PASS**. No new TEST build/deploy was run because the Owner has not yet authorized `Build` for m72.
 
-Production remains NO-GO. Do not touch Project A, protected design artifacts, Production services, Secret Manager, IAM or project settings.
+Production remains NO-GO. Do not touch Project A, protected design artifacts, Production services, Secret Manager, IAM or project settings. TESTm72 build/deploy requires explicit Owner `Build` authorization.
 
 ## Current Phase
 

@@ -1,5 +1,6 @@
 substitutions:
-  _VERSION: m67
+  _VERSION: m73
+  _ROLLBACK_VERSION: m72
 
 timeout: 1800s
 
@@ -81,15 +82,15 @@ steps:
         rollback_test_traffic() {
           exit_code="$$?"
           set +e
-          echo "TEST release failed; restoring m66 traffic."
+          echo "TEST release failed; restoring ${_ROLLBACK_VERSION} traffic."
           gcloud run services update-traffic ckace-hr-api-test \
             --region=asia-southeast1 \
             --project=ckrr-leave-system-2026 \
-            --to-revisions=ckace-hr-api-test-m66a=100
+            --to-revisions=ckace-hr-api-test-${_ROLLBACK_VERSION}=100
           gcloud run services update-traffic ckace-hr-web-test \
             --region=asia-southeast1 \
             --project=ckrr-leave-system-2026 \
-            --to-revisions=ckace-hr-web-test-m66a=100
+            --to-revisions=ckace-hr-web-test-${_ROLLBACK_VERSION}=100
           exit "$$exit_code"
         }
         trap rollback_test_traffic ERR

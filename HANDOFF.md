@@ -17,9 +17,10 @@ The active workstream is **WEB-LEAVE-06A — TEST rollout + responsive NAV acces
 - Narrow `innerWidth=695` checks passed for Dashboard and representative Leave/Approval/Reports/Admin pages without page-level horizontal overflow. The Employee Leave history table is contained in its intended internal scroll area.
 - TESTm72 health/traffic evidence: `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`; API/Web m72 at 100% traffic.
 - An isolated application-source worktree contains a local fix naming dashboard, calendar, section-menu and profile controls; the approval menu name includes a pending count and the profile trigger/dialog share one name. The source-wiring smoke check passed. The Local main checkout remains untouched. The source fix is not deployed; TESTm72 still has the prior markup.
+- Owner approved TEST Build and authorized updating only the existing manual trigger/release config. `infra/cloudbuild/test-release.yaml` is locally corrected to `_VERSION=m73` and `_ROLLBACK_VERSION=m72`; `git diff --check` passes. Two `--inline-config` trigger-update attempts were rejected (`INVALID_ARGUMENT`); readback confirms no trigger change. No commit/push, build, migration, deploy, traffic switch or Firebase release has occurred. After the corrected config is published, repoint the existing trigger's `gitFileSource` and `sourceToBuild` refs to the current source branch.
 - No TEST build/deploy, business action, credentials change, Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made.
 
-Next: wait for an explicit `Build` request before TEST rollout. Verify the intended TEST revisions, accessible names and responsive behavior before proceeding to WEB-LEAVE-07 — Full authenticated Leave workflow regression.
+Next: obtain publication approval for the corrected release config, push it, repoint the existing trigger's `gitFileSource` and `sourceToBuild` refs to `codex/web-leave-06-nav-a11y`, read back the trigger, then run the approved TESTm73 Build. Verify the intended TEST revisions, accessible names and responsive behavior before proceeding to WEB-LEAVE-07 — Full authenticated Leave workflow regression.
 
 ## Current Goal
 

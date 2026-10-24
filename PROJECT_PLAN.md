@@ -11,8 +11,8 @@ Last Updated: 2026-10-24 Asia/Bangkok
 
 - Local source patch adds accessible names for dashboard, calendar, section-menu and profile controls, preserving the pending approval count in the section name; the profile trigger and dialog share one name. A focused naming contract test and source-wiring smoke check are present.
 - TESTm72 role matrix evidence remains valid: Employee 12/35 grants, Manager 33/35 grants with two expected denials, SuperAdmin 35/35 grants; representative narrow-width and page-overflow checks passed.
-- The source patch is not on TEST. Current health/traffic evidence remains TESTm72; no build, deployment or business mutation occurred in this session.
-- After publication, wait for an explicit `Build` request before TEST rollout. Verify names, responsive overflow and intended TEST revisions before WEB-LEAVE-07. Production remains NO-GO.
+- The source patch is not on TEST. Current health/traffic evidence remains TESTm72. The Owner approved TEST Build and authorized updating only the existing manual trigger/release config. The local release config now targets m73 with rollback m72; no build, deployment or business mutation has occurred.
+- The existing trigger is still pinned to `refs/tags/claude/project-thread-j4idbg`, whose config defaults to m67 and rollback m66. Two attempts to update it using `--inline-config` were rejected (`INVALID_ARGUMENT`); readback confirms no trigger change. After Owner publication approval, push the corrected config, repoint the trigger's existing `gitFileSource` and `sourceToBuild` refs to `codex/web-leave-06-nav-a11y`, run the TESTm73 rollout, then verify names, responsive overflow and intended revisions before WEB-LEAVE-07. Production remains NO-GO.
 
 Production remains NO-GO. Do not touch Project A, protected design artifacts, Production services, Secret Manager, IAM or project settings.
 

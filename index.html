@@ -2,7 +2,8 @@
 <html lang="th">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Desktop-first preview: mobile browsers scale the complete 1440px desktop layout. Web LIFF is separate. -->
+  <meta name="viewport" content="width=1440">
   <meta name="theme-color" content="#111b39">
   <title>CKACE People Operations</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,17 +12,22 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="leave-prod.css">
   <link rel="stylesheet" href="leave-overview-dna.css">
+  <link rel="stylesheet" href="leave-dashboard-alignment.css?v=20261023-thai1">
+  <link rel="stylesheet" href="leave-statistics-master.css?v=20261023-proportion2">
+  <link rel="stylesheet" href="leave-form-clarity.css?v=20261023-form1">
+  <link rel="stylesheet" href="leave-donut-interactive.css?v=11">
   <link rel="stylesheet" href="ot-overview-dna.css">
   <link rel="stylesheet" href="correction-overview-dna.css">
   <link rel="stylesheet" href="medical-overview-dna.css">
   <link rel="stylesheet" href="navbar-pastel.css">
+  <link rel="stylesheet" href="desktop-preview-scale.css?v=20261023-desktop1">
 </head>
 <body>
   <a class="skip" href="#main">ข้ามไปเนื้อหา</a>
   <div class="site-shell">
     <header class="topbar ck-navbar" aria-label="เมนูระบบ People Operations">
       <button class="brand" type="button" data-route="dashboard" aria-label="กลับหน้าภาพรวม">
-        <img class="brand-logo" src="ckace-authentic-logo.png" alt="C.K.ACE Accounting">
+        <img class="brand-logo" src="%E0%B9%82%E0%B8%A5%E0%B9%82%E0%B8%81%E0%B9%89%20CKACE%20ACCOUNTING%20%E0%B8%AA%E0%B8%B5%E0%B8%9F%E0%B9%89%E0%B8%B2%E0%B8%97%E0%B8%AD%E0%B8%87%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%AA%E0%B8%B2%E0%B8%A1%E0%B8%A1%E0%B8%B4%E0%B8%95%E0%B8%B4%20glossy.png" alt="C.K.ACE Accounting" onerror="this.onerror=null;this.src='assets/Logo%20%E0%B8%A5%E0%B8%9A%E0%B8%9E%E0%B8%B7%E0%B9%89%E0%B8%99%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%87.png'">
       </button>
       <nav class="main-nav" id="main-nav" aria-label="เมนูหลัก"></nav>
       <div class="topbar-actions">
@@ -37,10 +43,11 @@
   <div id="toast" role="status" aria-live="polite"></div>
   <script src="prototype.js"></script>
   <script src="hero-layout-editor.js"></script>
-  <script src="leave-rebuild.js"></script>
+  <script src="leave-rebuild.js?v=20261023-callout1"></script>
   <script src="ot-rebuild.js"></script>
   <script src="correction-rebuild.js"></script>
   <script src="medical-rebuild.js"></script>
   <script src="navbar-appswitch.js"></script>
+  <script src="desktop-preview-scale.js?v=20261023-desktop1"></script>
 </body>
 </html>

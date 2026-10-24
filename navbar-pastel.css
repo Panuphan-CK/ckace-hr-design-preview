@@ -53,5 +53,19 @@
 .ck-navbar .ck-profile-panel dl{margin:0}.ck-navbar .ck-profile-panel dl div{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #dce7ee}
 .ck-navbar .ck-profile-panel dt{color:#6f889b}.ck-navbar .ck-profile-panel dd{margin:0;text-align:right;font-weight:800;overflow-wrap:anywhere}
 .ck-navbar .ck-notice-count{position:absolute;right:-5px;top:-8px;font-size:10px;line-height:19px;border-radius:50%;min-width:19px;color:#fff;background:#d95765}
-@media(max-width:1250px){.ck-navbar .brand{min-width:140px;max-width:160px}.ck-navbar .brand-logo{width:150px}}
+.topbar.ck-navbar .brand{flex:0 0 198px;min-width:198px;max-width:198px;display:flex;align-items:center;justify-content:center;padding:5px 10px;border:1px solid #d2e4f1;border-radius:18px;background:linear-gradient(155deg,#fff 10%,#f9fcff 70%,#eaf5ff);box-shadow:inset 0 2px 0 white,0 4px 0 #bfd7e8,0 9px 18px #3b6a9428;overflow:visible}.topbar.ck-navbar .brand-logo{display:block;object-fit:contain;object-position:center;width:178px;max-width:100%;height:62px;filter:drop-shadow(0 2px 2px #183c6926);image-rendering:auto}.topbar.ck-navbar .brand:hover{background:linear-gradient(145deg,#fff,#eaf5ff)}
+@media(max-width:1250px){.topbar.ck-navbar .brand{flex-basis:175px;min-width:175px;max-width:175px}.topbar.ck-navbar .brand-logo{width:157px}}
 @media(max-width:690px){.ck-navbar .brand{min-width:115px;max-width:128px}.ck-navbar .brand-logo{width:125px;height:43px}.ck-navbar .ck-app-panel{left:auto;right:0}.ck-navbar .ck-popover{right:-45px}}
+/* Local review: compact navbar, logo directly on the navbar canvas */
+.topbar.ck-navbar{min-height:66px;padding:5px clamp(12px,1.5vw,22px);gap:9px;align-items:center;border-bottom:1px solid #c5dce9;box-shadow:0 6px 16px #376f9220}
+.topbar.ck-navbar .brand{flex:0 0 154px;min-width:154px;max-width:154px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
+.topbar.ck-navbar .brand:hover{background:transparent;box-shadow:none}
+.topbar.ck-navbar .brand-logo{width:154px;max-width:100%;height:48px;object-fit:contain;filter:none}
+.topbar.ck-navbar .nav-item{min-height:48px;padding:4px 5px;gap:2px;border-radius:12px}
+.topbar.ck-navbar .nav-item svg{width:19px;height:19px}
+.topbar.ck-navbar .ck-app-trigger{width:36px;height:36px;min-height:36px}
+.topbar.ck-navbar .icon-action{width:36px;height:36px;min-height:36px}
+.topbar.ck-navbar .profile-chip{min-height:36px;padding:3px 7px}
+@media(max-width:1250px){.topbar.ck-navbar .brand{flex-basis:145px;min-width:145px;max-width:145px}.topbar.ck-navbar .brand-logo{width:145px;height:44px}}
+@media(max-width:690px){.topbar.ck-navbar{padding:5px 10px;gap:7px}.topbar.ck-navbar .brand{flex-basis:116px;min-width:116px;max-width:116px}.topbar.ck-navbar .brand-logo{width:116px;height:37px}.topbar.ck-navbar .nav-item{min-height:43px}.topbar.ck-navbar .ck-app-trigger{padding:0}}
+

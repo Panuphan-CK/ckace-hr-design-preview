@@ -87,6 +87,89 @@
     '</article>';
   }
 
+  // This chart shares the same 'used' policy values as MY LEAVE STATISTICS.
+  // It does not imply an independently verified approved-request total.
+  function buildApprovedLeaveProportion() {
+    const year = 2026;
+    // Match the "ใช้ไป" totals shown in MY LEAVE STATISTICS exactly.
+    const types = [
+      {key:'vacation', name:'ลาพักร้อน', color:'#8268cf'},
+      {key:'sick', name:'ลาป่วย', color:'#299f91'},
+      {key:'personal', name:'ลากิจ', color:'#be883b'}
+    ];
+    const items = types.map(type => ({
+      ...type,
+      days:Math.max(0, Number(leavePolicies[type.key].used) || 0)
+    }));
+    const total = items.reduce((sum, item) => sum + item.days, 0);
+    const polar = (angle,radius=53) => {
+      const radians=(angle-90)*Math.PI/180;
+      return [190+radius*Math.cos(radians),92+radius*Math.sin(radians)];
+    };
+    let cursor = 0;
+    const arcs = items.filter(item => item.days > 0).map(item => {
+      const sweep = item.days / total * 360;
+      const start = cursor; cursor += sweep;
+      // Split a full circle into two arcs so SVG renders its 360-degree segment.
+      const segment = (from,to) => {
+        const a=polar(from), b=polar(to);
+        return 'M '+a[0].toFixed(3)+' '+a[1].toFixed(3)+' A 53 53 0 '+(to-from>180?1:0)+' 1 '+b[0].toFixed(3)+' '+b[1].toFixed(3);
+      };
+      const d=sweep >= 359.999
+        ? segment(start+1,start+180)+' '+segment(start+180,start+358.999)
+        : segment(start+1, start+sweep-1);
+      return '<path class="leave-proportion-arc" d="'+d+'" stroke="'+item.color+'" stroke-width="27" fill="none" data-leave-tip="'+item.name+': '+item.days+' วัน ('+Math.round(item.days/total*100)+'%)" tabindex="0" aria-label="'+item.name+' '+item.days+' วัน" />';
+    }).join('');
+    // Outside callouts follow segment mid-angles, with leader lines
+    // and Thai type labels/percentages as in the supplied reference.
+    cursor=0;
+    const callouts = items.filter(item=>item.days>0).map(item=>{
+      const sweep=item.days/total*360;
+      const mid=cursor+sweep/2; cursor+=sweep;
+      const p=polar(mid,69);
+      const slots={
+        vacation:{x:290,y:139,right:true},
+        sick:{x:93,y:146,right:false},
+        personal:{x:100,y:40,right:false}
+      };
+      const slot=slots[item.key];
+      const elbow=slot.right?270:111;
+      const endpoint=slot.right?288:95;
+      return '<g class="leave-donut-callout" style="--leave-callout-color:'+item.color+'" aria-hidden="true">'+
+        '<path d="M '+p[0].toFixed(1)+' '+p[1].toFixed(1)+' L '+elbow+' '+slot.y+' L '+endpoint+' '+slot.y+'" stroke="'+item.color+'" fill="none" stroke-width="1.3"/>'+
+        '<text x="'+slot.x+'" y="'+(slot.y-5)+'" text-anchor="'+(slot.right?'start':'end')+'">'+item.name+'</text>'+
+        '<text x="'+slot.x+'" y="'+(slot.y+12)+'" text-anchor="'+(slot.right?'start':'end')+'">'+(item.days/total*100).toFixed(1)+'% · '+item.days+' วัน</text>'+
+      '</g>';
+    }).join('');
+    const legend = items.map(item => {
+      const percent = total ? Math.round(item.days / total * 100) : 0;
+      return '<div class="leave-proportion-legend-row">' +
+        '<span class="leave-proportion-legend-dot" style="background:' + item.color + '"></span>' +
+        '<span class="leave-proportion-legend-name">' + item.name + '</span>' +
+        '<b>' + item.days + ' วัน · ' + percent + '%</b>' +
+      '</div>';
+    }).join('');
+    return '<section class="dashboard-board leave-proportion-board" aria-label="สัดส่วนวันลาที่ใช้ไป">' +
+      '<div class="board-head"><div class="board-title">' +
+        '<span class="board-icon leave-proportion-icon">' + svg('target') + '</span>' +
+        '<span><b>สัดส่วนวันลาที่ใช้ไป</b><small>USED LEAVE MIX</small></span>' +
+      '</div><span class="leave-proportion-year">' + svg('calendar') + ' ปี ' + (year + 543) + '</span></div>' +
+      '<p class="leave-proportion-subtitle">แยกตามประเภทการลา</p>' +
+      '<div class="leave-proportion-content">' +
+        '<div class="leave-proportion-donut" aria-label="สัดส่วนวันลาที่ใช้ไป รวม ' + total + ' วัน">' +
+          '<svg class="leave-proportion-svg" viewBox="0 0 400 184" role="group" aria-label="สัดส่วนการลา">' + (arcs || '<circle cx="90" cy="90" r="69" fill="none" stroke="#dce6ee" stroke-width="34"/>') + callouts + '</svg>' +
+          '<div class="leave-proportion-donut-center"><small>ใช้ไป</small><strong>' + total + '<span> วัน</span></strong></div>' +
+          '<div class="leave-proportion-tooltip" role="status" hidden></div>' +
+        '</div>' +
+        '<div class="leave-proportion-legend">' +
+          (legend || '<p class="leave-proportion-empty">ยังไม่มีการใช้วันลาในปีนี้</p>') +
+
+        '</div>' +
+      '</div>' +
+
+    '</section>';
+  }
+
   function typeChoice(type, selected) {
     const p = leavePolicies[type];
     return '<label class="leave-prod-type-choice ' + p.tone + (selected ? ' is-selected' : '') + '">' +
@@ -183,18 +266,20 @@
       '<section class="leave-prod-hero">' +
         '<div class="leave-prod-hero-copy">' +
           '<div class="leave-prod-date-line"><span class="leave-prod-date-dot"></span><span data-leave-prod-date></span><b data-leave-prod-time></b></div>' +
-          '<small>LEAVE OPERATIONS</small><h1><span>MY LEAVE</span> <em>PLANNER</em></h1>' +
+          '<h1><span>MY LEAVE</span> <em>PLANNER</em></h1>' +
           '<p>วางแผนวันลา ตรวจสิทธิ์ และติดตามคำขอ</p>' +
-          '<div class="leave-prod-hero-actions"><button type="button" class="primary" data-scroll-to="leave-prod-builder">' + svg('plus') + '<span><b>ยื่นคำขอลา</b><small>เริ่มคำขอใหม่</small></span></button><button type="button" class="secondary" data-scroll-to="leave-prod-history">' + svg('file') + '<span><b>ดูประวัติ</b><small>ค้นหาและจัดการคำขอ</small></span></button></div>' +
+          '<div class="leave-prod-hero-actions"><button type="button" class="primary" data-scroll-to="leave-prod-builder"><span class="leave-hero-action-icon" aria-hidden="true">' + svg('plus') + '</span><span class="leave-hero-action-copy"><small>NEW REQUEST</small><b>ยื่นคำขอลา</b></span></button><button type="button" class="secondary" data-scroll-to="leave-prod-history"><span class="leave-hero-action-icon" aria-hidden="true">' + svg('file') + '</span><span class="leave-hero-action-copy"><small>LEAVE HISTORY</small><b>ดูประวัติ</b></span></button></div>' +
         '</div>' +
-        '<div class="leave-prod-hero-visual" aria-label="สรุปแผนการลา">' +
-          '<div class="leave-prod-hero-plan"><small>UPCOMING LEAVE</small><strong>26–28 <em>OCT 26</em></strong><span>ลาพักร้อน · 3 วันทำงาน</span></div>' +
-          '<div class="leave-prod-hero-metrics">' +
-            '<span><small>คงเหลือ</small><b>12 วัน</b></span>' +
-            '<span><small>ทีมพร้อม</small><b>พร้อม</b></span>' +
-            '<span><small>NEXT HOLIDAY</small><b>23 OCT</b></span>' +
-          '</div>' +
-          '<div class="leave-prod-hero-week"><span><small>MON</small><b>26</b><i>ลา</i></span><span><small>TUE</small><b>27</b><i>ลา</i></span><span><small>WED</small><b>28</b><i>ลา</i></span><span><small>THU</small><b>29</b></span><span><small>FRI</small><b>30</b></span></div>' +
+        '<div class="leave-prod-hero-visual dashboard-orb leave-orb" aria-label="สรุปสิทธิ์วันลา">' +
+          '<span class="orb-ring ring-a"></span><span class="orb-ring ring-b"></span><span class="orb-ring ring-c"></span>' +
+          '<span class="orb-core"><small>พักร้อนคงเหลือ</small><strong>12<span>วัน</span></strong></span>' +
+          '<span class="orb-float orb-float-a"><small>สิทธิ์พักร้อน</small><b>15 วัน</b></span>' +
+          '<span class="orb-float orb-float-b"><small>ใช้ไปแล้ว</small><b>3 วัน</b></span>' +
+          '<span class="orb-float orb-float-c"><small>รออนุมัติ</small><b>1 รายการ</b></span>' +
+          '<span class="orb-float orb-float-d"><small>วันลาถัดไป</small><b>26–28 ต.ค.</b></span>' +
+          '<span class="orb-float orb-float-e"><small>วันหยุดบริษัท</small><b>23 ต.ค.</b></span>' +
+          '<span class="orb-float orb-float-f"><small>สิทธิ์คงเหลือ</small><b>80%</b></span>' +
+          '<i class="dashboard-star dashboard-star-a"></i><i class="dashboard-star dashboard-star-b"></i><i class="dashboard-star dashboard-star-c"></i>' +
         '</div>' +
       '</section>' +
 
@@ -281,6 +366,25 @@
     set('[data-summary-before]',p.remain + ' วัน');
     set('[data-summary-after]',after + ' วัน');
 
+    const previewPanel = root.querySelector('.leave-live-preview');
+    if (previewPanel) {
+      const reason = root.querySelector('[name="leave-prod-reason"]')?.value.trim() || 'ยังไม่ได้ระบุเหตุผล';
+      const remaining = p.remain - calc.days;
+      const text = (selector, value) => { const node=previewPanel.querySelector(selector); if(node) node.textContent=value; };
+      text('[data-live-type]',p.th);
+      text('[data-live-range]',fmtRange(calc.start,calc.end));
+      text('[data-live-duration]',durationLabel(calc.duration));
+      text('[data-live-reason]',reason);
+      text('[data-live-before]',p.remain + ' วัน');
+      text('[data-live-used]',calc.days + ' วัน');
+      text('[data-live-after]',(remaining < 0 ? remaining : Math.max(0,remaining)) + ' วัน');
+      text('[data-live-remaining-label]',remaining < 0 ? 'เกินสิทธิ์ที่เหลือ' : 'สิทธิ์คงเหลือหลังลา');
+      const percent=p.remain>0?Math.min(100,Math.max(0,remaining/p.remain*100)):0;
+      const progress=previewPanel.querySelector('[data-live-progress]');
+      if(progress)progress.style.width=percent.toFixed(1)+'%';
+      previewPanel.classList.toggle('is-over-quota',remaining<0);
+    }
+
     root.querySelectorAll('.leave-prod-type-choice').forEach(card => {
       const radio = card.querySelector('input');
       card.classList.toggle('is-selected', !!radio?.checked);
@@ -316,6 +420,7 @@
     root.querySelectorAll('[data-scroll-to]').forEach(btn => btn.addEventListener('click', () => document.getElementById(btn.dataset.scrollTo)?.scrollIntoView({behavior:'smooth',block:'start'})));
 
     root.querySelectorAll('[name="leave-prod-type"],[name="leave-prod-duration"],[name="leave-prod-start"],[name="leave-prod-end"],[name="leave-prod-start-time"],[name="leave-prod-end-time"]').forEach(el => el.addEventListener('change', () => updateSummary(root)));
+    root.querySelector('[name="leave-prod-reason"]')?.addEventListener('input', () => updateSummary(root));
 
     root.querySelector('#leave-prod-form')?.addEventListener('submit', event => {
       event.preventDefault();
@@ -360,7 +465,86 @@
     const note=document.querySelector('.page-shell.leave-page > .prototype-note');
     if (note) note.hidden=true;
     workspace.innerHTML=buildDesktop();
+    // Use the actual approved MY LEAVE STATISTICS component from Overview.
+    // The fallback wallet built above remains if the Overview renderer is unavailable.
+    if (typeof dashboardPage === 'function') {
+      const original = workspace.querySelector('.leave-prod-wallet');
+      if (original) {
+        const source = document.createElement('div');
+        source.innerHTML = dashboardPage();
+        const approved = source.querySelector('.owner-leave-mini');
+        if (approved) {
+          const host = document.createElement('div');
+          host.className = 'dashboard-v2 leave-stats-master-host';
+          const deck = document.createElement('div');
+          deck.className = 'dashboard-deck dashboard-deck-cards leave-stats-master-deck';
+          deck.appendChild(approved);
+          const statsRow = document.createElement('div');
+          statsRow.className = 'leave-stats-comparison-row';
+          statsRow.appendChild(deck);
+          statsRow.insertAdjacentHTML('beforeend', buildApprovedLeaveProportion());
+          host.appendChild(statsRow);
+          // Keep the existing Web LIFF link accessible without changing the
+          // exact visual composition of the Overview statistics card.
+          const liff = original.querySelector('.leave-prod-head-link');
+          if (liff) {
+            const external = document.createElement('div');
+            external.className = 'leave-stats-external-link';
+            external.appendChild(liff.cloneNode(true));
+            host.appendChild(external);
+          }
+          original.replaceWith(host);
+        }
+      }
+    }
+    const builder=workspace.querySelector('#leave-prod-builder');
+    if(builder){
+      const layout=document.createElement('div');
+      layout.className='leave-form-workspace';
+      builder.before(layout);
+      layout.appendChild(builder);
+      layout.insertAdjacentHTML('beforeend',
+        '<aside class="leave-live-preview" aria-label="พรีวิวคำขอลาและยอดคงเหลือ" aria-live="polite">' +
+          '<div class="leave-live-head"><span class="leave-live-icon">' + svg('file') + '</span><span><small>LEAVE PREVIEW</small><b>รายละเอียดคำขอของฉัน</b></span><span class="leave-live-draft">DRAFT</span></div>' +
+          '<p class="leave-live-intro">ข้อมูลเปลี่ยนทันทีตามที่เลือกในฟอร์ม</p>' +
+          '<div class="leave-live-type"><span>ประเภทการลา</span><strong data-live-type></strong></div>' +
+          '<div class="leave-live-items">' +
+          '<div><small>วันที่ลา</small><strong data-live-range></strong></div>' +
+          '<div><small>ช่วงเวลา</small><strong data-live-duration></strong></div>' +
+          '<div class="leave-live-reason"><small>เหตุผล</small><strong data-live-reason></strong></div></div>' +
+          '<div class="leave-live-balance"><small>BALANCE AFTER LEAVE</small><span data-live-remaining-label>สิทธิ์คงเหลือหลังลา</span><strong data-live-after></strong>' +
+          '<div class="leave-live-track"><i data-live-progress></i></div>' +
+          '<div class="leave-live-balance-split"><span>ก่อนลา <b data-live-before></b></span><span>ใช้ครั้งนี้ <b data-live-used></b></span></div></div>' +
+          '<p class="leave-live-note">' + svg('shield') + ' ข้อมูลตัวอย่าง · ระบบจะตรวจสิทธิ์อีกครั้งก่อนส่งจริง</p>' +
+        '</aside>');
+    }
     bindDesktop(workspace);
+    const donut=workspace.querySelector('.leave-proportion-donut');
+    if(donut){
+      const tooltip=donut.querySelector('.leave-proportion-tooltip');
+      const arcs=donut.querySelectorAll('.leave-proportion-arc');
+      const show=(arc,event)=>{
+        if(!tooltip)return;
+        tooltip.textContent=arc.dataset.leaveTip || '';
+        tooltip.hidden=false;
+        arcs.forEach(node=>node.classList.toggle('is-active',node===arc));
+        if(event){
+          const box=donut.getBoundingClientRect();
+          tooltip.style.left=Math.max(20,Math.min(box.width-20,event.clientX-box.left))+'px';
+          tooltip.style.top=Math.max(4,event.clientY-box.top-36)+'px';
+        }else{
+          tooltip.style.left='50%';tooltip.style.top='-20px';
+        }
+      };
+      const hide=()=>{tooltip.hidden=true;arcs.forEach(node=>node.classList.remove('is-active'));};
+      arcs.forEach(arc=>{
+        arc.addEventListener('pointerenter',e=>show(arc,e));
+        arc.addEventListener('pointermove',e=>show(arc,e));
+        arc.addEventListener('pointerleave',hide);
+        arc.addEventListener('focus',()=>show(arc));
+        arc.addEventListener('blur',hide);
+      });
+    }
   }
 
   addEventListener('hashchange',()=>setTimeout(mount,30));

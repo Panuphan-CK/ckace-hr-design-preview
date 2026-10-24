@@ -66,3 +66,8 @@
 .dashboard-v2 .calendar-pro-date.holiday-date strong{color:#bd4854!important}
 .dashboard-v2 .calendar-holiday-card .calendar-agenda-copy b{color:#a63845}
 .dashboard-v2 .calendar-holiday-card .calendar-agenda-copy small{color:#b76a72}
+
+/* COMPANY UPDATE follows the warm-peach lead tint, while retaining the original icon plate. */
+.dashboard-v2 .announcements-head h2{color:#ad705c!important}
+.dashboard-v2 .announcements-head .announcement-heading-icon,
+.dashboard-v2 .announcements-head .announcement-heading-icon svg{color:#ad705c!important;stroke:#ad705c!important}

@@ -154,7 +154,7 @@
         '<span class="board-icon leave-proportion-icon">' + svg('target') + '</span>' +
         '<span><b>สัดส่วนวันลาที่ใช้ไป</b><small>USED LEAVE MIX</small></span>' +
       '</div><span class="leave-proportion-year">' + svg('calendar') + ' ปี ' + (year + 543) + '</span></div>' +
-      '<p class="leave-proportion-subtitle">แยกตามประเภทการลา</p>' +
+      '' +
       '<div class="leave-proportion-content">' +
         '<div class="leave-proportion-donut" aria-label="สัดส่วนวันลาที่ใช้ไป รวม ' + total + ' วัน">' +
           '<svg class="leave-proportion-svg" viewBox="0 0 400 184" role="group" aria-label="สัดส่วนการลา">' + (arcs || '<circle cx="90" cy="90" r="69" fill="none" stroke="#dce6ee" stroke-width="34"/>') + callouts + '</svg>' +

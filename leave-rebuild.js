@@ -135,7 +135,7 @@
       const slot=slots[item.key];
       const elbow=slot.right?270:111;
       const endpoint=slot.right?288:95;
-      return '<g class="leave-donut-callout" style="--leave-callout-color:'+item.color+'" aria-hidden="true">'+
+      return '<g class="leave-donut-callout leave-donut-callout-'+item.key+'" style="--leave-callout-color:'+item.color+'" aria-hidden="true">'+
         '<path d="M '+p[0].toFixed(1)+' '+p[1].toFixed(1)+' L '+elbow+' '+slot.y+' L '+endpoint+' '+slot.y+'" stroke="'+item.color+'" fill="none" stroke-width="1.3"/>'+
         '<text x="'+slot.x+'" y="'+(slot.y-5)+'" text-anchor="'+(slot.right?'start':'end')+'">'+item.name+'</text>'+
         '<text x="'+slot.x+'" y="'+(slot.y+12)+'" text-anchor="'+(slot.right?'start':'end')+'">'+(item.days/total*100).toFixed(1)+'% · '+item.days+' วัน</text>'+

@@ -17,10 +17,11 @@
 .page-shell.leave-page .leave-proportion-donut{width:380px;height:172px;max-width:100%;justify-self:center}
 .page-shell.leave-page .leave-proportion-svg{width:100%;height:100%;overflow:visible}
 .page-shell.leave-page .leave-donut-callout{pointer-events:none}
-.page-shell.leave-page .leave-donut-callout text{fill:var(--leave-callout-color,#385d75);color:var(--leave-callout-color,#385d75);-webkit-text-fill-color:var(--leave-callout-color,#385d75);font:600 11px/1.2 'Prompt','Noto Sans Thai',sans-serif}
-.page-shell.leave-page .leave-donut-callout text+text{fill:var(--leave-callout-color,#697e94);font-size:11px;font-weight:600}
+.page-shell.leave-page .leave-donut-callout text{fill:var(--leave-callout-color,#385d75);color:var(--leave-callout-color,#385d75);-webkit-text-fill-color:var(--leave-callout-color,#385d75);font:400 11px/1.2 'Prompt','Noto Sans Thai',sans-serif}
+.page-shell.leave-page .leave-donut-callout text+text{fill:var(--leave-callout-color,#697e94);font-size:11px;font-weight:400}
 .page-shell.leave-page .leave-proportion-donut-center{display:flex;position:absolute;left:47.5%;top:50%;transform:translate(-50%,-50%);z-index:2;flex-direction:column;align-items:center;justify-content:center;gap:2px;white-space:nowrap;pointer-events:none}
 .page-shell.leave-page .leave-proportion-donut-center small{font:600 11px/1.2 'Prompt','Noto Sans Thai',sans-serif;color:#45677f}
 .page-shell.leave-page .leave-proportion-donut-center strong{font:800 23px/1 'Prompt','Noto Sans Thai',sans-serif;color:#193c5b}
 .page-shell.leave-page .leave-proportion-donut-center strong span{font-size:11px;font-weight:700}
 .page-shell.leave-page .leave-proportion-legend{display:none}
+

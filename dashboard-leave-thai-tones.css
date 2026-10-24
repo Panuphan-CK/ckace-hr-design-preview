@@ -69,5 +69,6 @@
 
 /* COMPANY UPDATE follows the warm-peach lead tint, while retaining the original icon plate. */
 .dashboard-v2 .announcements-head h2{color:#ad705c!important}
+.dashboard-v2 .announcement-title-en{background-image:linear-gradient(90deg,#ad705c,#cb907b)!important;color:#ad705c}
 .dashboard-v2 .announcements-head .announcement-heading-icon,
 .dashboard-v2 .announcements-head .announcement-heading-icon svg{color:#ad705c!important;stroke:#ad705c!important}

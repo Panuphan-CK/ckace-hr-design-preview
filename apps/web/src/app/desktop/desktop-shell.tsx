@@ -12,6 +12,10 @@ import { useEffect, useMemo, useState } from "react";
 
 import { requestDesktopLogout } from "./logout-request";
 import { canAccessDesktopRoute } from "./desktop-route-access";
+import {
+  DESKTOP_NAV_ACCESSIBLE_NAMES,
+  desktopSectionAccessibleName,
+} from "./desktop-nav-accessibility";
 import { installHashChangeEvents } from "./ui/hash-events";
 import { Icon, type IconName } from "./ui/icons";
 import { PageHead, type Tone as PageTone } from "./ui/kit";
@@ -438,6 +442,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
       <button
         type="button"
         className={on ? "ck-tab on" : "ck-tab"}
+        aria-label={desktopSectionAccessibleName(label, badge)}
         aria-expanded={openSection === id}
         aria-haspopup="menu"
         onClick={() => {
@@ -466,14 +471,24 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
           </span>
         </Link>
         <nav className="ck-tabs" aria-label="เมนูหลัก">
-          <Link href="/desktop" className={pathname === "/desktop" ? "ck-tab on" : "ck-tab"} onClick={() => setOpenSection(null)}>
+          <Link
+            href="/desktop"
+            className={pathname === "/desktop" ? "ck-tab on" : "ck-tab"}
+            aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.dashboard}
+            onClick={() => setOpenSection(null)}
+          >
             <Icon name="dashboard" size={18} />
             <span>ภาพรวม</span>
           </Link>
           {tabButton("requests", "ยื่นคำขอ", "document")}
           {tabButton("approvals", "งานอนุมัติ", "check", totalPending || undefined)}
           {nav.calendar ? (
-            <Link href="/desktop/calendar" className={pathname === "/desktop/calendar" ? "ck-tab on" : "ck-tab"} onClick={() => setOpenSection(null)}>
+            <Link
+              href="/desktop/calendar"
+              className={pathname === "/desktop/calendar" ? "ck-tab on" : "ck-tab"}
+              aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.calendar}
+              onClick={() => setOpenSection(null)}
+            >
               <Icon name="calendar" size={18} />
               <span>ปฏิทิน</span>
             </Link>
@@ -513,6 +528,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
           <button
             type="button"
             className="ck-me-btn"
+            aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
             aria-haspopup="dialog"
             aria-expanded={popover === "me"}
             onClick={() => {
@@ -567,7 +583,11 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
       ) : null}
 
       {popover === "me" ? (
-        <div className="ck-pop" role="dialog" aria-label="โปรไฟล์และการแจ้งเตือน">
+        <div
+          className="ck-pop"
+          role="dialog"
+          aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
+        >
           <div className="ck-me">
             <span className="ck-av md">{initials(profile?.fullName)}</span>
             <span>

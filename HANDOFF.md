@@ -1,25 +1,25 @@
 # CKACE_HR — Project B HANDOFF
 
-Last Updated: 2026-10-23 Asia/Bangkok (see docs/HANDOFF_20261021.md)
+Last Updated: 2026-10-24 Asia/Bangkok (see docs/HANDOFF_20261021.md)
 
 > Canonical continuity file for **Project B only**: `D:\CKACE_HR`.
 > Project A `D:\APP_Leave` must remain separate.
 > **2026-10-21: current state, deploy routine and open items are in `docs/HANDOFF_20261021.md`. The "Current Goal" below is stale.**
 > Historical pre-split snapshot: `docs/archive/project-b-split-20261008/HANDOFF_MIXED_BEFORE_SPLIT.md`.
 
-## Current Continuity Override — 2026-10-23
+## Current Continuity Override — 2026-10-24
 
-The active workstream is now **WEB-LEAVE-07 — Full authenticated Leave workflow regression on TESTm72**. WEB-LEAVE-06 passed its complete role/NAV/direct-URL gate on the hosted TESTm72 release; no source files changed during that verification.
+The active workstream is **WEB-LEAVE-06A — TEST rollout + responsive NAV accessibility recheck**. WEB-LEAVE-06's role/direct-URL matrix already passed on TESTm72, but a narrow-width review found icon-only NAV controls with missing or incomplete accessible names.
 
-Role matrix evidence on TESTm72:
-- Employee `พนักงาน`: 35 URLs, 12 granted self-service/news routes, 23 expected fail-closed denials; profile `EMPLOYEE`, 22 permissions.
-- Manager `หัวหน้า`: 35 URLs, 33 granted and 2 expected fail-closed denials (`#roles`, `approval-policies`); profile `ADMIN + EMPLOYEE`, 46 permissions.
+- Employee `พนักงาน`: 35 URLs, 12 granted self-service/news routes, 23 expected denials; profile `EMPLOYEE`, 22 permissions.
+- Manager `หัวหน้า`: 35 URLs, 33 granted and 2 expected denials (`#roles`, `approval-policies`); profile `ADMIN + EMPLOYEE`, 46 permissions.
 - Elevated `SuperAdmin คนที่สอง`: 35 URLs, all 35 granted; profile `SUPERADMIN + EMPLOYEE`, 58 permissions.
 - Narrow `innerWidth=695` checks passed for Dashboard and representative Leave/Approval/Reports/Admin pages without page-level horizontal overflow. The Employee Leave history table is contained in its intended internal scroll area.
+- TESTm72 health/traffic evidence: `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`; API/Web m72 at 100% traffic.
+- An isolated application-source worktree contains a local fix naming dashboard, calendar, section-menu and profile controls; the approval menu name includes a pending count and the profile trigger/dialog share one name. The source-wiring smoke check passed. The Local main checkout remains untouched. The source fix is not deployed; TESTm72 still has the prior markup.
+- No TEST build/deploy, business action, credentials change, Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made.
 
-TESTm72 health/traffic remained healthy after the read-only run: public health reports `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`; read-only Cloud Run status reports API/Web m72 at 100% traffic. No business action was submitted.
-
-No credentials were created, changed or requested in chat. No Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting change was made.
+Next: wait for an explicit `Build` request before TEST rollout. Verify the intended TEST revisions, accessible names and responsive behavior before proceeding to WEB-LEAVE-07 — Full authenticated Leave workflow regression.
 
 ## Current Goal
 

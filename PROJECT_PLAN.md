@@ -1,20 +1,18 @@
 # CKACE_HR — Project B PROJECT PLAN
 
-Last Updated: 2026-10-23 Asia/Bangkok
+Last Updated: 2026-10-24 Asia/Bangkok
 
 > Canonical plan for **Project B only**: `D:\CKACE_HR`.
 > Project A `D:\APP_Leave` has separate continuity and must not be tracked here.
 
-## Current Active Task — 2026-10-23
+## Current Active Task — 2026-10-24
 
-**WEB-LEAVE-07 — Full authenticated Leave workflow regression on TESTm72** is the next P1 TEST confidence gate after WEB-LEAVE-06 passed across all three role sessions.
+**WEB-LEAVE-06A — TEST rollout + responsive NAV accessibility recheck** is active. WEB-LEAVE-06's role/direct-URL matrix already passed on TESTm72, but the narrow NAV review found icon-only controls without stable accessible names.
 
-- Employee `พนักงาน`: 35 direct URLs checked; 12 granted self-service/news routes and 23 expected denials. Profile confirmed `EMPLOYEE`, 22 permissions.
-- Manager `หัวหน้า`: 35 direct URLs checked; 33 granted and 2 expected denials (`/desktop/admin/management#roles`, `/desktop/admin/approval-policies`). Profile confirmed `ADMIN + EMPLOYEE`, 46 permissions.
-- Elevated `SuperAdmin คนที่สอง`: 35 direct URLs checked; all 35 granted. Profile confirmed `SUPERADMIN + EMPLOYEE`, 58 permissions.
-- Narrow viewport checks at `innerWidth=695` passed for Dashboard and representative Leave/Approval/Reports/Admin pages with no page-level horizontal overflow. Employee Leave's wide history table is contained in its intended internal scroll surface.
-- Public `/api/health` still reports `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`. Read-only Cloud Run traffic confirms API/Web m72 at 100%.
-- No business mutation was performed during WEB-LEAVE-06. Next: run one bounded synthetic Leave workflow on TESTm72. Production remains NO-GO; no additional build is needed before that flow gate.
+- Local source patch adds accessible names for dashboard, calendar, section-menu and profile controls, preserving the pending approval count in the section name; the profile trigger and dialog share one name. A focused naming contract test and source-wiring smoke check are present.
+- TESTm72 role matrix evidence remains valid: Employee 12/35 grants, Manager 33/35 grants with two expected denials, SuperAdmin 35/35 grants; representative narrow-width and page-overflow checks passed.
+- The source patch is not on TEST. Current health/traffic evidence remains TESTm72; no build, deployment or business mutation occurred in this session.
+- After publication, wait for an explicit `Build` request before TEST rollout. Verify names, responsive overflow and intended TEST revisions before WEB-LEAVE-07. Production remains NO-GO.
 
 Production remains NO-GO. Do not touch Project A, protected design artifacts, Production services, Secret Manager, IAM or project settings.
 

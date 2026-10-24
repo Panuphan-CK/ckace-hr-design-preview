@@ -1,45 +1,42 @@
 # CKACE HR — ACTIVE TASK
 
-Updated: 2026-10-23 Asia/Bangkok
+Updated: 2026-10-24 Asia/Bangkok
 
-## WEB-LEAVE-07 — Full authenticated Leave workflow regression on TESTm72
+## WEB-LEAVE-06A — TEST rollout + responsive NAV accessibility recheck
 
-Status: **READY — WEB-LEAVE-06 role/NAV matrix PASS; next TEST business-flow gate**
-Priority: **P1 — current TEST confidence gate**
+Status: **ACTIVE — Local source fix prepared; hosted TESTm72 has not been changed**
+Priority: **P2 — close the NAV accessibility gap before the next authenticated workflow gate**
 
 Objective / why now:
-Verify the complete Leave request lifecycle on the healthy TESTm72 release after all three role boundaries passed: Employee submit/history, Manager approval visibility/decision path, and elevated SuperAdmin approval/history boundary.
+WEB-LEAVE-06's Employee / Manager / SuperAdmin direct-URL and responsive role matrix is already verified PASS on TESTm72. The narrow NAV review found that icon-only controls lose their accessible names when labels are visually hidden. Correct that without changing visual layout, role permissions, or route behavior, then verify the fix on TEST after an Owner-authorized rollout.
 
 Scope:
-- Use only Owner-controlled TEST sessions `พนักงาน`, `หัวหน้า` and elevated `TEST/SuperAdmin`; never create or set passwords.
-- Use a clearly synthetic TEST fixture and complete one bounded Leave flow end-to-end, including status/history readback and the existing approval chain.
-- Record every state transition and confirm no duplicate or unintended second request is created.
-- TEST only; no Production, Project A, protected design artifact, Secret Manager, IAM, gateway or project-setting changes.
+- Give dashboard, calendar, section-menu and profile controls stable, descriptive accessible names at narrow widths.
+- Include the pending approval count in the approval section's accessible name when present.
+- Preserve the existing TESTm72 role/direct-URL evidence; repeat focused responsive and route checks only after the changed build is on TEST.
+- Keep implementation in the application/source repository and preserve the protected design artifact.
 
 Out of scope:
-- OT, Medical, Time Correction, attendance writes and unrelated refactors unless a Leave regression proves a shared blocker.
-- Production services/traffic/DB/DNS/Firebase and destructive cleanup.
+- Leave business-flow writes until this gate is verified; those belong to WEB-LEAVE-07.
+- Any Production, Project A, Secret Manager, IAM, gateway, Firebase/Cloud project-setting or protected-design changes.
+- TEST build/deploy before the Owner explicitly requests `Build`.
 
 Acceptance / verification:
-- Employee can open Leave, submit one synthetic request through the existing form, and see the expected pending/history state.
-- Manager can open the Leave approval destination, see the request in the correct queue, and complete the approved TEST decision path without duplicate decisions.
-- Elevated SuperAdmin can read the resulting approval/history state and the server remains authoritative.
-- No unintended route denial, page-level horizontal overflow or console/runtime blocker on the tested Leave pages.
-- TESTm72 health and 100% traffic remain unchanged; Production remains untouched.
+- At 375px and 695px, all visible NAV links/buttons have meaningful accessible names; section names remain descriptive and approval count is announced when nonzero.
+- No page-level horizontal overflow or unexpected layout/permission/direct-route regression on representative Employee, Manager and SuperAdmin pages.
+- After rollout, public health identifies the new TEST API revision and Cloud Run API/Web traffic is 100% on the intended TEST revisions.
+- Production remains untouched.
 
-Completed WEB-LEAVE-06 evidence:
-- Employee `พนักงาน`: 35 direct URLs — 12 granted self-service/news routes, 23 expected denials; profile showed `EMPLOYEE`, 22 permissions.
-- Manager `หัวหน้า`: 35 direct URLs — 33 granted, 2 expected denials (`/desktop/admin/management#roles`, `/desktop/admin/approval-policies`); profile showed `ADMIN + EMPLOYEE`, 46 permissions.
-- Elevated `SuperAdmin คนที่สอง`: 35 direct URLs — all 35 granted; profile showed `SUPERADMIN + EMPLOYEE`, 58 permissions.
-- Narrow viewport `innerWidth=695`: Dashboard metrics had `documentWidth/clientWidth/bodyWidth` within the viewport and zero page-level offenders for Employee, Manager and SuperAdmin key pages; Employee Leave's wide table remained inside its intended internal scroll surface.
-- Public health readback: `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`.
-- Cloud Run readback: `ckace-hr-api-test-m72` and `ckace-hr-web-test-m72` each report `percent=100` traffic.
-- No business action was performed during WEB-LEAVE-06; no source files changed.
+Evidence carried forward:
+- TESTm72 health: `ok=true`, `stage=test`, `runtime=NON_PRODUCTION`, `serviceRevision=ckace-hr-api-test-m72`; API/Web m72 each at 100% traffic.
+- WEB-LEAVE-06 role matrix: Employee 12/35 grants, Manager 33/35 grants with two expected denials, SuperAdmin 35/35 grants; narrow-width role checks and representative pages passed.
+- New source patch in this isolated worktree adds accessible names for dashboard, calendar, section-menu and profile controls plus a focused naming contract test.
+- TESTm72 still runs the old markup; no TEST build/deploy or business mutation was performed in this session.
 
-Local verification:
-- Web lint **PASS**.
-- Targeted `desktop-route-access.test.ts` **7/7 PASS**.
-- `git diff --check` **PASS**; only the three expected continuity Markdown files are modified for publication.
+Verification run:
+- Node source-wiring + accessible-name contract smoke check: PASS; profile trigger and dialog share one accessible name.
+- `git diff --check`: PASS.
+- Vitest / web lint / typecheck: not run because this isolated worktree has no installed dependencies; do not install or use dependencies from the dirty main checkout.
 
 Next action:
-Run the bounded synthetic Leave workflow on TESTm72. Do not build or touch Production unless the Owner explicitly requests a separate release action.
+After publication, wait for an explicit `Build` request before TEST rollout. Then verify the accessible tree and responsive gate before starting WEB-LEAVE-07.

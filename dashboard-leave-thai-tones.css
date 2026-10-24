@@ -1,0 +1,11 @@
+/* Leave-only approved Thai accents. Dashboard reverts to its original Design Master palette. */
+.page-shell.leave-page .personal-leave-pro-card.vacation .personal-leave-pro-head b,
+.page-shell.leave-page .leave-prod-type-choice.violet .leave-prod-type-copy b{color:#7961b3}
+.page-shell.leave-page .personal-leave-pro-card.sick .personal-leave-pro-head b,
+.page-shell.leave-page .leave-prod-type-choice.teal .leave-prod-type-copy b{color:#358f84}
+.page-shell.leave-page .personal-leave-pro-card.business .personal-leave-pro-head b,
+.page-shell.leave-page .leave-prod-type-choice.amber .leave-prod-type-copy b{color:#ab813b}
+.page-shell.leave-page .leave-live-head > span:nth-child(2) > b{color:#5c83a0}
+.page-shell.leave-page .leave-prod-hero-actions .primary .leave-hero-action-copy b{color:#28556f}
+.page-shell.leave-page .leave-prod-hero-actions .secondary .leave-hero-action-copy b{color:#7e5360}
+.page-shell.leave-page .leave-prod-request-detail > b{color:#64819a}

@@ -264,8 +264,10 @@
   color:#c45f73;opacity:1;
 }
 .page-shell.leave-page .leave-prod-hero-actions button .leave-hero-action-copy b{
-  color:#17324f;font:800 12px/1.05 'Prompt','Noto Sans Thai',sans-serif;
+  font:800 12px/1.05 'Prompt','Noto Sans Thai',sans-serif;
 }
+.page-shell.leave-page .leave-prod-hero-actions .primary .leave-hero-action-copy b{color:#28556f}
+.page-shell.leave-page .leave-prod-hero-actions .secondary .leave-hero-action-copy b{color:#7e5360}
 .page-shell.leave-page .leave-orb .orb-core small{
   color:#193653;font:800 14px/1.15 'Prompt','Noto Sans Thai',sans-serif;
   letter-spacing:0;white-space:nowrap;

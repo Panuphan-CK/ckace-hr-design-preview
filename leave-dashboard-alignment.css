@@ -323,3 +323,52 @@
 }
 
 
+
+/* Leave form and history: compact balanced master-card layout. */
+.page-shell.leave-page .leave-form-workspace{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;align-items:start;gap:18px}
+.page-shell.leave-page .leave-form-workspace>.leave-prod-builder,
+.page-shell.leave-page .leave-form-workspace>.leave-live-preview{width:100%!important;min-width:0;max-width:none!important}
+.page-shell.leave-page .leave-prod-builder{padding:18px!important}
+.page-shell.leave-page .leave-prod-builder .leave-prod-board-head p,
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-title p,.page-shell.leave-page .leave-prod-builder .leave-prod-form-title small{display:none!important}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-section{padding:12px 0!important;margin:0!important;min-width:0}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-title{min-height:0!important;margin-bottom:10px!important;gap:8px}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-title h3{font-size:14px}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-section textarea{min-height:65px}
+.page-shell.leave-page .leave-prod-history .leave-prod-board-head p{display:none}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-list{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px!important;align-items:stretch}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-row{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:9px!important;min-width:0;height:100%;padding:15px!important;border-radius:18px}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-type{align-self:flex-start}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-id,
+.page-shell.leave-page .leave-prod-history .leave-prod-request-detail,
+.page-shell.leave-page .leave-prod-history .leave-prod-request-reason{display:flex!important;flex-direction:column;gap:2px;min-width:0;width:100%}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-row em{white-space:normal}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-actions{display:flex!important;flex-wrap:wrap;gap:6px;margin-top:auto;width:100%}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-actions button{flex:1 1 auto;min-width:0}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-expanded{width:100%;min-width:0;padding-top:10px;border-top:1px solid rgba(114,137,170,.18)}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-expanded-grid{display:grid;grid-template-columns:1fr;gap:9px}
+.page-shell.leave-page .leave-prod-history .leave-prod-timeline-row{flex-wrap:wrap;min-width:0}
+@media(max-width:1100px){.page-shell.leave-page .leave-prod-history .leave-prod-request-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:800px){.page-shell.leave-page .leave-form-workspace{grid-template-columns:minmax(0,1fr)!important}.page-shell.leave-page .leave-prod-history .leave-prod-request-list{grid-template-columns:minmax(0,1fr)}}
+
+/* Final polish: make all card content resilient to varied names and descriptions. */
+.page-shell.leave-page .leave-prod-history .leave-prod-request-row{box-sizing:border-box;overflow-wrap:anywhere;line-height:1.4;transition:box-shadow .18s ease,border-color .18s ease}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-row:focus-within{box-shadow:0 0 0 3px rgba(82,143,192,.14)}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-id small,
+.page-shell.leave-page .leave-prod-history .leave-prod-request-detail small,
+.page-shell.leave-page .leave-prod-history .leave-prod-request-reason small{font-size:10px;letter-spacing:.035em}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-id b,
+.page-shell.leave-page .leave-prod-history .leave-prod-request-detail b,
+.page-shell.leave-page .leave-prod-history .leave-prod-request-reason b{font-size:13px;line-height:1.4}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-actions button{min-height:36px;white-space:normal;text-align:center}
+.page-shell.leave-page .leave-prod-history .leave-prod-toolbar{gap:10px}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-title b{line-height:1.35}
+.page-shell.leave-page .leave-prod-builder input:focus-visible,
+.page-shell.leave-page .leave-prod-builder select:focus-visible,
+.page-shell.leave-page .leave-prod-builder textarea:focus-visible,
+.page-shell.leave-page .leave-prod-history button:focus-visible{outline:2px solid #438caa;outline-offset:2px}
+@media(max-width:800px){.page-shell.leave-page .leave-prod-builder{padding:14px!important}.page-shell.leave-page .leave-form-workspace{gap:14px}.page-shell.leave-page .leave-prod-history .leave-prod-request-row{padding:14px!important}}
+@media(prefers-reduced-motion:reduce){.page-shell.leave-page .leave-prod-history .leave-prod-request-row{transition:none}}
+
+/* Respect the existing search/month/status filtering state. */
+.page-shell.leave-page .leave-prod-history .leave-prod-request-row[hidden]{display:none!important}

@@ -372,3 +372,77 @@
 
 /* Respect the existing search/month/status filtering state. */
 .page-shell.leave-page .leave-prod-history .leave-prod-request-row[hidden]{display:none!important}
+
+/* Leave 2026-10-24 — premium pastel form + history visual refresh.
+   Scope strictly to Leave; keep real form fields and existing actions. */
+.page-shell.leave-page .leave-prod-builder{
+  background:radial-gradient(circle at 94% 5%,rgba(85,201,183,.18),transparent 32%),linear-gradient(145deg,#f7fffc 0%,#eefaf8 58%,#e9f4fd 100%)!important;
+  border:1px solid #cce8e5!important;border-radius:26px!important;
+  box-shadow:0 18px 35px rgba(48,108,128,.09),inset 0 1px rgba(255,255,255,.95)!important;
+}
+.page-shell.leave-page .leave-prod-builder .leave-prod-board-head{margin-bottom:12px!important}
+.page-shell.leave-page .leave-prod-builder .leave-prod-board-head h2{color:#227a80!important;font-size:19px!important}
+.page-shell.leave-page .leave-prod-builder .leave-prod-board-head small{color:#318f89!important}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-section{
+  background:rgba(255,255,255,.72);border:1px solid rgba(159,211,207,.45);
+  border-radius:17px;padding:14px!important;margin:0 0 10px!important;
+  box-shadow:0 2px 8px rgba(63,116,129,.025);
+}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-title{margin-bottom:11px!important}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-title>span{
+  background:#e0f6f0!important;color:#25877f!important;border:1px solid #cceae2!important;
+  border-radius:11px!important;
+}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-title b{font-size:13px!important;color:#245b6b!important}
+.page-shell.leave-page .leave-prod-builder .leave-prod-board-head+.leave-prod-steps{margin-bottom:12px!important}
+.page-shell.leave-page .leave-prod-builder .leave-prod-type-choice{border-radius:14px}
+.page-shell.leave-page .leave-prod-builder .leave-prod-form-section:focus-within{border-color:#87c9c3;box-shadow:0 0 0 3px rgba(69,156,150,.1)}
+.page-shell.leave-page .leave-prod-history{
+  background:radial-gradient(circle at 90% 6%,rgba(170,155,235,.16),transparent 33%),linear-gradient(145deg,#fbfcff 0%,#f4f1ff 55%,#eef9fa 100%)!important;
+  border:1px solid #d9d6ef!important;
+  box-shadow:0 18px 34px rgba(95,86,161,.085)!important;
+}
+.page-shell.leave-page .leave-prod-history .leave-prod-board-head h2{color:#7461aa!important}
+.page-shell.leave-page .leave-prod-history .leave-prod-toolbar{padding:10px!important;border-radius:16px;background:rgba(255,255,255,.55)}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-list{gap:15px!important}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-row{
+  --request-accent:#8b74c8;--request-light:#f4efff;
+  background:linear-gradient(155deg,#fff 7%,var(--request-light) 140%)!important;
+  border:1px solid color-mix(in srgb,var(--request-accent) 27%,white)!important;
+  border-top:3px solid var(--request-accent)!important;
+  border-radius:19px!important;padding:16px!important;gap:8px!important;
+  box-shadow:0 9px 21px rgba(81,98,137,.065)!important;
+}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-row:has(.leave-prod-request-type.amber){
+  --request-accent:#b9893e;--request-light:#fff7e8;
+}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-row:has(.leave-prod-request-type.teal){
+  --request-accent:#3f9e91;--request-light:#edfbf7;
+}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-id{gap:1px!important}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-id b{font-size:14px!important;color:#2f4b68!important}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-id small{display:none}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-detail{
+  padding:8px 0;border-top:1px solid rgba(95,123,154,.12);
+  border-bottom:1px solid rgba(95,123,154,.12);
+}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-detail small{color:var(--request-accent)!important}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-detail b{font-size:16px!important;color:#294d68!important}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-reason small{color:#7f91a1!important}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-reason b{font-weight:500!important}
+.page-shell.leave-page .leave-prod-history .leave-prod-status{align-self:stretch;justify-content:center;text-align:center}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-actions{
+  padding-top:8px;border-top:1px solid rgba(95,123,154,.12);
+}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-actions button{font-size:12px!important;border-radius:10px!important;min-height:38px!important}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-expanded{
+  background:rgba(255,255,255,.68);border-radius:13px;padding:12px!important;
+}
+.page-shell.leave-page .leave-prod-history .leave-prod-request-row[hidden]{display:none!important}
+@media(max-width:800px){
+  .page-shell.leave-page .leave-prod-builder .leave-prod-form-section{padding:12px!important}
+  .page-shell.leave-page .leave-prod-history .leave-prod-toolbar{padding:8px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .page-shell.leave-page .leave-prod-builder .leave-prod-form-section{transition:none}
+}

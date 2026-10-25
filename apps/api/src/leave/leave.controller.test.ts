@@ -83,6 +83,10 @@ class FakeLeaveRepository implements LeaveRepository {
     };
   }
 
+  async findEntitlementForYear(input: { entitlementId: string; year: number }): Promise<string | null> {
+    return `${input.entitlementId}-${input.year}`;
+  }
+
   async cancelSelfLeave(input: {
     readonly employeeId: string;
     readonly correlationId: string;
@@ -217,6 +221,120 @@ describe("LeaveController / LeaveService", () => {
     });
 
     expect(repository.lastCreate?.canonicalPayload).toBe(first);
+  });
+
+  it("files a leave across New Year as one request per calendar year", async () => {
+    const repository = new FakeLeaveRepository();
+    const calls: LeaveCreateInput[] = [];
+    let counter = 0;
+    repository.createSelfLeave = async (input) => {
+      calls.push(input.request);
+      counter += 1;
+      return { requestId: `00000000-0000-4000-8000-00000000002${counter}`, replayed: false };
+    };
+    const service = new LeaveService(repository);
+
+    const result = await service.createSelfLeave({
+      employeeId: actor.employeeId,
+      correlationId: actor.correlationId,
+      body: { ...validBody(), startDate: "2026-12-29", endDate: "2027-01-04" },
+    });
+
+    expect(calls.map((c) => [c.startDate, c.endDate])).toEqual([
+      ["2026-12-29", "2026-12-31"],
+      ["2027-01-01", "2027-01-04"],
+    ]);
+    expect(calls[0]?.entitlementId.endsWith("-2026")).toBe(true);
+    expect(calls[1]?.entitlementId.endsWith("-2027")).toBe(true);
+    expect(calls[0]?.clientKey).not.toBe(calls[1]?.clientKey);
+    expect(result.additionalRequestIds).toHaveLength(1);
+  });
+
+  it("cancels the parts already filed when a later year part fails", async () => {
+    const repository = new FakeLeaveRepository();
+    const cancelled: string[] = [];
+    let counter = 0;
+    repository.createSelfLeave = async () => {
+      counter += 1;
+      if (counter === 2) throw new Error("Leave entitlement exceeded");
+      return { requestId: "00000000-0000-4000-8000-000000000031", replayed: false };
+    };
+    repository.cancelSelfLeave = async (input) => {
+      cancelled.push(input.requestId);
+      return { requestId: input.requestId } as never;
+    };
+    const service = new LeaveService(repository);
+
+    await expect(
+      service.createSelfLeave({
+        employeeId: actor.employeeId,
+        correlationId: actor.correlationId,
+        body: { ...validBody(), startDate: "2026-12-29", endDate: "2027-01-04" },
+      }),
+    ).rejects.toThrow();
+    expect(cancelled).toEqual(["00000000-0000-4000-8000-000000000031"]);
+  });
+
+  it("passes optional attachment IDs through, sorted into the payload, and rejects bad ones", async () => {
+    const repository = new FakeLeaveRepository();
+    const service = new LeaveService(repository);
+    const idA = "00000000-0000-4000-8000-0000000000a1";
+    const idB = "00000000-0000-4000-8000-0000000000b2";
+
+    await service.createSelfLeave({
+      employeeId: actor.employeeId,
+      correlationId: actor.correlationId,
+      body: { ...validBody(), attachmentIds: [idB, idA] },
+    });
+    expect(repository.lastCreate?.request.attachmentIds).toEqual([idB, idA]);
+    expect(repository.lastCreate?.canonicalPayload).toContain(JSON.stringify([idA, idB]));
+
+    await service.createSelfLeave({ employeeId: actor.employeeId, correlationId: actor.correlationId, body: validBody() });
+    expect(repository.lastCreate?.request.attachmentIds).toEqual([]);
+
+    for (const bad of [["not-a-uuid"], [idA, idA], "x", [1], [idA, idB, idA, idB]]) {
+      await expect(
+        service.createSelfLeave({
+          employeeId: actor.employeeId,
+          correlationId: actor.correlationId,
+          body: { ...validBody(), attachmentIds: bad },
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    }
+  });
+
+  it("links the attachments to only the first filed part of a leave across New Year", async () => {
+    const repository = new FakeLeaveRepository();
+    const calls: LeaveCreateInput[] = [];
+    repository.createSelfLeave = async (input) => {
+      calls.push(input.request);
+      return { requestId: `00000000-0000-4000-8000-00000000004${calls.length}`, replayed: false };
+    };
+    const id = "00000000-0000-4000-8000-0000000000a1";
+
+    await new LeaveService(repository).createSelfLeave({
+      employeeId: actor.employeeId,
+      correlationId: actor.correlationId,
+      body: { ...validBody(), startDate: "2026-12-29", endDate: "2027-01-04", attachmentIds: [id] },
+    });
+
+    expect(calls[0]?.attachmentIds).toEqual([id]);
+    expect(calls[1]?.attachmentIds).toEqual([]);
+  });
+
+  it("maps repository attachment rejections to 400", async () => {
+    const repository = new FakeLeaveRepository();
+    repository.createSelfLeave = async () => {
+      throw new Error("Leave attachment is already linked");
+    };
+
+    await expect(
+      new LeaveService(repository).createSelfLeave({
+        employeeId: actor.employeeId,
+        correlationId: actor.correlationId,
+        body: { ...validBody(), attachmentIds: ["00000000-0000-4000-8000-0000000000a1"] },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it("fails input validation closed", async () => {

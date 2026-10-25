@@ -12,9 +12,11 @@ import {
   classifyAttendanceRadius,
   classifyAttendanceTiming,
   normalizeAttendanceLocation,
+  normalizeAttendanceRecordAdd,
   normalizeAttendancePolicy,
   normalizeTimeCorrection,
   normalizeTimeCorrectionDecision,
+  standardWorkdayMinutes,
 } from "./attendance";
 
 const policy = {
@@ -23,6 +25,7 @@ const policy = {
   officeLongitude: 100.439546,
   radiusKm: 5,
   lateAfter: "09:05",
+  workStart: "09:00",
   workEnd: "17:30",
   breakStart: "12:00",
   breakEnd: "13:00",
@@ -147,6 +150,16 @@ describe("attendance business rules", () => {
     ).toBe(0);
   });
 
+  it("accepts a checkout in the same minute as the check-in as zero work minutes", () => {
+    expect(
+      calculateAttendanceWorkMinutes({
+        checkInTime: "17:19",
+        checkOutTime: "17:19",
+        policy,
+      }),
+    ).toBe(0);
+  });
+
   it("preserves the legacy full lunch deduction for attendance but partial overlap for corrections", () => {
     expect(
       calculateCorrectedWorkMinutes({
@@ -155,6 +168,33 @@ describe("attendance business rules", () => {
         policy,
       }),
     ).toBe(30);
+  });
+
+  it("derives the correction cap from the configured working hours", () => {
+    expect(standardWorkdayMinutes(policy)).toBe(450);
+
+    const shortDay = {
+      ...policy,
+      workStart: "08:30",
+      workEnd: "16:30",
+    };
+
+    expect(standardWorkdayMinutes(shortDay)).toBe(420);
+    expect(
+      calculateCorrectedWorkMinutes({
+        checkInTime: "07:00",
+        checkOutTime: "20:00",
+        policy: shortDay,
+      }),
+    ).toBe(420);
+
+    expect(
+      standardWorkdayMinutes({
+        ...policy,
+        breakStart: null,
+        breakEnd: null,
+      }),
+    ).toBe(510);
   });
 
   it("preserves correction work-hour cap at 7.5 hours", () => {
@@ -227,14 +267,22 @@ describe("attendance business rules", () => {
     });
   });
 
-  it("requires the original event and a changed correction time", () => {
+  it("requires an original check-in, allows filling in a missing check-out, and needs a changed time", () => {
+    expect(() =>
+      assertTimeCorrectionOriginalExists({
+        correctionType: "CHECK_IN",
+        originalCheckIn: null,
+        originalCheckOut: null,
+      }),
+    ).toThrow("requires an original");
+
     expect(() =>
       assertTimeCorrectionOriginalExists({
         correctionType: "CHECK_OUT",
         originalCheckIn: "09:00",
         originalCheckOut: null,
       }),
-    ).toThrow("requires an original");
+    ).not.toThrow();
 
     expect(() =>
       assertTimeCorrectionChanged({
@@ -286,5 +334,35 @@ describe("attendance business rules", () => {
         { latitude: 13.84574, longitude: 100.439546 },
       ),
     ).toBe(0);
+  });
+});
+
+describe("normalizeAttendanceRecordAdd", () => {
+  const base = {
+    attendanceDate: "2026-10-14",
+    checkInTime: "09:00",
+    checkOutTime: "17:30",
+    reason: "ลืมสแกนทั้งวัน",
+    clientKey: "add-record-0001",
+  };
+
+  it("accepts a full day and trims the reason", () => {
+    expect(normalizeAttendanceRecordAdd({ ...base, reason: "  ลืมสแกน  " })).toMatchObject({
+      attendanceDate: "2026-10-14",
+      checkInTime: "09:00",
+      checkOutTime: "17:30",
+      reason: "ลืมสแกน",
+    });
+  });
+
+  it("rejects a check-out that is not after the check-in", () => {
+    expect(() => normalizeAttendanceRecordAdd({ ...base, checkOutTime: "09:00" })).toThrow(
+      "Time correction check-out must be after check-in",
+    );
+  });
+
+  it("requires a reason and a valid date", () => {
+    expect(() => normalizeAttendanceRecordAdd({ ...base, reason: " " })).toThrow();
+    expect(() => normalizeAttendanceRecordAdd({ ...base, attendanceDate: "14/10/2026" })).toThrow();
   });
 });

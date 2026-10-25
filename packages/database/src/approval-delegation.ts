@@ -36,6 +36,8 @@ export async function actorMayDecideStep(
   prisma: DelegationClient,
   input: {
     readonly stepApproverId: string | null;
+    /** Other eligible approvers of the step (any of them may decide). */
+    readonly coApproverIds?: readonly string[];
     readonly actorEmployeeId: string;
     readonly requesterEmployeeId: string;
   },
@@ -48,11 +50,21 @@ export async function actorMayDecideStep(
     return true;
   }
 
+  if (
+    input.requesterEmployeeId !== input.actorEmployeeId &&
+    input.coApproverIds?.includes(input.actorEmployeeId)
+  ) {
+    return true;
+  }
+
   if (input.requesterEmployeeId === input.actorEmployeeId) {
     return false;
   }
 
   const delegators = await delegatorIdsFor(prisma, input.actorEmployeeId);
 
-  return delegators.includes(input.stepApproverId);
+  return (
+    delegators.includes(input.stepApproverId) ||
+    (input.coApproverIds ?? []).some((id) => delegators.includes(id))
+  );
 }

@@ -227,22 +227,6 @@ export function defaultOvertimeBreaks(
   return isWorkday ? ["LUNCH"] : ["LUNCH", "DINNER"];
 }
 
-export function assertOvertimeDateRangeNotFuture(input: {
-  readonly startDate: string;
-  readonly endDate: string;
-  readonly today: string;
-}): void {
-  const startDate = normalizeOvertimeIsoDate(input.startDate);
-  const endDate = normalizeOvertimeIsoDate(input.endDate);
-  const today = normalizeOvertimeIsoDate(input.today);
-
-  if (startDate > today || endDate > today) {
-    throw new Error(
-      "overtime request cannot target a future date",
-    );
-  }
-}
-
 function overlap(
   start: number,
   end: number,

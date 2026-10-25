@@ -18,6 +18,7 @@ import type {
   ManagedAccountState,
   ManagedEmployeeItem,
   ManagementReportView,
+  CompanyUpdateInput,
   OrganizationUnitItem,
   RbacAdminView,
   RoleAssignmentInput,
@@ -26,10 +27,12 @@ import type {
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { ATTENDANCE_STATS_EMPLOYEE_FILTER, isAttendanceExempt } from "./attendance-exemption";
 import {
+  confirmOvertimeSegments,
   loadOvertimeReportRows,
   recordOvertimeReportExport,
   type OvertimeReportFilters,
 } from "./overtime-report-repository";
+import { calendarPolicy, usageForRequest } from "./leave-repository";
 import { generateVacationEntitlementsForYear } from "./vacation-entitlement";
 
 export interface ManagementRepository {
@@ -94,7 +97,7 @@ export interface ManagementRepository {
   createCompany(name: string, actorEmployeeId: string): Promise<OrganizationUnitItem>;
   updateCompany(
     id: string,
-    input: { readonly name?: string; readonly active?: boolean },
+    input: CompanyUpdateInput,
     actorEmployeeId: string,
   ): Promise<OrganizationUnitItem>;
   setEmployeeRoles(
@@ -130,6 +133,11 @@ export interface ManagementRepository {
     filters: OvertimeReportFilters,
     actorEmployeeId: string,
   ): Promise<readonly OvertimeReportRow[]>;
+  overtimeRows(filters: OvertimeReportFilters): Promise<readonly OvertimeReportRow[]>;
+  confirmOvertimeSegments(
+    segmentIds: readonly string[],
+    actorEmployeeId: string,
+  ): Promise<number>;
   upsertEntitlement(
     input: {
       readonly employeeId: string;
@@ -173,6 +181,7 @@ function attendancePolicyView(row: {
   officeLongitude: Prisma.Decimal;
   radiusKm: Prisma.Decimal;
   lateAfter: Date;
+  workStart: Date;
   workEnd: Date;
   breakStart: Date | null;
   breakEnd: Date | null;
@@ -185,12 +194,23 @@ function attendancePolicyView(row: {
     officeLongitude: row.officeLongitude.toNumber(),
     radiusKm: row.radiusKm.toNumber(),
     lateAfter: clock(row.lateAfter),
+    workStart: clock(row.workStart),
     workEnd: clock(row.workEnd),
     breakStart: row.breakStart ? clock(row.breakStart) : null,
     breakEnd: row.breakEnd ? clock(row.breakEnd) : null,
     effectiveFrom: dateOnly(row.effectiveFrom),
   };
 }
+
+const COMPANY_SELECT = {
+  id: true,
+  name: true,
+  active: true,
+  taxId: true,
+  address: true,
+  phone: true,
+  email: true,
+} as const;
 
 const APPROVAL_POLICY_KINDS = ["LEAVE", "TIME_CORRECTION", "OVERTIME", "MEDICAL"] as const;
 
@@ -383,7 +403,6 @@ export class PrismaManagementRepository implements ManagementRepository {
   }
 
   async reports(from: Date, to: Date): Promise<ManagementReportView> {
-    const endExclusive = new Date(to.getTime() + 86_400_000);
     const [leave, attendance, overtime, medical] = await Promise.all([
       this.prisma.leaveRequest.findMany({
         where: {
@@ -395,6 +414,9 @@ export class PrismaManagementRepository implements ManagementRepository {
           requesterEmployeeId: true,
           startDate: true,
           endDate: true,
+          durationCode: true,
+          startTime: true,
+          endTime: true,
           status: true,
           requester: { select: { fullName: true } },
           leaveType: { select: { name: true } },
@@ -421,8 +443,8 @@ export class PrismaManagementRepository implements ManagementRepository {
       }),
       this.prisma.overtimeRequest.findMany({
         where: {
-          submittedAt: { gte: from, lt: endExclusive },
           status: "APPROVED",
+          segments: { some: { workDate: { gte: from, lte: to } } },
         },
         select: {
           id: true,
@@ -431,6 +453,10 @@ export class PrismaManagementRepository implements ManagementRepository {
           status: true,
           reason: true,
           employee: { select: { fullName: true } },
+          segments: {
+            select: { workDate: true, startTime: true, endTime: true, requestedMinutes: true },
+            orderBy: [{ workDate: "asc" }, { startTime: "asc" }],
+          },
         },
         orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
         take: 1000,
@@ -447,12 +473,15 @@ export class PrismaManagementRepository implements ManagementRepository {
           status: true,
           description: true,
           amount: true,
+          approvalInstanceId: true,
           employee: { select: { fullName: true } },
         },
         orderBy: [{ sicknessDate: "desc" }, { id: "desc" }],
         take: 1000,
       }),
     ]);
+    const calendar = await calendarPolicy(this.prisma);
+    const hours = (minutes: number) => String(Math.round((minutes / 60) * 100) / 100);
     const rows = [
       ...leave.map((row) => ({
         id: row.id,
@@ -467,6 +496,7 @@ export class PrismaManagementRepository implements ManagementRepository {
           dateOnly(row.startDate) +
           " - " +
           dateOnly(row.endDate),
+        amount: String(usageForRequest(row, calendar)),
       })),
       ...attendance.map((row) => ({
         id: row.id,
@@ -479,16 +509,27 @@ export class PrismaManagementRepository implements ManagementRepository {
           "เข้า " +
           row.checkInAt.toISOString() +
           (row.checkOutAt ? " · ออก " + row.checkOutAt.toISOString() : ""),
+        amount: row.checkOutAt ? hours((row.checkOutAt.getTime() - row.checkInAt.getTime()) / 60000) : "0",
       })),
-      ...overtime.map((row) => ({
-        id: row.id,
-        employeeId: row.employeeId,
-        employeeName: row.employee.fullName,
-        kind: "OVERTIME" as const,
-        date: dateOnly(row.submittedAt),
-        status: row.status,
-        summary: row.reason,
-      })),
+      ...overtime.map((row) => {
+        const first = row.segments[0];
+        const last = row.segments[row.segments.length - 1];
+        const clock = (value: Date) => value.toISOString().slice(11, 16);
+        return {
+          id: row.id,
+          employeeId: row.employeeId,
+          employeeName: row.employee.fullName,
+          kind: "OVERTIME" as const,
+          // Report on the day the overtime is worked, not the day it was requested.
+          date: first ? dateOnly(first.workDate) : dateOnly(row.submittedAt),
+          status: row.status,
+          summary:
+            (first && last
+              ? "OT " + clock(first.startTime) + "-" + clock(last.endTime) + ": "
+              : "") + row.reason,
+          amount: hours(row.segments.reduce((sum, segment) => sum + segment.requestedMinutes, 0)),
+        };
+      }),
       ...medical.map((row) => ({
         id: row.id,
         employeeId: row.employeeId,
@@ -496,7 +537,7 @@ export class PrismaManagementRepository implements ManagementRepository {
         kind: "MEDICAL" as const,
         date: dateOnly(row.sicknessDate),
         status: row.status,
-        summary: row.description,
+        summary: (row.approvalInstanceId ? "" : "[อนุมัติอัตโนมัติ] ") + row.description,
         amount: row.amount.toString(),
       })),
     ].sort((a, b) => b.date.localeCompare(a.date) || a.kind.localeCompare(b.kind));
@@ -844,6 +885,7 @@ export class PrismaManagementRepository implements ManagementRepository {
       ? {
           annualLimit: row.annualLimit.toNumber(),
           perClaimLimit: row.perClaimLimit ? row.perClaimLimit.toNumber() : 1000,
+          autoApproveRoleKeys: row.autoApproveRoleKeys,
           effectiveFrom: dateOnly(row.effectiveFrom),
         }
       : null;
@@ -856,6 +898,7 @@ export class PrismaManagementRepository implements ManagementRepository {
     if (!(input.annualLimit > 0) || !(input.perClaimLimit > 0) || input.perClaimLimit > input.annualLimit) {
       throw new Error("Medical limits must be positive and the per-claim limit cannot exceed the annual limit");
     }
+    const autoApproveRoleKeys = [...new Set(input.autoApproveRoleKeys.map((key) => key.trim().toUpperCase()))];
     return this.prisma.$transaction(async (tx) => {
       const current = await tx.benefitPolicy.findFirst({
         where: { key: "MEDICAL", active: true },
@@ -865,7 +908,7 @@ export class PrismaManagementRepository implements ManagementRepository {
       const row = current
         ? await tx.benefitPolicy.update({
             where: { id: current.id },
-            data: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit },
+            data: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit, autoApproveRoleKeys },
           })
         : await tx.benefitPolicy.create({
             data: {
@@ -873,6 +916,7 @@ export class PrismaManagementRepository implements ManagementRepository {
               name: "ค่ารักษาพยาบาล",
               annualLimit: input.annualLimit,
               perClaimLimit: input.perClaimLimit,
+              autoApproveRoleKeys,
               effectiveFrom,
             },
           });
@@ -882,12 +926,13 @@ export class PrismaManagementRepository implements ManagementRepository {
           action: "MEDICAL_POLICY_UPDATED",
           entityType: "BenefitPolicy",
           entityId: row.id,
-          metadata: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit },
+          metadata: { annualLimit: input.annualLimit, perClaimLimit: input.perClaimLimit, autoApproveRoleKeys },
         },
       });
       return {
         annualLimit: input.annualLimit,
         perClaimLimit: input.perClaimLimit,
+        autoApproveRoleKeys,
         effectiveFrom: dateOnly(row.effectiveFrom),
       };
     });
@@ -906,7 +951,7 @@ export class PrismaManagementRepository implements ManagementRepository {
     actorEmployeeId: string,
   ): Promise<AttendancePolicyItem> {
     const clockValue = /^([01]\d|2[0-3]):[0-5]\d$/;
-    for (const value of [input.lateAfter, input.workEnd, input.breakStart, input.breakEnd]) {
+    for (const value of [input.lateAfter, input.workStart, input.workEnd, input.breakStart, input.breakEnd]) {
       if (value !== null && !clockValue.test(value)) throw new Error("Attendance times must use HH:mm");
     }
     if (
@@ -915,6 +960,7 @@ export class PrismaManagementRepository implements ManagementRepository {
       !(input.radiusKm > 0) ||
       input.radiusKm > 100 ||
       input.workEnd <= input.lateAfter ||
+      input.workEnd <= input.workStart ||
       (input.breakStart === null) !== (input.breakEnd === null) ||
       (input.breakStart !== null && input.breakEnd !== null && input.breakEnd <= input.breakStart)
     ) {
@@ -932,6 +978,7 @@ export class PrismaManagementRepository implements ManagementRepository {
         officeLongitude: input.officeLongitude,
         radiusKm: input.radiusKm,
         lateAfter: toTime(input.lateAfter),
+        workStart: toTime(input.workStart),
         workEnd: toTime(input.workEnd),
         breakStart: input.breakStart ? toTime(input.breakStart) : null,
         breakEnd: input.breakEnd ? toTime(input.breakEnd) : null,
@@ -947,7 +994,7 @@ export class PrismaManagementRepository implements ManagementRepository {
           action: "ATTENDANCE_POLICY_UPDATED",
           entityType: "AttendancePolicy",
           entityId: row.id,
-          metadata: { lateAfter: input.lateAfter, workEnd: input.workEnd, radiusKm: input.radiusKm },
+          metadata: { lateAfter: input.lateAfter, workStart: input.workStart, workEnd: input.workEnd, radiusKm: input.radiusKm },
         },
       });
       return attendancePolicyView(row);
@@ -1136,7 +1183,7 @@ export class PrismaManagementRepository implements ManagementRepository {
 
   async listCompanies(): Promise<readonly OrganizationUnitItem[]> {
     return this.prisma.company.findMany({
-      select: { id: true, name: true, active: true },
+      select: COMPANY_SELECT,
       orderBy: [{ active: "desc" }, { name: "asc" }, { id: "asc" }],
     });
   }
@@ -1148,7 +1195,7 @@ export class PrismaManagementRepository implements ManagementRepository {
     return this.prisma.$transaction(async (tx) => {
       const row = await tx.company.create({
         data: { name },
-        select: { id: true, name: true, active: true },
+        select: COMPANY_SELECT,
       });
       await tx.auditLog.create({
         data: {
@@ -1164,14 +1211,14 @@ export class PrismaManagementRepository implements ManagementRepository {
 
   async updateCompany(
     id: string,
-    input: { readonly name?: string; readonly active?: boolean },
+    input: CompanyUpdateInput,
     actorEmployeeId: string,
   ): Promise<OrganizationUnitItem> {
     return this.prisma.$transaction(async (tx) => {
       const row = await tx.company.update({
         where: { id },
         data: input,
-        select: { id: true, name: true, active: true },
+        select: COMPANY_SELECT,
       });
       await tx.auditLog.create({
         data: {
@@ -1382,6 +1429,17 @@ export class PrismaManagementRepository implements ManagementRepository {
       rowCount: rows.length,
     });
     return rows;
+  }
+
+  overtimeRows(filters: OvertimeReportFilters): Promise<readonly OvertimeReportRow[]> {
+    return loadOvertimeReportRows(this.prisma, filters);
+  }
+
+  confirmOvertimeSegments(
+    segmentIds: readonly string[],
+    actorEmployeeId: string,
+  ): Promise<number> {
+    return confirmOvertimeSegments(this.prisma, { segmentIds, actorEmployeeId });
   }
 
   generateVacationEntitlements(

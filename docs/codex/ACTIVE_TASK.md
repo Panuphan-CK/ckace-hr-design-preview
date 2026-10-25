@@ -1,53 +1,35 @@
 # CKACE HR — ACTIVE TASK
 
-Updated: 2026-10-22 Asia/Bangkok
+Updated: 2026-10-25 Asia/Bangkok
 
-## M67-R5 — Prepare the next TEST release from verified Claude lineage
+## SOURCE-UNIFY-02 — Build and verify unified source on TEST
 
-Status: **READY**
-Priority: **P1 — TESTm67 stabilization**
+Status: **ACTIVE — awaiting separate Owner Build instruction; Production NO-GO**
+Priority: **P1 — verify the unified source line on TEST**
 
-Objective:
-Prepare a concrete next-TEST release plan from the verified Claude candidate `5a29241`, proving the current API/Web image and traffic provenance and rollback targets before requesting a TEST build.
+Objective / why now:
+The Owner approved publication of the locally verified TESTm73 integration to `source/main`. The next gate is a fresh TEST build from that exact unified commit, followed by revision, traffic, health, and authenticated regression checks. The TEST build requires a separate Owner instruction.
 
-Why now:
-Authenticated TESTm67 checks verified OT threshold behavior, attendance-policy save/persistence, holiday-table refresh, and numeric attendance Excel exports. The remaining candidate difference is explicit two-decimal Excel formatting. No urgent build blocker was reproduced in the exercised paths.
+Scope after an explicit Build instruction:
+- Build and deploy only approved CKACE_HR TEST services and Firebase Hosting using the unified `source/main` commit.
+- Verify the exact commit, API/Web TEST revisions, 100% traffic on both new revisions, and public health.
+- Recheck authenticated Leave workflow and Employee/Manager/SuperAdmin NAV and direct-URL behavior on the new TEST release.
 
-Scope:
-- inspect TEST-only deployment metadata through available read-only access;
-- identify API/Web revisions, image digests, traffic allocation, build source and rollback targets where evidence permits;
-- review `infra/cloudbuild/test-release.yaml` at the Claude candidate for safe revision naming and rollback;
-- prepare one batched TEST change set and post-deploy verification plan;
-- preserve the original dirty Local tree and the protected design artifact.
+Out of scope until separately approved:
+- Starting any TEST build/deploy without the Owner's Build instruction.
+- Any Production deploy, traffic, database, credentials, DNS, Firebase Production, or LINE Production change.
+- Resetting, cleaning, stashing, or discarding uncertain Local changes or touching the protected design artifact.
 
-Out of scope:
-- TEST build/deploy/traffic until the Owner explicitly requests it;
-- any Production operation;
-- automatic integration of uncertain Local-only desktop-auth/LIFF work;
-- Project A / APP_Leave work;
-- role/access expansion or approval-policy changes without concrete required confirmation.
+Acceptance / verification:
+- The built source is the published `source/main` integration commit.
+- API and Web TEST revisions and traffic are verified, with public health identifying the new API revision.
+- Authenticated role, NAV, direct-URL, and Leave workflow checks are reported as PASS, FAIL, or NOT VERIFIED with evidence.
+- Production remains untouched.
 
-Acceptance criteria:
-- release candidate is pinned to a verified source SHA;
-- current TEST API/Web deployment evidence and any evidence gaps are recorded;
-- intended revisions and rollback targets cannot accidentally reuse or promote stale m67 images;
-- release change set and post-deploy checks are concrete and reviewable;
-- source/continuity diff and Git status are reviewed before publication;
-- Owner approval is obtained before deployment or commit/push.
+Evidence / current state:
+- SOURCE-UNIFY-01 merged `source/main` at `04c3d54` with TESTm73 branch `095e6bd` in `D:\CKACE_HR\.worktrees\main-integration`. Local lint, typecheck, full Vitest (109 files / 796 tests), packages/API build, Web `--webpack` build (31/31 pages), and Prisma validation passed.
+- The Owner authorized publication to `source/main` on 2026-10-25 and explicitly required a separate Build instruction for TEST.
+- Live TEST remains TESTm73 until a separately authorized release is verified. Production is NO-GO.
 
-Current evidence:
-- Live health: `ckace-hr-api-test-m67`, `stage=test`, `NON_PRODUCTION`.
-- Claude candidate: `5a29241`; prior Local gates passed: lint, typecheck, 110 files / 821 tests, Prisma validation and full build.
-- TEST attendance export: seven numeric hour values; E11 total `34.269999999999996`; both sheets use General number format. Candidate adds `0.00` formatting while retaining numeric values.
-- OT threshold was tested at 20:00 -> 20:30 -> 20:00. A 20:15 end changed from meal-eligible to below-threshold; exactly 20:30 was meal-eligible. Original policy restored and verified after reload.
-- Holiday description and attendance-policy name were temporarily edited, saved, reloaded where applicable, restored and verified. Holiday table refreshed immediately after save.
-- Baseline attendance radius remains 0.1 km. NEWTEST remains inactive, with no selected roles and SELF scope. Four active approval policies use ADMIN (same team) then SUPERADMIN (all teams).
-- Owner selected B and clarified on 2026-10-22 that TEST changes do not require automatic restoration. Record what changed and its test purpose; retain useful TEST settings/data unless restoration is needed for another check or the Owner requests it. This does not authorize destructive actions, security-sensitive access expansion, deployment or Production changes. Owner personally logged in; session is available.
-
-Verification limits:
-- No GPS clock action, role/access mutation, approval-chain mutation or new request submission was performed in the authenticated check.
-- Workbook values/types were read directly from XLSX XML using bundled Python after the artifact-tool import failed in node_repl (`node:process` restricted). No workbook was edited.
-- Exact live build SHA, Web revision and Cloud Run traffic allocation are still unproven.
-
-Next:
-Gather TEST-only deployment provenance and prepare the next release plan. Keep the existing authenticated browser session for further read-only verification; do not ask the Owner to log in again unless the session expires.
+Next action:
+Wait for the Owner's explicit `Build` instruction. Then build the published unified commit on TEST and verify the release and authenticated regression evidence.

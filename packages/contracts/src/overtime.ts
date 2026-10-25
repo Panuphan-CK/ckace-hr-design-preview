@@ -27,6 +27,8 @@ export interface OvertimeCreateInput {
 /** One overtime day in the exported OT report. Money is in satang. */
 export interface OvertimeReportRow {
   readonly requestId: string;
+  readonly segmentId: string;
+  readonly confirmed: boolean;
   readonly workDate: string;
   readonly employeeId: string;
   readonly employeeName: string;
@@ -36,6 +38,18 @@ export interface OvertimeReportRow {
   readonly approvedEnd: string;
   readonly actualCheckIn: string | null;
   readonly actualCheckOut: string | null;
+  /**
+   * COMPLETE: clocked out at or after the approved end. LEFT_EARLY: clocked out
+   * before it (paid to the real time). NO_CHECK_OUT / NO_RECORD: a past day with
+   * no clock-out / no record at all, paid to the approved time (owner decision
+   * 2026-10-18) and flagged for review. PENDING: the day is not over yet.
+   */
+  readonly attendanceCheck:
+    | "COMPLETE"
+    | "LEFT_EARLY"
+    | "NO_CHECK_OUT"
+    | "NO_RECORD"
+    | "PENDING";
   readonly requestedMinutes: number;
   readonly paidMinutes: number;
   /** null = legacy default breaks (no explicit choice stored). */
@@ -63,11 +77,15 @@ export interface OvertimeRequestView {
   readonly status: OvertimeRequestStatus;
   readonly decisionReason: string | null;
   readonly submittedAt: string;
+  /** Running number such as OT-0001; absent only on rows built without it. */
+  readonly requestNo?: string;
   readonly segments: readonly OvertimeSegmentView[];
 }
 
 export interface OvertimeSelfOverview {
   readonly requests: readonly OvertimeRequestView[];
+  /** Clock-out times (HH:mm) from which meal / transport allowance is paid, as set by HR. */
+  readonly allowanceThresholds?: { readonly meal: string | null; readonly transport: string | null };
 }
 
 export interface OvertimeCreateResult {

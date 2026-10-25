@@ -70,14 +70,8 @@ describe("Desktop Attendance view helpers", () => {
     });
   });
 
-  it("keeps correction targets fail-closed for missing checkout", () => {
-    expect(correctionTargets(overview.records[0]!)).toEqual([
-      "CHECK_IN",
-      "CHECK_OUT",
-    ]);
-    expect(correctionTargets(overview.records[1]!)).toEqual([
-      "CHECK_IN",
-    ]);
+  it("offers both correction targets, including a check-out that was never scanned", () => {
+    expect(correctionTargets()).toEqual(["CHECK_IN", "CHECK_OUT"]);
   });
 
   it("renders radius/source semantics without client inference", () => {

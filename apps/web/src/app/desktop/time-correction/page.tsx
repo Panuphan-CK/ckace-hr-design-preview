@@ -7,8 +7,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { resolveSubmissionIntent, shouldDiscardSubmissionIntent, type SubmissionIntent } from "../submission-intent";
 import { thaiDate, thaiDateTime } from "../ui/format";
 import { Icon } from "../ui/icons";
-import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, TimeInput } from "../ui/kit";
+import { DataGrid, DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, StatusDot, TimeInput, type DotTone } from "../ui/kit";
+import { useConfirm } from "../ui/confirm";
+import "../requests-common/ck-v2-requests.css";
 import { ApproverChainNotice } from "../ui/approver-chain";
+import { AddRecordForm } from "./add-record-form";
 import { RequestTimelineSection } from "../ui/request-timeline";
 import { ResubmitPanel, type ResubmitOutcome } from "../ui/resubmit-panel";
 import {
@@ -18,6 +21,8 @@ import {
   correctionErrorMessage,
   correctionMetrics,
   correctionTargets,
+  correctionTimeSummary,
+  correctionTitle,
   hasPendingRequest,
   recordTime,
   sortRecords,
@@ -47,6 +52,7 @@ export default function DesktopTimeCorrectionPage() {
   const [reason, setReason] = useState("");
   const [filter, setFilter] = useState<Filter>("ALL");
   const [detail, setDetail] = useState<TimeCorrectionRequestView | null>(null);
+  const { ask: confirmAsk, dialog: confirmDialog } = useConfirm();
   const intent = useRef<SubmissionIntent | null>(null);
 
   const load = useCallback(async () => {
@@ -76,7 +82,7 @@ export default function DesktopTimeCorrectionPage() {
   const requests = useMemo(() => (state.status === "ready" ? sortRequests(state.requests) : []), [state]);
   const metrics = useMemo(() => correctionMetrics(requests, bangkokMonthKey(new Date())), [requests]);
   const selected = records.find((record) => record.attendanceRecordId === recordId) ?? records[0] ?? null;
-  const targets = selected ? correctionTargets(selected) : [];
+  const targets = selected ? correctionTargets() : [];
   const activeType: TimeCorrectionType = targets.includes(type) ? type : (targets[0] ?? "CHECK_IN");
   const systemTime = selected ? recordTime(selected, activeType) : null;
   const duplicate = selected ? hasPendingRequest(requests, selected.attendanceRecordId, activeType) : false;
@@ -130,7 +136,12 @@ export default function DesktopTimeCorrectionPage() {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ clientKey, correctedTime: values.correctedTime, reason: values.reason }),
+        body: JSON.stringify({
+          clientKey,
+          correctedTime: values.correctedTime,
+          ...(values.correctedCheckOutTime ? { correctedCheckOutTime: values.correctedCheckOutTime } : {}),
+          reason: values.reason,
+        }),
       });
       if (!response.ok) return { ok: false, status: response.status, message: correctionErrorMessage(response.status, "create") };
       setDetail(null);
@@ -143,7 +154,7 @@ export default function DesktopTimeCorrectionPage() {
   }
 
   async function cancel(request: TimeCorrectionRequestView) {
-    if (busy || (request.status !== "PENDING" && request.status !== "REVISION_REQUESTED") || !window.confirm("ยืนยันยกเลิกคำขอแก้ไขเวลานี้?")) return;
+    if (busy || (request.status !== "PENDING" && request.status !== "REVISION_REQUESTED") || !(await confirmAsk("ยืนยันยกเลิกคำขอแก้ไขเวลานี้?", "ยืนยันยกเลิก"))) return;
     setBusy(request.requestId);
     setMessage(null);
     try {
@@ -186,9 +197,9 @@ export default function DesktopTimeCorrectionPage() {
         <Message value={message} />
 
         <form className="ck-fbox ck-c-time" onSubmit={submit} noValidate>
-          <SectionHead title="ขอแก้ไขเวลา" hint="ใช้เมื่อลืมสแกนหรือเวลาที่บันทึกไม่ถูกต้อง" />
+          <SectionHead title="ขอแก้ไขเวลา" hint="ลืมสแกนหรือเวลาไม่ถูกต้อง" />
           {records.length === 0 ? (
-            <EmptyState title="ยังไม่มีรายการลงเวลา">เมื่อมีบันทึกเวลาเข้างาน จะเลือกวันที่เพื่อขอแก้ไขได้ที่นี่</EmptyState>
+            <EmptyState icon="time" title="ยังไม่มีรายการลงเวลา">จะเลือกวันที่ขอแก้ไขได้เมื่อมีบันทึกเวลา</EmptyState>
           ) : (
             <>
               <div className="ck-fgrid">
@@ -257,7 +268,7 @@ export default function DesktopTimeCorrectionPage() {
                       แก้เวลา{CORRECTION_TYPE_LABEL[activeType]}วันที่ <b>{thaiDate(selected.workDate)}</b> เป็น <b>{correctedTime}</b>
                     </>
                   ) : (
-                    "เลือกวันที่และระบุเวลาที่ถูกต้อง ระบบจะสรุปให้ตรงนี้"
+                    "เลือกวันที่และเวลาที่ถูกต้อง"
                   )}
                   {duplicate ? " (มีคำขอรออนุมัติอยู่แล้ว)" : ""}
                 </span>
@@ -272,56 +283,53 @@ export default function DesktopTimeCorrectionPage() {
           )}
         </form>
 
+        <AddRecordForm
+          records={records}
+          requests={requests}
+          onResult={async (result) => {
+            setMessage(result);
+            if (result.kind === "success") await load();
+          }}
+        />
+
         <section className="ck-panel ck-c-time" aria-labelledby="tc-history">
           <SectionHead title="ประวัติการแก้ไขเวลา" id="tc-history" count={requests.length}>
             <Filters value={filter} options={FILTERS} onChange={setFilter} />
           </SectionHead>
-          {filtered.length === 0 ? (
-            <EmptyState title={requests.length === 0 ? "ยังไม่มีประวัติการแก้ไขเวลา" : "ไม่มีคำขอในสถานะนี้"}>คำขอที่ส่งแล้วจะแสดงที่นี่</EmptyState>
-          ) : (
-            <div className="ck-hgrid">
-              {filtered.map((request) => {
-                const status = CORRECTION_STATUS[request.status];
-                const title = `แก้เวลา${CORRECTION_TYPE_LABEL[request.correctionType]} ${request.correctedTime}`;
-                return (
-                  <button key={request.requestId} type="button" className="ck-hcard ck-c-time" onClick={() => setDetail(request)}>
-                    <span className="ck-hc-top">
-                      <span className="ck-chip">
-                        <Icon name="time" />
-                      </span>
-                      <span>
-                        <b>{title}</b>
-                        <small>ยื่นเมื่อ {thaiDateTime(request.requestedAt)}</small>
-                      </span>
-                      <span className={"ck-pill " + status.tone}>{status.label}</span>
+          <div className="ck-hist">
+            <DataGrid
+              rows={filtered}
+              rowKey={(request) => request.requestId}
+              onRowClick={setDetail}
+              empty={
+                <EmptyState icon="time" title={requests.length === 0 ? "ยังไม่มีประวัติการแก้ไขเวลา" : "ไม่มีคำขอในสถานะนี้"}>
+                  คำขอที่ส่งแล้วจะแสดงที่นี่
+                </EmptyState>
+              }
+              columns={[
+                {
+                  key: "date",
+                  header: "วันที่",
+                  render: (request) => (
+                    <span className="ck-gcell">
+                      <b>{thaiDate(request.attendanceDate)}</b>
+                      <small>ยื่น {thaiDateTime(request.requestedAt)}</small>
                     </span>
-                    <dl className="ck-dl">
-                      <div>
-                        <dt>วันที่</dt>
-                        <dd>{thaiDate(request.attendanceDate)}</dd>
-                      </div>
-                      <div>
-                        <dt>เวลา</dt>
-                        <dd>
-                          {request.originalTime || "—"} เป็น {request.correctedTime}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>เหตุผล</dt>
-                        <dd>{request.reason || "—"}</dd>
-                      </div>
-                    </dl>
-                    <span className="ck-hc-foot">
-                      <span className="ck-more">
-                        ดูรายละเอียด
-                        <Icon name="chevron" size={14} />
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                  ),
+                },
+                { key: "title", header: "รายการ", render: (request) => correctionTitle(request) },
+                { key: "time", header: "เวลา", render: (request) => correctionTimeSummary(request) },
+                { key: "reason", header: "เหตุผล", render: (request) => <span className="ck-gcell"><small>{request.reason || "—"}</small></span> },
+                {
+                  key: "status",
+                  header: "สถานะ",
+                  align: "center",
+                  width: "80px",
+                  render: (request) => <StatusDot tone={CORRECTION_STATUS[request.status].tone as DotTone} label={CORRECTION_STATUS[request.status].label} />,
+                },
+              ]}
+            />
+          </div>
         </section>
       </div>
 
@@ -330,7 +338,7 @@ export default function DesktopTimeCorrectionPage() {
           tone="time"
           icon="time"
           kicker="รายละเอียดคำขอแก้ไขเวลา"
-          title={`แก้เวลา${CORRECTION_TYPE_LABEL[detail.correctionType]} ${detail.correctedTime}`}
+          title={correctionTitle(detail)}
           status={CORRECTION_STATUS[detail.status]}
           onClose={() => setDetail(null)}
           footer={
@@ -355,8 +363,8 @@ export default function DesktopTimeCorrectionPage() {
               <dd>{detail.originalTime || "ไม่มีบันทึก"}</dd>
             </div>
             <div>
-              <dt>เวลาที่ขอแก้</dt>
-              <dd>{detail.correctedTime}</dd>
+              <dt>{detail.correctionType === "ADD_RECORD" ? "เวลาที่ขอเพิ่ม" : "เวลาที่ขอแก้"}</dt>
+              <dd>{correctionTimeSummary(detail).replace(/^.* เป็น /, "")}</dd>
             </div>
           </dl>
           <div className="ck-dlg-sec">
@@ -374,7 +382,10 @@ export default function DesktopTimeCorrectionPage() {
             <ResubmitPanel
               key={detail.requestId}
               fields={[
-                { name: "correctedTime", label: "เวลาที่ขอแก้", type: "time", value: detail.correctedTime },
+                { name: "correctedTime", label: detail.correctionType === "ADD_RECORD" ? "เวลาเข้างาน" : "เวลาที่ขอแก้", type: "time", value: detail.correctedTime },
+                ...(detail.correctionType === "ADD_RECORD"
+                  ? [{ name: "correctedCheckOutTime", label: "เวลาออกงาน", type: "time" as const, value: detail.correctedCheckOutTime ?? "" }]
+                  : []),
                 { name: "reason", label: "เหตุผล", type: "textarea", value: detail.reason },
               ]}
               onSubmit={(values, clientKey) => resubmit(detail, values, clientKey)}
@@ -383,6 +394,7 @@ export default function DesktopTimeCorrectionPage() {
           <RequestTimelineSection requestId={detail.requestId} />
         </DetailDialog>
       ) : null}
+      {confirmDialog}
     </>
   );
 }

@@ -3,6 +3,7 @@ import type { ApprovalHistoryItem, RequestStatusItem } from "@ckace/contracts";
 import {
   countByKind,
   decisionEndpoint,
+  requestFactLines,
   decisionPayload,
   initials,
   kindFromHash,
@@ -83,5 +84,28 @@ describe("approvals view", () => {
     expect(kindFromHash(kindHash("MEDICAL"))).toBe("MEDICAL");
     expect(initials("สมชาย ทองดี")).toBe("สท");
     expect(initials(undefined)).toBe("—");
+  });
+});
+
+describe("requestFactLines", () => {
+  it("shows overtime date, time and hours with a total", () => {
+    const lines = requestFactLines({
+      overtime: {
+        segments: [
+          { workDate: "2026-10-20", startTime: "17:30", endTime: "20:00", requestedMinutes: 150 },
+          { workDate: "2026-10-21", startTime: "17:30", endTime: "19:30", requestedMinutes: 120 },
+        ],
+      },
+    });
+    expect(lines[0]).toBe("20/10/2569 เวลา 17:30–20:00 น. (2 ชั่วโมง 30 นาที) · คาดว่าได้ค่าข้าว");
+    expect(lines[2]).toBe("รวม 4 ชั่วโมง 30 นาที");
+  });
+  it("shows the leave range", () => {
+    expect(requestFactLines({ leave: { startDate: "2026-10-20", endDate: "2026-10-22", durationCode: "FULL_DAY" } })).toEqual([
+      "วันที่ลา 20/10/2569 ถึง 22/10/2569 (เต็มวัน)",
+    ]);
+  });
+  it("is empty without details", () => {
+    expect(requestFactLines({})).toEqual([]);
   });
 });

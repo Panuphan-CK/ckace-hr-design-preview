@@ -12,6 +12,21 @@ import {
   useState,
 } from "react";
 
+import "../ck-v2-pages.css";
+import { Icon } from "../ui/icons";
+import {
+  DataGrid,
+  DetailDialog,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  Message,
+  PageHead,
+  SectionHead,
+  StatOrb,
+  StatusDot,
+} from "../ui/kit";
+import { thaiDate } from "../ui/format";
 import {
   onboardingMetrics,
   onboardingSearch,
@@ -40,16 +55,53 @@ function errorMessage(status: number): string {
 }
 
 function displayDate(value: string | null): string {
-  if (!value) return "—";
-  const date = new Date(`${value}T00:00:00+07:00`);
-  return Number.isNaN(date.getTime())
-    ? value
-    : new Intl.DateTimeFormat("th-TH", {
-        timeZone: "Asia/Bangkok",
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }).format(date);
+  return thaiDate(value);
+}
+
+/** Shows the applicant's private image inline (same signed download as the "open" button). */
+function MediaPreview({ employeeId, kind, label }: { readonly employeeId: string; readonly kind: "PROFILE" | "SIGNATURE"; readonly label: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let revoke: string | null = null;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const grantResponse = await fetch(
+          `/api/onboarding/employees/${encodeURIComponent(employeeId)}/media/${kind}`,
+          { credentials: "same-origin", cache: "no-store" },
+        );
+        if (!grantResponse.ok) throw new Error("grant");
+        const grant = (await grantResponse.json()) as {
+          download: { url: string; requiredHeaders: Record<string, string> };
+        };
+        const file = await fetch(grant.download.url, { headers: grant.download.requiredHeaders });
+        if (!file.ok) throw new Error("file");
+        const url = URL.createObjectURL(await file.blob());
+        if (cancelled) {
+          URL.revokeObjectURL(url);
+          return;
+        }
+        revoke = url;
+        setSrc(url);
+      } catch {
+        if (!cancelled) setFailed(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (revoke) URL.revokeObjectURL(revoke);
+    };
+  }, [employeeId, kind]);
+  return (
+    <div className="ck-media-box">
+      {src ? (
+        <img src={src} alt={label} />
+      ) : (
+        <small>{failed ? "แสดงรูปไม่ได้" : "กำลังโหลด…"}</small>
+      )}
+    </div>
+  );
 }
 
 export default function DesktopOnboardingPage() {
@@ -61,6 +113,7 @@ export default function DesktopOnboardingPage() {
     Record<string, Selection>
   >({});
   const [busy, setBusy] = useState<string | null>(null);
+  const [detail, setDetail] = useState<PendingEmployeeAdminItem | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [messageKind, setMessageKind] = useState<
     "success" | "error"
@@ -125,12 +178,37 @@ export default function DesktopOnboardingPage() {
     [query, state],
   );
 
+  async function viewMedia(employeeId: string, kind: "PROFILE" | "SIGNATURE") {
+    const label = kind === "SIGNATURE" ? "ลายเซ็น" : "รูปโปรไฟล์";
+    // Open the tab synchronously so the browser does not block it as a popup.
+    const tab = window.open("", "_blank");
+    try {
+      const grantResponse = await fetch(
+        `/api/onboarding/employees/${encodeURIComponent(employeeId)}/media/${kind}`,
+        { credentials: "same-origin", cache: "no-store" },
+      );
+      if (!grantResponse.ok) throw new Error("grant");
+      const grant = (await grantResponse.json()) as {
+        download: { url: string; requiredHeaders: Record<string, string> };
+      };
+      const file = await fetch(grant.download.url, { headers: grant.download.requiredHeaders });
+      if (!file.ok) throw new Error("file");
+      const url = URL.createObjectURL(await file.blob());
+      if (tab) tab.location.href = url;
+      else window.location.href = url;
+    } catch {
+      tab?.close();
+      setMessageKind("error");
+      setMessage("เปิด" + label + "ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+    }
+  }
+
   async function approve(employeeId: string) {
     if (state.status !== "ready" || busy) return;
     const selected = selection[employeeId];
     if (!selected?.agencyId || !selected.departmentId) {
       setMessageKind("error");
-      setMessage("กรุณาเลือก Agency และ Department ให้ครบ");
+      setMessage("กรุณาเลือกทีมและฝ่ายให้ครบ");
       return;
     }
     if (!window.confirm("ยืนยันอนุมัติและเปิดใช้งานบัญชีพนักงานนี้?")) {
@@ -158,6 +236,7 @@ export default function DesktopOnboardingPage() {
       const result =
         (await response.json()) as PendingEmployeeApprovalResult;
       setMessageKind("success");
+      setDetail(null);
       setMessage(
         result.unchanged
           ? "บัญชีนี้ถูกเปิดใช้งานอยู่แล้ว ข้อมูลถูกตรวจสอบซ้ำเรียบร้อย"
@@ -175,242 +254,209 @@ export default function DesktopOnboardingPage() {
     }
   }
 
-  if (state.status === "loading") {
-    return (
-      <section
-        className="module-state"
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-      >
-        <div className="spinner" aria-hidden="true" />
-        <h1>กำลังโหลด Onboarding</h1>
-        <p>กำลังตรวจสอบบัญชีที่รออนุมัติและโครงสร้างองค์กร</p>
-      </section>
-    );
+  if (state.status === "loading") return <LoadingState title="กำลังโหลดรายชื่อผู้สมัคร" />;
+  if (state.status === "error") {
+    return <ErrorState title="เปิดหน้ารับพนักงานใหม่ไม่สำเร็จ" message={state.message} onRetry={() => void load()} />;
   }
 
-  if (state.status === "error") {
-    return (
-      <section className="module-state" role="alert">
-        <div className="status-badge error">ONBOARDING ERROR</div>
-        <h1>เปิด Onboarding ไม่สำเร็จ</h1>
-        <p>{state.message}</p>
-        <button
-          className="primary-button"
-          type="button"
-          onClick={() => void load()}
-        >
-          ลองใหม่
-        </button>
-      </section>
-    );
-  }
+  const selected = detail ? (selection[detail.employeeId] ?? { agencyId: "", departmentId: "" }) : null;
 
   return (
-    <div className="module-stack">
-      <section className="module-heading">
-        <div>
-          <p className="eyebrow">ONBOARDING DESKTOP</p>
-          <h1>รับพนักงานใหม่</h1>
-          <p>
-            ตรวจสอบบัญชี PENDING และกำหนด Agency / Department
-            ก่อนเปิดใช้งานบัญชี
-          </p>
-        </div>
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={() => void load()}
-        >
-          รีเฟรช
+    <>
+      <PageHead tone="accent" icon="users" title="รับพนักงานใหม่" subtitle="ตรวจสอบผู้สมัคร กำหนดทีมและฝ่าย แล้วเปิดใช้งานบัญชี">
+        <button className="ck-btn quiet" type="button" onClick={() => void load()}>
+          <Icon name="refresh" size={16} /> รีเฟรช
         </button>
-      </section>
+      </PageHead>
 
-      {message ? (
-        <div
-          className={
-            messageKind === "error"
-              ? "action-message error"
-              : "action-message success"
-          }
-          role={messageKind === "error" ? "alert" : "status"}
-        >
-          {message}
+      <div className="ck-wrap ck-stack">
+        {detail ? null : <Message value={message ? { kind: messageKind, text: message } : null} />}
+
+        <div className="ck-orbrow">
+          <StatOrb value={String(metrics?.pending ?? 0)} label="รออนุมัติ" tone="ot" />
+          <StatOrb value={String(metrics?.lineLinked ?? 0)} label="เชื่อม LINE แล้ว" tone="leave" />
+          <StatOrb value={String(metrics?.lineUnlinked ?? 0)} label="ยังไม่เชื่อม LINE" tone="gray" />
         </div>
-      ) : null}
 
-      <section className="metric-grid">
-        <article className="metric-card">
-          <span>รออนุมัติ</span>
-          <strong>{metrics?.pending ?? 0}</strong>
-        </article>
-        <article className="metric-card">
-          <span>เชื่อม LINE แล้ว</span>
-          <strong>{metrics?.lineLinked ?? 0}</strong>
-        </article>
-        <article className="metric-card">
-          <span>ยังไม่เชื่อม LINE</span>
-          <strong>{metrics?.lineUnlinked ?? 0}</strong>
-        </article>
-      </section>
-
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">PENDING ACCOUNTS</p>
-            <h2>บัญชีที่รอเปิดใช้งาน</h2>
-          </div>
-          <input
-            type="search"
-            value={query}
-            onChange={(event) =>
-              setQuery(event.currentTarget.value)
-            }
-            placeholder="ค้นหาชื่อ / login / employee ID"
-            aria-label="ค้นหาพนักงาน"
+        <section className="ck-panel ck-c-accent" aria-labelledby="ob-list">
+          <SectionHead title="บัญชีที่รอเปิดใช้งาน" id="ob-list" count={visible.length}>
+            <input
+              className="ck-in ck-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.currentTarget.value)}
+              placeholder="ค้นหาชื่อ / ชื่อผู้ใช้"
+              aria-label="ค้นหาพนักงาน"
+            />
+          </SectionHead>
+          <DataGrid
+            rows={visible}
+            rowKey={(employee) => employee.employeeId}
+            onRowClick={(employee) => setDetail(employee)}
+            empty={<EmptyState icon="users" title="ไม่มีบัญชีที่รออนุมัติ">เมื่อมีผู้สมัครใหม่ รายการจะปรากฏที่นี่</EmptyState>}
+            columns={[
+              { key: "st", header: "", width: "48px", align: "center", render: () => <StatusDot tone="wait" label="รออนุมัติ" /> },
+              {
+                key: "name",
+                header: "ผู้สมัคร",
+                render: (employee) => (
+                  <span className="ck-gcell">
+                    <span className="ck-av">{employee.fullName.slice(0, 1)}</span>
+                    <b>{employee.fullName}</b>
+                  </span>
+                ),
+              },
+              { key: "nick", header: "ชื่อเล่น", render: (employee) => employee.nickname ?? "—" },
+              { key: "login", header: "ชื่อผู้ใช้", render: (employee) => employee.loginName },
+              { key: "start", header: "วันเริ่มงาน", render: (employee) => displayDate(employee.employmentStart) },
+              {
+                key: "line",
+                header: "LINE",
+                align: "center",
+                render: (employee) => (
+                  <StatusDot tone={employee.lineLinked ? "ok" : "muted"} label={employee.lineLinked ? "เชื่อม LINE แล้ว" : "ยังไม่เชื่อม LINE"} />
+                ),
+              },
+              {
+                key: "files",
+                header: "รูป / ลายเซ็น",
+                align: "center",
+                render: (employee) => (
+                  <span className="ck-row" style={{ justifyContent: "center" }}>
+                    <StatusDot tone={employee.hasProfileImage ? "ok" : "muted"} label={employee.hasProfileImage ? "แนบรูปโปรไฟล์" : "ไม่ได้แนบรูปโปรไฟล์"} />
+                    <StatusDot tone={employee.hasSignatureImage ? "ok" : "muted"} label={employee.hasSignatureImage ? "แนบลายเซ็น" : "ไม่ได้แนบลายเซ็น"} />
+                  </span>
+                ),
+              },
+              { key: "go", header: "", width: "40px", align: "center", render: () => <Icon name="chevron" size={16} /> },
+            ]}
           />
-        </div>
+        </section>
+      </div>
 
-        {visible.length === 0 ? (
-          <div className="empty-state">
-            <h3>ไม่มีบัญชีที่รออนุมัติ</h3>
-            <p>
-              เมื่อมีผู้สมัครใหม่ที่สถานะ PENDING รายการจะปรากฏที่นี่
-            </p>
-          </div>
-        ) : (
-          <div className="onboarding-list">
-            {visible.map((employee) => {
-              const selected = selection[employee.employeeId] ?? {
-                agencyId: "",
-                departmentId: "",
-              };
-              return (
-                <article
-                  className="onboarding-card"
-                  key={employee.employeeId}
-                >
-                  <div className="onboarding-card-head">
-                    <div>
-                      <strong>{employee.fullName}</strong>
-                      <small>
-                        {employee.nickname
-                          ? `${employee.nickname} · `
-                          : ""}
-                        {employee.loginName}
-                      </small>
-                    </div>
-                    <span
-                      className={
-                        employee.lineLinked
-                          ? "status-badge success"
-                          : "status-badge"
-                      }
-                    >
-                      {employee.lineLinked
-                        ? "LINE linked"
-                        : "LINE not linked"}
-                    </span>
-                  </div>
-
-                  <div className="profile-detail-grid">
-                    <div>
-                      <span>Employee ID</span>
-                      <strong>{employee.employeeId}</strong>
-                    </div>
-                    <div>
-                      <span>วันเริ่มงาน</span>
-                      <strong>
-                        {displayDate(employee.employmentStart)}
-                      </strong>
-                    </div>
-                    <div>
-                      <span>วันเกิด</span>
-                      <strong>
-                        {displayDate(employee.dateOfBirth)}
-                      </strong>
-                    </div>
-                  </div>
-
-                  <div className="onboarding-approval-grid">
-                    <label>
-                      Agency
-                      <select
-                        value={selected.agencyId}
-                        disabled={busy === employee.employeeId}
-                        onChange={(event) =>
-                          setSelection((current) => ({
-                            ...current,
-                            [employee.employeeId]: {
-                              ...selected,
-                              agencyId: event.currentTarget.value,
-                            },
-                          }))
-                        }
-                      >
-                        <option value="">เลือก Agency</option>
-                        {state.options.agencies.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label>
-                      Department
-                      <select
-                        value={selected.departmentId}
-                        disabled={busy === employee.employeeId}
-                        onChange={(event) =>
-                          setSelection((current) => ({
-                            ...current,
-                            [employee.employeeId]: {
-                              ...selected,
-                              departmentId: event.currentTarget.value,
-                            },
-                          }))
-                        }
-                      >
-                        <option value="">เลือก Department</option>
-                        {state.options.departments.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <button
-                      className="primary-button"
-                      type="button"
-                      disabled={
-                        Boolean(busy) ||
-                        !selected.agencyId ||
-                        !selected.departmentId
-                      }
-                      onClick={() =>
-                        void approve(employee.employeeId)
-                      }
-                    >
-                      {busy === employee.employeeId
-                        ? "กำลังอนุมัติ..."
-                        : "อนุมัติและเปิดใช้งาน"}
+      {detail && selected ? (
+        <DetailDialog
+          tone="accent"
+          icon="user"
+          kicker="ผู้สมัครใหม่"
+          title={detail.fullName}
+          status={{ label: "รออนุมัติ", tone: "wait" }}
+          onClose={() => setDetail(null)}
+          footer={
+            <button
+              className="ck-btn ok"
+              type="button"
+              disabled={Boolean(busy) || !selected.agencyId || !selected.departmentId}
+              onClick={() => void approve(detail.employeeId)}
+            >
+              <Icon name="check" size={16} />
+              {busy === detail.employeeId ? "กำลังอนุมัติ..." : "อนุมัติและเปิดใช้งาน"}
+            </button>
+          }
+        >
+          <Message value={message ? { kind: messageKind, text: message } : null} />
+          <dl className="ck-dlg-grid">
+            <div>
+              <dt>ชื่อเล่น</dt>
+              <dd>{detail.nickname ?? "—"}</dd>
+            </div>
+            <div>
+              <dt>ชื่อผู้ใช้</dt>
+              <dd>{detail.loginName}</dd>
+            </div>
+            <div>
+              <dt>วันเริ่มงาน</dt>
+              <dd>{displayDate(detail.employmentStart)}</dd>
+            </div>
+            <div>
+              <dt>วันเกิด</dt>
+              <dd>{displayDate(detail.dateOfBirth)}</dd>
+            </div>
+            <div>
+              <dt>LINE</dt>
+              <dd>{detail.lineLinked ? "เชื่อมบัญชีแล้ว" : "ยังไม่เชื่อมบัญชี"}</dd>
+            </div>
+          </dl>
+          <div className="ck-dlg-sec">
+            <h3>รูปโปรไฟล์และลายเซ็น</h3>
+            <div className="ck-media-pair">
+              <div>
+                <small>รูปโปรไฟล์</small>
+                {detail.hasProfileImage ? (
+                  <>
+                    <MediaPreview employeeId={detail.employeeId} kind="PROFILE" label="รูปโปรไฟล์ผู้สมัคร" />
+                    <button className="ck-btn sm quiet" type="button" onClick={() => void viewMedia(detail.employeeId, "PROFILE")}>
+                      ดูรูปโปรไฟล์
                     </button>
+                  </>
+                ) : (
+                  <div className="ck-media-box">
+                    <small>ไม่ได้แนบ</small>
                   </div>
-                </article>
-              );
-            })}
+                )}
+              </div>
+              <div>
+                <small>ลายเซ็น</small>
+                {detail.hasSignatureImage ? (
+                  <>
+                    <MediaPreview employeeId={detail.employeeId} kind="SIGNATURE" label="ลายเซ็นผู้สมัคร" />
+                    <button className="ck-btn sm quiet" type="button" onClick={() => void viewMedia(detail.employeeId, "SIGNATURE")}>
+                      ดูลายเซ็น
+                    </button>
+                  </>
+                ) : (
+                  <div className="ck-media-box">
+                    <small>ไม่ได้แนบ</small>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        )}
-      </section>
-
-      <section className="module-panel">
-        <p className="panel-description">
-          การสมัครบัญชีใหม่ยังใช้ canonical public registration flow
-          เดิม ส่วนหน้านี้เป็น Admin approval surface เท่านั้น
-          และไม่รับ password หรือ LINE user ID มาแสดง
-        </p>
-      </section>
-    </div>
+          <div className="ck-dlg-sec">
+            <h3>กำหนดทีมและฝ่าย</h3>
+            <div className="ck-eform">
+              <label className="ck-field">
+                <span>ทีม</span>
+                <select
+                  className="ck-sselect"
+                  value={selected.agencyId}
+                  disabled={busy === detail.employeeId}
+                  onChange={(event) => {
+                    const value = event.currentTarget.value;
+                    setSelection((current) => ({ ...current, [detail.employeeId]: { ...selected, agencyId: value } }));
+                  }}
+                >
+                  <option value="">เลือกทีม</option>
+                  {state.options.agencies.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="ck-field">
+                <span>ฝ่าย</span>
+                <select
+                  className="ck-sselect"
+                  value={selected.departmentId}
+                  disabled={busy === detail.employeeId}
+                  onChange={(event) => {
+                    const value = event.currentTarget.value;
+                    setSelection((current) => ({ ...current, [detail.employeeId]: { ...selected, departmentId: value } }));
+                  }}
+                >
+                  <option value="">เลือกฝ่าย</option>
+                  {state.options.departments.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </div>
+        </DetailDialog>
+      ) : null}
+    </>
   );
 }

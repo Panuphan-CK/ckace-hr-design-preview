@@ -1,16 +1,29 @@
+import type { Prisma } from "@prisma/client";
+
 /**
  * Prisma filter for employees who count in attendance statistics: not flagged
  * individually and not holding an active professional role that is exempt from
  * clocking in (for example auditors).
  */
-export const ATTENDANCE_STATS_EMPLOYEE_FILTER = {
+export const ATTENDANCE_STATS_EMPLOYEE_FILTER: Prisma.EmployeeWhereInput = {
   attendanceExempt: false,
   professionalRoles: {
     none: {
       professionalRole: { attendanceExempt: true, active: true },
     },
   },
-} as const;
+  // Owners (SUPERADMIN) who are not also employees never clock in.
+  NOT: {
+    userAccount: {
+      is: {
+        AND: [
+          { roles: { some: { role: { key: "SUPERADMIN" } } } },
+          { roles: { none: { role: { key: "EMPLOYEE" } } } },
+        ],
+      },
+    },
+  },
+};
 
 export function isAttendanceExempt(row: {
   readonly attendanceExempt: boolean;

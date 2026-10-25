@@ -1,0 +1,12 @@
+/* Request pages: history grid cells, tidy form helpers */
+.ck-gcell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ck-gcell b { font-weight: 600; }
+.ck-gcell small { color: var(--ck-mute, #6b7a8c); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
+.ck-gkind { display: inline-flex; align-items: center; gap: 8px; }
+.ck-gkind .ck-chip { width: 28px; height: 28px; }
+.ck-hist { animation: ck-rise 0.35s ease both; }
+@keyframes ck-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.ck-filter-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 12px; }
+@media (prefers-reduced-motion: reduce) { .ck-hist { animation: none; } }
+.ck-live { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding: 8px 0 12px; }
+.ck-live-st { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: #eef5fd; font-weight: 600; animation: ck-rise 0.4s ease both; }

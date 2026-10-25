@@ -3,6 +3,7 @@ import {
   normalizeAttendanceClientKey,
   normalizeAttendanceLocation,
   normalizeAttendanceRecordId,
+  normalizeAttendanceRecordAdd,
   normalizeTimeCorrection,
   normalizeTimeCorrectionDecision,
 } from "@ckace/business-rules";
@@ -13,6 +14,7 @@ import type {
   AttendanceSelfOverview,
   AttendanceWriteResult,
   TimeCorrectionCancelResult,
+  AttendanceRecordAddInput,
   TimeCorrectionCreateInput,
   TimeCorrectionCreateResult,
   TimeCorrectionDecisionInput,
@@ -474,6 +476,50 @@ export class AttendanceService {
     }
   }
 
+  async createSelfAttendanceRecordAdd(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly body: unknown;
+  }): Promise<TimeCorrectionCreateResult> {
+    const source = objectBody(input.body);
+    let request: AttendanceRecordAddInput;
+
+    try {
+      const normalized = normalizeAttendanceRecordAdd({
+        clientKey: requiredString(source.clientKey, "clientKey", 120),
+        attendanceDate: requiredString(source.attendanceDate, "attendanceDate", 10),
+        checkInTime: requiredString(source.checkInTime, "checkInTime", 5),
+        checkOutTime: requiredString(source.checkOutTime, "checkOutTime", 5),
+        reason: requiredString(source.reason, "reason", 1000),
+      });
+      request = normalized;
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      throw new BadRequestException(
+        error instanceof Error ? error.message : "Attendance record request is invalid",
+      );
+    }
+
+    try {
+      return await this.repository.createSelfAttendanceRecordAdd({
+        employeeId: input.employeeId,
+        correlationId: input.correlationId,
+        request,
+        canonicalPayload: JSON.stringify({
+          attendanceDate: request.attendanceDate,
+          checkInTime: request.checkInTime,
+          checkOutTime: request.checkOutTime,
+          reason: request.reason,
+        }),
+      });
+    } catch (error) {
+      return translateRepositoryError(error);
+    }
+  }
+
   async resubmitTimeCorrection(input: {
     readonly employeeId: string;
     readonly correlationId: string;
@@ -484,6 +530,9 @@ export class AttendanceService {
     const request: TimeCorrectionResubmitInput = {
       clientKey: requiredString(source.clientKey, "clientKey", 120),
       correctedTime: requiredString(source.correctedTime, "correctedTime", 5),
+      ...(typeof source.correctedCheckOutTime === "string" && source.correctedCheckOutTime
+        ? { correctedCheckOutTime: requiredString(source.correctedCheckOutTime, "correctedCheckOutTime", 5) }
+        : {}),
       reason: requiredString(source.reason, "reason", 1000),
     };
 

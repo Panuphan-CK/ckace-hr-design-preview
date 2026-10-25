@@ -132,6 +132,22 @@ export class AttendanceController {
     });
   }
 
+  @Post("time-corrections/add-record")
+  @ModuleRoute("TIME_CORRECTION_WRITE")
+  @RequireSelfPermission("time_correction.self.write")
+  async addAttendanceRecord(
+    @Req() request: SecurityRequest,
+    @Body() body: unknown,
+  ): Promise<TimeCorrectionCreateResult> {
+    const actor = this.requireActor(request);
+
+    return this.service.createSelfAttendanceRecordAdd({
+      employeeId: actor.employeeId,
+      correlationId: request.correlationId ?? actor.correlationId,
+      body,
+    });
+  }
+
   @Post("time-corrections/:requestId/resubmit")
   @ModuleRoute("TIME_CORRECTION_WRITE")
   @RequireSelfPermission("time_correction.self.write")

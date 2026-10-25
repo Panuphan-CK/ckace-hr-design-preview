@@ -32,6 +32,7 @@ export interface OnboardingRegistrationRecord {
 export interface OnboardingRepository {
   register(input: OnboardingRegistrationRecord): Promise<EmployeeRegistrationResult>;
   findCredentials(normalizedLogin: string): Promise<OnboardingCredentialRecord | null>;
+  findActiveEmployeeIdByLineUserId(lineUserId: string): Promise<string | null>;
   bindLine(
     employeeId: string,
     lineUserId: string,
@@ -119,6 +120,19 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
           passwordHash: account.passwordHash,
           legacyPasswordHash: account.legacyPasswordHash,
         }
+      : null;
+  }
+
+  async findActiveEmployeeIdByLineUserId(lineUserId: string): Promise<string | null> {
+    const binding = await this.prisma.lineAccount.findUnique({
+      where: { lineUserId },
+      select: {
+        employeeId: true,
+        employee: { select: { userAccount: { select: { state: true } } } },
+      },
+    });
+    return binding?.employee.userAccount?.state === "ACTIVE"
+      ? binding.employeeId
       : null;
   }
 
@@ -271,6 +285,7 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
             id: true,
           },
         },
+        media: { select: { kind: true } },
       },
       orderBy: [
         { employmentStart: "asc" },
@@ -290,6 +305,8 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
             employmentStart:
               row.employmentStart?.toISOString().slice(0, 10) ?? null,
             lineLinked: Boolean(row.lineAccount),
+            hasProfileImage: row.media.some((item) => item.kind === "PROFILE"),
+            hasSignatureImage: row.media.some((item) => item.kind === "SIGNATURE"),
           }]
         : [],
     );
@@ -393,18 +410,22 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
             actorEmployeeId,
           });
         } else if (!currentIds.has(leaveType.id)) {
+          const year = currentLeaveYear();
+
           await tx.leaveEntitlement.create({
             data: {
               employeeId,
               leaveTypeId: leaveType.id,
               quota: rule.quota,
+              validFrom: new Date(`${year}-01-01T00:00:00.000Z`),
+              validTo: new Date(`${year}-12-31T00:00:00.000Z`),
             },
           });
         }
       }
 
       let notificationQueued = false;
-      if (!unchanged && account.employee.lineAccount) {
+      if (!unchanged) {
         await tx.notificationOutbox.create({
           data: {
             aggregateType: "EMPLOYEE_ACCOUNT",

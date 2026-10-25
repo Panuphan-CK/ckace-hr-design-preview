@@ -1,12 +1,33 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   buildLeaveApproverScopeWhere,
+  PrismaLeaveRepository,
   QUOTA_RESERVING_STATUSES,
   summarizeEntitlementUsage,
+  validateSelectedApprovers,
 } from "./leave-repository";
 
 describe("leave approver scope guards", () => {
+  it("rejects the requester as a selected approver", () => {
+    expect(() =>
+      validateSelectedApprovers(
+        ["employee-1"],
+        [
+          {
+            stepOrder: 1,
+            requiredRoleKey: "ADMIN",
+            scope: "GLOBAL",
+            candidates: [
+              { employeeId: "employee-1", displayName: "Employee" },
+            ],
+          },
+        ],
+        "employee-1",
+      ),
+    ).toThrow("cannot be the requester");
+  });
+
   it("returns no organization filter for GLOBAL scope", () => {
     expect(
       buildLeaveApproverScopeWhere("GLOBAL", {
@@ -56,6 +77,50 @@ describe("leave approver scope guards", () => {
         departmentId: null,
       }),
     ).toThrow("requires requester department");
+  });
+
+  it("excludes the requester from legacy approval candidates", async () => {
+    const candidateWhere: unknown[] = [];
+    const prisma = {
+      employee: {
+        findUnique: vi
+          .fn()
+          .mockResolvedValueOnce({
+            id: "requester",
+            agencyId: null,
+            departmentId: null,
+            userAccount: { state: "ACTIVE" },
+          })
+          .mockResolvedValueOnce({ agency: null }),
+        findMany: vi.fn().mockImplementation(async (input: { where: unknown }) => {
+          candidateWhere.push(input.where);
+          return [{ id: "approver", fullName: "Approver" }];
+        }),
+      },
+      approvalPolicy: {
+        findMany: vi.fn().mockResolvedValue([
+          {
+            id: "policy-1",
+            agencyId: null,
+            steps: [
+              {
+                stepOrder: 1,
+                requiredRoleId: "role-admin",
+                scope: "GLOBAL",
+                requiredRole: { key: "ADMIN" },
+              },
+            ],
+          },
+        ]),
+      },
+      agency: { findMany: vi.fn() },
+    };
+
+    await new PrismaLeaveRepository(prisma as never).getApprovalOptions("requester");
+
+    expect(candidateWhere[0]).toEqual(
+      expect.objectContaining({ id: { not: "requester" } }),
+    );
   });
 });
 

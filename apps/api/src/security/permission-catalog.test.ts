@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const API_SRC = join(__dirname, "..");
 const MIGRATIONS = join(__dirname, "..", "..", "..", "..", "packages", "database", "prisma", "migrations");
-const MANIFEST = join(__dirname, "..", "..", "..", "..", "infra", "production", "m10d2-rbac-manifest.json");
+const CONTRACT = join(__dirname, "permission-catalog.contract.json");
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -20,7 +20,7 @@ function sourceFiles(dir: string): string[] {
 }
 
 describe("permission catalog", () => {
-  it("defines every permission key the API requires (manifest or a migration)", () => {
+  it("defines every permission key the API requires in the catalog or a migration", () => {
     const used = new Set<string>();
 
     for (const file of sourceFiles(API_SRC)) {
@@ -31,8 +31,8 @@ describe("permission catalog", () => {
       }
     }
 
-    const manifest = JSON.parse(readFileSync(MANIFEST, "utf8")) as { permissionCatalog: string[] };
-    const defined = new Set(manifest.permissionCatalog);
+    const catalog = JSON.parse(readFileSync(CONTRACT, "utf8")) as { permissionCatalog: string[] };
+    const defined = new Set(catalog.permissionCatalog);
     const migrationText = readdirSync(MIGRATIONS)
       .map((name) => {
         try {

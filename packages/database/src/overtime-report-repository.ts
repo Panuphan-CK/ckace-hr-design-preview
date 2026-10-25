@@ -46,6 +46,12 @@ function isBreakCodes(value: unknown): value is OvertimeBreakCode[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
 
+const BANGKOK_DAY_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+function bangkokToday(now: Date = new Date()): string {
+  return new Date(now.getTime() + BANGKOK_DAY_OFFSET_MS).toISOString().slice(0, 10);
+}
+
 /**
  * One row per approved/pending overtime day with attendance and fixed
  * allowances (meal and per-person transport). Allowances are only computed for
@@ -56,6 +62,7 @@ export async function loadOvertimeReportRows(
   prisma: PrismaClient,
   filters: OvertimeReportFilters,
 ): Promise<readonly OvertimeReportRow[]> {
+  const todayBangkok = bangkokToday();
   const [policies, weeklyRules, holidays] = await Promise.all([
     prisma.overtimeAllowancePolicy.findMany(),
     prisma.weeklyWorkRule.findMany({ select: { isoWeekday: true, isWorking: true } }),
@@ -108,6 +115,7 @@ export async function loadOvertimeReportRows(
       endTime: true,
       requestedMinutes: true,
       breakCodes: true,
+      confirmedAt: true,
       request: {
         select: {
           id: true,
@@ -165,12 +173,23 @@ export async function loadOvertimeReportRows(
 
     let actualEnd: string | null = null;
     let paidMinutes = 0;
+    let attendanceCheck: OvertimeReportRow["attendanceCheck"] = "PENDING";
 
-    if (record?.checkOutAt) {
-      const out = Math.min(
-        end.minutes,
-        Math.max(0, minutesSinceBangkokMidnight(segment.workDate, record.checkOutAt)),
-      );
+    // Forgotten punches are paid to the approved time once the day is over and
+    // flagged; the employee can still file a time correction to set the real time.
+    const dayOver = date < todayBangkok;
+    const realOut = record?.checkOutAt
+      ? Math.max(0, minutesSinceBangkokMidnight(segment.workDate, record.checkOutAt))
+      : null;
+
+    if (realOut !== null) {
+      attendanceCheck = realOut < end.minutes ? "LEFT_EARLY" : "COMPLETE";
+    } else if (dayOver) {
+      attendanceCheck = record ? "NO_CHECK_OUT" : "NO_RECORD";
+    }
+
+    if (realOut !== null || dayOver) {
+      const out = realOut === null ? end.minutes : Math.min(end.minutes, realOut);
       actualEnd = clock(out);
       if (out > start.minutes) {
         try {
@@ -200,6 +219,8 @@ export async function loadOvertimeReportRows(
     const company = employee.company?.name ?? employee.agency?.company?.name ?? "";
 
     return {
+      segmentId: segment.id,
+      confirmed: segment.confirmedAt !== null,
       requestId: segment.request.id,
       workDate: date,
       employeeId: employee.id,
@@ -212,6 +233,7 @@ export async function loadOvertimeReportRows(
       actualCheckOut: record?.checkOutAt
         ? clockOf(new Date(record.checkOutAt.getTime() + BANGKOK_OFFSET_MS)).text
         : null,
+      attendanceCheck,
       requestedMinutes: segment.requestedMinutes,
       paidMinutes: approved ? paidMinutes : 0,
       breaks: breaks ?? null,
@@ -249,4 +271,28 @@ export async function recordOvertimeReportExport(
       },
     },
   });
+}
+
+/** Marks flagged segments as checked by an admin; returns how many were newly confirmed. */
+export async function confirmOvertimeSegments(
+  prisma: PrismaClient,
+  input: { readonly segmentIds: readonly string[]; readonly actorEmployeeId: string },
+): Promise<number> {
+  const now = new Date();
+  const result = await prisma.overtimeSegment.updateMany({
+    where: { id: { in: [...input.segmentIds] }, confirmedAt: null },
+    data: { confirmedAt: now, confirmedById: input.actorEmployeeId },
+  });
+  if (result.count > 0) {
+    await prisma.auditLog.create({
+      data: {
+        actorEmployeeId: input.actorEmployeeId,
+        action: "OVERTIME_SEGMENTS_CONFIRMED",
+        entityType: "OvertimeSegment",
+        entityId: input.actorEmployeeId,
+        metadata: { segmentIds: [...input.segmentIds], count: result.count },
+      },
+    });
+  }
+  return result.count;
 }

@@ -66,6 +66,30 @@ function requiredString(
   return normalized;
 }
 
+function optionalAttachmentIds(value: unknown): readonly string[] {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  if (!Array.isArray(value) || value.length > 3) {
+    throw new BadRequestException("attachmentIds is invalid");
+  }
+
+  const ids = value.map((entry) => {
+    if (typeof entry !== "string") {
+      throw new BadRequestException("attachmentIds is invalid");
+    }
+
+    return requiredUuid(entry, "attachmentId");
+  });
+
+  if (new Set(ids).size !== ids.length) {
+    throw new BadRequestException("attachmentIds must be unique");
+  }
+
+  return ids;
+}
+
 function optionalTime(value: unknown): string | null {
   if (value === undefined || value === null || value === "") {
     return null;
@@ -152,6 +176,7 @@ function parseCreateBody(body: unknown): LeaveCreateInput {
       startTime: period.startTime,
       endTime: period.endTime,
       approverEmployeeIds,
+      attachmentIds: optionalAttachmentIds(source.attachmentIds),
     };
   } catch (error) {
     if (error instanceof BadRequestException) {
@@ -251,6 +276,7 @@ function parseResubmitBody(body: unknown): LeaveResubmitInput {
       durationCode: period.durationCode,
       startTime: period.startTime,
       endTime: period.endTime,
+      attachmentIds: optionalAttachmentIds(source.attachmentIds),
     };
   } catch (error) {
     if (error instanceof BadRequestException) {
@@ -285,6 +311,7 @@ function canonicalCreatePayload(
     approverEmployeeIds: [
       ...request.approverEmployeeIds,
     ],
+    attachmentIds: [...(request.attachmentIds ?? [])].sort(),
   });
 }
 
@@ -383,6 +410,10 @@ export class LeaveService {
     const request = parseCreateBody(input.body);
 
     try {
+      if (request.startDate.slice(0, 4) !== request.endDate.slice(0, 4)) {
+        return await this.createAcrossYears(input, request);
+      }
+
       return await this.repository.createSelfLeave({
         employeeId: input.employeeId,
         correlationId: input.correlationId,
@@ -392,6 +423,112 @@ export class LeaveService {
     } catch (error) {
       return translateRepositoryError(error);
     }
+  }
+
+  /**
+   * A leave across New Year is filed as one request per calendar year (each year has its
+   * own balance, nothing carries over). All parts use the same approvers; if one part fails
+   * the parts already filed are cancelled so the employee never ends up half-filed.
+   */
+  private async createAcrossYears(
+    input: { readonly employeeId: string; readonly correlationId: string },
+    request: LeaveCreateInput,
+  ): Promise<LeaveCreateResult> {
+    const firstYear = Number(request.startDate.slice(0, 4));
+    const lastYear = Number(request.endDate.slice(0, 4));
+
+    if (
+      request.durationCode !== "FULL_DAY" ||
+      lastYear < firstYear ||
+      lastYear - firstYear > 1
+    ) {
+      throw new BadRequestException(
+        "Leave across New Year must be full days and span two calendar years at most",
+      );
+    }
+
+    const created: string[] = [];
+    let replayed = true;
+    // A file links to exactly one request: the first part that is actually filed carries it.
+    let pendingAttachmentIds = request.attachmentIds ?? [];
+
+    try {
+      for (let year = firstYear; year <= lastYear; year += 1) {
+        const entitlementId = await this.repository.findEntitlementForYear({
+          employeeId: input.employeeId,
+          entitlementId: request.entitlementId,
+          year,
+        });
+
+        if (!entitlementId) {
+          throw new BadRequestException(
+            `No leave entitlement is available for year ${year}`,
+          );
+        }
+
+        const part: LeaveCreateInput = {
+          ...request,
+          clientKey: `${request.clientKey.slice(0, 100)}:y${year}`,
+          entitlementId,
+          startDate: year === firstYear ? request.startDate : `${year}-01-01`,
+          endDate: year === lastYear ? request.endDate : `${year}-12-31`,
+          description:
+            year === firstYear
+              ? request.description
+              : `${request.description} (ต่อเนื่องข้ามปี)`,
+          attachmentIds: pendingAttachmentIds,
+        };
+
+        try {
+          const result = await this.repository.createSelfLeave({
+            employeeId: input.employeeId,
+            correlationId: input.correlationId,
+            request: part,
+            canonicalPayload: canonicalCreatePayload(part),
+          });
+
+          created.push(result.requestId);
+          pendingAttachmentIds = [];
+          replayed = replayed && result.replayed;
+        } catch (error) {
+          // A part that covers only holidays/weekends needs no leave of its own.
+          if (
+            error instanceof Error &&
+            error.message.startsWith("Leave request must consume positive leave quota")
+          ) {
+            continue;
+          }
+
+          throw error;
+        }
+      }
+    } catch (error) {
+      for (const requestId of created) {
+        await this.repository
+          .cancelSelfLeave({
+            employeeId: input.employeeId,
+            correlationId: input.correlationId,
+            requestId,
+          })
+          .catch(() => undefined);
+      }
+
+      throw error;
+    }
+
+    const [first, ...rest] = created;
+
+    if (!first) {
+      throw new BadRequestException(
+        "Leave request must consume positive leave quota",
+      );
+    }
+
+    return {
+      requestId: first,
+      replayed,
+      ...(rest.length > 0 ? { additionalRequestIds: rest } : {}),
+    };
   }
 
   async resubmitLeave(input: {
@@ -417,6 +554,7 @@ export class LeaveService {
           durationCode: request.durationCode,
           startTime: request.startTime ?? null,
           endTime: request.endTime ?? null,
+          attachmentIds: [...(request.attachmentIds ?? [])].sort(),
         }),
       });
     } catch (error) {

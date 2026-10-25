@@ -126,4 +126,25 @@ export class ProfileService {
 
     return { changed: true };
   }
+
+  /** The employee sets their own profile photo or signature from an already-uploaded image. */
+  async linkOwnMedia(employeeId: string, body: unknown): Promise<{ readonly linked: true }> {
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      throw new BadRequestException("Body is invalid");
+    }
+    const { kind, attachmentId } = body as Record<string, unknown>;
+    if (kind !== "PROFILE" && kind !== "SIGNATURE") throw new BadRequestException("Invalid kind");
+    if (
+      typeof attachmentId !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(attachmentId)
+    ) {
+      throw new BadRequestException("Invalid attachment ID");
+    }
+    try {
+      await this.repository.linkOwnMedia({ employeeId, attachmentId, kind });
+    } catch {
+      throw new BadRequestException("Image could not be saved");
+    }
+    return { linked: true };
+  }
 }

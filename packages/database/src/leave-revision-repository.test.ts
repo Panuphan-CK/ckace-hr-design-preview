@@ -36,6 +36,8 @@ function baseTx(overrides: Record<string, unknown> = {}) {
         status: "REVISION_REQUESTED",
         entitlementId: ENTITLEMENT,
         approvalInstanceId: INSTANCE,
+        leaveType: { key: "SICK" },
+        _count: { attachments: 0 },
       }),
       findMany: vi.fn().mockResolvedValue([]),
       update: vi.fn(),
@@ -112,6 +114,45 @@ describe("leave resubmission after send-back", () => {
     );
     expect(tx.notificationOutbox.create).toHaveBeenCalled();
     expect(tx.auditLog.create).toHaveBeenCalled();
+  });
+
+  it("links a validated certificate on resubmission and rejects an unowned one", async () => {
+    const ATT = "88888888-8888-4888-8888-888888888888";
+    const attRow = (owner: string) => ({
+      id: ATT,
+      ownerEmployeeId: owner,
+      privacyClass: "MEDICAL_PRIVATE",
+      storageProvider: "R2",
+      storageKey: "k",
+      mimeType: "application/pdf",
+      sizeBytes: 100n,
+      checksumSha256: "b".repeat(64),
+      finalizedAt: new Date(),
+      leaveLink: null,
+      overtimeLink: null,
+      medicalLink: null,
+      announcementLink: null,
+      employeeMedia: null,
+    });
+    const input = { ...revisionInput, clientKey: "resubmit-key-0002", attachmentIds: [ATT] };
+
+    const ok = baseTx({ attachment: { findMany: vi.fn().mockResolvedValue([attRow(EMPLOYEE)]) } });
+    await resubmitSentBackLeave(prismaFor(ok), {
+      employeeId: EMPLOYEE, correlationId: "c1", requestId: REQUEST, request: input, canonicalPayload: "p",
+    });
+    expect(ok.leaveRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ attachments: { create: [{ attachmentId: ATT }] } }),
+      }),
+    );
+
+    const bad = baseTx({ attachment: { findMany: vi.fn().mockResolvedValue([attRow(ADMIN)]) } });
+    await expect(
+      resubmitSentBackLeave(prismaFor(bad), {
+        employeeId: EMPLOYEE, correlationId: "c1", requestId: REQUEST, request: input, canonicalPayload: "p",
+      }),
+    ).rejects.toThrow(/owner mismatch/);
+    expect(bad.leaveRequest.update).not.toHaveBeenCalled();
   });
 
   it("refuses a request that was not sent back or belongs to someone else", async () => {

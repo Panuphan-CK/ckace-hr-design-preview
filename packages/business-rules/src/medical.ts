@@ -405,6 +405,7 @@ export function assertMedicalAnnualLimit(input: {
 
 export function isMedicalAutoApprovalRole(
   roleKeys: readonly string[],
+  autoApproveRoleKeys: readonly string[] = ["ADMIN", "SUPERADMIN"],
 ): boolean {
   const roles = new Set(
     roleKeys.map((role) =>
@@ -412,9 +413,8 @@ export function isMedicalAutoApprovalRole(
     ),
   );
 
-  return (
-    roles.has("ADMIN") ||
-    roles.has("SUPERADMIN")
+  return autoApproveRoleKeys.some((key) =>
+    roles.has(key.trim().toUpperCase()),
   );
 }
 

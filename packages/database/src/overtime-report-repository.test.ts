@@ -32,6 +32,7 @@ function prismaWith(options: {
           endTime: new Date("1970-01-01T22:00:00.000Z"),
           requestedMinutes: 270,
           breakCodes: options.breakCodes ?? [],
+          confirmedAt: null,
           request: {
             id: "req1",
             status: options.status ?? "APPROVED",
@@ -96,10 +97,27 @@ describe("overtime report rows", () => {
     expect(row?.transportSatang).toBe(0);
   });
 
-  it("pays nothing without attendance or for requests that are not approved", async () => {
+  it("pays the approved time and flags a past day with no punches", async () => {
     const [none] = await loadOvertimeReportRows(prismaWith({ checkOutUtc: null }), filters);
-    expect(none).toMatchObject({ paidMinutes: 0, totalSatang: 0, actualCheckOut: null });
+    expect(none).toMatchObject({
+      attendanceCheck: "NO_RECORD",
+      paidMinutes: 270,
+      totalSatang: 17000,
+      actualCheckOut: null,
+    });
+  });
 
+  it("pays the real time and flags an early check-out", async () => {
+    // check-out 19:00 Bangkok (12:00 UTC), approved until 22:00
+    const [early] = await loadOvertimeReportRows(
+      prismaWith({ checkOutUtc: "2026-10-15T12:00:00.000Z" }),
+      filters,
+    );
+    expect(early).toMatchObject({ attendanceCheck: "LEFT_EARLY", mealSatang: 0 });
+    expect(early?.paidMinutes).toBeLessThan(270);
+  });
+
+  it("pays nothing for requests that are not approved", async () => {
     const [pending] = await loadOvertimeReportRows(prismaWith({ status: "PENDING" }), filters);
     expect(pending).toMatchObject({ paidMinutes: 0, totalSatang: 0 });
   });

@@ -1,3 +1,4 @@
+import { pendingApproverIds } from "./cancel-notice";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -33,6 +34,7 @@ import {
   type PrismaClient,
 } from "@prisma/client";
 
+import { formatRequestNo } from "./request-status-repository";
 import { actorMayDecideStep, delegatorIdsFor } from "./approval-delegation";
 import {
   resubmitSentBackMedical,
@@ -102,6 +104,7 @@ interface MedicalApprovalResolution {
   readonly steps: readonly {
     readonly stepOrder: number;
     readonly approverEmployeeId: string;
+    readonly coApproverEmployeeIds?: readonly string[];
   }[];
 }
 
@@ -463,6 +466,26 @@ async function perClaimLimitFor(
   return policy?.perClaimLimit ? policy.perClaimLimit.toNumber() : MEDICAL_PER_CLAIM_LIMIT_DEFAULT;
 }
 
+/** Roles whose own claims are auto-approved by the active medical policy (default ADMIN, SUPERADMIN). */
+async function autoApproveRolesFor(
+  prisma: Pick<Prisma.TransactionClient, "benefitPolicy">,
+  today: string,
+): Promise<readonly string[]> {
+  const effectiveDate = dateValue(today);
+  const policy = await prisma.benefitPolicy.findFirst({
+    where: {
+      key: MEDICAL_BENEFIT_POLICY_KEY,
+      active: true,
+      effectiveFrom: { lte: effectiveDate },
+      OR: [{ effectiveTo: null }, { effectiveTo: { gte: effectiveDate } }],
+    },
+    select: { autoApproveRoleKeys: true },
+    orderBy: [{ effectiveFrom: "desc" }, { id: "asc" }],
+  });
+
+  return policy?.autoApproveRoleKeys ?? ["ADMIN", "SUPERADMIN"];
+}
+
 async function activeMedicalBenefitPolicy(
   prisma: Pick<
     Prisma.TransactionClient,
@@ -695,6 +718,7 @@ function medicalClaimView(
       | "REVISION_REQUESTED";
     readonly decisionReason: string | null;
     readonly submittedAt: Date;
+    readonly requestNo?: number;
     readonly attachments: readonly {
       readonly attachment: {
         readonly id: string;
@@ -728,6 +752,7 @@ function medicalClaimView(
       claim.decisionReason,
     submittedAt:
       claim.submittedAt.toISOString(),
+    ...(typeof claim.requestNo === "number" ? { requestNo: formatRequestNo("MED", claim.requestNo) } : {}),
     attachments:
       claim.attachments.map((link) =>
         medicalAttachmentView(
@@ -748,6 +773,7 @@ const medicalClaimSelection = {
   status: true,
   decisionReason: true,
   submittedAt: true,
+  requestNo: true,
   attachments: {
     select: {
       attachment: {
@@ -1009,6 +1035,8 @@ export class PrismaMedicalRepository
               }),
             ),
         }),
+      perClaimLimit:
+        await perClaimLimitFor(this.prisma, today),
       claims: claims.map(
         medicalClaimView,
       ),
@@ -1029,7 +1057,10 @@ export class PrismaMedicalRepository
     const steps =
       await this.prisma.approvalStep.findMany({
         where: {
-          approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
+          OR: [
+            { approverEmployeeId: { in: [approverEmployeeId, ...delegators] } },
+            { coApproverEmployeeIds: { hasSome: [approverEmployeeId, ...delegators] } },
+          ],
           status: "PENDING",
           approvalInstance: {
             is: {
@@ -1266,6 +1297,10 @@ export class PrismaMedicalRepository
             const autoApproved =
               isMedicalAutoApprovalRole(
                 requester.roleKeys,
+                await autoApproveRolesFor(
+                  tx,
+                  bangkokDateKey(this.clock()),
+                ),
               );
             const approval = autoApproved
               ? null
@@ -1297,6 +1332,9 @@ export class PrismaMedicalRepository
                                 step.stepOrder,
                               approverEmployeeId:
                                 step.approverEmployeeId,
+                              coApproverEmployeeIds: [
+                                ...(step.coApproverEmployeeIds ?? []),
+                              ],
                               status:
                                 "PENDING",
                               assignedAt:
@@ -1511,6 +1549,7 @@ export class PrismaMedicalRepository
 
         const decidedAt =
           this.clock();
+        const approverEmployeeIds = await pendingApproverIds(tx, claim.approvalInstanceId);
 
         await tx.medicalClaim.update({
           where: {
@@ -1567,6 +1606,7 @@ export class PrismaMedicalRepository
                   claim.id,
                 requesterEmployeeId:
                   input.employeeId,
+                approverEmployeeIds,
               },
             },
           }),
@@ -1640,6 +1680,8 @@ export class PrismaMedicalRepository
                       stepOrder: true,
                       approverEmployeeId:
                         true,
+                      coApproverEmployeeIds:
+                        true,
                       status: true,
                     },
                     orderBy: {
@@ -1670,6 +1712,7 @@ export class PrismaMedicalRepository
         const mayDecide = currentStep
           ? await actorMayDecideStep(tx, {
               stepApproverId: currentStep.approverEmployeeId,
+              coApproverIds: currentStep.coApproverEmployeeIds,
               actorEmployeeId: input.approverEmployeeId,
               requesterEmployeeId: claim.employeeId,
             })
@@ -1909,7 +1952,12 @@ export class PrismaMedicalRepository
   async previewApprovalChain(employeeId: string): Promise<ApprovalChainPreview> {
     const requester = await activeMedicalEmployee(this.prisma, employeeId);
 
-    if (isMedicalAutoApprovalRole(requester.roleKeys)) {
+    if (
+      isMedicalAutoApprovalRole(
+        requester.roleKeys,
+        await autoApproveRolesFor(this.prisma, bangkokDateKey(this.clock())),
+      )
+    ) {
       return { autoApproved: true, steps: [] };
     }
 

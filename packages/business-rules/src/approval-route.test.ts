@@ -305,3 +305,48 @@ describe("per-employee route mode", () => {
     ]);
   });
 });
+
+describe("requester level", () => {
+  const policy: ApprovalRouteStep[] = [
+    { kind: "ROLE", roleKey: "SUPER_USER" },
+    { kind: "ROLE", roleKey: "ADMIN" },
+    { kind: "ROLE", roleKey: "SUPER_ADMIN", peerFallback: true },
+  ];
+
+  it("sends a SuperAdmin's request straight to the other SuperAdmin", () => {
+    const steps = buildRouteSteps({
+      policySteps: policy,
+      mode: "STANDARD",
+      managerRoleKeys: null,
+      requesterRoleKeys: ["SUPER_ADMIN"],
+    });
+    const result = route(superAdminAcc, [...steps]);
+
+    expect(result.steps).toHaveLength(1);
+    expect(result.steps[0]?.candidateIds).toEqual(["sa-aud"]);
+  });
+
+  it("skips the team lead for an Admin's own request", () => {
+    expect(
+      buildRouteSteps({
+        policySteps: policy,
+        mode: "STANDARD",
+        managerRoleKeys: null,
+        requesterRoleKeys: ["ADMIN"],
+      }),
+    ).toEqual([policy[1], policy[2]]);
+  });
+
+  it("leaves the chain alone for ordinary users and team leads", () => {
+    for (const roles of [[], ["EMPLOYEE"], ["SUPER_USER"]]) {
+      expect(
+        buildRouteSteps({
+          policySteps: policy,
+          mode: "STANDARD",
+          managerRoleKeys: null,
+          requesterRoleKeys: roles,
+        }),
+      ).toEqual(policy);
+    }
+  });
+});

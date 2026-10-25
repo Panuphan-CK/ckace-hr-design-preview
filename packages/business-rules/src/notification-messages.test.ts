@@ -20,6 +20,8 @@ describe("notification classification", () => {
     expect(classifyNotificationEvent("TIME_CORRECTION_REJECTED").kind).toBe("REQUEST_REJECTED");
     expect(classifyNotificationEvent("MEDICAL_CLAIM_REVISION_REQUESTED").kind).toBe("REQUEST_REVISION");
     expect(classifyNotificationEvent("LEAVE_REQUEST_WITHDRAWN").kind).toBe("REQUEST_WITHDRAWN");
+    expect(classifyNotificationEvent("OVERTIME_REQUEST_CANCELLED")).toEqual({ audience: "PRIOR_APPROVERS", kind: "REQUEST_CANCELLED" });
+    expect(classifyNotificationEvent("LEAVE_REQUEST_CANCELLED").kind).toBe("REQUEST_CANCELLED");
   });
 
   it("uses the request status for the shared leave decision event", () => {
@@ -35,7 +37,6 @@ describe("notification classification", () => {
     expect(classifyNotificationEvent("APPROVAL_REMINDER")).toEqual({ audience: "APPROVER", kind: "APPROVAL_REMINDER" });
     expect(classifyNotificationEvent("ACCOUNT_APPROVED").audience).toBe("EMPLOYEE");
     expect(classifyNotificationEvent("ATTENDANCE_CHECKED_IN").audience).toBe("NONE");
-    expect(classifyNotificationEvent("LEAVE_REQUEST_CANCELLED").audience).toBe("NONE");
   });
 });
 

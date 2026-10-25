@@ -9,6 +9,12 @@ export interface PasswordRecoveryAccount {
   readonly updatedAt: Date;
 }
 
+export interface PasswordRecoveryContact {
+  readonly account: PasswordRecoveryAccount;
+  readonly loginName: string;
+  readonly lineUserId: string | null;
+}
+
 export interface PasswordRecoveryRepository {
   findByEmployeeId(
     employeeId: string,
@@ -16,6 +22,11 @@ export interface PasswordRecoveryRepository {
   findByAccountId(
     userAccountId: string,
   ): Promise<PasswordRecoveryAccount | null>;
+  findLoginName(userAccountId: string): Promise<string | null>;
+  /** Looks an active account up by what the user types on the login page, with the addresses a link can be sent to. */
+  findContactByLogin(
+    login: string,
+  ): Promise<PasswordRecoveryContact | null>;
   resetPassword(
     userAccountId: string,
     expectedUpdatedAt: Date,
@@ -53,6 +64,34 @@ export class PrismaPasswordRecoveryRepository
       where: { id: userAccountId },
       select: selectAccount,
     });
+  }
+
+  async findLoginName(userAccountId: string): Promise<string | null> {
+    const row = await this.prisma.userAccount.findUnique({
+      where: { id: userAccountId },
+      select: { loginName: true },
+    });
+    return row?.loginName ?? null;
+  }
+
+  async findContactByLogin(
+    login: string,
+  ): Promise<PasswordRecoveryContact | null> {
+    const row = await this.prisma.userAccount.findUnique({
+      where: { normalizedLogin: login.trim().toLowerCase() },
+      select: {
+        ...selectAccount,
+        loginName: true,
+        employee: { select: { lineAccount: { select: { lineUserId: true } } } },
+      },
+    });
+    if (!row) return null;
+    const { loginName, employee, ...account } = row;
+    return {
+      account,
+      loginName,
+      lineUserId: employee?.lineAccount?.lineUserId ?? null,
+    };
   }
 
   async resetPassword(

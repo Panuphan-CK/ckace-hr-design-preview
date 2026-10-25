@@ -6,12 +6,31 @@ import type {
   UnifiedRequestKind,
   UnifiedRequestStatus,
 } from "@ckace/contracts";
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from "react";
+
+import "../requests-common/ck-v2-requests.css";
+import { thaiDateTime } from "../ui/format";
+import { Icon, type IconName } from "../ui/icons";
+import {
+  DataGrid,
+  DetailDialog,
+  EmptyState,
+  ErrorState,
+  Filters,
+  LoadingState,
+  PageHead,
+  StatOrb,
+  StatusDot,
+  type DotTone,
+  type Tone,
+} from "../ui/kit";
+import { RequestTimelineSection } from "../ui/request-timeline";
 
 const STATUS_LABEL: Readonly<Record<UnifiedRequestStatus, string>> = {
   PENDING: "รออนุมัติ",
@@ -28,6 +47,38 @@ const KIND_LABEL: Readonly<Record<UnifiedRequestKind, string>> = {
   MEDICAL: "ค่ารักษาพยาบาล",
 };
 
+const KIND_META: Readonly<Record<UnifiedRequestKind, { tone: Tone; icon: IconName; href: string }>> = {
+  LEAVE: { tone: "leave", icon: "leave", href: "/desktop/leave" },
+  TIME_CORRECTION: { tone: "time", icon: "time", href: "/desktop/time-correction" },
+  OVERTIME: { tone: "ot", icon: "ot", href: "/desktop/overtime" },
+  MEDICAL: { tone: "med", icon: "med", href: "/desktop/medical" },
+};
+
+const STATUS_DOT: Readonly<Record<UnifiedRequestStatus, DotTone>> = {
+  PENDING: "wait",
+  APPROVED: "ok",
+  REJECTED: "bad",
+  CANCELLED: "muted",
+  REVISION_REQUESTED: "back",
+};
+
+const KIND_TABS: readonly { id: "ALL" | UnifiedRequestKind; label: string }[] = [
+  { id: "ALL", label: "ทั้งหมด" },
+  { id: "LEAVE", label: "ลา" },
+  { id: "OVERTIME", label: "OT" },
+  { id: "TIME_CORRECTION", label: "แก้ไขเวลา" },
+  { id: "MEDICAL", label: "ค่ารักษา" },
+];
+
+const STATUS_TABS: readonly { id: "ALL" | UnifiedRequestStatus; label: string }[] = [
+  { id: "ALL", label: "ทุกสถานะ" },
+  { id: "PENDING", label: "รออนุมัติ" },
+  { id: "APPROVED", label: "อนุมัติแล้ว" },
+  { id: "REJECTED", label: "ไม่อนุมัติ" },
+  { id: "REVISION_REQUESTED", label: "ส่งกลับแก้ไข" },
+  { id: "CANCELLED", label: "ยกเลิก" },
+];
+
 type KindFilter = "ALL" | UnifiedRequestKind;
 type StatusFilter = "ALL" | UnifiedRequestStatus;
 
@@ -40,6 +91,7 @@ export default function DesktopRequestStatusPage() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [kindFilter, setKindFilter] = useState<KindFilter>("ALL");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [detail, setDetail] = useState<RequestStatusItem | null>(null);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -99,116 +151,95 @@ export default function DesktopRequestStatusPage() {
     );
   }, [kindFilter, state, statusFilter]);
 
-  if (state.status === "loading") {
-    return (
-      <section
-        className="module-state"
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-      >
-        <div className="spinner" aria-hidden="true" />
-        <h1>กำลังโหลดสถานะคำขอ</h1>
-        <p>กำลังรวมข้อมูลคำขอจากโมดูลที่รองรับ</p>
-      </section>
-    );
-  }
-
-  if (state.status === "error") {
-    return (
-      <section className="module-state" role="alert">
-        <div className="status-badge error">REQUEST ERROR</div>
-        <h1>โหลดสถานะคำขอไม่สำเร็จ</h1>
-        <p>{state.message}</p>
-        <button className="primary-button" onClick={() => void load()}>
-          ลองใหม่
-        </button>
-      </section>
-    );
-  }
+  if (state.status === "loading") return <LoadingState title="กำลังโหลดสถานะคำขอ" />;
+  if (state.status === "error") return <ErrorState title="โหลดสถานะคำขอไม่สำเร็จ" message={state.message} onRetry={() => void load()} />;
 
   return (
-    <div className="module-stack">
-      <section className="module-heading">
-        <div>
-          <p className="eyebrow">UNIFIED REQUEST STATUS</p>
-          <h1>สถานะคำขอ</h1>
-          <p>
-            รวมคำขอการลา แก้ไขเวลา โอที และค่ารักษาพยาบาลจาก CKACE HR
-          </p>
-        </div>
-        <button className="secondary-button" onClick={() => void load()}>
+    <>
+      <PageHead tone="accent" icon="document" title="สถานะคำขอ" subtitle="คำขอทุกประเภทของคุณในที่เดียว">
+        <button className="ck-btn quiet" type="button" onClick={() => void load()}>
           รีเฟรช
         </button>
-      </section>
+      </PageHead>
 
-      <section className="metric-grid">
-        <article className="metric-card"><span>ทั้งหมด</span><strong>{counts.all}</strong></article>
-        <article className="metric-card"><span>รออนุมัติ</span><strong>{counts.pending}</strong></article>
-        <article className="metric-card"><span>อนุมัติแล้ว</span><strong>{counts.approved}</strong></article>
-        <article className="metric-card"><span>ต้องตรวจสอบ</span><strong>{counts.attention}</strong></article>
-      </section>
+      <div className="ck-wrap ck-stack">
+        <div className="ck-live">
+          <StatOrb tone="accent" value={String(counts.all)} label="ทั้งหมด" />
+          <StatOrb tone="ot" value={String(counts.pending)} label="รออนุมัติ" />
+          <StatOrb tone="med" value={String(counts.approved)} label="อนุมัติแล้ว" />
+          <StatOrb tone="leave" value={String(counts.attention)} label="ต้องตรวจสอบ" />
+        </div>
 
-      <section className="module-panel request-filter-panel" aria-label="ตัวกรองคำขอ">
-        <label>
-          <span>ประเภทคำขอ</span>
-          <select value={kindFilter} onChange={(event) => setKindFilter(event.currentTarget.value as KindFilter)}>
-            <option value="ALL">ทุกประเภท</option>
-            <option value="LEAVE">การลา</option>
-            <option value="TIME_CORRECTION">แก้ไขเวลา</option>
-            <option value="OVERTIME">โอที</option>
-            <option value="MEDICAL">ค่ารักษาพยาบาล</option>
-          </select>
-        </label>
-        <label>
-          <span>สถานะ</span>
-          <select value={statusFilter} onChange={(event) => setStatusFilter(event.currentTarget.value as StatusFilter)}>
-            <option value="ALL">ทุกสถานะ</option>
-            <option value="PENDING">รออนุมัติ</option>
-            <option value="APPROVED">อนุมัติแล้ว</option>
-            <option value="REJECTED">ไม่อนุมัติ</option>
-            <option value="REVISION_REQUESTED">ส่งกลับแก้ไข</option>
-            <option value="CANCELLED">ยกเลิก</option>
-          </select>
-        </label>
-      </section>
-
-      <section className="module-panel">
-        {visibleRows.length === 0 ? (
-          <div className="empty-state">
-            <h3>ไม่พบคำขอตามตัวกรอง</h3>
-            <p>
-              {state.rows.length === 0
-                ? "เมื่อมีคำขอ รายการจะปรากฏที่หน้านี้"
-                : "ลองเปลี่ยนประเภทหรือสถานะที่เลือก"}
-            </p>
+        <section className="ck-panel ck-c-accent" aria-label="รายการคำขอ">
+          <div className="ck-filter-row">
+            <Filters value={kindFilter} options={KIND_TABS} onChange={setKindFilter} />
+            <Filters value={statusFilter} options={STATUS_TABS} onChange={setStatusFilter} />
           </div>
-        ) : (
-          <div className="request-list">
-            {visibleRows.map((request) => (
-              <article className="request-row" key={request.id}>
-                <div>
-                  <div className="request-kind-line">
-                    <span className={"request-kind kind-" + request.kind.toLowerCase()}>
-                      {KIND_LABEL[request.kind]}
+          <div className="ck-hist">
+            <DataGrid
+              rows={visibleRows}
+              rowKey={(request) => request.id}
+              onRowClick={setDetail}
+              empty={
+                <EmptyState icon="document" title={state.rows.length === 0 ? "ยังไม่มีคำขอ" : "ไม่พบคำขอตามตัวกรอง"}>
+                  {state.rows.length === 0 ? "คำขอที่ส่งแล้วจะแสดงที่นี่" : "ลองเปลี่ยนประเภทหรือสถานะ"}
+                </EmptyState>
+              }
+              columns={[
+                {
+                  key: "kind",
+                  header: "ประเภท",
+                  render: (request) => (
+                    <span className={"ck-gkind ck-c-" + KIND_META[request.kind].tone}>
+                      <span className="ck-chip">
+                        <Icon name={KIND_META[request.kind].icon} size={16} />
+                      </span>
+                      <b>{KIND_LABEL[request.kind]}</b>
                     </span>
-                    <strong>{request.summary}</strong>
-                  </div>
-                  <small>
-                    ส่งเมื่อ {new Date(request.submittedAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
-                  </small>
-                </div>
-                <div className="request-row-status">
-                  <span className={"request-status status-" + request.status.toLowerCase()}>
-                    {STATUS_LABEL[request.status]}
-                  </span>
-                  {request.decisionReason ? <small>{request.decisionReason}</small> : null}
-                </div>
-              </article>
-            ))}
+                  ),
+                },
+                { key: "summary", header: "รายละเอียด", render: (request) => request.summary },
+                { key: "date", header: "ยื่นเมื่อ", render: (request) => thaiDateTime(request.submittedAt) },
+                {
+                  key: "status",
+                  header: "สถานะ",
+                  align: "center",
+                  width: "80px",
+                  render: (request) => <StatusDot tone={STATUS_DOT[request.status]} label={STATUS_LABEL[request.status]} />,
+                },
+              ]}
+            />
           </div>
-        )}
-      </section>
-    </div>
+        </section>
+      </div>
+
+      {detail ? (
+        <DetailDialog
+          tone={KIND_META[detail.kind].tone}
+          icon={KIND_META[detail.kind].icon}
+          kicker={KIND_LABEL[detail.kind]}
+          title={detail.summary}
+          status={{ label: STATUS_LABEL[detail.status], tone: STATUS_DOT[detail.status] }}
+          onClose={() => setDetail(null)}
+          footer={
+            <Link className="ck-btn sky" href={KIND_META[detail.kind].href}>
+              ไปหน้า{KIND_LABEL[detail.kind]}
+            </Link>
+          }
+        >
+          <dl className="ck-dlg-grid">
+            <div>
+              <dt>ยื่นเมื่อ</dt>
+              <dd>{thaiDateTime(detail.submittedAt)}</dd>
+            </div>
+            <div>
+              <dt>ผลการพิจารณา</dt>
+              <dd>{detail.decisionReason || (detail.status === "PENDING" ? "รอผู้อนุมัติพิจารณา" : "—")}</dd>
+            </div>
+          </dl>
+          <RequestTimelineSection requestId={detail.id} />
+        </DetailDialog>
+      ) : null}
+    </>
   );
 }

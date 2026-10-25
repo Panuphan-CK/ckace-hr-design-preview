@@ -10,6 +10,7 @@ export interface OvertimeMetrics {
   readonly pendingRequests: number;
   readonly approvedRequests: number;
   readonly totalRequestedMinutes: number;
+  readonly approvedMinutes: number;
   readonly linkedSegments: number;
   readonly unlinkedSegments: number;
 }
@@ -36,6 +37,9 @@ export function overtimeMetrics(
           (request.status === "APPROVED" ? 1 : 0),
         totalRequestedMinutes:
           total.totalRequestedMinutes + minutes,
+        approvedMinutes:
+          total.approvedMinutes +
+          (request.status === "APPROVED" ? minutes : 0),
         linkedSegments: total.linkedSegments + linked,
         unlinkedSegments:
           total.unlinkedSegments +
@@ -47,6 +51,7 @@ export function overtimeMetrics(
       pendingRequests: 0,
       approvedRequests: 0,
       totalRequestedMinutes: 0,
+      approvedMinutes: 0,
       linkedSegments: 0,
       unlinkedSegments: 0,
     },
@@ -128,4 +133,25 @@ export function overtimeBreakDeduction(
       sum + Math.min(option.maxMinutes, Math.max(0, Math.min(end, option.end) - Math.max(start, option.start))),
     0,
   );
+}
+
+/**
+ * Allowances an OT that ends at `endTime` is expected to earn (company defaults: meal from 20:00,
+ * transport from 21:30). The payout itself is worked out from the real clock-out.
+ */
+export interface AllowanceThresholds {
+  readonly meal: string | null;
+  readonly transport: string | null;
+}
+
+export const DEFAULT_ALLOWANCE_THRESHOLDS: AllowanceThresholds = { meal: "20:00", transport: "21:30" };
+
+export function allowanceHint(endTime: string, thresholds: AllowanceThresholds = DEFAULT_ALLOWANCE_THRESHOLDS): string {
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(endTime)) return "";
+  const parts: string[] = [];
+  if (thresholds.meal && endTime >= thresholds.meal) parts.push("ค่าข้าว");
+  if (thresholds.transport && endTime >= thresholds.transport) parts.push("ค่าเดินทาง");
+  if (parts.length > 0) return "คาดว่าได้" + parts.join(" และ ");
+  const rules = [thresholds.meal ? `ค่าข้าว (${thresholds.meal})` : null, thresholds.transport ? `ค่าเดินทาง (${thresholds.transport})` : null].filter(Boolean);
+  return rules.length === 0 ? "" : "ยังไม่ถึงเกณฑ์" + rules.join(" และ ");
 }

@@ -130,6 +130,8 @@ export interface OvertimeAllowancePolicyItem {
 export interface MedicalPolicyItem {
   readonly annualLimit: number;
   readonly perClaimLimit: number;
+  /** Role keys whose own claims skip the approval chain (default ADMIN, SUPERADMIN). */
+  readonly autoApproveRoleKeys: readonly string[];
   readonly effectiveFrom: string;
 }
 
@@ -141,6 +143,8 @@ export interface AttendancePolicyItem {
   readonly radiusKm: number;
   /** HH:mm — check-in after this time is late. */
   readonly lateAfter: string;
+  /** HH:mm — start of the normal working day; with workEnd and the break it sets the correction work-hour cap. */
+  readonly workStart: string;
   /** HH:mm — check-out before this time is early. */
   readonly workEnd: string;
   readonly breakStart: string | null;
@@ -174,6 +178,21 @@ export interface OrganizationUnitItem {
   /** Teams (agencies) only: the company the team belongs to. */
   readonly companyId?: string | null;
   readonly companyName?: string | null;
+  /** Companies only: basic profile. */
+  readonly taxId?: string | null;
+  readonly address?: string | null;
+  readonly phone?: string | null;
+  readonly email?: string | null;
+}
+
+/** Editable company fields; null clears a profile field. */
+export interface CompanyUpdateInput {
+  readonly name?: string;
+  readonly active?: boolean;
+  readonly taxId?: string | null;
+  readonly address?: string | null;
+  readonly phone?: string | null;
+  readonly email?: string | null;
 }
 
 export interface LeaveEntitlementAdminItem {

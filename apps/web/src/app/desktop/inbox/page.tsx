@@ -3,8 +3,10 @@
 import type { InboxOverview } from "@ckace/contracts";
 import { useCallback, useEffect, useState } from "react";
 
+import "../ck-v2-pages.css";
 import { thaiDateTime } from "../ui/format";
 import { Icon } from "../ui/icons";
+import { EmptyState, ErrorState, LoadingState, PageHead, SectionHead, StatusDot } from "../ui/kit";
 
 const KIND_PAGE: Readonly<Record<string, string>> = {
   LEAVE_REQUEST: "/desktop/leave",
@@ -21,6 +23,7 @@ export default function InboxPage() {
     try {
       const response = await fetch("/api/inbox/me", { credentials: "same-origin", cache: "no-store" });
       if (!response.ok) throw new Error("โหลดการแจ้งเตือนไม่สำเร็จ");
+      setError(null);
       setData((await response.json()) as InboxOverview);
     } catch (e) {
       setError(e instanceof Error ? e.message : "โหลดการแจ้งเตือนไม่สำเร็จ");
@@ -41,51 +44,49 @@ export default function InboxPage() {
     await load();
   }
 
-  if (error) return <p role="alert" className="ck-msg error">{error}</p>;
-  if (!data) return <p role="status" className="ck-muted">กำลังโหลด…</p>;
+  if (error) return <ErrorState title="กล่องแจ้งเตือน" message={error} onRetry={() => void load()} />;
+  if (!data) return <LoadingState title="กำลังโหลดการแจ้งเตือน" />;
 
   const approvalTarget = (type: string, kind: string) =>
     kind === "REQUEST_WAITING" || kind === "APPROVAL_REMINDER" ? "/desktop/approvals" : (KIND_PAGE[type] ?? "/desktop");
 
   return (
-    <div className="ck-panel ck-admin" style={{ maxWidth: 760, padding: "0 22px 22px" }}>
-      <div className="ck-sh">
-        <h2>กล่องแจ้งเตือน</h2>
-        {data.unread > 0 ? <span className="ck-count">ยังไม่อ่าน {data.unread}</span> : null}
+    <>
+      <PageHead
+        tone="accent"
+        icon="bell"
+        title="กล่องแจ้งเตือน"
+        subtitle={data.unread > 0 ? `ยังไม่อ่าน ${data.unread} รายการ` : "อ่านครบแล้ว"}
+      >
         {data.unread > 0 ? (
-          <button type="button" className="ck-btn sm quiet" style={{ marginLeft: "auto" }} onClick={() => void markAllRead()}>
-            อ่านทั้งหมด
+          <button type="button" className="ck-btn sky" onClick={() => void markAllRead()}>
+            <Icon name="check" size={16} /> อ่านทั้งหมด
           </button>
         ) : null}
+      </PageHead>
+      <div className="ck-wrap ck-stack">
+        <section className="ck-panel ck-c-accent" aria-labelledby="ib-list">
+          <SectionHead title={`การแจ้งเตือนล่าสุด (ทั้งหมด ${data.items.length})`} id="ib-list" />
+          {data.items.length === 0 ? (
+            <EmptyState icon="bell" title="ยังไม่มีการแจ้งเตือน">เมื่อมีความเคลื่อนไหวใหม่ จะแสดงที่นี่</EmptyState>
+          ) : (
+            <ul className="ck-inbox">
+              {data.items.map((item) => (
+                <li key={item.id}>
+                  <a className={item.read ? "ck-inbox-item" : "ck-inbox-item unread"} href={approvalTarget(item.aggregateType, item.kind)}>
+                    <StatusDot tone={item.read ? "muted" : "wait"} label={item.read ? "อ่านแล้ว" : "ยังไม่อ่าน"} />
+                    <span className="ck-inbox-txt">
+                      <b>{item.title}</b>
+                      <span>{item.body}</span>
+                    </span>
+                    <small>{thaiDateTime(item.createdAt)}</small>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
-      {data.items.length === 0 ? <p className="ck-muted" style={{ textAlign: "center", padding: "24px 0" }}>ยังไม่มีการแจ้งเตือน</p> : null}
-      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
-        {data.items.map((item) => (
-          <li key={item.id}>
-            <a
-              href={approvalTarget(item.aggregateType, item.kind)}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "28px 1fr",
-                gap: 10,
-                padding: "12px 14px",
-                borderRadius: 12,
-                border: "1px solid var(--ck-line, #e5e7eb)",
-                background: item.read ? "transparent" : "var(--ck-hover, #f1f5f9)",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              <Icon name="bell" size={20} />
-              <span style={{ display: "grid", gap: 2 }}>
-                <b style={{ fontWeight: item.read ? 500 : 700 }}>{item.title}</b>
-                <span style={{ whiteSpace: "pre-line", opacity: 0.85 }}>{item.body}</span>
-                <small style={{ opacity: 0.6 }}>{thaiDateTime(item.createdAt)}</small>
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
+    </>
   );
 }

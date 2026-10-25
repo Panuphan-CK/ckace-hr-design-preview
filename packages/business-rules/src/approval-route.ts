@@ -354,14 +354,21 @@ export function buildRouteSteps(input: {
   readonly policySteps: readonly ApprovalRouteStep[];
   readonly mode: ApprovalRouteMode;
   readonly managerRoleKeys: readonly string[] | null;
+  /** Roles the requester holds; steps below the requester's own level are dropped. */
+  readonly requesterRoleKeys?: readonly string[];
 }): readonly ApprovalRouteStep[] {
+  const policySteps = dropStepsBelowRequester(
+    input.policySteps,
+    input.requesterRoleKeys ?? [],
+  );
+
   if (input.mode !== "MANAGER_FIRST" || input.managerRoleKeys === null) {
-    return input.policySteps;
+    return policySteps;
   }
 
   let managerLevel = -1;
 
-  input.policySteps.forEach((step, index) => {
+  policySteps.forEach((step, index) => {
     if (
       step.kind === "ROLE" &&
       input.managerRoleKeys?.includes(step.roleKey)
@@ -372,6 +379,27 @@ export function buildRouteSteps(input: {
 
   return [
     { kind: "DIRECT_MANAGER" },
-    ...input.policySteps.slice(managerLevel + 1),
+    ...policySteps.slice(managerLevel + 1),
   ];
+}
+
+/**
+ * Approvers of lower authority never approve a request of someone who holds a
+ * higher role (a SuperAdmin's request does not go through the Admin; an
+ * Admin's request does not go through the team lead). The step of the
+ * requester's own highest role stays so same-role peers can approve.
+ */
+function dropStepsBelowRequester(
+  steps: readonly ApprovalRouteStep[],
+  requesterRoleKeys: readonly string[],
+): readonly ApprovalRouteStep[] {
+  let ownLevel = -1;
+
+  steps.forEach((step, index) => {
+    if (step.kind === "ROLE" && requesterRoleKeys.includes(step.roleKey)) {
+      ownLevel = index;
+    }
+  });
+
+  return ownLevel > 0 ? steps.slice(ownLevel) : steps;
 }

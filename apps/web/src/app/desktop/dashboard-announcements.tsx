@@ -11,6 +11,10 @@ import type {
 } from "@ckace/contracts";
 import Link from "next/link";
 import type { FormEvent } from "react";
+import "./ck-v2-pages.css";
+import { thaiDateTime } from "./ui/format";
+import { Icon } from "./ui/icons";
+import { DataGrid, DetailDialog, EmptyState, Message, SectionHead, StatusDot, Toggle } from "./ui/kit";
 import {
   useCallback,
   useEffect,
@@ -60,20 +64,9 @@ const EMPTY_DRAFT: AnnouncementDraft = {
   publishNow: true,
 };
 
-const dateFormatter = new Intl.DateTimeFormat("th-TH", {
-  timeZone: "Asia/Bangkok",
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-});
-
 function dateLabel(value: string | null): string {
   if (!value) return "ฉบับร่าง";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : dateFormatter.format(date);
+  return thaiDateTime(value);
 }
 
 function scopeLabel(item: {
@@ -112,6 +105,7 @@ export function DashboardAnnouncements() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<AnnouncementDraft>(EMPTY_DRAFT);
   const [busy, setBusy] = useState(false);
+  const [viewing, setViewing] = useState<{ title: string; content: string; scope: string; date: string; hasAttachment: boolean } | null>(null);
   const [message, setMessage] = useState<ActionMessage | null>(null);
 
   const load = useCallback(async () => {
@@ -334,19 +328,11 @@ export function DashboardAnnouncements() {
 
   if (state.status === "loading") {
     return (
-      <section
-        className="module-panel task396-dashboard-announcements"
-        aria-busy="true"
-      >
-        <div className="task396-announcement-heading">
-          <div>
-            <span className="summary-kicker">ประชาสัมพันธ์</span>
-            <h2>ข่าวสารภายใน</h2>
-          </div>
-        </div>
-        <div className="task396-announcement-loading">
-          <div className="spinner" aria-hidden="true" />
-          <span>กำลังโหลดประกาศ</span>
+      <section className="ck-panel ck-c-accent" aria-busy="true">
+        <SectionHead title="ข่าวสารภายใน" />
+        <div className="ck-state" role="status" aria-live="polite">
+          <div className="ck-spinner" aria-hidden="true" />
+          <p>กำลังโหลดประกาศ</p>
         </div>
       </section>
     );
@@ -354,14 +340,10 @@ export function DashboardAnnouncements() {
 
   if (state.status === "error") {
     return (
-      <section className="module-panel task396-dashboard-announcements">
-        <div className="task396-announcement-heading">
-          <div>
-            <span className="summary-kicker">ประชาสัมพันธ์</span>
-            <h2>ข่าวสารภายใน</h2>
-          </div>
+      <section className="ck-panel ck-c-accent">
+        <SectionHead title="ข่าวสารภายใน">
           <button
-            className="secondary-button compact"
+            className="ck-btn sky sm"
             type="button"
             onClick={() => {
               setState({ status: "loading" });
@@ -370,8 +352,8 @@ export function DashboardAnnouncements() {
           >
             ลองใหม่
           </button>
-        </div>
-        <p className="panel-description">{state.message}</p>
+        </SectionHead>
+        <Message value={{ kind: "error", text: state.message }} />
       </section>
     );
   }
@@ -388,92 +370,135 @@ export function DashboardAnnouncements() {
     state.navigation.announcementAdmin && adminData
       ? adminData.announcements
       : [];
+  const editing = editorOpen && state.navigation.announcementAdmin && adminData ? adminData : null;
+  const editingItem = editingId ? (adminRows.find((item) => item.id === editingId) ?? null) : null;
 
   return (
-    <section className="module-panel task396-dashboard-announcements fade-in">
-      <div className="task396-announcement-heading">
-        <div>
-          <span className="summary-kicker">ประชาสัมพันธ์</span>
-          <h2>ข่าวสารภายใน</h2>
-          <p>ประกาศสำคัญที่ควรรู้ในวันนี้</p>
-        </div>
-        <div className="task396-announcement-heading-actions">
-          {state.navigation.announcementAdmin ? (
-            <button
-              className="primary-button compact"
-              type="button"
-              onClick={addAnnouncement}
-            >
-              <i className="bx bx-plus" aria-hidden="true" />
-              เพิ่มประกาศ
-            </button>
-          ) : null}
-          {state.navigation.announcements ? (
-            <Link className="secondary-button compact" href="/desktop/announcements">
-              ดูทั้งหมด
-            </Link>
-          ) : null}
-        </div>
-      </div>
+    <section className="ck-panel ck-c-accent" aria-labelledby="dash-ann">
+      <SectionHead title="ข่าวสารภายใน" id="dash-ann" count={displayed.length}>
+        {state.navigation.announcementAdmin ? (
+          <button className="ck-btn sky sm" type="button" onClick={addAnnouncement}>
+            <Icon name="plus" size={14} />
+            เพิ่มประกาศ
+          </button>
+        ) : null}
+        {state.navigation.announcements ? (
+          <Link className="ck-btn quiet sm" href="/desktop/announcements">
+            ดูทั้งหมด
+          </Link>
+        ) : null}
+      </SectionHead>
 
-      {message ? (
-        <div
-          className={
-            message.kind === "success"
-              ? "action-message success"
-              : "action-message error"
-          }
-          role={message.kind === "error" ? "alert" : "status"}
-        >
-          {message.text}
-        </div>
+      {editing ? null : <Message value={message} />}
+
+      <DataGrid
+        rows={displayed}
+        rowKey={(announcement) => announcement.id}
+        pageSize={6}
+        onRowClick={(announcement) => {
+          const adminItem = adminRows.find((item) => item.id === announcement.id);
+          if (adminItem) editAnnouncement(adminItem);
+          else
+            setViewing({
+              title: titleLabel(announcement),
+              content: announcement.content,
+              scope: scopeLabel(announcement),
+              date: dateLabel(announcement.publishedAt),
+              hasAttachment: announcement.hasAttachment,
+            });
+        }}
+        empty={<EmptyState icon="megaphone" title="ยังไม่มีประชาสัมพันธ์">เมื่อมีประกาศใหม่ รายการล่าสุดจะแสดงตรงนี้</EmptyState>}
+        columns={[
+          {
+            key: "st",
+            header: "",
+            width: "48px",
+            align: "center",
+            render: (announcement) => (
+              <StatusDot
+                tone={announcement.publishedAt ? "ok" : "muted"}
+                label={announcement.publishedAt ? "เผยแพร่แล้ว" : "ฉบับร่าง"}
+              />
+            ),
+          },
+          {
+            key: "title",
+            header: "หัวข้อ",
+            render: (announcement) => (
+              <span className="ck-gcell">
+                <span className="ck-chip sm ck-c-accent">
+                  <Icon name="megaphone" size={16} />
+                </span>
+                <b>{titleLabel(announcement)}</b>
+                {announcement.hasAttachment ? <Icon name="clip" size={14} /> : null}
+              </span>
+            ),
+          },
+          {
+            key: "scope",
+            header: "ขอบเขต",
+            render: (announcement) => (
+              <span className="ck-minichip">{scopeLabel(adminRows.find((item) => item.id === announcement.id) ?? announcement)}</span>
+            ),
+          },
+          { key: "at", header: "เผยแพร่เมื่อ", render: (announcement) => dateLabel(announcement.publishedAt) },
+        ]}
+      />
+
+      {viewing ? (
+        <DetailDialog tone="accent" icon="megaphone" kicker={viewing.scope} title={viewing.title} onClose={() => setViewing(null)}>
+          <p className="ck-dlg-note">{viewing.date}</p>
+          <p className="ck-prewrap">{viewing.content}</p>
+          {viewing.hasAttachment ? <p className="ck-dlg-note">มีเอกสารแนบ · เปิดดูจากหน้าประชาสัมพันธ์ทั้งหมด</p> : null}
+        </DetailDialog>
       ) : null}
 
-      {editorOpen && state.navigation.announcementAdmin && adminData ? (
-        <form
-          className="task396-announcement-editor"
-          onSubmit={(event) => void saveAnnouncement(event)}
-        >
-          <div className="task396-announcement-editor-head">
-            <div>
-              <strong>
-                {editingId ? "แก้ไขประชาสัมพันธ์" : "เพิ่มประชาสัมพันธ์"}
-              </strong>
-              <span>กำหนดผู้รับและเลือกว่าจะเผยแพร่ทันทีหรือเก็บเป็นฉบับร่าง</span>
+      {editing ? (
+        <DetailDialog
+          tone="accent"
+          icon="megaphone"
+          kicker={editingId ? "แก้ไขประชาสัมพันธ์" : "เพิ่มประชาสัมพันธ์"}
+          title={editingId ? titleLabel(editingItem ?? { title: draft.title }) : "ประกาศใหม่"}
+          onClose={() => {
+            if (!busy) resetEditor();
+          }}
+          footer={
+            <div className="ck-row ck-wrapbtn">
+              <button className="ck-btn ok" type="submit" form="dash-ann-form" disabled={busy}>
+                {busy ? "กำลังบันทึก..." : "บันทึก"}
+              </button>
+              {editingItem && state.navigation.announcementDeleteAdmin ? (
+                <button
+                  className="ck-btn no"
+                  type="button"
+                  title={editingItem.hasAttachment ? "ประกาศที่มีเอกสารแนบให้ปิดการเผยแพร่แทน" : "ลบ"}
+                  disabled={busy || editingItem.hasAttachment}
+                  onClick={() => void deleteAnnouncement(editingItem)}
+                >
+                  ลบประกาศ
+                </button>
+              ) : null}
             </div>
-            <button
-              className="task396-icon-button"
-              type="button"
-              aria-label="ปิดตัวแก้ไขประชาสัมพันธ์"
-              onClick={resetEditor}
-              disabled={busy}
-            >
-              <i className="bx bx-x" aria-hidden="true" />
-            </button>
-          </div>
-
-          <div className="task396-announcement-form-grid">
-            <label>
+          }
+        >
+          <Message value={message} />
+          <form id="dash-ann-form" className="ck-eform" onSubmit={(event) => void saveAnnouncement(event)}>
+            <label className="ck-field full">
               <span>หัวข้อ</span>
               <input
-                className="form-input"
+                className="ck-in"
                 maxLength={250}
                 value={draft.title}
                 disabled={busy}
                 placeholder="หัวข้อประกาศ"
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    title: event.currentTarget.value,
-                  }))
-                }
+                onChange={(event) => setDraft((current) => ({ ...current, title: event.currentTarget.value }))}
               />
             </label>
 
-            <label>
+            <label className="ck-field">
               <span>ขอบเขตการแสดง</span>
               <select
-                className="form-input"
+                className="ck-sselect"
                 value={draft.scope}
                 disabled={busy}
                 onChange={(event) => {
@@ -482,8 +507,7 @@ export function DashboardAnnouncements() {
                     ...current,
                     scope,
                     agencyId: scope === "AGENCY" ? current.agencyId : "",
-                    departmentId:
-                      scope === "DEPARTMENT" ? current.departmentId : "",
+                    departmentId: scope === "DEPARTMENT" ? current.departmentId : "",
                   }));
                 }}
               >
@@ -494,22 +518,17 @@ export function DashboardAnnouncements() {
             </label>
 
             {draft.scope === "AGENCY" ? (
-              <label>
+              <label className="ck-field">
                 <span>หน่วยงาน</span>
                 <select
-                  className="form-input"
+                  className="ck-sselect"
                   required
                   disabled={busy}
                   value={draft.agencyId}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      agencyId: event.currentTarget.value,
-                    }))
-                  }
+                  onChange={(event) => setDraft((current) => ({ ...current, agencyId: event.currentTarget.value }))}
                 >
                   <option value="">เลือกหน่วยงาน</option>
-                  {adminData.agencies.map((item) => (
+                  {editing.agencies.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.name}
                     </option>
@@ -519,22 +538,17 @@ export function DashboardAnnouncements() {
             ) : null}
 
             {draft.scope === "DEPARTMENT" ? (
-              <label>
+              <label className="ck-field">
                 <span>ฝ่าย</span>
                 <select
-                  className="form-input"
+                  className="ck-sselect"
                   required
                   disabled={busy}
                   value={draft.departmentId}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      departmentId: event.currentTarget.value,
-                    }))
-                  }
+                  onChange={(event) => setDraft((current) => ({ ...current, departmentId: event.currentTarget.value }))}
                 >
                   <option value="">เลือกฝ่าย</option>
-                  {adminData.departments.map((item) => (
+                  {editing.departments.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.name}
                     </option>
@@ -543,130 +557,37 @@ export function DashboardAnnouncements() {
               </label>
             ) : null}
 
-            <label className="task396-announcement-content-field">
+            <label className="ck-field full">
               <span>เนื้อหา</span>
               <textarea
-                className="form-input"
-                rows={4}
+                className="ck-in"
+                rows={5}
                 required
                 maxLength={5000}
                 disabled={busy}
                 value={draft.content}
                 placeholder="รายละเอียดประชาสัมพันธ์"
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    content: event.currentTarget.value,
-                  }))
-                }
+                onChange={(event) => setDraft((current) => ({ ...current, content: event.currentTarget.value }))}
               />
             </label>
-          </div>
 
-          <div className="task396-announcement-editor-actions">
-            <label className="task396-publish-toggle">
-              <input
-                type="checkbox"
-                checked={draft.publishNow}
-                disabled={busy}
-                onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    publishNow: event.currentTarget.checked,
-                  }))
-                }
-              />
-              <span>
-                {draft.publishNow ? "เผยแพร่" : "เก็บเป็นฉบับร่าง"}
-              </span>
-            </label>
-            <div>
-              <button
-                className="secondary-button"
-                type="button"
-                disabled={busy}
-                onClick={resetEditor}
-              >
-                ยกเลิก
-              </button>
-              <button className="primary-button" type="submit" disabled={busy}>
-                {busy ? "กำลังบันทึก..." : "บันทึก"}
-              </button>
+            <div className="full ck-srow">
+              <div>
+                <b>เผยแพร่</b>
+                <small>ปิดไว้เพื่อเก็บเป็นฉบับร่าง</small>
+              </div>
+              <div className="ck-srow-c">
+                <Toggle
+                  checked={draft.publishNow}
+                  disabled={busy}
+                  label="เผยแพร่"
+                  onChange={(next) => setDraft((current) => ({ ...current, publishNow: next }))}
+                />
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </DetailDialog>
       ) : null}
-
-      {displayed.length === 0 ? (
-        <div className="empty-state compact task396-announcement-empty">
-          <i className="bx bx-message-square-dots" aria-hidden="true" />
-          <h3>ยังไม่มีประชาสัมพันธ์</h3>
-          <p>เมื่อมีประกาศใหม่ รายการล่าสุดจะแสดงตรงนี้</p>
-        </div>
-      ) : (
-        <div className="task396-announcement-list">
-          {displayed.map((announcement) => {
-            const adminItem = adminRows.find(
-              (item) => item.id === announcement.id,
-            );
-            return (
-              <article
-                className="task396-announcement-card"
-                key={announcement.id}
-              >
-                <div className="task396-announcement-card-icon" aria-hidden="true">
-                  <i className="bx bxs-megaphone" />
-                </div>
-                <div className="task396-announcement-card-copy">
-                  <div className="task396-announcement-card-meta">
-                    <span>{scopeLabel(adminItem ?? announcement)}</span>
-                    <time>{dateLabel(announcement.publishedAt)}</time>
-                  </div>
-                  <strong>{titleLabel(announcement)}</strong>
-                  <p>{announcement.content}</p>
-                  {announcement.hasAttachment ? (
-                    <small>
-                      <i className="bx bx-paperclip" aria-hidden="true" />
-                      มีเอกสารแนบ · เปิดดูจากหน้าประชาสัมพันธ์ทั้งหมด
-                    </small>
-                  ) : null}
-                </div>
-
-                {adminItem ? (
-                  <div className="task396-announcement-card-actions">
-                    <button
-                      className="task396-icon-button"
-                      type="button"
-                      title="แก้ไข"
-                      aria-label={"แก้ไข " + titleLabel(adminItem)}
-                      onClick={() => editAnnouncement(adminItem)}
-                      disabled={busy}
-                    >
-                      <i className="bx bx-edit-alt" aria-hidden="true" />
-                    </button>
-                    {state.navigation.announcementDeleteAdmin ? (
-                      <button
-                        className="task396-icon-button danger"
-                        type="button"
-                        title={
-                          adminItem.hasAttachment
-                            ? "ประกาศที่มีเอกสารแนบให้ปิดการเผยแพร่แทน"
-                            : "ลบ"
-                        }
-                        aria-label={"ลบ " + titleLabel(adminItem)}
-                        disabled={busy || adminItem.hasAttachment}
-                        onClick={() => void deleteAnnouncement(adminItem)}
-                      >
-                        <i className="bx bx-trash" aria-hidden="true" />
-                      </button>
-                    ) : null}
-                  </div>
-                ) : null}
-              </article>
-            );
-          })}
-        </div>
-      )}
     </section>
   );
 }

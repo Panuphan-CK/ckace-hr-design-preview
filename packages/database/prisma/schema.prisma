@@ -127,6 +127,11 @@ model Company {
   id        String   @id @default(uuid()) @db.Uuid
   name      String
   active    Boolean  @default(true)
+  /// Basic company profile (all optional; refined later).
+  taxId     String?
+  address   String?
+  phone     String?
+  email     String?
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
@@ -393,6 +398,8 @@ model ApprovalStep {
   approvalInstanceId  String             @db.Uuid
   stepOrder           Int
   approverEmployeeId  String?            @db.Uuid
+  /// Other eligible approvers (for example the second SuperAdmin): any of them may decide the step.
+  coApproverEmployeeIds String[]         @default([]) @db.Uuid
   status              ApprovalStepStatus @default(PENDING)
   assignedAt          DateTime?          @db.Timestamptz(3)
   decidedAt           DateTime?          @db.Timestamptz(3)
@@ -536,6 +543,7 @@ model AttendancePolicy {
   officeLongitude Decimal   @db.Decimal(9, 6)
   radiusKm        Decimal   @db.Decimal(6, 2)
   lateAfter       DateTime  @db.Time(0)
+  workStart       DateTime  @default(dbgenerated("'09:00:00'::time")) @db.Time(0)
   workEnd         DateTime  @db.Time(0)
   breakStart      DateTime? @db.Time(0)
   breakEnd        DateTime? @db.Time(0)
@@ -608,6 +616,9 @@ model OvertimeSegment {
   requestedMinutes   Int
   /// Breaks the employee took inside the overtime window (list of OvertimeBreakCode); null = legacy default.
   breakCodes         Json?
+  /// Admin sign-off that a flagged (forgotten clock-in/out) segment is fine to pay as approved.
+  confirmedAt        DateTime? @db.Timestamptz(3)
+  confirmedById      String?   @db.Uuid
   createdAt          DateTime @default(now()) @db.Timestamptz(3)
 
   request          OvertimeRequest   @relation(fields: [overtimeRequestId], references: [id], onDelete: Cascade)
@@ -665,6 +676,8 @@ model BenefitPolicy {
   annualLimit   Decimal?  @db.Decimal(12, 2)
   /// Most that is paid for one claim; null = company default of 1,000.
   perClaimLimit Decimal?  @db.Decimal(12, 2)
+  /// Role keys whose own claims are approved automatically (no approval chain).
+  autoApproveRoleKeys String[] @default(["ADMIN", "SUPERADMIN"])
   effectiveFrom DateTime  @db.Date
   effectiveTo   DateTime? @db.Date
   active        Boolean   @default(true)

@@ -1,3 +1,4 @@
+import { pendingApproverIds } from "./cancel-notice";
 import {
   IdempotencyConflictError,
   createIdempotencyClaim,
@@ -35,6 +36,12 @@ import {
   resubmitSentBackLeave,
   withdrawApprovedLeave,
 } from "./leave-revision-repository";
+import {
+  leaveAttachmentRows,
+  leaveAttachmentSelection,
+  leaveAttachmentView,
+  validateLeaveAttachments,
+} from "./leave-attachments";
 
 /** Request states whose days count against the entitlement when a new request is checked. */
 export const QUOTA_RESERVING_STATUSES = ["APPROVED", "PENDING", "REVISION_REQUESTED"] as const;
@@ -80,6 +87,13 @@ export interface LeaveRepository {
     readonly correlationId: string;
     readonly requestId: string;
   }): Promise<LeaveCancelResult>;
+
+  /** Entitlement of the same employee and leave type that covers the whole calendar year, or null. */
+  findEntitlementForYear(input: {
+    readonly employeeId: string;
+    readonly entitlementId: string;
+    readonly year: number;
+  }): Promise<string | null>;
 
   decideLeave(input: {
     readonly approverEmployeeId: string;
@@ -127,7 +141,7 @@ function asNumber(value: Prisma.Decimal): number {
   return numberValue;
 }
 
-async function calendarPolicy(
+export async function calendarPolicy(
   prisma: Pick<Prisma.TransactionClient, "weeklyWorkRule" | "holiday">,
 ): Promise<LeaveWorkingCalendar> {
   const [rules, holidays] = await Promise.all([
@@ -158,7 +172,7 @@ async function calendarPolicy(
   };
 }
 
-function usageForRequest(
+export function usageForRequest(
   request: {
     startDate: Date;
     endDate: Date;
@@ -330,6 +344,7 @@ async function approvalOptionsFor(
   for (const step of policy.steps) {
     const candidates = await prisma.employee.findMany({
       where: {
+        id: { not: employeeId },
         ...buildLeaveApproverScopeWhere(
           step.scope,
           requester,
@@ -378,9 +393,10 @@ async function approvalOptionsFor(
   };
 }
 
-function validateSelectedApprovers(
+export function validateSelectedApprovers(
   selected: readonly string[],
   options: readonly LeaveApprovalStepOptions[],
+  requesterEmployeeId: string,
 ): void {
   if (selected.length !== options.length) {
     throw new Error("Leave approval chain selection is incomplete");
@@ -406,6 +422,10 @@ function validateSelectedApprovers(
       throw new Error(
         `Selected approver is not eligible for leave step ${step?.stepOrder ?? index + 1}`,
       );
+    }
+
+    if (employeeId === requesterEmployeeId) {
+      throw new Error("Selected approver cannot be the requester");
     }
   }
 }
@@ -479,6 +499,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
           decisionReason: true,
           submittedAt: true,
           entitlementId: true,
+          attachments: leaveAttachmentSelection,
           leaveType: {
             select: {
               key: true,
@@ -521,6 +542,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
         status: request.status,
         decisionReason: request.decisionReason,
         submittedAt: request.submittedAt.toISOString(),
+        attachments: request.attachments.map(leaveAttachmentView),
       }),
     );
 
@@ -559,6 +581,34 @@ export class PrismaLeaveRepository implements LeaveRepository {
       employeeId,
     );
     return result.options;
+  }
+
+  async findEntitlementForYear(input: {
+    readonly employeeId: string;
+    readonly entitlementId: string;
+    readonly year: number;
+  }): Promise<string | null> {
+    const base = await this.prisma.leaveEntitlement.findUnique({
+      where: { id: input.entitlementId },
+      select: { employeeId: true, leaveTypeId: true },
+    });
+
+    if (!base || base.employeeId !== input.employeeId) {
+      return null;
+    }
+
+    const found = await this.prisma.leaveEntitlement.findFirst({
+      where: {
+        employeeId: input.employeeId,
+        leaveTypeId: base.leaveTypeId,
+        validFrom: { lte: new Date(`${input.year}-01-01T00:00:00.000Z`) },
+        validTo: { gte: new Date(`${input.year}-12-31T00:00:00.000Z`) },
+      },
+      select: { id: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return found?.id ?? null;
   }
 
   async createSelfLeave(input: {
@@ -731,6 +781,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
           validateSelectedApprovers(
             input.request.approverEmployeeIds,
             approval.options,
+            input.employeeId,
           );
 
           const approvalInstance =
@@ -755,6 +806,16 @@ export class PrismaLeaveRepository implements LeaveRepository {
               },
               select: { id: true },
             });
+
+          const attachmentIds = [
+            ...(input.request.attachmentIds ?? []),
+          ];
+          validateLeaveAttachments({
+            employeeId: input.employeeId,
+            leaveTypeKey: leaveType.key,
+            requestedIds: attachmentIds,
+            rows: await leaveAttachmentRows(tx, attachmentIds),
+          });
 
           const leaveRequest = await tx.leaveRequest.create({
             data: {
@@ -781,6 +842,13 @@ export class PrismaLeaveRepository implements LeaveRepository {
                   )
                 : null,
               status: "PENDING",
+              ...(attachmentIds.length > 0
+                ? {
+                    attachments: {
+                      create: attachmentIds.map((attachmentId) => ({ attachmentId })),
+                    },
+                  }
+                : {}),
             },
             select: { id: true },
           });
@@ -920,6 +988,8 @@ export class PrismaLeaveRepository implements LeaveRepository {
           );
         }
 
+        const approverEmployeeIds = await pendingApproverIds(tx, request.approvalInstanceId);
+
         await tx.leaveRequest.update({
           where: { id: request.id },
           data: {
@@ -957,6 +1027,7 @@ export class PrismaLeaveRepository implements LeaveRepository {
               payload: {
                 requestId: request.id,
                 requesterEmployeeId: input.employeeId,
+                approverEmployeeIds,
               },
             },
           }),
@@ -1173,6 +1244,8 @@ export class PrismaLeaveRepository implements LeaveRepository {
                 requestId: request.id,
                 approvalStepId: step.id,
                 decision: input.decision.decision,
+                // Status right after this decision, so the message matches this decision even when sent late.
+                resultingStatus: status,
                 approverEmployeeId:
                   input.approverEmployeeId,
               },

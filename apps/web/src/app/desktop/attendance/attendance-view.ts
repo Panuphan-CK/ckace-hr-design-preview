@@ -1,5 +1,4 @@
 import type {
-  AttendanceRecordView,
   AttendanceRadiusState,
   AttendanceSelfOverview,
   AttendanceEventSource,
@@ -72,10 +71,6 @@ export function sourceLabel(
   }
 }
 
-export function correctionTargets(
-  record: AttendanceRecordView,
-): readonly ("CHECK_IN" | "CHECK_OUT")[] {
-  return record.checkOutAt
-    ? ["CHECK_IN", "CHECK_OUT"]
-    : ["CHECK_IN"];
+export function correctionTargets(): readonly ("CHECK_IN" | "CHECK_OUT")[] {
+  return ["CHECK_IN", "CHECK_OUT"];
 }

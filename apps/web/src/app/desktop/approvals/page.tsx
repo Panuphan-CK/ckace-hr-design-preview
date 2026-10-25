@@ -3,15 +3,19 @@
 import type {
   ApprovalHistoryItem,
   ApprovalHistoryOverview,
+  AttachmentDownloadResult,
   RequestStatusItem,
   RequestStatusOverview,
   UnifiedRequestKind,
 } from "@ckace/contracts";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import "../ck-v2-pages.css";
+import { preparePrivateDownloadTab, showPrivateDownload } from "../private-download";
+import { useAllowanceThresholds } from "../ui/allowance-thresholds";
 import { thaiDate, thaiDateTime } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
-import { DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
+import { DataGrid, DetailDialog, EmptyState, ErrorState, Filters, LoadingState, Message, PageHead, SectionHead, StatusDot, type DotTone } from "../ui/kit";
 import { RequestTimelineSection } from "../ui/request-timeline";
 import {
   decideErrorMessage,
@@ -23,6 +27,7 @@ import {
   KIND_TONE,
   kindFromHash,
   loadErrorMessage,
+  requestFactLines,
   matchesFilter,
   sortHistory,
   sortPending,
@@ -54,6 +59,7 @@ const DECISION_FILTERS: readonly { id: DecisionFilter; label: string }[] = [
 ];
 
 export default function DesktopApprovalsPage() {
+  const allowance = useAllowanceThresholds();
   const [state, setState] = useState<State>({ status: "loading" });
   const [kind, setKind] = useState<KindFilter>("ALL");
   const [decisionFilter, setDecisionFilter] = useState<DecisionFilter>("ALL");
@@ -61,6 +67,7 @@ export default function DesktopApprovalsPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [detail, setDetail] = useState<ApprovalHistoryItem | null>(null);
+  const [pendingDetail, setPendingDetail] = useState<RequestStatusItem | null>(null);
   const [withdrawKinds, setWithdrawKinds] = useState<ReadonlySet<string>>(new Set());
 
   const load = useCallback(async () => {
@@ -174,17 +181,33 @@ export default function DesktopApprovalsPage() {
           response.status === 403
             ? "ถอนได้เฉพาะผู้ดูแลระดับสูงสุดที่ดูแลพนักงานคนนี้"
             : response.status === 409
-              ? "ใบลานี้ไม่อยู่ในสถานะอนุมัติแล้ว"
-              : "ถอนใบลาไม่สำเร็จ",
+              ? "คำขอนี้ไม่อยู่ในสถานะอนุมัติแล้ว"
+              : "ถอนคำขอไม่สำเร็จ",
         );
       }
       setDetail(null);
-      setMessage({ kind: "success", text: "ถอนใบลาที่อนุมัติแล้วเรียบร้อย ระบบคืนสิทธิ์วันลาให้พนักงาน" });
+      setMessage({ kind: "success", text: "ถอนคำขอที่อนุมัติแล้วเรียบร้อย ระบบคืนสิทธิ์ให้พนักงาน" });
       await load();
     } catch (error) {
-      setMessage({ kind: "error", text: error instanceof Error ? error.message : "ถอนใบลาไม่สำเร็จ" });
+      setMessage({ kind: "error", text: error instanceof Error ? error.message : "ถอนคำขอไม่สำเร็จ" });
     } finally {
       setBusyId(null);
+    }
+  }
+
+  async function openReceipt(attachmentId: string) {
+    let tab: Window | null = null;
+    try {
+      tab = preparePrivateDownloadTab();
+      const response = await fetch(`/api/attachments/${encodeURIComponent(attachmentId)}/download`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      if (!response.ok) throw new Error("เปิดใบเสร็จไม่สำเร็จ หรือไม่มีสิทธิ์ดูไฟล์นี้");
+      await showPrivateDownload(tab, (await response.json()) as AttachmentDownloadResult);
+    } catch (error) {
+      tab?.close();
+      setMessage({ kind: "error", text: error instanceof Error ? error.message : "เปิดใบเสร็จไม่สำเร็จ" });
     }
   }
 
@@ -211,6 +234,7 @@ export default function DesktopApprovalsPage() {
         delete next[request.id];
         return next;
       });
+      setPendingDetail(null);
       await load();
     } catch (error) {
       setMessage({ kind: "error", text: error instanceof Error ? error.message : "บันทึกผลอนุมัติไม่สำเร็จ" });
@@ -248,68 +272,67 @@ export default function DesktopApprovalsPage() {
             ) : null}
           </SectionHead>
           {pendingRows.length === 0 ? (
-            <EmptyState title="ไม่มีคำขอที่รออนุมัติ">คำขอที่ส่งถึงคุณจะแสดงที่นี่</EmptyState>
+            <EmptyState icon="check" title="ไม่มีคำขอที่รออนุมัติ">คำขอที่ส่งถึงคุณจะแสดงที่นี่</EmptyState>
           ) : (
-            <div className="ck-agrid">
-              {pendingRows.map((request) => {
-                const tone = KIND_TONE[request.kind];
-                const busy = busyId === request.id;
-                return (
-                  <article key={request.id} className={"ck-acard ck-c-" + tone}>
-                    <div className="ck-ac-top">
-                      <span className="ck-chip">
-                        <Icon name={KIND_ICON[request.kind]} />
+            <DataGrid
+              rows={pendingRows}
+              rowKey={(request) => request.id}
+              onRowClick={(request) => {
+                setMessage(null);
+                setPendingDetail(request);
+              }}
+              columns={[
+                { key: "st", header: "", width: "48px", align: "center", render: () => <StatusDot tone="wait" label="รอคุณอนุมัติ" /> },
+                {
+                  key: "kind",
+                  header: "ประเภท",
+                  render: (request) => (
+                    <span className={"ck-gcell ck-c-" + KIND_TONE[request.kind]}>
+                      <span className="ck-chip sm">
+                        <Icon name={KIND_ICON[request.kind]} size={16} />
                       </span>
-                      <div className="ck-ac-t">
-                        <b>{KIND_LABEL[request.kind]} · {request.requestNo}</b>
-                        <small>{request.summary}</small>
-                      </div>
-                      <span className="ck-ac-when">{thaiDate(request.submittedAt)}</span>
-                    </div>
-                    <div className="ck-ac-emp">
+                      {KIND_LABEL[request.kind]}
+                    </span>
+                  ),
+                },
+                {
+                  key: "emp",
+                  header: "พนักงาน",
+                  render: (request) => (
+                    <span className="ck-gcell">
                       <span className="ck-av">{initials(request.employeeDisplayName)}</span>
-                      <span>
-                        <b>{request.employeeDisplayName ?? "ไม่ระบุชื่อ"}</b>
-                        <small>ยื่นเมื่อ {thaiDateTime(request.submittedAt)}</small>
-                      </span>
-                    </div>
-                    <div className="ck-prog" aria-label="สถานะการอนุมัติ">
-                      <span className="s done">
-                        <i>✓</i>ส่งแล้ว
-                      </span>
-                      <span className="ln" />
-                      <span className="s now">
-                        <i>{request.stepOrder ?? 1}</i>คุณ
-                      </span>
-                    </div>
-                    <input
-                      className="ck-in"
-                      value={comments[request.id] ?? ""}
-                      maxLength={1000}
-                      placeholder="ความคิดเห็น (จำเป็นเมื่อไม่อนุมัติหรือส่งกลับ)"
-                      aria-label="ความคิดเห็นของผู้อนุมัติ"
-                      disabled={busy}
-                      onChange={(event) => {
-                        const value = event.currentTarget.value;
-                        setComments((current) => ({ ...current, [request.id]: value }));
-                      }}
-                    />
-                    <div className="ck-ac-act">
-                      <button type="button" className="ck-btn ok" disabled={busyId !== null} onClick={() => void decide(request, "APPROVED")}>
-                        <Icon name="check" size={16} />
-                        {busy ? "กำลังบันทึก…" : "อนุมัติ"}
-                      </button>
-                      <button type="button" className="ck-btn no" disabled={busyId !== null} onClick={() => void decide(request, "REJECTED")}>
-                        ไม่อนุมัติ
-                      </button>
-                      <button type="button" className="ck-btn" disabled={busyId !== null} onClick={() => void decide(request, "REVISION_REQUESTED")}>
-                        ส่งกลับให้แก้ไข
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+                      <b>{request.employeeDisplayName ?? "ไม่ระบุชื่อ"}</b>
+                    </span>
+                  ),
+                },
+                {
+                  key: "sum",
+                  header: "รายละเอียด",
+                  render: (request) => {
+                    const facts = requestFactLines(request, allowance);
+                    return (
+                      <>
+                        {facts.map((line) => (
+                          <div key={line}>
+                            <b>{line}</b>
+                          </div>
+                        ))}
+                        <div>{request.summary}</div>
+                      </>
+                    );
+                  },
+                },
+                {
+                  key: "extra",
+                  header: "ยอดเบิก",
+                  align: "right",
+                  render: (request) =>
+                    request.medical ? request.medical.amount.toLocaleString("th-TH", { minimumFractionDigits: 2 }) + " บาท" : "—",
+                },
+                { key: "at", header: "ยื่นเมื่อ", render: (request) => thaiDate(request.submittedAt) },
+                { key: "go", header: "", width: "40px", align: "center", render: () => <Icon name="chevron" size={16} /> },
+              ]}
+            />
           )}
         </section>
 
@@ -318,49 +341,155 @@ export default function DesktopApprovalsPage() {
             <Filters value={decisionFilter} options={DECISION_FILTERS} onChange={setDecisionFilter} />
           </SectionHead>
           {historyRows.length === 0 ? (
-            <EmptyState title="ไม่มีประวัติการอนุมัติ">คำขอที่คุณพิจารณาแล้วจะแสดงที่นี่</EmptyState>
+            <EmptyState icon="document" title="ไม่มีประวัติการอนุมัติ">คำขอที่คุณพิจารณาแล้วจะแสดงที่นี่</EmptyState>
           ) : (
-            <div className="ck-hgrid">
-              {historyRows.map((row) => {
-                const tone = KIND_TONE[row.kind];
-                const decision = DECISION[row.decision];
-                return (
-                  <button key={row.id} type="button" className={"ck-hcard ck-c-" + tone} onClick={() => setDetail(row)}>
-                    <span className="ck-hc-top">
+            <DataGrid
+              rows={historyRows}
+              rowKey={(row) => row.id}
+              onRowClick={(row) => setDetail(row)}
+              columns={[
+                {
+                  key: "st",
+                  header: "",
+                  width: "48px",
+                  align: "center",
+                  render: (row) => <StatusDot tone={DECISION[row.decision].tone as DotTone} label={row.awaitingNextStep ? "อนุมัติขั้น " + row.stepOrder + " แล้ว รอขั้นถัดไป" : DECISION[row.decision].label} />,
+                },
+                {
+                  key: "kind",
+                  header: "ประเภท",
+                  render: (row) => (
+                    <span className={"ck-gcell ck-c-" + KIND_TONE[row.kind]}>
+                      <span className="ck-chip sm">
+                        <Icon name={KIND_ICON[row.kind]} size={16} />
+                      </span>
+                      {KIND_LABEL[row.kind]}
+                    </span>
+                  ),
+                },
+                {
+                  key: "emp",
+                  header: "พนักงาน",
+                  render: (row) => (
+                    <span className="ck-gcell">
                       <span className="ck-av">{initials(row.employeeDisplayName)}</span>
-                      <span>
-                        <b>{row.employeeDisplayName ?? "ไม่ระบุชื่อ"}</b>
-                        <small>{KIND_LABEL[row.kind]} · {row.requestNo}</small>
-                      </span>
-                      <span className={"ck-pill " + decision.tone}>{decision.label}</span>
+                      <b>{row.employeeDisplayName ?? "ไม่ระบุชื่อ"}</b>
                     </span>
-                    <dl className="ck-dl">
-                      <div>
-                        <dt>คำขอ</dt>
-                        <dd>{row.summary}</dd>
-                      </div>
-                      <div>
-                        <dt>วันที่</dt>
-                        <dd>{thaiDate(row.submittedAt)}</dd>
-                      </div>
-                      <div>
-                        <dt>ตัดสินเมื่อ</dt>
-                        <dd>{thaiDate(row.decidedAt)}</dd>
-                      </div>
-                    </dl>
-                    <span className="ck-hc-foot">
-                      <span className="ck-more">
-                        ดูรายละเอียด
-                        <Icon name="chevron" size={14} />
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                  ),
+                },
+                {
+                  key: "sum",
+                  header: "รายละเอียด",
+                  render: (row) => (
+                    <>
+                      {requestFactLines(row, allowance).map((line) => (
+                        <div key={line}>
+                          <b>{line}</b>
+                        </div>
+                      ))}
+                      <div>{row.summary}</div>
+                    </>
+                  ),
+                },
+                { key: "at", header: "ยื่นเมื่อ", render: (row) => thaiDate(row.submittedAt) },
+                { key: "dec", header: "ตัดสินเมื่อ", render: (row) => thaiDate(row.decidedAt) },
+              ]}
+            />
           )}
         </section>
       </div>
+
+      {pendingDetail ? (
+        <DetailDialog
+          tone={KIND_TONE[pendingDetail.kind]}
+          icon={KIND_ICON[pendingDetail.kind]}
+          kicker={"รออนุมัติ" + KIND_LABEL[pendingDetail.kind]}
+          title={pendingDetail.employeeDisplayName ?? "ไม่ระบุชื่อ"}
+          status={{ label: "รอคุณอนุมัติ", tone: "wait" }}
+          onClose={() => setPendingDetail(null)}
+          footer={
+            <div className="ck-row ck-wrapbtn">
+              <button type="button" className="ck-btn ok" disabled={busyId !== null} onClick={() => void decide(pendingDetail, "APPROVED")}>
+                <Icon name="check" size={16} />
+                {busyId === pendingDetail.id ? "กำลังบันทึก…" : "อนุมัติ"}
+              </button>
+              <button type="button" className="ck-btn no" disabled={busyId !== null} onClick={() => void decide(pendingDetail, "REJECTED")}>
+                ไม่อนุมัติ
+              </button>
+              <button type="button" className="ck-btn back" disabled={busyId !== null} onClick={() => void decide(pendingDetail, "REVISION_REQUESTED")}>
+                ส่งกลับให้แก้ไข
+              </button>
+            </div>
+          }
+        >
+          <Message value={message} />
+          <dl className="ck-dlg-grid">
+            <div>
+              <dt>ยื่นเมื่อ</dt>
+              <dd>{thaiDateTime(pendingDetail.submittedAt)}</dd>
+            </div>
+            <div>
+              <dt>ขั้นอนุมัติ</dt>
+              <dd>ขั้นที่ {pendingDetail.stepOrder ?? 1}</dd>
+            </div>
+          </dl>
+          <div className="ck-dlg-sec">
+            <h3>รายละเอียดคำขอ</h3>
+            {requestFactLines(pendingDetail, allowance).map((line) => (
+              <p key={line}>
+                <b>{line}</b>
+              </p>
+            ))}
+            <p>{pendingDetail.summary}</p>
+          </div>
+          {pendingDetail.medical ? (
+            <div className="ck-dlg-sec">
+              <h3>การเบิกค่ารักษา</h3>
+              <p>
+                ยอดเบิก <b>{pendingDetail.medical.amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท</b>
+                {" · "}วันที่ป่วย <b>{thaiDate(pendingDetail.medical.sicknessDate)}</b>
+              </p>
+              <div className="ck-row ck-wrapbtn">
+                {pendingDetail.medical.attachmentIds.map((attachmentId, index) => (
+                  <button key={attachmentId} type="button" className="ck-btn sm" onClick={() => void openReceipt(attachmentId)}>
+                    <Icon name="clip" size={14} />
+                    ดูใบเสร็จ{pendingDetail.medical && pendingDetail.medical.attachmentIds.length > 1 ? ` ${index + 1}` : ""}
+                  </button>
+                ))}
+                {pendingDetail.medical.attachmentIds.length === 0 ? <span>ไม่มีใบเสร็จแนบ</span> : null}
+              </div>
+            </div>
+          ) : null}
+          {pendingDetail.leave?.attachmentIds && pendingDetail.leave.attachmentIds.length > 0 ? (
+            <div className="ck-dlg-sec">
+              <h3>ใบรับรองแพทย์</h3>
+              <div className="ck-row ck-wrapbtn">
+                {pendingDetail.leave.attachmentIds.map((attachmentId, index) => (
+                  <button key={attachmentId} type="button" className="ck-btn sm" onClick={() => void openReceipt(attachmentId)}>
+                    <Icon name="clip" size={14} />
+                    ดูใบรับรองแพทย์{pendingDetail.leave && (pendingDetail.leave.attachmentIds?.length ?? 0) > 1 ? ` ${index + 1}` : ""}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          <div className="ck-dlg-sec">
+            <h3>ความคิดเห็นของผู้อนุมัติ</h3>
+            <input
+              className="ck-in"
+              value={comments[pendingDetail.id] ?? ""}
+              maxLength={1000}
+              placeholder="จำเป็นเมื่อไม่อนุมัติหรือส่งกลับ"
+              aria-label="ความคิดเห็นของผู้อนุมัติ"
+              disabled={busyId !== null}
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setComments((current) => ({ ...current, [pendingDetail.id]: value }));
+              }}
+            />
+          </div>
+        </DetailDialog>
+      ) : null}
 
       {detail ? (
         <DetailDialog
@@ -368,7 +497,7 @@ export default function DesktopApprovalsPage() {
           icon={KIND_ICON[detail.kind]}
           kicker={"รายละเอียด" + KIND_LABEL[detail.kind] + " " + detail.requestNo}
           title={detail.employeeDisplayName ?? "ไม่ระบุชื่อ"}
-          status={DECISION[detail.decision]}
+          status={detail.awaitingNextStep ? { ...DECISION[detail.decision], label: "อนุมัติขั้น " + detail.stepOrder + " แล้ว รอขั้นถัดไป" } : DECISION[detail.decision]}
           onClose={() => setDetail(null)}
         >
           <dl className="ck-dlg-grid">
@@ -387,16 +516,21 @@ export default function DesktopApprovalsPage() {
           </dl>
           <div className="ck-dlg-sec">
             <h3>รายละเอียดคำขอ</h3>
+            {requestFactLines(detail, allowance).map((line) => (
+              <p key={line}>
+                <b>{line}</b>
+              </p>
+            ))}
             <p>{detail.summary}</p>
           </div>
           <div className="ck-dlg-sec">
             <h3>ความเห็นของผู้อนุมัติ</h3>
             <p>{detail.comment || "—"}</p>
           </div>
-          {withdrawKinds.has(detail.kind) && detail.decision === "APPROVED" ? (
+          {withdrawKinds.has(detail.kind) && detail.decision === "APPROVED" && !detail.awaitingNextStep ? (
             <div className="ck-dlg-sec">
               <button type="button" className="ck-btn no" disabled={busyId !== null} onClick={() => void withdrawApproved(detail)}>
-                ถอนใบลาที่อนุมัติแล้ว
+                ถอน{detail.kind === "LEAVE" ? "ใบลา" : "คำขอ" + KIND_LABEL[detail.kind]}ที่อนุมัติแล้ว
               </button>
             </div>
           ) : null}

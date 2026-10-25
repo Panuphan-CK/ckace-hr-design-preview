@@ -7,7 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { resolveSubmissionIntent, shouldDiscardSubmissionIntent, type SubmissionIntent } from "../submission-intent";
 import { thaiDate } from "../ui/format";
 import { Icon } from "../ui/icons";
-import { DetailDialog, EmptyState, ErrorState, LoadingState, Message, PageHead, SectionHead } from "../ui/kit";
+import { DataGrid, DetailDialog, EmptyState, ErrorState, LoadingState, Message, PageHead, SectionHead, StatOrb, StatusDot } from "../ui/kit";
+import "../requests-common/ck-v2-requests.css";
 import { bangkokTime, sortRecords } from "../time-correction/time-correction-view";
 import {
   attendanceActionLabel,
@@ -57,6 +58,14 @@ export default function DesktopAttendancePage() {
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [detail, setDetail] = useState<AttendanceRecordView | null>(null);
   const intent = useRef<SubmissionIntent | null>(null);
+  const [nowText, setNowText] = useState("--:--");
+
+  useEffect(() => {
+    const tick = () => setNowText(bangkokTime(new Date().toISOString()) ?? "--:--");
+    tick();
+    const timer = window.setInterval(tick, 15_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -82,31 +91,40 @@ export default function DesktopAttendancePage() {
           return;
         }
         setLocation({ status: "requesting" });
+        const accept = (position: GeolocationPosition) => {
+          const value: AttendanceLocationInput = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracyMeters: position.coords.accuracy,
+          };
+          if (
+            !Number.isFinite(value.latitude) ||
+            !Number.isFinite(value.longitude) ||
+            !Number.isFinite(value.accuracyMeters) ||
+            value.accuracyMeters < 0
+          ) {
+            setLocation({ status: "error", message: "ข้อมูลตำแหน่งไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
+            resolve(null);
+            return;
+          }
+          setLocation({ status: "ready", value });
+          resolve(value);
+        };
+        const fail = (error: GeolocationPositionError) => {
+          setLocation({ status: "error", message: geolocationErrorMessage(error.code) });
+          resolve(null);
+        };
+        // A computer without GPS often times out on high accuracy, so fall back to a coarser (Wi-Fi) fix once.
         navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const value: AttendanceLocationInput = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              accuracyMeters: position.coords.accuracy,
-            };
-            if (
-              !Number.isFinite(value.latitude) ||
-              !Number.isFinite(value.longitude) ||
-              !Number.isFinite(value.accuracyMeters) ||
-              value.accuracyMeters < 0
-            ) {
-              setLocation({ status: "error", message: "ข้อมูลตำแหน่งไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" });
-              resolve(null);
+          accept,
+          (error) => {
+            if (error.code === 1) {
+              fail(error);
               return;
             }
-            setLocation({ status: "ready", value });
-            resolve(value);
+            navigator.geolocation.getCurrentPosition(accept, fail, { enableHighAccuracy: false, maximumAge: 120_000, timeout: 20_000 });
           },
-          (error) => {
-            setLocation({ status: "error", message: geolocationErrorMessage(error.code) });
-            resolve(null);
-          },
-          { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 },
+          { enableHighAccuracy: true, maximumAge: 30_000, timeout: 8_000 },
         );
       }),
     [],
@@ -188,19 +206,14 @@ export default function DesktopAttendancePage() {
 
         <section className="ck-fbox ck-c-time" aria-labelledby="clock-today">
           <SectionHead title="วันนี้" id="clock-today" hint={overview.dayKind === "WORKDAY" ? "วันทำงาน" : "วันหยุด"} />
-          <div className="ck-fgrid">
-            <div className="ck-field">
-              <span>เข้างาน</span>
-              <input className="ck-in" readOnly value={bangkokTime(today?.checkInAt ?? null) ?? "—"} aria-label="เวลาเข้างานวันนี้" />
-            </div>
-            <div className="ck-field">
-              <span>ออกงาน</span>
-              <input className="ck-in" readOnly value={bangkokTime(today?.checkOutAt ?? null) ?? "—"} aria-label="เวลาออกงานวันนี้" />
-            </div>
-            <div className="ck-field span2">
-              <span>สถานะ</span>
-              <input className="ck-in" readOnly value={statusText} aria-label="สถานะการลงเวลา" />
-            </div>
+          <div className="ck-hero-orbs ck-live">
+            <StatOrb tone="time" value={nowText} label="เวลาตอนนี้" />
+            <StatOrb tone="leave" value={bangkokTime(today?.checkInAt ?? null) ?? "—"} label="เข้างาน" />
+            <StatOrb tone="ot" value={bangkokTime(today?.checkOutAt ?? null) ?? "—"} label="ออกงาน" />
+            <span className="ck-live-st" role="status" aria-label="สถานะการลงเวลา">
+              <Icon name={overview.canCheckOut ? "clock" : overview.canCheckIn ? "pin" : "check"} size={18} />
+              {statusText}
+            </span>
           </div>
           <div className="ck-fbar">
             <span className="ck-sumline">
@@ -211,12 +224,9 @@ export default function DesktopAttendancePage() {
                   ? `ได้รับตำแหน่งแล้ว ความแม่นยำประมาณ ${Math.round(location.value.accuracyMeters)} เมตร`
                   : location.status === "error"
                     ? location.message
-                    : "ก่อนบันทึกเวลาแต่ละครั้ง ระบบจะขอตำแหน่งปัจจุบันใหม่จากเบราว์เซอร์"}
+                    : "กดลงเวลาแล้วระบบจะตรวจตำแหน่งให้เอง"}
             </span>
-            <button className="ck-btn quiet ck-ml" type="button" disabled={busy !== null || locating} onClick={() => void requestLocation()}>
-              ตรวจตำแหน่งอีกครั้ง
-            </button>
-            <button className="ck-btn tone" type="button" disabled={busy !== null || locating || !overview.canCheckIn} onClick={() => void submit("check-in")}>
+            <button className="ck-btn tone ck-ml" type="button" disabled={busy !== null || locating || !overview.canCheckIn} onClick={() => void submit("check-in")}>
               {busy === "check-in" ? "กำลังลงเวลาเข้า…" : "ลงเวลาเข้า"}
             </button>
             <button
@@ -241,54 +251,41 @@ export default function DesktopAttendancePage() {
               ขอแก้ไขเวลา
             </Link>
           </SectionHead>
-          {records.length === 0 ? (
-            <EmptyState title="ยังไม่มีข้อมูลเวลาเข้างาน">เมื่อมีการบันทึกเวลา ประวัติจะแสดงที่นี่</EmptyState>
-          ) : (
-            <div className="ck-hgrid">
-              {records.map((record) => {
-                const late = (record.lateMinutes ?? 0) > 0;
-                const early = (record.earlyMinutes ?? 0) > 0;
-                return (
-                  <button key={record.attendanceRecordId} type="button" className="ck-hcard ck-c-time" onClick={() => setDetail(record)}>
-                    <span className="ck-hc-top">
-                      <span className="ck-chip">
-                        <Icon name="clock" />
-                      </span>
-                      <span>
-                        <b>{thaiDate(record.workDate)}</b>
-                        <small>
-                          {bangkokTime(record.checkInAt) ?? "—"} ถึง {bangkokTime(record.checkOutAt) ?? "—"}
-                        </small>
-                      </span>
-                      <span className={"ck-pill " + (late || early ? "wait" : "ok")}>{late ? "มาสาย" : early ? "ออกก่อน" : "ปกติ"}</span>
-                    </span>
-                    <dl className="ck-dl">
-                      <div>
-                        <dt>เวลาทำงาน</dt>
-                        <dd>{minuteLabel(record.workMinutes)}</dd>
-                      </div>
-                      <div>
-                        <dt>OT</dt>
-                        <dd>{minuteLabel(record.overtimeMinutes)}</dd>
-                      </div>
-                      <div>
-                        <dt>ตำแหน่ง</dt>
-                        <dd>
-                          เข้า {radiusLabel(record.checkInRadius)} / ออก {radiusLabel(record.checkOutRadius)}
-                        </dd>
-                      </div>
-                    </dl>
-                    <span className="ck-hc-foot">
-                      <span className="ck-more">
-                        ดูรายละเอียด
-                        <Icon name="chevron" size={14} />
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          <div className="ck-hist">
+            <DataGrid
+              rows={records}
+              rowKey={(record) => record.attendanceRecordId}
+              onRowClick={setDetail}
+              empty={
+                <EmptyState icon="clock" title="ยังไม่มีข้อมูลเวลาเข้างาน">
+                  ประวัติจะแสดงที่นี่เมื่อมีการบันทึกเวลา
+                </EmptyState>
+              }
+              columns={[
+                { key: "date", header: "วันที่", render: (record) => <b>{thaiDate(record.workDate)}</b> },
+                { key: "in", header: "เข้างาน", render: (record) => bangkokTime(record.checkInAt) ?? "—" },
+                { key: "out", header: "ออกงาน", render: (record) => bangkokTime(record.checkOutAt) ?? "—" },
+                { key: "work", header: "เวลาทำงาน", render: (record) => minuteLabel(record.workMinutes) },
+                { key: "ot", header: "OT", render: (record) => minuteLabel(record.overtimeMinutes) },
+                {
+                  key: "loc",
+                  header: "ตำแหน่ง",
+                  render: (record) => `เข้า ${radiusLabel(record.checkInRadius)} / ออก ${radiusLabel(record.checkOutRadius)}`,
+                },
+                {
+                  key: "status",
+                  header: "สถานะ",
+                  align: "center",
+                  width: "80px",
+                  render: (record) => {
+                    const late = (record.lateMinutes ?? 0) > 0;
+                    const early = (record.earlyMinutes ?? 0) > 0;
+                    return <StatusDot tone={late || early ? "wait" : "ok"} label={late ? "มาสาย" : early ? "ออกก่อนเวลา" : "ปกติ"} />;
+                  },
+                },
+              ]}
+            />
+          </div>
         </section>
       </div>
 

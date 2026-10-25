@@ -1,5 +1,7 @@
+import { pendingApproverIds } from "./cancel-notice";
 import { createHash, randomUUID } from "node:crypto";
 
+import { formatRequestNo } from "./request-status-repository";
 import {
   IdempotencyConflictError,
   createIdempotencyClaim,
@@ -7,7 +9,6 @@ import {
 import {
   assertNoOverlappingOvertime,
   assertOvertimeCancelable,
-  assertOvertimeDateRangeNotFuture,
   expandOvertimeDays,
   normalizeOvertimeCreate,
   normalizeOvertimeDecision,
@@ -101,6 +102,7 @@ interface OvertimeApprovalResolution {
   readonly steps: readonly {
     readonly stepOrder: number;
     readonly approverEmployeeId: string;
+    readonly coApproverEmployeeIds?: readonly string[];
   }[];
 }
 
@@ -130,29 +132,6 @@ function workDateValue(value: string): Date {
 
 function timeValue(value: string): Date {
   return new Date(`1970-01-01T${value}:00.000Z`);
-}
-
-function bangkokDateKey(value: Date): string {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Bangkok",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(value);
-  const map = new Map(
-    parts.map((part) => [part.type, part.value]),
-  );
-  const year = map.get("year");
-  const month = map.get("month");
-  const day = map.get("day");
-
-  if (!year || !month || !day) {
-    throw new Error(
-      "Unable to derive Asia/Bangkok overtime date",
-    );
-  }
-
-  return `${year}-${month}-${day}`;
 }
 
 function isoWeekday(dateKey: string): number {
@@ -458,6 +437,7 @@ function requestView(
       | "REVISION_REQUESTED";
     readonly decisionReason: string | null;
     readonly submittedAt: Date;
+    readonly requestNo?: number;
     readonly segments: readonly {
       readonly id: string;
       readonly workDate: Date;
@@ -475,6 +455,7 @@ function requestView(
     status: request.status,
     decisionReason: request.decisionReason,
     submittedAt: request.submittedAt.toISOString(),
+    ...(typeof request.requestNo === "number" ? { requestNo: formatRequestNo("OT", request.requestNo) } : {}),
     segments: request.segments.map((segment) => ({
       id: segment.id,
       workDate: dateOnly(segment.workDate),
@@ -616,6 +597,7 @@ export class PrismaOvertimeRepository
         status: true,
         decisionReason: true,
         submittedAt: true,
+        requestNo: true,
         segments: {
           select: {
             id: true,
@@ -638,8 +620,15 @@ export class PrismaOvertimeRepository
       ],
     });
 
+    const policies = await this.prisma.overtimeAllowancePolicy.findMany();
+    const threshold = (kind: string) => {
+      const row = policies.find((policy) => policy.kind === kind);
+      return row && row.active ? row.paidWhenEndsAtOrAfter : null;
+    };
+
     return {
       requests: rows.map(requestView),
+      allowanceThresholds: { meal: threshold("MEAL"), transport: threshold("TRANSPORT") },
     };
   }
 
@@ -654,7 +643,10 @@ export class PrismaOvertimeRepository
     const delegators = await delegatorIdsFor(this.prisma, approverEmployeeId);
     const steps = await this.prisma.approvalStep.findMany({
       where: {
-        approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
+        OR: [
+          { approverEmployeeId: { in: [approverEmployeeId, ...delegators] } },
+          { coApproverEmployeeIds: { hasSome: [approverEmployeeId, ...delegators] } },
+        ],
         status: "PENDING",
         approvalInstance: {
           is: {
@@ -677,6 +669,7 @@ export class PrismaOvertimeRepository
                 status: true,
                 decisionReason: true,
                 submittedAt: true,
+                requestNo: true,
                 segments: {
                   select: {
                     id: true,
@@ -763,11 +756,6 @@ export class PrismaOvertimeRepository
 
     const batchId = randomUUID();
     const now = this.clock();
-    assertOvertimeDateRangeNotFuture({
-      startDate: normalized.startDate,
-      endDate: normalized.endDate,
-      today: bangkokDateKey(now),
-    });
 
     try {
       const created = await this.prisma.$transaction(
@@ -854,6 +842,9 @@ export class PrismaOvertimeRepository
                       stepOrder: step.stepOrder,
                       approverEmployeeId:
                         step.approverEmployeeId,
+                      coApproverEmployeeIds: [
+                        ...(step.coApproverEmployeeIds ?? []),
+                      ],
                       status: "PENDING",
                       assignedAt: now,
                     })),
@@ -1034,6 +1025,7 @@ export class PrismaOvertimeRepository
 
         assertOvertimeCancelable(request.status);
         const decidedAt = this.clock();
+        const approverEmployeeIds = await pendingApproverIds(tx, request.approvalInstanceId);
 
         await tx.overtimeRequest.update({
           where: { id: request.id },
@@ -1079,6 +1071,7 @@ export class PrismaOvertimeRepository
                 requestId: request.id,
                 requesterEmployeeId:
                   input.employeeId,
+                approverEmployeeIds,
               },
             },
           }),
@@ -1159,6 +1152,7 @@ export class PrismaOvertimeRepository
                       id: true,
                       stepOrder: true,
                       approverEmployeeId: true,
+                      coApproverEmployeeIds: true,
                       status: true,
                     },
                     orderBy: { stepOrder: "asc" },
@@ -1185,6 +1179,7 @@ export class PrismaOvertimeRepository
         const mayDecide = currentStep
           ? await actorMayDecideStep(tx, {
               stepApproverId: currentStep.approverEmployeeId,
+              coApproverIds: currentStep.coApproverEmployeeIds,
               actorEmployeeId: input.approverEmployeeId,
               requesterEmployeeId: request.employeeId,
             })

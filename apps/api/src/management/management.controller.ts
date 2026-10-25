@@ -1,5 +1,6 @@
 import type {
   ManagedAccountState,
+  ManagementReportView,
   RoleScopeKind,
 } from "@ckace/contracts";
 import {
@@ -24,6 +25,11 @@ import { AuthorizationGuard } from "../security/authorization.guard";
 import { RequirePermission } from "../security/require-permission.decorator";
 import type { SecurityRequest } from "../security/security-request";
 import { ManagementService } from "./management.service";
+import {
+  buildAttendanceWorkbook,
+  buildLeaveWorkbook,
+  buildMedicalWorkbook,
+} from "./management-report-workbook";
 import { buildOvertimeWorkbook } from "./overtime-report-workbook";
 
 const UUID =
@@ -177,6 +183,42 @@ export class ManagementController {
     return this.service.missingCheckOuts(range.from, range.to);
   }
 
+  @Get("reports/overtime")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  async overtimeRows(
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+    @Query("companyId") companyId: string | undefined,
+    @Query("agencyId") agencyId: string | undefined,
+    @Query("employeeId") employeeId: string | undefined,
+    @Query("status") status: string | undefined,
+  ) {
+    const range = dateRange(from, to);
+    const rows = await this.service.overtimeRows({
+      from: range.from,
+      to: range.to,
+      companyId: optionalUuid(companyId, "companyId") ?? null,
+      agencyId: optionalUuid(agencyId, "agencyId") ?? null,
+      employeeId: optionalUuid(employeeId, "employeeId") ?? null,
+      status: parseReportStatus(status),
+    });
+    return { rows };
+  }
+
+  @Post("reports/overtime/confirm")
+  @ModuleRoute("ADMIN_WRITE")
+  @RequirePermission("users.admin.write", "GLOBAL")
+  async confirmOvertime(@Req() request: SecurityRequest, @Body() body: unknown) {
+    const value = objectBody(body);
+    const ids = value.segmentIds;
+    if (!Array.isArray(ids) || ids.length === 0 || ids.length > 500) {
+      throw new BadRequestException("segmentIds must be an array of 1 to 500");
+    }
+    const segmentIds = ids.map((id) => requiredUuid(id, "segmentId"));
+    return { confirmed: await this.service.confirmOvertimeSegments(segmentIds, actorId(request)) };
+  }
+
   @Get("reports/overtime.xlsx")
   @ModuleRoute("ADMIN_READ")
   @RequirePermission("reports.management.read", "GLOBAL")
@@ -206,6 +248,56 @@ export class ManagementController {
     return new StreamableFile(workbook, {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       disposition: `attachment; filename="overtime-${filters.from.toISOString().slice(0, 10)}_${filters.to.toISOString().slice(0, 10)}.xlsx"`,
+    });
+  }
+
+  @Get("reports/leave.xlsx")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  leaveReportXlsx(
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+  ): Promise<StreamableFile> {
+    return this.reportWorkbook("leave", buildLeaveWorkbook, from, to);
+  }
+
+  @Get("reports/attendance.xlsx")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  attendanceReportXlsx(
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+  ): Promise<StreamableFile> {
+    return this.reportWorkbook("attendance", buildAttendanceWorkbook, from, to);
+  }
+
+  @Get("reports/medical.xlsx")
+  @ModuleRoute("ADMIN_READ")
+  @RequirePermission("reports.management.read", "GLOBAL")
+  medicalReportXlsx(
+    @Query("from") from: string | undefined,
+    @Query("to") to: string | undefined,
+  ): Promise<StreamableFile> {
+    return this.reportWorkbook("medical", buildMedicalWorkbook, from, to);
+  }
+
+  private async reportWorkbook(
+    name: string,
+    build: (
+      rows: ManagementReportView["rows"],
+      range: { readonly from: string; readonly to: string },
+    ) => Promise<Buffer>,
+    from: string | undefined,
+    to: string | undefined,
+  ): Promise<StreamableFile> {
+    const range = dateRange(from, to);
+    const view = await this.service.reports(range.from, range.to);
+    const fromText = range.from.toISOString().slice(0, 10);
+    const toText = range.to.toISOString().slice(0, 10);
+    const workbook = await build(view.rows, { from: fromText, to: toText });
+    return new StreamableFile(workbook, {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      disposition: `attachment; filename="${name}-${fromText}_${toText}.xlsx"`,
     });
   }
 
@@ -456,7 +548,18 @@ export class ManagementController {
     ) {
       throw new BadRequestException("Invalid medical limits");
     }
-    return this.service.saveMedicalPolicy({ annualLimit, perClaimLimit }, actorId(request));
+    const rawRoles = value.autoApproveRoleKeys;
+    const allowedRoles = ["SUPERUSER", "ADMIN", "SUPERADMIN"];
+    if (
+      rawRoles !== undefined &&
+      (!Array.isArray(rawRoles) ||
+        rawRoles.some((role) => typeof role !== "string" || !allowedRoles.includes(role.trim().toUpperCase())))
+    ) {
+      throw new BadRequestException("Invalid auto-approval roles");
+    }
+    // Omitted keeps the previous default (ADMIN, SUPERADMIN); an empty list turns auto-approval off.
+    const autoApproveRoleKeys = (rawRoles as string[] | undefined) ?? ["ADMIN", "SUPERADMIN"];
+    return this.service.saveMedicalPolicy({ annualLimit, perClaimLimit, autoApproveRoleKeys }, actorId(request));
   }
 
   @Get("attendance-policy")
@@ -495,6 +598,7 @@ export class ManagementController {
         officeLongitude: number(value.officeLongitude, "officeLongitude"),
         radiusKm: number(value.radiusKm, "radiusKm"),
         lateAfter: clock(value.lateAfter, "lateAfter"),
+        workStart: clock(value.workStart, "workStart"),
         workEnd: clock(value.workEnd, "workEnd"),
         breakStart: optionalClock(value.breakStart, "breakStart"),
         breakEnd: optionalClock(value.breakEnd, "breakEnd"),
@@ -673,7 +777,29 @@ export class ManagementController {
       throw new BadRequestException("active must be boolean");
     }
     const active = value.active as boolean | undefined;
-    if (name === undefined && active === undefined) {
+    const profile: Record<string, string | null> = {};
+    for (const [key, max] of [
+      ["taxId", 40],
+      ["address", 500],
+      ["phone", 40],
+      ["email", 200],
+    ] as const) {
+      const raw = value[key];
+      if (raw === undefined) continue;
+      if (raw !== null && typeof raw !== "string") {
+        throw new BadRequestException(key + " must be text or null");
+      }
+      const text = raw === null ? "" : raw.trim();
+      if (text.length > max) {
+        throw new BadRequestException(key + " is too long");
+      }
+      profile[key] = text === "" ? null : text;
+    }
+    if (
+      name === undefined &&
+      active === undefined &&
+      Object.keys(profile).length === 0
+    ) {
       throw new BadRequestException("No company fields supplied");
     }
     return this.service.updateCompany(
@@ -681,6 +807,7 @@ export class ManagementController {
       {
         ...(name !== undefined ? { name } : {}),
         ...(active !== undefined ? { active } : {}),
+        ...profile,
       },
       actorId(request),
     );

@@ -1,40 +1,18 @@
-const TH_MONTHS = [
-  "ม.ค.",
-  "ก.พ.",
-  "มี.ค.",
-  "เม.ย.",
-  "พ.ค.",
-  "มิ.ย.",
-  "ก.ค.",
-  "ส.ค.",
-  "ก.ย.",
-  "ต.ค.",
-  "พ.ย.",
-  "ธ.ค.",
-] as const;
-
-/** "2026-10-23" -> "23 ต.ค. 2569" (Buddhist year). Returns the input when it is not an ISO date. */
+/** "2026-10-23" -> "23/10/2569" (DD/MM/YYYY, Buddhist year). Returns the input when it is not an ISO date. */
 export function thaiDate(value: string | null | undefined): string {
   if (!value) return "—";
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
   if (!match) return value;
-  const year = Number(match[1]) + 543;
-  const month = TH_MONTHS[Number(match[2]) - 1] ?? "";
-  return `${Number(match[3])} ${month} ${year}`;
+  return `${match[3]}/${match[2]}/${Number(match[1]) + 543}`;
 }
 
-/** "2026-10-23" .. "2026-10-24" -> "23 ถึง 24 ต.ค. 2569" */
+/** "2026-10-23" .. "2026-10-24" -> "23/10/2569 ถึง 24/10/2569" */
 export function thaiDateRange(start: string, end: string): string {
   if (!end || end === start) return thaiDate(start);
-  const a = /^(\d{4})-(\d{2})-(\d{2})/.exec(start);
-  const b = /^(\d{4})-(\d{2})-(\d{2})/.exec(end);
-  if (a && b && a[1] === b[1] && a[2] === b[2]) {
-    return `${Number(a[3])} ถึง ${thaiDate(end)}`;
-  }
   return `${thaiDate(start)} ถึง ${thaiDate(end)}`;
 }
 
-/** ISO timestamp -> "15 ต.ค. 2569 09:12" in the viewer's local time. */
+/** ISO timestamp -> "15/10/2569 09:12" in the viewer's local time. */
 export function thaiDateTime(value: string | null | undefined): string {
   if (!value) return "—";
   const date = new Date(value);

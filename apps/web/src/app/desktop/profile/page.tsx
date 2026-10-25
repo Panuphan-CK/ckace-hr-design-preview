@@ -13,12 +13,13 @@ import {
 
 import {
   enabledProfileCapabilities,
-  profileAccountStateClass,
   profileAccountStateLabel,
   profileInitials,
   type ProfileNavigationCapabilities,
 } from "./profile-view";
 import { PasswordChangeCard } from "./password-change-card";
+import "../ck-v2-pages.css";
+import { ErrorState, LoadingState, Message, PageHead, SectionHead, StatusDot } from "../ui/kit";
 
 interface SessionSnapshot {
   readonly authenticated: true;
@@ -144,6 +145,7 @@ export default function DesktopProfilePage() {
   const [busyAttachment, setBusyAttachment] =
     useState<string | null>(null);
   const [message, setMessage] = useState<Message | null>(null);
+  const [busyUpload, setBusyUpload] = useState<"PROFILE" | "SIGNATURE" | null>(null);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -183,6 +185,67 @@ export default function DesktopProfilePage() {
     [state],
   );
 
+  async function uploadOwnImage(kind: "PROFILE" | "SIGNATURE", file: File) {
+    const label = kind === "SIGNATURE" ? "ลายเซ็น" : "รูปโปรไฟล์";
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setMessage({ kind: "error", text: "ใช้ได้เฉพาะไฟล์รูป JPG, PNG หรือ WebP" });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setMessage({ kind: "error", text: "ไฟล์ใหญ่เกิน 2 MB กรุณาลดขนาดรูป" });
+      return;
+    }
+    setBusyUpload(kind);
+    setMessage(null);
+    try {
+      const digest = await globalThis.crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+      const checksumSha256 = Array.from(new Uint8Array(digest))
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+      const intentResponse = await fetch("/api/attachments/upload-intent", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          privacyClass: "EMPLOYEE_PRIVATE",
+          originalFilename: file.name,
+          mimeType: file.type,
+          sizeBytes: file.size,
+          checksumSha256,
+        }),
+      });
+      if (!intentResponse.ok) throw new Error("upload-intent");
+      const intent = (await intentResponse.json()) as {
+        attachmentId: string;
+        upload: { url: string; method: string; requiredHeaders: Record<string, string> };
+      };
+      const put = await fetch(intent.upload.url, {
+        method: intent.upload.method,
+        headers: intent.upload.requiredHeaders,
+        body: file,
+      });
+      if (!put.ok) throw new Error("upload");
+      const finalize = await fetch(
+        "/api/attachments/" + encodeURIComponent(intent.attachmentId) + "/finalize",
+        { method: "POST", credentials: "same-origin" },
+      );
+      if (!finalize.ok) throw new Error("finalize");
+      const link = await fetch("/api/profile/media", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ kind, attachmentId: intent.attachmentId }),
+      });
+      if (!link.ok) throw new Error("link");
+      setMessage({ kind: "success", text: "บันทึก" + label + "เรียบร้อยแล้ว" });
+      await load();
+    } catch {
+      setMessage({ kind: "error", text: "อัปโหลด" + label + "ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" });
+    } finally {
+      setBusyUpload(null);
+    }
+  }
+
   async function handleAttachment(
     attachmentId: string,
     label: string,
@@ -210,304 +273,167 @@ export default function DesktopProfilePage() {
   }
 
   if (state.status === "loading") {
-    return (
-      <section
-        className="module-state"
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-      >
-        <div className="spinner" aria-hidden="true" />
-        <h1>กำลังโหลดข้อมูลโปรไฟล์</h1>
-        <p>
-          กำลังอ่าน Identity และสิทธิ์ใช้งานจาก CKACE HR Server
-        </p>
-      </section>
-    );
+    return <LoadingState title="กำลังโหลดข้อมูลโปรไฟล์" />;
   }
 
   if (state.status === "error") {
     return (
-      <section className="module-state" role="alert">
-        <div className="status-badge error">
-          PROFILE ERROR
-        </div>
-        <h1>เปิดข้อมูลโปรไฟล์ไม่สำเร็จ</h1>
-        <p>{state.message}</p>
-        <button
-          className="primary-button"
-          type="button"
-          onClick={() => void load()}
-        >
-          ลองใหม่
-        </button>
-      </section>
+      <ErrorState
+        title="เปิดข้อมูลโปรไฟล์ไม่สำเร็จ"
+        message={state.message}
+        onRetry={() => void load()}
+      />
     );
   }
 
   const { profile, session } = state;
 
-  return (
-    <div className="module-stack">
-      <section className="module-heading">
-        <div>
-          <p className="eyebrow">IDENTITY / PROFILE</p>
-          <h1>โปรไฟล์ของฉัน</h1>
-          <p>
-            ข้อมูลตัวตน บัญชี องค์กร และสิทธิ์ใช้งานที่มาจาก
-            CKACE HR Server โดยไม่เปิดเผย credential หรือ provider metadata
-          </p>
+  function mediaCard(
+    label: string,
+    media: { attachmentId: string } | null | undefined,
+    openLabel: string,
+    kind: "PROFILE" | "SIGNATURE",
+  ) {
+    return (
+      <div className="ck-field">
+        <span>{label}</span>
+        <div className="ck-row">
+          <StatusDot tone={media ? "ok" : "muted"} label={media ? "มีไฟล์ในระบบ" : "ยังไม่มีไฟล์"} />
+          {media ? (
+            <button
+              className="ck-btn sm quiet"
+              type="button"
+              disabled={Boolean(busyAttachment)}
+              onClick={() => void handleAttachment(media.attachmentId, label)}
+            >
+              {busyAttachment === media.attachmentId ? "กำลังเปิด..." : openLabel}
+            </button>
+          ) : null}
+          <label className="ck-btn sm quiet" style={{ cursor: "pointer" }}>
+            {busyUpload === kind ? "กำลังอัปโหลด..." : media ? "เปลี่ยนไฟล์" : "อัปโหลด" + label}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              hidden
+              disabled={Boolean(busyUpload)}
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                event.currentTarget.value = "";
+                if (file) void uploadOwnImage(kind, file);
+              }}
+            />
+          </label>
         </div>
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={() => void load()}
-        >
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <PageHead
+        tone="accent"
+        icon="user"
+        title="โปรไฟล์ของฉัน"
+        subtitle="ข้อมูลตัวตน บัญชี และสิทธิ์ใช้งานของคุณ"
+      >
+        <button className="ck-btn quiet" type="button" onClick={() => void load()}>
           รีเฟรช
         </button>
-      </section>
+      </PageHead>
 
-      {message ? (
-        <div
-          className={
-            message.kind === "success"
-              ? "action-message success"
-              : "action-message error"
-          }
-          role={message.kind === "error" ? "alert" : "status"}
-        >
-          {message.text}
-        </div>
-      ) : null}
+      <div className="ck-wrap ck-stack">
+        <Message value={message} />
 
-      <section className="profile-hero">
-        <div className="profile-avatar" aria-hidden="true">
-          {profileInitials(profile)}
-        </div>
-        <div className="profile-hero-copy">
-          <div className="profile-title-line">
-            <h2>{profile.fullName}</h2>
-            <span
-              className={profileAccountStateClass(
-                profile.accountState,
-              )}
-            >
-              {profileAccountStateLabel(profile.accountState)}
+        <section className="ck-fbox ck-c-accent">
+          <div className="ck-row" style={{ gap: 16 }}>
+            <span className="ck-chip lg" aria-hidden="true">
+              {profileInitials(profile)}
+            </span>
+            <div>
+              <h2 style={{ margin: 0 }}>{profile.fullName}</h2>
+              <p className="ck-muted" style={{ margin: "4px 0 0" }}>
+                {profile.nickname ? `ชื่อเล่น: ${profile.nickname}` : "ยังไม่มีชื่อเล่นในระบบ"}
+                {" · "}
+                {profile.agency?.name ?? "ไม่ระบุหน่วยงาน"}
+                {" · "}
+                {profile.department?.name ?? "ไม่ระบุแผนก"}
+              </p>
+            </div>
+            <span className="ck-ml">
+              <StatusDot
+                tone={profile.accountState === "ACTIVE" ? "ok" : "muted"}
+                label={profileAccountStateLabel(profile.accountState)}
+              />
             </span>
           </div>
-          <p>
-            {profile.nickname
-              ? `ชื่อเล่น: ${profile.nickname}`
-              : "ยังไม่มีชื่อเล่นในระบบ"}
-          </p>
-          <div className="profile-identity-tags">
-            <span>{profile.loginName}</span>
-            <span>
-              {profile.agency?.name ?? "ไม่ระบุหน่วยงาน"}
-            </span>
-            <span>
-              {profile.department?.name ?? "ไม่ระบุแผนก"}
-            </span>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="profile-grid">
-        <article className="module-panel profile-panel">
-          <div className="panel-heading">
-            <div>
-              <p className="eyebrow">IDENTITY</p>
-              <h2>ข้อมูลตัวตน</h2>
+        <section className="ck-fbox ck-c-accent">
+          <SectionHead title="ข้อมูลทั่วไป" />
+          <div className="ck-fgrid">
+            <div className="ck-field">
+              <span>วันเกิด</span>
+              <b>{formatDate(profile.dateOfBirth)}</b>
+            </div>
+            <div className="ck-field">
+              <span>วันเริ่มงาน</span>
+              <b>{formatDate(profile.employmentStart)}</b>
+            </div>
+            <div className="ck-field">
+              <span>วันพ้นสภาพ</span>
+              <b>{formatDate(profile.resignationDate)}</b>
+            </div>
+            <div className="ck-field">
+              <span>ชื่อผู้ใช้</span>
+              <b>{profile.loginName}</b>
+            </div>
+            <div className="ck-field">
+              <span>การเชื่อมต่อ LINE</span>
+              <b>{profile.lineLinked ? "เชื่อมบัญชีแล้ว" : "ยังไม่เชื่อมบัญชี"}</b>
             </div>
           </div>
-          <dl className="profile-definition-list">
-            <div>
-              <dt>Employee ID</dt>
-              <dd>{profile.employeeId}</dd>
-            </div>
-            <div>
-              <dt>วันเกิด</dt>
-              <dd>{formatDate(profile.dateOfBirth)}</dd>
-            </div>
-            <div>
-              <dt>วันเริ่มงาน</dt>
-              <dd>{formatDate(profile.employmentStart)}</dd>
-            </div>
-            <div>
-              <dt>วันพ้นสภาพ</dt>
-              <dd>{formatDate(profile.resignationDate)}</dd>
-            </div>
-          </dl>
-        </article>
+        </section>
 
-        <article className="module-panel profile-panel">
-          <div className="panel-heading">
-            <div>
-              <p className="eyebrow">ACCOUNT</p>
-              <h2>บัญชีและการเชื่อมต่อ</h2>
-            </div>
-          </div>
-          <dl className="profile-definition-list">
-            <div>
-              <dt>Login name</dt>
-              <dd>{profile.loginName}</dd>
-            </div>
-            <div>
-              <dt>สถานะบัญชี</dt>
-              <dd>
-                {profileAccountStateLabel(
-                  profile.accountState,
+        <section className="ck-fbox ck-c-accent">
+          <SectionHead title="บทบาทและสิทธิ์ใช้งาน" hint={`${session.permissionCount} สิทธิ์`} />
+          <div className="ck-fgrid">
+            <div className="ck-field">
+              <span>บทบาท</span>
+              <div className="ck-row" style={{ flexWrap: "wrap" }}>
+                {profile.roles.length > 0 ? (
+                  profile.roles.map((role) => (
+                    <span className="ck-minichip" key={role}>{role}</span>
+                  ))
+                ) : (
+                  <span className="ck-muted">ไม่มีบทบาทที่แสดงได้</span>
                 )}
-              </dd>
+              </div>
             </div>
-            <div>
-              <dt>LINE linkage</dt>
-              <dd>
-                {profile.lineLinked
-                  ? "เชื่อมบัญชีแล้ว"
-                  : "ยังไม่เชื่อมบัญชี"}
-              </dd>
-            </div>
-            <div>
-              <dt>Authenticated by</dt>
-              <dd>{session.authenticatedBy}</dd>
-            </div>
-          </dl>
-        </article>
-      </section>
-
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">ROLES & ACCESS</p>
-            <h2>บทบาทและสิทธิ์ใช้งาน</h2>
-          </div>
-          <span className="panel-note">
-            {session.permissionCount} permissions
-          </span>
-        </div>
-
-        <div className="profile-access-grid">
-          <div>
-            <strong>บทบาท</strong>
-            <div className="profile-chip-list">
-              {profile.roles.length > 0 ? (
-                profile.roles.map((role) => (
-                  <span className="profile-chip" key={role}>
-                    {role}
-                  </span>
-                ))
-              ) : (
-                <span className="panel-note">
-                  ไม่มี role ที่แสดงได้
-                </span>
-              )}
+            <div className="ck-field">
+              <span>เมนูที่ได้รับอนุญาต</span>
+              <div className="ck-row" style={{ flexWrap: "wrap" }}>
+                {capabilities.length > 0 ? (
+                  capabilities.map((capability) => (
+                    <span className="ck-minichip ok" key={capability}>{capability}</span>
+                  ))
+                ) : (
+                  <span className="ck-muted">ไม่มีเมนูเพิ่มเติม</span>
+                )}
+              </div>
             </div>
           </div>
-          <div>
-            <strong>เมนูที่ Server อนุญาต</strong>
-            <div className="profile-chip-list">
-              {capabilities.length > 0 ? (
-                capabilities.map((capability) => (
-                  <span
-                    className="profile-chip access"
-                    key={capability}
-                  >
-                    {capability}
-                  </span>
-                ))
-              ) : (
-                <span className="panel-note">
-                  ไม่มีเมนูเพิ่มเติม
-                </span>
-              )}
-            </div>
+        </section>
+
+        <section className="ck-fbox ck-c-accent">
+          <SectionHead title="รูปโปรไฟล์และลายเซ็น" />
+          <div className="ck-fgrid">
+            {mediaCard("รูปโปรไฟล์", profile.media.profile, "เปิดรูปโปรไฟล์", "PROFILE")}
+            {mediaCard("ลายเซ็น", profile.media.signature, "เปิดลายเซ็น", "SIGNATURE")}
           </div>
-        </div>
-        <p className="profile-security-note">
-          Browser ใช้ข้อมูลนี้เพื่อแสดง UI เท่านั้น การอนุญาตจริงยังตรวจซ้ำที่
-          Server ทุก endpoint และ client role ไม่มี authority
-        </p>
-      </section>
+        </section>
 
-      <section className="module-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">PRIVATE MEDIA</p>
-            <h2>รูปโปรไฟล์และลายเซ็น</h2>
-          </div>
-        </div>
-        <div className="profile-media-grid">
-          <article className="profile-media-card">
-            <strong>รูปโปรไฟล์</strong>
-            <span>
-              {profile.media.profile
-                ? "มีไฟล์ในระบบ"
-                : "ยังไม่มีไฟล์"}
-            </span>
-            {profile.media.profile ? (
-              <button
-                className="secondary-button"
-                type="button"
-                disabled={Boolean(busyAttachment)}
-                onClick={() =>
-                  void handleAttachment(
-                    profile.media.profile!.attachmentId,
-                    "รูปโปรไฟล์",
-                  )
-                }
-              >
-                {busyAttachment ===
-                profile.media.profile.attachmentId
-                  ? "กำลังเปิด..."
-                  : "เปิดรูปโปรไฟล์"}
-              </button>
-            ) : null}
-          </article>
-
-          <article className="profile-media-card">
-            <strong>ลายเซ็น</strong>
-            <span>
-              {profile.media.signature
-                ? "มีไฟล์ในระบบ"
-                : "ยังไม่มีไฟล์"}
-            </span>
-            {profile.media.signature ? (
-              <button
-                className="secondary-button"
-                type="button"
-                disabled={Boolean(busyAttachment)}
-                onClick={() =>
-                  void handleAttachment(
-                    profile.media.signature!.attachmentId,
-                    "ลายเซ็น",
-                  )
-                }
-              >
-                {busyAttachment ===
-                profile.media.signature.attachmentId
-                  ? "กำลังเปิด..."
-                  : "เปิดลายเซ็น"}
-              </button>
-            ) : null}
-          </article>
-        </div>
-        <p className="profile-security-note">
-          ไฟล์ส่วนตัวเปิดผ่าน signed URL อายุสั้นและ storage policy
-          ตรวจ owner/permission ที่ Server ไม่มี storage key หรือ provider URL
-          ถูกเก็บใน Profile response
-        </p>
-      </section>
-
-      <PasswordChangeCard />
-
-      <section className="profile-readonly-note">
-        <strong>ขอบเขตของหน้านี้</strong>
-        <span>
-          เปลี่ยนรหัสผ่านของตัวเองได้จากหน้านี้ ส่วนชื่อ บัญชี รูปโปรไฟล์ และลายเซ็น
-          ยังแก้ไขจากหน้านี้ไม่ได้ในตอนนี้
-        </span>
-      </section>
-    </div>
+        <PasswordChangeCard />
+      </div>
+    </>
   );
 }

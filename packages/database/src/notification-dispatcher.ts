@@ -12,6 +12,16 @@ import { bangkokToday } from "./approval-delegation";
 import { formatLeaveRequestNo } from "./leave-repository";
 import { formatRequestNo } from "./request-status-repository";
 
+/** ISO date (YYYY-MM-DD) -> DD/MM/YYYY with the Buddhist-era year, the project-wide date format. */
+function displayIsoDate(iso: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  return match ? `${match[3]}/${match[2]}/${Number(match[1]) + 543}` : iso;
+}
+
+function displayDate(value: Date): string {
+  return displayIsoDate(value.toISOString().slice(0, 10));
+}
+
 /** A delivery channel (LINE push, email...). `send` throws when the provider refuses the message. */
 export interface NotificationSender {
   readonly channel: Extract<NotificationChannel, "LINE" | "EMAIL">;
@@ -39,6 +49,7 @@ interface RequestContext {
   readonly status: string | null;
   /** Approver of the step that is waiting right now (null when nothing is waiting). */
   readonly currentApproverId: string | null;
+  readonly coApproverIds: readonly string[];
 }
 
 const EMPTY_CONTEXT: RequestContext = {
@@ -50,11 +61,17 @@ const EMPTY_CONTEXT: RequestContext = {
   comment: null,
   status: null,
   currentApproverId: null,
+  coApproverIds: [],
 };
 
 type InstanceShape = {
   currentStepOrder: number | null;
-  steps: { stepOrder: number; approverEmployeeId: string | null; status: string }[];
+  steps: {
+    stepOrder: number;
+    approverEmployeeId: string | null;
+    coApproverEmployeeIds: string[];
+    status: string;
+  }[];
 } | null;
 
 function waitingApprover(instance: InstanceShape): string | null {
@@ -65,10 +82,18 @@ function waitingApprover(instance: InstanceShape): string | null {
   return step?.approverEmployeeId ?? null;
 }
 
+function waitingCoApprovers(instance: InstanceShape): readonly string[] {
+  const step = instance?.steps.find(
+    (candidate) => candidate.stepOrder === instance.currentStepOrder && candidate.status === "PENDING",
+  );
+
+  return step?.coApproverEmployeeIds ?? [];
+}
+
 const INSTANCE_SELECT = {
   select: {
     currentStepOrder: true,
-    steps: { select: { stepOrder: true, approverEmployeeId: true, status: true } },
+    steps: { select: { stepOrder: true, approverEmployeeId: true, coApproverEmployeeIds: true, status: true } },
   },
 } as const;
 
@@ -100,12 +125,13 @@ async function loadContext(
             label: "ใบลา",
             requesterEmployeeId: row.requesterEmployeeId,
             requesterName: row.requester.fullName,
-            summary: `${row.leaveType.name} ${row.startDate.toISOString().slice(0, 10)}${
-              row.endDate.getTime() !== row.startDate.getTime() ? " ถึง " + row.endDate.toISOString().slice(0, 10) : ""
+            summary: `${row.leaveType.name} ${displayDate(row.startDate)}${
+              row.endDate.getTime() !== row.startDate.getTime() ? " ถึง " + displayDate(row.endDate) : ""
             }`,
             comment: row.decisionReason,
             status: row.status,
             currentApproverId: waitingApprover(row.approvalInstance),
+            coApproverIds: waitingCoApprovers(row.approvalInstance),
           }
         : EMPTY_CONTEXT;
     }
@@ -132,11 +158,12 @@ async function loadContext(
             requesterEmployeeId: row.employeeId,
             requesterName: row.employee.fullName,
             summary: segment
-              ? `${segment.workDate.toISOString().slice(0, 10)} ${segment.startTime.toISOString().slice(11, 16)}-${segment.endTime.toISOString().slice(11, 16)} ${row.reason}`
+              ? `${displayDate(segment.workDate)} ${segment.startTime.toISOString().slice(11, 16)}-${segment.endTime.toISOString().slice(11, 16)} ${row.reason}`
               : row.reason,
             comment: row.decisionReason,
             status: row.status,
             currentApproverId: waitingApprover(row.approvalInstance),
+            coApproverIds: waitingCoApprovers(row.approvalInstance),
           }
         : EMPTY_CONTEXT;
     }
@@ -165,6 +192,7 @@ async function loadContext(
             comment: row.decisionReason,
             status: row.status,
             currentApproverId: waitingApprover(row.approvalInstance),
+            coApproverIds: waitingCoApprovers(row.approvalInstance),
           }
         : EMPTY_CONTEXT;
     }
@@ -189,10 +217,11 @@ async function loadContext(
             label: "คำขอแก้ไขเวลา",
             requesterEmployeeId: row.employeeId,
             requesterName: row.employee.fullName,
-            summary: `${row.attendanceDate.toISOString().slice(0, 10)} ${row.reason}`,
+            summary: `${displayDate(row.attendanceDate)} ${row.reason}`,
             comment: row.decisionComment,
             status: row.status,
             currentApproverId: waitingApprover(row.approvalInstance),
+            coApproverIds: waitingCoApprovers(row.approvalInstance),
           }
         : EMPTY_CONTEXT;
     }
@@ -230,7 +259,11 @@ async function resolveRecipients(
         },
         select: { delegateEmployeeId: true },
       });
-      const ids = new Set([context.currentApproverId, ...delegates.map((row) => row.delegateEmployeeId)]);
+      const ids = new Set([
+        context.currentApproverId,
+        ...context.coApproverIds,
+        ...delegates.map((row) => row.delegateEmployeeId),
+      ]);
 
       // Never tell someone to approve their own request.
       if (context.requesterEmployeeId) {
@@ -238,6 +271,12 @@ async function resolveRecipients(
       }
 
       return [...ids];
+    }
+    case "PRIOR_APPROVERS": {
+      const ids = Array.isArray(payload.approverEmployeeIds)
+        ? payload.approverEmployeeIds.filter((id): id is string => typeof id === "string")
+        : [];
+      return ids.filter((id) => id !== context.requesterEmployeeId);
     }
     case "DELEGATE":
       return typeof payload.delegateEmployeeId === "string" ? [payload.delegateEmployeeId] : [];
@@ -320,7 +359,11 @@ export async function dispatchNotifications(
     try {
       const payload = (event.payload ?? {}) as Record<string, unknown>;
       const context = await loadContext(prisma, event.aggregateType, event.aggregateId);
-      const classification = classifyNotificationEvent(event.eventType, context.status);
+      // A decision event describes the status it produced, not whatever the request became since.
+      const classification = classifyNotificationEvent(
+        event.eventType,
+        typeof payload.resultingStatus === "string" ? payload.resultingStatus : context.status,
+      );
       const recipients = await resolveRecipients(
         prisma,
         classification.audience,
@@ -344,7 +387,7 @@ export async function dispatchNotifications(
           delegatorName: delegator?.fullName ?? null,
           delegationPeriod:
             typeof payload.startDate === "string" && typeof payload.endDate === "string"
-              ? `${payload.startDate} ถึง ${payload.endDate}`
+              ? `${displayIsoDate(payload.startDate)} ถึง ${displayIsoDate(payload.endDate)}`
               : null,
         };
       }

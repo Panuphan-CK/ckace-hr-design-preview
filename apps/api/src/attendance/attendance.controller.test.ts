@@ -124,6 +124,27 @@ class FakeAttendanceRepository
     };
   }
 
+  lastRecordAdd:
+    | {
+        readonly employeeId: string;
+        readonly canonicalPayload: string;
+        readonly request: { readonly attendanceDate: string; readonly checkOutTime: string };
+      }
+    | undefined;
+
+  async createSelfAttendanceRecordAdd(input: {
+    readonly employeeId: string;
+    readonly correlationId: string;
+    readonly request: { readonly attendanceDate: string; readonly checkOutTime: string };
+    readonly canonicalPayload: string;
+  }) {
+    this.lastRecordAdd = input;
+    return {
+      requestId: "00000000-0000-4000-8000-000000000021",
+      replayed: false,
+    };
+  }
+
   async cancelSelfTimeCorrection(input: {
     readonly employeeId: string;
     readonly correlationId: string;
@@ -331,6 +352,40 @@ describe("AttendanceController / AttendanceService", () => {
     expect(repository.lastDecision?.requestId).toBe(
       correctionRequestId,
     );
+  });
+
+  it("adds a whole attendance record for the signed-in employee only and validates the times", async () => {
+    const repository = new FakeAttendanceRepository();
+    const controller = new AttendanceController(new AttendanceService(repository));
+
+    await controller.addAttendanceRecord(
+      { actor },
+      {
+        clientKey: "add-record-client-001",
+        attendanceDate: "2026-10-14",
+        checkInTime: "09:00",
+        checkOutTime: "17:30",
+        reason: "ลืมสแกนทั้งวัน",
+        employeeId: approver.employeeId,
+      },
+    );
+
+    expect(repository.lastRecordAdd?.employeeId).toBe(actor.employeeId);
+    expect(repository.lastRecordAdd?.canonicalPayload).not.toContain("add-record-client-001");
+    expect(repository.lastRecordAdd?.canonicalPayload).not.toContain(approver.employeeId);
+
+    await expect(
+      controller.addAttendanceRecord(
+        { actor },
+        {
+          clientKey: "add-record-client-002",
+          attendanceDate: "2026-10-14",
+          checkInTime: "17:30",
+          checkOutTime: "09:00",
+          reason: "ย้อนเวลา",
+        },
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it("requires a rejection comment and validates request IDs", async () => {

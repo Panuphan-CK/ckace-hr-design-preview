@@ -11,6 +11,14 @@ export type UnifiedRequestStatus =
   | "CANCELLED"
   | "REVISION_REQUESTED";
 
+/** Medical claim figures an approver needs to decide (pending approvals only). */
+export interface MedicalApprovalDetail {
+  readonly amount: number;
+  /** ISO date (yyyy-mm-dd). */
+  readonly sicknessDate: string;
+  readonly attachmentIds: readonly string[];
+}
+
 export interface RequestStatusItem {
   readonly id: string;
   /** Running number such as LEV-0001, OT-0001, MED-0001, TC-0001. */
@@ -25,6 +33,23 @@ export interface RequestStatusItem {
   readonly canDecide: boolean;
   readonly approvalStepId: string | null;
   readonly stepOrder: number | null;
+  readonly medical?: MedicalApprovalDetail;
+  /** Assigned-list only: what the approver needs to see without opening the request. */
+  readonly leave?: {
+    readonly startDate: string;
+    readonly endDate: string;
+    readonly durationCode: string;
+    /** Medical certificate attachment IDs (pending approvals only). */
+    readonly attachmentIds?: readonly string[];
+  };
+  readonly overtime?: {
+    readonly segments: readonly {
+      readonly workDate: string;
+      readonly startTime: string;
+      readonly endTime: string;
+      readonly requestedMinutes: number;
+    }[];
+  };
 }
 
 export interface RequestStatusOverview {
@@ -46,6 +71,18 @@ export interface ApprovalHistoryItem {
   readonly employeeId: string;
   readonly employeeDisplayName?: string;
   readonly stepOrder: number;
+  /** True when this step approved but the request still waits on a later step. */
+  readonly awaitingNextStep?: boolean;
+  /** Same facts the approver saw while deciding (dates, times, hours). */
+  readonly leave?: { readonly startDate: string; readonly endDate: string; readonly durationCode: string };
+  readonly overtime?: {
+    readonly segments: readonly {
+      readonly workDate: string;
+      readonly startTime: string;
+      readonly endTime: string;
+      readonly requestedMinutes: number;
+    }[];
+  };
 }
 
 export interface ApprovalHistoryOverview {

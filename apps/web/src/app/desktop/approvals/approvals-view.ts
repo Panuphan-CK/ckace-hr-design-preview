@@ -1,3 +1,4 @@
+import { allowanceHint, type AllowanceThresholds } from "../overtime/overtime-view";
 import type { ApprovalHistoryItem, RequestStatusItem, UnifiedRequestKind } from "@ckace/contracts";
 
 export type KindFilter = "ALL" | UnifiedRequestKind;
@@ -123,4 +124,43 @@ export function withdrawEndpoint(item: { readonly kind: string; readonly request
     default:
       return "/api/attendance/time-corrections/" + id + "/withdraw";
   }
+}
+
+const DURATION_LABEL: Readonly<Record<string, string>> = {
+  FULL_DAY: "เต็มวัน",
+  MORNING: "ครึ่งวันเช้า",
+  AFTERNOON: "ครึ่งวันบ่าย",
+  HOURLY: "รายชั่วโมง",
+};
+
+function dmy(iso: string): string {
+  const [y, m, d] = iso.slice(0, 10).split("-");
+  return `${d}/${m}/${Number(y) + 543}`;
+}
+
+export function formatMinutes(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m} นาที`;
+  return m === 0 ? `${h} ชั่วโมง` : `${h} ชั่วโมง ${m} นาที`;
+}
+
+/** Key facts an approver needs (dates, times, hours) as lines; empty when the request carries none. */
+export function requestFactLines(request: Pick<RequestStatusItem, "leave" | "overtime">, thresholds?: AllowanceThresholds): string[] {
+  const lines: string[] = [];
+  if (request.leave) {
+    const { startDate, endDate, durationCode } = request.leave;
+    const range = startDate === endDate ? dmy(startDate) : `${dmy(startDate)} ถึง ${dmy(endDate)}`;
+    lines.push(`วันที่ลา ${range} (${DURATION_LABEL[durationCode] ?? durationCode})`);
+  }
+  for (const segment of request.overtime?.segments ?? []) {
+    const hint = allowanceHint(segment.endTime, thresholds);
+    lines.push(
+      `${dmy(segment.workDate)} เวลา ${segment.startTime}–${segment.endTime} น. (${formatMinutes(segment.requestedMinutes)})` +
+        (hint.startsWith("คาดว่า") ? ` · ${hint}` : ""),
+    );
+  }
+  const total = (request.overtime?.segments ?? []).reduce((sum, segment) => sum + segment.requestedMinutes, 0);
+  if (request.overtime && request.overtime.segments.length > 1) lines.push(`รวม ${formatMinutes(total)}`);
+  return lines;
 }

@@ -25,6 +25,7 @@ describe("Pending LINE onboarding", () => {
         passwordHash: hash,
         legacyPasswordHash: null,
       })),
+      findActiveEmployeeIdByLineUserId: vi.fn(),
       bindLine: vi.fn(async (employeeId: string, lineUserId: string) => ({
         employeeId,
         accountState: "PENDING" as const,
@@ -60,6 +61,7 @@ describe("Pending LINE onboarding", () => {
     const repository = {
       register: vi.fn(),
       findCredentials: vi.fn(),
+      findActiveEmployeeIdByLineUserId: vi.fn(),
       bindLine: vi.fn(),
       activateImportedDesktopCredential: vi.fn(
         async (
@@ -126,6 +128,7 @@ describe("Pending LINE onboarding", () => {
     const repository = {
       register: vi.fn(),
       findCredentials: vi.fn(),
+      findActiveEmployeeIdByLineUserId: vi.fn(),
       bindLine: vi.fn(),
       activateImportedDesktopCredential: vi.fn(),
       listPending: vi.fn(async () => []),

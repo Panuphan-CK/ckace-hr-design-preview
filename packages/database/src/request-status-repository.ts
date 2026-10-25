@@ -10,6 +10,24 @@ import type { PrismaClient } from "@prisma/client";
 import { delegatorIdsFor } from "./approval-delegation";
 import { formatLeaveRequestNo } from "./leave-repository";
 
+/** A request that adds a whole record says so and shows the times; other corrections keep the reason. */
+function correctionSummary(row: {
+  readonly reason: string;
+  readonly attendanceDate: Date;
+  readonly correctedCheckIn: Date | null;
+  readonly correctedCheckOut: Date | null;
+}): string {
+  if (!row.correctedCheckIn || !row.correctedCheckOut) {
+    return row.reason;
+  }
+
+  const time = (value: Date) => value.toISOString().slice(11, 16);
+
+  const [year, month, day] = row.attendanceDate.toISOString().slice(0, 10).split("-");
+
+  return `เพิ่มบันทึกลงเวลา ${day}/${month}/${Number(year) + 543} เข้า ${time(row.correctedCheckIn)} ออก ${time(row.correctedCheckOut)}: ${row.reason}`;
+}
+
 /** OT-0001 / MED-0001 / TC-0001 style numbers; grows past four digits when needed. */
 export function formatRequestNo(prefix: "OT" | "MED" | "TC", value: number): string {
   return prefix + "-" + String(value).padStart(4, "0");
@@ -63,7 +81,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
         where: { employeeId },
         select: {
           id: true, requestNo: true, status: true, requestedAt: true, decisionComment: true,
-          reason: true,
+          reason: true, attendanceDate: true, correctedCheckIn: true, correctedCheckOut: true,
         },
       }),
       this.prisma.overtimeRequest.findMany({
@@ -102,7 +120,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
         kind: "TIME_CORRECTION" as const,
         status: row.status,
         submittedAt: row.requestedAt.toISOString(),
-        summary: row.reason,
+        summary: correctionSummary(row),
         decisionReason: row.decisionComment,
         employeeId,
         canDecide: false,
@@ -144,7 +162,10 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
     const delegators = await delegatorIdsFor(this.prisma, approverEmployeeId);
     const steps = await this.prisma.approvalStep.findMany({
       where: {
-        approverEmployeeId: { in: [approverEmployeeId, ...delegators] },
+        OR: [
+          { approverEmployeeId: { in: [approverEmployeeId, ...delegators] } },
+          { coApproverEmployeeIds: { hasSome: [approverEmployeeId, ...delegators] } },
+        ],
         status: "PENDING",
         approvalInstance: { is: { status: "PENDING" } },
       },
@@ -159,25 +180,28 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
             leaveRequest: {
               select: {
                 id: true, requestNo: true, status: true, submittedAt: true, decisionReason: true,
-                description: true, leaveType: { select: { name: true } },
+                description: true, startDate: true, endDate: true, durationCode: true, leaveType: { select: { name: true } },
+                attachments: { select: { attachmentId: true }, orderBy: { attachmentId: "asc" } },
               },
             },
             timeCorrection: {
               select: {
                 id: true, requestNo: true, status: true, requestedAt: true, decisionComment: true,
-                reason: true,
+                reason: true, attendanceDate: true, correctedCheckIn: true, correctedCheckOut: true,
               },
             },
             overtimeRequest: {
               select: {
                 id: true, requestNo: true, status: true, submittedAt: true, decisionReason: true,
                 reason: true,
+                segments: { select: { workDate: true, startTime: true, endTime: true, requestedMinutes: true }, orderBy: { workDate: "asc" } },
               },
             },
             medicalClaim: {
               select: {
                 id: true, requestNo: true, status: true, submittedAt: true, decisionReason: true,
-                description: true,
+                description: true, amount: true, sicknessDate: true,
+                attachments: { select: { attachmentId: true } },
               },
             },
           },
@@ -205,6 +229,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           submittedAt: row.submittedAt.toISOString(),
           summary: `${row.leaveType.name}: ${row.description}`,
           decisionReason: row.decisionReason,
+          leave: { startDate: row.startDate.toISOString().slice(0, 10), endDate: row.endDate.toISOString().slice(0, 10), durationCode: row.durationCode, attachmentIds: row.attachments.map((a) => a.attachmentId) },
         });
       } else if (instance.timeCorrection) {
         const row = instance.timeCorrection;
@@ -212,7 +237,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           ...common,
           id: row.id, requestNo: formatRequestNo("TC", row.requestNo), kind: "TIME_CORRECTION", status: row.status,
           submittedAt: row.requestedAt.toISOString(),
-          summary: row.reason,
+          summary: correctionSummary(row),
           decisionReason: row.decisionComment,
         });
       } else if (instance.overtimeRequest) {
@@ -223,6 +248,14 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           submittedAt: row.submittedAt.toISOString(),
           summary: row.reason,
           decisionReason: row.decisionReason,
+          overtime: {
+            segments: row.segments.map((segment) => ({
+              workDate: segment.workDate.toISOString().slice(0, 10),
+              startTime: segment.startTime.toISOString().slice(11, 16),
+              endTime: segment.endTime.toISOString().slice(11, 16),
+              requestedMinutes: segment.requestedMinutes,
+            })),
+          },
         });
       } else if (instance.medicalClaim) {
         const row = instance.medicalClaim;
@@ -232,6 +265,11 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           submittedAt: row.submittedAt.toISOString(),
           summary: row.description,
           decisionReason: row.decisionReason,
+          medical: {
+            amount: Number(row.amount),
+            sicknessDate: row.sicknessDate.toISOString().slice(0, 10),
+            attachmentIds: row.attachments.map((a) => a.attachmentId),
+          },
         });
       }
     }
@@ -325,6 +363,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
         comment: true,
         approvalInstance: {
           select: {
+            status: true,
             requesterEmployeeId: true,
             requester: { select: { fullName: true } },
             leaveRequest: {
@@ -333,6 +372,9 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
                 requestNo: true,
                 submittedAt: true,
                 description: true,
+                startDate: true,
+                endDate: true,
+                durationCode: true,
                 leaveType: { select: { name: true } },
               },
             },
@@ -342,6 +384,9 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
                 requestNo: true,
                 requestedAt: true,
                 reason: true,
+                attendanceDate: true,
+                correctedCheckIn: true,
+                correctedCheckOut: true,
               },
             },
             overtimeRequest: {
@@ -350,6 +395,10 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
                 requestNo: true,
                 submittedAt: true,
                 reason: true,
+                segments: {
+                  select: { workDate: true, startTime: true, endTime: true, requestedMinutes: true },
+                  orderBy: [{ workDate: "asc" }, { startTime: "asc" }],
+                },
               },
             },
             medicalClaim: {
@@ -385,6 +434,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
         employeeId: instance.requesterEmployeeId,
         employeeDisplayName: instance.requester.fullName,
         stepOrder: step.stepOrder,
+        awaitingNextStep: step.status === "APPROVED" && instance.status === "PENDING",
       } as const;
 
       if (instance.leaveRequest) {
@@ -396,6 +446,11 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           kind: "LEAVE",
           submittedAt: row.submittedAt.toISOString(),
           summary: `${row.leaveType.name}: ${row.description}`,
+          leave: {
+            startDate: row.startDate.toISOString().slice(0, 10),
+            endDate: row.endDate.toISOString().slice(0, 10),
+            durationCode: row.durationCode,
+          },
         });
       } else if (instance.timeCorrection) {
         const row = instance.timeCorrection;
@@ -405,7 +460,7 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           requestNo: formatRequestNo("TC", row.requestNo),
           kind: "TIME_CORRECTION",
           submittedAt: row.requestedAt.toISOString(),
-          summary: row.reason,
+          summary: correctionSummary(row),
         });
       } else if (instance.overtimeRequest) {
         const row = instance.overtimeRequest;
@@ -416,6 +471,14 @@ export class PrismaRequestStatusRepository implements RequestStatusRepository {
           kind: "OVERTIME",
           submittedAt: row.submittedAt.toISOString(),
           summary: row.reason,
+          overtime: {
+            segments: row.segments.map((segment) => ({
+              workDate: segment.workDate.toISOString().slice(0, 10),
+              startTime: segment.startTime.toISOString().slice(11, 16),
+              endTime: segment.endTime.toISOString().slice(11, 16),
+              requestedMinutes: segment.requestedMinutes,
+            })),
+          },
         });
       } else if (instance.medicalClaim) {
         const row = instance.medicalClaim;

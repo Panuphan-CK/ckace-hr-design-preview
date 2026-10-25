@@ -23,6 +23,7 @@ export interface MedicalClaimView {
   readonly status: MedicalClaimStatus;
   readonly decisionReason: string | null;
   readonly submittedAt: string;
+  readonly requestNo?: string;
   readonly attachments: readonly MedicalAttachmentView[];
 }
 
@@ -35,6 +36,8 @@ export interface MedicalEntitlementView {
 
 export interface MedicalSelfOverview {
   readonly entitlement: MedicalEntitlementView;
+  /** Per-claim limit of the active medical policy (HR setting). */
+  readonly perClaimLimit?: number;
   readonly claims: readonly MedicalClaimView[];
 }
 

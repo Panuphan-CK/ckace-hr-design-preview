@@ -4,6 +4,7 @@ export interface AttendancePolicyRule {
   readonly officeLongitude: number;
   readonly radiusKm: number;
   readonly lateAfter: string;
+  readonly workStart: string;
   readonly workEnd: string;
   readonly breakStart: string | null;
   readonly breakEnd: string | null;
@@ -154,6 +155,7 @@ export function normalizeAttendancePolicy(
   const lateAfter = normalizeAttendanceClock(
     policy.lateAfter,
   );
+  const workStart = normalizeAttendanceClock(policy.workStart);
   const workEnd = normalizeAttendanceClock(policy.workEnd);
   const breakStart =
     policy.breakStart === null
@@ -184,6 +186,7 @@ export function normalizeAttendancePolicy(
     ...policy,
     timezone: policy.timezone.trim(),
     lateAfter,
+    workStart,
     workEnd,
     breakStart,
     breakEnd,
@@ -295,7 +298,7 @@ export function calculateAttendanceWorkMinutes(input: {
   const start = clockMinutes(input.checkInTime);
   const rawEnd = clockMinutes(input.checkOutTime);
 
-  if (rawEnd <= start) {
+  if (rawEnd < start) {
     throw new Error(
       "Attendance checkout must be after check-in",
     );
@@ -343,7 +346,29 @@ export function calculateCorrectedWorkMinutes(input: {
     );
   }
 
-  return Math.min(450, Math.max(0, minutes));
+  return Math.min(
+    standardWorkdayMinutes(policy),
+    Math.max(0, minutes),
+  );
+}
+
+/** Length of a normal working day: work start to work end minus the break. */
+export function standardWorkdayMinutes(
+  policy: AttendancePolicyRule,
+): number {
+  const normalized = normalizeAttendancePolicy(policy);
+  const breakMinutes =
+    normalized.breakStart && normalized.breakEnd
+      ? clockMinutes(normalized.breakEnd) -
+        clockMinutes(normalized.breakStart)
+      : 0;
+
+  return Math.max(
+    0,
+    clockMinutes(normalized.workEnd) -
+      clockMinutes(normalized.workStart) -
+      breakMinutes,
+  );
 }
 
 export function normalizeAttendanceIsoDate(
@@ -425,23 +450,65 @@ export function normalizeTimeCorrection(input: {
   };
 }
 
+export interface NormalizedAttendanceRecordAdd {
+  readonly attendanceDate: string;
+  readonly checkInTime: string;
+  readonly checkOutTime: string;
+  readonly reason: string;
+  readonly clientKey: string;
+}
+
+/** Request to add a whole attendance record for a day that has no clock-in at all. */
+export function normalizeAttendanceRecordAdd(input: {
+  readonly attendanceDate: string;
+  readonly checkInTime: string;
+  readonly checkOutTime: string;
+  readonly reason: string;
+  readonly clientKey: string;
+}): NormalizedAttendanceRecordAdd {
+  const reason = input.reason.trim();
+
+  if (!reason || reason.length > 1000) {
+    throw new Error("Time correction reason must be 1 to 1000 characters");
+  }
+
+  const checkInTime = normalizeAttendanceClock(input.checkInTime);
+  const checkOutTime = normalizeAttendanceClock(input.checkOutTime);
+
+  if (clockMinutes(checkOutTime) <= clockMinutes(checkInTime)) {
+    throw new Error("Time correction check-out must be after check-in");
+  }
+
+  return {
+    attendanceDate: normalizeAttendanceIsoDate(input.attendanceDate),
+    checkInTime,
+    checkOutTime,
+    reason,
+    clientKey: normalizeAttendanceClientKey(input.clientKey),
+  };
+}
+
 export function assertTimeCorrectionOriginalExists(input: {
   readonly correctionType: "CHECK_IN" | "CHECK_OUT";
   readonly originalCheckIn: string | null;
   readonly originalCheckOut: string | null;
 }): void {
-  const original =
-    input.correctionType === "CHECK_IN"
-      ? input.originalCheckIn
-      : input.originalCheckOut;
+  // A missing check-out (forgot to scan out) can be filled in by a correction;
+  // the check-in always exists because it opens the record.
+  if (input.correctionType === "CHECK_OUT") {
+    if (input.originalCheckOut) {
+      normalizeAttendanceClock(input.originalCheckOut);
+    }
+    return;
+  }
 
-  if (!original) {
+  if (!input.originalCheckIn) {
     throw new Error(
       "Time correction requires an original attendance event",
     );
   }
 
-  normalizeAttendanceClock(original);
+  normalizeAttendanceClock(input.originalCheckIn);
 }
 
 export function assertTimeCorrectionChanged(input: {

@@ -78,6 +78,16 @@ class FakeRepository implements PasswordRecoveryRepository {
       ? this.current
       : null;
   }
+
+  async findLoginName(): Promise<string | null> {
+    return "user@example.com";
+  }
+
+  async findContactByLogin(login: string) {
+    return this.current && login === "user@example.com"
+      ? { account: this.current, loginName: "user@example.com", lineUserId: "Uline" }
+      : null;
+  }
 }
 
 afterEach(() => {
@@ -187,5 +197,42 @@ describe("PasswordRecoveryService", () => {
       BadRequestException,
     );
     expect(repository.resetPassword).not.toHaveBeenCalled();
+  });
+
+  it("emails and LINE-pushes a link on request, with the same answer for unknown logins", async () => {
+    const sent: { channel: string; to: string; body: string }[] = [];
+    const sender = (channel: "EMAIL" | "LINE") => ({
+      channel,
+      send: async (input: { to: string; title: string; body: string }) => {
+        sent.push({ channel, to: input.to, body: input.body });
+        return null;
+      },
+    });
+    const service = new PasswordRecoveryService(new FakeRepository(), SECRET, {
+      baseUrl: "https://app.example/",
+      senders: [sender("EMAIL"), sender("LINE")],
+    });
+
+    expect(await service.requestByLogin("User@Example.com")).toEqual({ requested: true });
+    expect(sent.map((m) => [m.channel, m.to])).toEqual([
+      ["EMAIL", "user@example.com"],
+      ["LINE", "Uline"],
+    ]);
+    expect(sent[0]?.body).toContain("https://app.example/reset-password?token=");
+
+    // Repeated request within a minute is silently ignored; unknown login sends nothing.
+    await service.requestByLogin("user@example.com");
+    expect(await service.requestByLogin("nobody@example.com")).toEqual({ requested: true });
+    expect(sent).toHaveLength(2);
+  });
+
+  it("previews the account of a valid link", async () => {
+    vi.spyOn(Date, "now").mockReturnValue(NOW);
+    const service = new PasswordRecoveryService(new FakeRepository(), SECRET);
+    const issued = await service.issue(EMPLOYEE_ID);
+    const token = new URL("http://local.test" + issued.resetPath).searchParams.get("token") ?? "";
+
+    expect(await service.preview(token)).toEqual({ account: "user@example.com" });
+    await expect(service.preview(token + "x")).rejects.toBeInstanceOf(ForbiddenException);
   });
 });

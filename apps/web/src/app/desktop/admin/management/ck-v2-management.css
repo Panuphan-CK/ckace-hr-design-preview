@@ -1,0 +1,51 @@
+/* Management (employees, organization, entitlements, calendar, roles) */
+.ck-mg { display: flex; flex-direction: column; gap: 18px; }
+.ck-mg section { display: flex; flex-direction: column; gap: 14px; }
+.ck-mg .ck-sh { margin: 0; flex-wrap: wrap; }
+.ck-mg-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ck-mg-search { position: relative; display: block; min-width: 240px; flex: 0 1 320px; }
+.ck-mg-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ck-ink3); pointer-events: none; }
+.ck-mg-search .ck-in { padding-left: 36px; height: 40px; }
+.ck-mg-create { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ck-mg-create .ck-in { height: 40px; width: 220px; }
+
+.ck-mg section.ck-mg-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+.ck-mg-tile {
+  display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: #fff;
+  border: 1px solid var(--ck-line); border-radius: 18px; box-shadow: var(--ck-shadow);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.ck-mg-tile:hover { transform: translateY(-2px); }
+.ck-mg-tile-ic { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: var(--tc); background: var(--tb); flex: none; }
+.ck-mg-tile b { display: block; font-size: 26px; line-height: 1.1; font-weight: 600; }
+.ck-mg-tile small { color: var(--ck-ink2); font-size: 13px; }
+
+.ck-mg-who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.ck-mg-who b { display: block; font-weight: 500; }
+.ck-mg-who small, .ck-mg-two small { display: block; color: var(--ck-ink3); font-size: 12.5px; }
+.ck-mg-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  font-weight: 600; color: var(--ck-accent); background: var(--ck-accent-soft);
+}
+.ck-mg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ck-mg-chip { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px; color: var(--ck-accent); background: var(--ck-accent-soft); white-space: nowrap; }
+.ck-mg-rows { display: flex; flex-direction: column; margin-top: 6px; }
+.ck-dialog .ck-dlg-b form + form { margin-top: 6px; border-top: 1px solid var(--ck-line2); padding-top: 14px; }
+.ck-dlg-f { flex-wrap: wrap; }
+
+.ck-mg-matrix td, .ck-mg-matrix th { white-space: nowrap; }
+.ck-mg-matrix td:first-child, .ck-mg-matrix th:first-child { position: sticky; left: 0; background: #fff; z-index: 1; }
+.ck-mg-matrix th:first-child { background: var(--ck-accent-soft); }
+.ck-mg-perm { display: flex; align-items: center; gap: 8px; }
+.ck-mg-perm svg { color: var(--ck-accent); flex: none; }
+.ck-mg-rolehead { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+@media (max-width: 1100px) {
+  .ck-mg section.ck-mg-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .ck-mg section.ck-mg-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ck-mg-search { flex: 1 1 100%; }
+  .ck-mg-create .ck-in { width: 100%; flex: 1 1 140px; }
+  .ck-eform { grid-template-columns: minmax(0, 1fr); }
+}

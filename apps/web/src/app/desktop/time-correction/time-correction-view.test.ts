@@ -5,7 +5,10 @@ import {
   bangkokTime,
   correctionErrorMessage,
   correctionMetrics,
+  checkAddRecord,
   correctionTargets,
+  correctionTimeSummary,
+  correctionTitle,
   hasPendingRequest,
   recordTime,
   sortRecords,
@@ -59,10 +62,9 @@ describe("time correction view", () => {
     expect(bangkokTime("not a date")).toBeNull();
   });
 
-  it("only offers check-out correction when a check-out exists", () => {
-    expect(correctionTargets(record())).toEqual(["CHECK_IN"]);
+  it("offers check-out correction even when the check-out was never scanned", () => {
+    expect(correctionTargets()).toEqual(["CHECK_IN", "CHECK_OUT"]);
     const done = record({ checkOutAt: "2026-10-13T11:05:00.000Z" });
-    expect(correctionTargets(done)).toEqual(["CHECK_IN", "CHECK_OUT"]);
     expect(recordTime(done, "CHECK_OUT")).toBe("18:05");
     expect(recordTime(record(), "CHECK_OUT")).toBeNull();
   });
@@ -100,5 +102,24 @@ describe("time correction view", () => {
     expect(correctionErrorMessage(409, "create")).toContain("ชน");
     expect(correctionErrorMessage(409, "cancel")).toContain("รีเฟรช");
     expect(correctionErrorMessage(401, "load")).toContain("เข้าสู่ระบบ");
+  });
+});
+
+describe("add-record requests", () => {
+  const added = request({ correctionType: "ADD_RECORD", correctedTime: "09:00", correctedCheckOutTime: "17:30", originalTime: "" });
+
+  it("titles a whole added record with both times", () => {
+    expect(correctionTitle(added)).toBe("เพิ่มบันทึกลงเวลา 09:00-17:30");
+    expect(correctionTimeSummary(added)).toBe("เข้า 09:00 ออก 17:30");
+  });
+
+  it("validates the form before it is sent", () => {
+    const base = { date: "2026-10-14", checkIn: "09:00", checkOut: "17:30", reason: "ลืมสแกน", today: "2026-10-17", recordDates: [], activeRequestDates: [] };
+    expect(checkAddRecord(base)).toEqual({ ok: true });
+    expect(checkAddRecord({ ...base, reason: " " }).ok).toBe(false);
+    expect(checkAddRecord({ ...base, date: "2026-10-18" }).ok).toBe(false);
+    expect(checkAddRecord({ ...base, checkOut: "09:00" }).ok).toBe(false);
+    expect(checkAddRecord({ ...base, recordDates: ["2026-10-14"] }).ok).toBe(false);
+    expect(checkAddRecord({ ...base, activeRequestDates: ["2026-10-14"] }).ok).toBe(false);
   });
 });

@@ -14,6 +14,7 @@ import type {
   ManagedAccountState,
   ManagedEmployeeItem,
   ManagementReportView,
+  CompanyUpdateInput,
   OrganizationUnitItem,
   RbacAdminView,
   RoleAssignmentInput,
@@ -101,7 +102,7 @@ export class ManagementService {
 
   updateCompany(
     id: string,
-    input: { readonly name?: string; readonly active?: boolean },
+    input: CompanyUpdateInput,
     actorEmployeeId: string,
   ): Promise<OrganizationUnitItem> {
     return this.repository.updateCompany(id, input, actorEmployeeId);
@@ -245,6 +246,17 @@ export class ManagementService {
     actorEmployeeId: string,
   ): Promise<readonly OvertimeReportRow[]> {
     return this.repository.overtimeReport(filters, actorEmployeeId);
+  }
+
+  overtimeRows(filters: OvertimeReportFilters): Promise<readonly OvertimeReportRow[]> {
+    return this.repository.overtimeRows(filters);
+  }
+
+  confirmOvertimeSegments(
+    segmentIds: readonly string[],
+    actorEmployeeId: string,
+  ): Promise<number> {
+    return this.repository.confirmOvertimeSegments(segmentIds, actorEmployeeId);
   }
 
   generateVacationEntitlements(

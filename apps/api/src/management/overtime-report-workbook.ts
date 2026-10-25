@@ -8,6 +8,14 @@ const BREAK_LABEL: Readonly<Record<string, string>> = {
   DINNER_SHORT: "พักเย็น 30 นาที",
 };
 
+const ATTENDANCE_CHECK_LABEL: Readonly<Record<OvertimeReportRow["attendanceCheck"], string>> = {
+  COMPLETE: "ครบ",
+  LEFT_EARLY: "ออกก่อนเวลาที่อนุมัติ",
+  NO_CHECK_OUT: "ลืมลงเวลาออก (จ่ายตามที่อนุมัติ)",
+  NO_RECORD: "ไม่มีเวลาเข้า-ออก (จ่ายตามที่อนุมัติ)",
+  PENDING: "ยังไม่ถึงเวลา",
+};
+
 const STATUS_LABEL: Readonly<Record<string, string>> = {
   PENDING: "รออนุมัติ",
   APPROVED: "อนุมัติ",
@@ -51,6 +59,7 @@ export async function buildOvertimeWorkbook(
     "เวลาอนุมัติ (สิ้นสุด)",
     "เข้างานจริง",
     "ออกงานจริง",
+    "การลงเวลา",
     "นาทีที่ขอ",
     "นาทีที่จ่ายจริง",
     "พักที่ใช้",
@@ -73,6 +82,10 @@ export async function buildOvertimeWorkbook(
       row.approvedEnd,
       row.actualCheckIn ?? "",
       row.actualCheckOut ?? "",
+      ATTENDANCE_CHECK_LABEL[row.attendanceCheck] +
+        (row.confirmed && (row.attendanceCheck === "NO_CHECK_OUT" || row.attendanceCheck === "NO_RECORD")
+          ? " · แอดมินยืนยันแล้ว"
+          : ""),
       row.requestedMinutes,
       row.paidMinutes,
       breakText(row),
@@ -86,6 +99,7 @@ export async function buildOvertimeWorkbook(
 
   const total = sheet.addRow([
     "รวมทั้งหมด",
+    "",
     "",
     "",
     "",

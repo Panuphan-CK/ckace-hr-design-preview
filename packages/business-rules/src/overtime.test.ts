@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   assertNoOverlappingOvertime,
   assertOvertimeCancelable,
-  assertOvertimeDateRangeNotFuture,
   calculateOvertimeRequestedMinutes,
   expandOvertimeDays,
   defaultOvertimeBreaks,
@@ -44,15 +43,7 @@ describe("overtime business rules", () => {
     ).toThrow("clientKey");
   });
 
-  it("rejects future dates and overnight/equal-end intervals", () => {
-    expect(() =>
-      assertOvertimeDateRangeNotFuture({
-        startDate: "2026-10-05",
-        endDate: "2026-10-06",
-        today: "2026-10-05",
-      }),
-    ).toThrow("future");
-
+  it("rejects overnight/equal-end intervals", () => {
     expect(() =>
       calculateOvertimeRequestedMinutes(
         "20:00",

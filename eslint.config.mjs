@@ -7,6 +7,7 @@ export default tseslint.config(
       "**/.next/**",
       "**/dist/**",
       "**/coverage/**",
+      "apps/web/public/react-read/**",
       "**/next-env.d.ts",
       "packages/database/src/generated/**",
     ],

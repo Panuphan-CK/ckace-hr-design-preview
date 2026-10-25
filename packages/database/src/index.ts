@@ -8,6 +8,7 @@ export * from "./idempotency-store";
 export * from "./identity-repository";
 export * from "./leave-repository";
 export * from "./medical-repository";
+export * from "./leave-attachments";
 export * from "./management-repository";
 export * from "./overtime-repository";
 export * from "./prisma-client";
@@ -26,3 +27,4 @@ export const DATABASE_PROVIDER = "postgresql" as const;
 export const DATABASE_M2_SCHEMA_STATE = "NEON_DEV_VERIFIED" as const;
 
 export * from "./request-status-repository";
+export * from "./registration-media-repository";

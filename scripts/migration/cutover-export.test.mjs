@@ -112,6 +112,23 @@ describe("post-cutover export", () => {
     }
   });
 
+  it("refuses a destination inside an unrelated Git checkout", async () => {
+    const { mkdir, mkdtemp, rm } = await import("node:fs/promises");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const base = await mkdtemp(path.join(os.tmpdir(), "ckace-cutover-other-repo-"));
+    try {
+      const repositoryRoot = path.join(base, "main-repo");
+      const otherCheckout = path.join(base, "other-repo");
+      await mkdir(path.join(repositoryRoot, ".git"), { recursive: true });
+      await mkdir(path.join(otherCheckout, ".git"), { recursive: true });
+      await expect(ensureOutsideRepositoryPath(path.join(otherCheckout, "export.json"), repositoryRoot))
+        .rejects.toThrow(/outside every Git checkout/);
+    } finally {
+      await rm(base, { recursive: true, force: true });
+    }
+  });
+
   it("reads only rows at or after the marker, reports every module, and strips credential fields", async () => {
     const prisma = emptyPrisma();
     prisma.leaveRequest.findMany.mockResolvedValue([{

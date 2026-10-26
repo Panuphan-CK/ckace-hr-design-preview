@@ -14,7 +14,7 @@ PROD-READINESS-09 — Reviewer rerun corrected disposition + full-system routing
 - Owner snapshot files are outside Git at D:\CKACE_HR_snapshot; `MANIFEST.md` reports 5,269 total source rows and excludes chat/LINE logs and settings.
 - Reviewer reported a disposable PostgreSQL 16 loopback rehearsal from revision `a793020`: 5,269 rows accounted for (5,234 imported / 35 skipped / 0 rejected), 0 unaccounted/ambiguous writes, no early stop; replay skipped 5,234 identical rows and added 0; source and target Pending counts were 1; backup/restore/reset took 0.30/0.59/0.83 seconds. Policy values were read-only checked against TESTm74, not guessed.
 - Reviewer later reported revision `fb0e444`: imported 5,234 / skipped 35 / rejected 0; all configured dispositions matched; unapproved outcome count = 0; runner exit 2 only because changed next approver count = 1 for the already Owner-approved LEV-0109 exception. Backup = 0.30s and full-dump reset = 0.83s. Reviewer rerun after this code fix is pending.
-- PROD-READINESS-08 implementation verification passed locally: lint, workspace typecheck, 121 Vitest files / 857 tests, package builds, API build, and static exporter delegate/timestamp-field checks. No DB connection was made; the reviewer rerun remains pending on disposable loopback `ckace_hr_dev` only.
+- PROD-READINESS-08 implementation verification passed locally: lint, workspace typecheck, 121 Vitest files / 858 tests, package builds, API build, and static exporter delegate/timestamp-field checks. Export-path tests reject nested, primary, and unrelated Git checkouts. No DB connection was made; the reviewer rerun remains pending on disposable loopback `ckace_hr_dev` only.
 
 ## Current Owner decision
 

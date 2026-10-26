@@ -89,19 +89,22 @@ export function assertOutsideRepository(filePath, repositoryRoot) {
 export async function ensureOutsideRepositoryPath(filePath, repositoryRoot) {
   const lexicalPath = assertOutsideRepository(filePath, repositoryRoot);
   const realRoot = await realpath(repositoryRoot);
-  const gitRoots = [];
-  let ancestor = realRoot;
-  while (true) {
-    try {
-      await lstat(path.join(ancestor, ".git"));
-      gitRoots.push(ancestor);
-    } catch (error) {
-      if (error?.code !== "ENOENT") throw error;
+  const gitRoots = new Set();
+  const collectGitRoots = async (directory) => {
+    let ancestor = directory;
+    while (true) {
+      try {
+        await lstat(path.join(ancestor, ".git"));
+        gitRoots.add(ancestor);
+      } catch (error) {
+        if (error?.code !== "ENOENT") throw error;
+      }
+      const parent = path.dirname(ancestor);
+      if (parent === ancestor) break;
+      ancestor = parent;
     }
-    const parent = path.dirname(ancestor);
-    if (parent === ancestor) break;
-    ancestor = parent;
-  }
+  };
+  await collectGitRoots(realRoot);
   const assertOutsideGitRoots = (candidate) => {
     for (const gitRoot of gitRoots) {
       const relative = path.relative(gitRoot, candidate);
@@ -123,6 +126,7 @@ export async function ensureOutsideRepositoryPath(filePath, repositoryRoot) {
       existingDirectory = parent;
     }
   }
+  await collectGitRoots(realExistingDirectory);
   const unresolvedPath = path.relative(existingDirectory, requestedDirectory);
   const prospectiveDirectory = path.resolve(realExistingDirectory, unresolvedPath);
   assertOutsideGitRoots(path.join(prospectiveDirectory, path.basename(lexicalPath)));
@@ -132,10 +136,13 @@ export async function ensureOutsideRepositoryPath(filePath, repositoryRoot) {
   }
   await mkdir(requestedDirectory, { recursive: true });
   const realDirectory = await realpath(requestedDirectory);
+  await collectGitRoots(realDirectory);
   const realPath = path.join(realDirectory, path.basename(lexicalPath));
   assertOutsideGitRoots(realPath);
   try {
-    assertOutsideGitRoots(await realpath(realPath));
+    const realOutputPath = await realpath(realPath);
+    await collectGitRoots(path.dirname(realOutputPath));
+    assertOutsideGitRoots(realOutputPath);
   } catch (error) {
     if (error?.code !== "ENOENT") throw error;
   }

@@ -35,8 +35,9 @@ Verification:
 - Update evidence with aggregates only and rerun relevant tests if any discrepancy requires a code change.
 
 Evidence/result so far:
-- Local code gates: PASS, 121 test files / 857 tests, package builds and API build passed.
+- Local code gates: PASS, 121 test files / 858 tests, package builds and API build passed.
 - Static exporter model/delegate/timestamp-field check: PASS, 38 timestamped sources matched Prisma DMMF; no missing delegate/time field found.
+- Export path guard tests reject paths inside the nested worktree, primary checkout, and an unrelated Git checkout.
 - PostgreSQL importer/export rehearsal on this worktree: NOT RUN; no `DATABASE_URL` was configured. Reviewer execution remains required.
 
 Owner decision needed: None for the bounded disposable-DEV reviewer rerun. Any real Production export requires separate explicit Owner approval for that exact run; no such operation is authorized by this task.

@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { resolveCompanyApprovalRoute, type ApprovalRouteReader } from "@ckace/database";
 import type { PrismaClient } from "@prisma/client";
 
-import { planPendingApprovalHandoff, type CurrentPolicyApprovalStep, type HistoricalApprovalStep } from "./pending-approval-handoff";
+import { pendingApprovalExceptionGuidance, planPendingApprovalHandoff, type CurrentPolicyApprovalStep, type HistoricalApprovalStep } from "./pending-approval-handoff";
 import type {
   ExistingTargetRecord,
   JsonValue,
@@ -147,6 +147,17 @@ export function assertDisposableMigrationDatabase(databaseUrl: string): string {
   return databaseName;
 }
 
+export function assertMigrationTargetEnvironment(
+  env: NodeJS.ProcessEnv = process.env,
+): string {
+  if (env.CKACE_MIGRATION_JOB !== "YES") {
+    throw new Error("PrismaMigrationTargetStore can only be used by the migration job.");
+  }
+  const databaseUrl = env.DATABASE_URL?.trim();
+  if (!databaseUrl) throw new Error("Migration rehearsal requires DATABASE_URL.");
+  return assertDisposableMigrationDatabase(databaseUrl);
+}
+
 export class PrismaMigrationTargetStore implements MigrationTargetStore {
   private runId: string | null = null;
   private sourceSnapshot: string | null = null;
@@ -168,12 +179,7 @@ export class PrismaMigrationTargetStore implements MigrationTargetStore {
     private readonly prisma: PrismaClient,
     private readonly env: NodeJS.ProcessEnv = process.env,
   ) {
-    if (env.CKACE_MIGRATION_JOB !== "YES") {
-      throw new Error("PrismaMigrationTargetStore can only be used by the migration job.");
-    }
-    const databaseUrl = env.DATABASE_URL?.trim();
-    if (!databaseUrl) throw new Error("Migration rehearsal requires DATABASE_URL.");
-    assertDisposableMigrationDatabase(databaseUrl);
+    assertMigrationTargetEnvironment(env);
   }
 
   async prepareRun(input: {
@@ -269,7 +275,7 @@ export class PrismaMigrationTargetStore implements MigrationTargetStore {
     }
     const status = report.stoppedEarly
       ? "FAILED"
-      : report.mismatchCount > 0 || this.reconcileExceptions.some((row) => row.status !== "PASS")
+      : report.mismatchCount > 0 || report.exceptionCount > 0 || this.reconcileExceptions.some((row) => row.status !== "PASS")
         ? "COMPLETED_WITH_EXCEPTIONS"
         : "COMPLETED";
     await delegate(this.prisma, "migrationRun").update({
@@ -289,10 +295,14 @@ export class PrismaMigrationTargetStore implements MigrationTargetStore {
       id: randomUUID(),
       migrationRunId: report.migrationRunId,
       entityType: outcome.targetEntityType ?? "source_row",
-      checkName: outcome.status,
-      status: outcome.status === "IMPORTED" || outcome.status === "SKIPPED_IDENTICAL"
-        ? "PASS"
-        : outcome.status.startsWith("SKIPPED_") ? "EXCEPTION" : "FAIL",
+      checkName: outcome.status === "IMPORTED" && outcome.code
+        ? "IMPORTED_WITH_NAMED_EXCEPTION"
+        : outcome.status,
+      status: outcome.status === "IMPORTED" && outcome.code
+        ? "EXCEPTION"
+        : outcome.status === "IMPORTED" || outcome.status === "SKIPPED_IDENTICAL"
+          ? "PASS"
+          : outcome.status.startsWith("SKIPPED_") ? "EXCEPTION" : "FAIL",
       sourceValue: outcome.legacyId,
       targetValue: outcome.targetEntityId ?? outcome.status,
       exceptionCode: outcome.code,
@@ -510,7 +520,12 @@ export class PrismaMigrationTargetStore implements MigrationTargetStore {
 
   private addPendingException(source: PendingApprovalSourceRequest, code: string, disposition: string): void {
     const legacyId = parseProvenanceKey(source.provenanceKey).legacyId;
-    this.unresolvedApprovers.push({ requestLegacyId: legacyId, reasonCode: code });
+    const guidance = pendingApprovalExceptionGuidance(code);
+    this.unresolvedApprovers.push({
+      requestLegacyId: legacyId,
+      reasonCode: code,
+      ...(guidance ? guidance : {}),
+    });
     this.reconcileExceptions.push({
       entityType: "approval_handoff",
       checkName: "pending_approver_unresolved",
@@ -518,7 +533,9 @@ export class PrismaMigrationTargetStore implements MigrationTargetStore {
       sourceValue: legacyId,
       targetValue: "PENDING_WITHOUT_APPROVER",
       exceptionCode: code,
-      disposition,
+      disposition: guidance
+        ? `${disposition} ${guidance.actionRequired}`
+        : disposition,
       evidenceRef: source.provenanceKey,
     });
   }

@@ -15,8 +15,10 @@ const layouts = {
   "Data_CKRR_Requests_sanitized.xlsx": {
     LeaveRequests: ["leave_id", "description", "startDate", "endDate", "userId", "PolicyID", "leaveType", "status", "currentStep", "rejectedReason", "submitDate", "updatedDate", "leaveDuration", "startTime", "endTime"], LeaveRequests_2025: ["leave_id", "description", "startDate", "endDate", "userId", "PolicyID", "leaveType", "status", "currentStep", "rejectedReason", "submitDate", "updatedDate", "leaveDuration", "startTime", "endTime"],
     ApprovalSteps: ["stepId", "requestId", "stepOrder", "approverId", "assignedAt", "approvedAt", "status", "comment"], OvertimeRequests: ["RequestID"],
-    OT_ApprovalSteps: ["StepID"], TimeLog: ["LogID"],
-    TimeLog_2025: ["LogID"], TimeCorrections: ["RequestID"],
+    OT_ApprovalSteps: ["StepID"],
+    TimeLog: ["LogID", "UserID", "Fullname", "Date", "CheckInTime", "CheckOutTime"],
+    TimeLog_2025: ["LogID", "UserID", "Fullname", "Date", "CheckInTime", "CheckOutTime"],
+    TimeCorrections: ["RequestID"],
     MedicalClaims: ["ClaimID"], MedicalClaims_2025: ["ClaimID"],
     Medical_ApprovalSteps: ["StepID"], MedicalAttachments: ["FileID"],
     Attachments: ["fileId"], LineServiceAttachments: ["FileID"],
@@ -59,13 +61,15 @@ async function sourceBuffers(extra: {
   };
 }
 
-async function conflictingTimeLogBuffers(): Promise<Readonly<Record<string, Buffer>>> {
+async function conflictingTimeLogBuffers(
+  employeeIds: readonly [string, string] = ["USER-012", "USER-007"],
+): Promise<Readonly<Record<string, Buffer>>> {
   const buffers = await sourceBuffers();
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(buffers["Data_CKRR_Requests_sanitized.xlsx"] as never);
   const sheet = workbook.getWorksheet("TimeLog");
-  sheet?.addRow(["LOG-900"]);
-  sheet?.addRow(["LOG-900"]);
+  sheet?.addRow(["LOG-900", employeeIds[0], "พนักงาน 012", "18/10/2026", "09:00:00", "17:00:00"]);
+  sheet?.addRow(["LOG-900", employeeIds[1], "พนักงาน 007", "18/10/2026", "09:00:00", "18:00:00"]);
   return {
     ...buffers,
     "Data_CKRR_Requests_sanitized.xlsx": Buffer.from(await workbook.xlsx.writeBuffer()),
@@ -152,7 +156,7 @@ describe("sanitized XLSX import orchestration", () => {
     expect(result.outcomesByTab.ApprovalSteps).toEqual({ SKIPPED_TRANSFORM: 1 });
   });
 
-  it("records every colliding TimeLog row as an explicit rejected outcome", async () => {
+  it("imports distinct employees sharing a GAS LogID with a named composite-key exception", async () => {
     const sources = await createXlsxLegacySourcesFromBuffers(await conflictingTimeLogBuffers());
     const targetStore = new InMemoryMigrationTargetStore();
     const result = await runXlsxImport({
@@ -163,9 +167,33 @@ describe("sanitized XLSX import orchestration", () => {
     });
 
     expect(result.countsByTab.TimeLog).toBe(2);
+    expect(result.outcomesByTab.TimeLog).toEqual({ IMPORTED: 2 });
+    expect(result.report.exceptionCount).toBe(2);
+    expect(result.report.outcomes.filter((outcome) => outcome.code === "ATTENDANCE_LOG_ID_REUSED_ACROSS_EMPLOYEES")).toMatchObject([
+      { legacyId: "LOG-900::USER:USER-012", status: "IMPORTED", disposition: expect.stringContaining("OWNER_APPROVED") },
+      { legacyId: "LOG-900::USER:USER-007", status: "IMPORTED", disposition: expect.stringContaining("OWNER_APPROVED") },
+    ]);
+    expect(targetStore.createdInputs
+      .filter((input) => input.targetEntityType === "attendance_record_bundle")
+      .map((input) => input.provenance.legacyId)
+      .sort()).toEqual(["LOG-900::USER:USER-007", "LOG-900::USER:USER-012"]);
+  });
+
+  it("continues to reject every duplicate LogID row for one employee", async () => {
+    const sources = await createXlsxLegacySourcesFromBuffers(
+      await conflictingTimeLogBuffers(["USER-012", "USER-012"]),
+    );
+    const targetStore = new InMemoryMigrationTargetStore();
+    const result = await runXlsxImport({
+      sources,
+      migrationRunId: "xlsx-same-employee-duplicate-run",
+      extractedAt: "2026-10-26T00:00:00.000Z",
+      targetStore,
+    });
+
     expect(result.outcomesByTab.TimeLog).toEqual({ REJECTED_TRANSFORM: 2 });
     expect(result.report.outcomes.filter((outcome) => outcome.code === "ATTENDANCE_DUPLICATE_SOURCE_LOG_ID")).toHaveLength(2);
-    expect(targetStore.size).toBe(2);
+    expect(targetStore.createdInputs.some((input) => input.targetEntityType === "attendance_record_bundle")).toBe(false);
   });
 
   it("uses target-policy quota semantics including current-year hires and USER-008's corrected date", async () => {

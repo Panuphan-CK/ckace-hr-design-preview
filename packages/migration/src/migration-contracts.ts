@@ -43,6 +43,11 @@ export type TransformDecision<TPayload extends JsonValue = JsonValue> =
       readonly action: "IMPORT";
       readonly targetEntityType: string;
       readonly payload: TPayload;
+      readonly exception?: {
+        readonly code: string;
+        readonly detail: string;
+        readonly disposition: string;
+      };
     }
   | {
       readonly action: "SKIP";
@@ -116,6 +121,8 @@ export interface PendingApprovalHandoffReport {
   readonly unresolvedApprovers: readonly {
     readonly requestLegacyId: string;
     readonly reasonCode: string;
+    readonly summary?: string;
+    readonly actionRequired?: string;
   }[];
 }
 

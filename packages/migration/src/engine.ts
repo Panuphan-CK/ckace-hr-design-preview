@@ -157,9 +157,9 @@ export async function runMigration<
         legacyId: record.provenance.legacyId,
         rowNumber: record.rowNumber,
         status: "IMPORTED",
-        code: null,
-        detail: null,
-        disposition: null,
+        code: decision.exception?.code ?? null,
+        detail: decision.exception?.detail ?? null,
+        disposition: decision.exception?.disposition ?? null,
         targetEntityType: decision.targetEntityType,
         targetEntityId: created.targetEntityId,
       });
@@ -191,7 +191,8 @@ export async function runMigration<
     (outcome) => outcome.status === "REJECTED_TRANSFORM",
   ).length;
   const exceptionCount = outcomes.filter((outcome) =>
-    outcome.status.startsWith("EXCEPTION_"),
+    outcome.status.startsWith("EXCEPTION_") ||
+    (outcome.status === "IMPORTED" && outcome.code !== null),
   ).length;
   const ambiguousWriteCount = outcomes.filter(
     (outcome) => outcome.status === "AMBIGUOUS_WRITE",

@@ -159,7 +159,7 @@ function timeCorrectionType(input: {
 }
 
 export const attendanceRecordTransformer: MigrationTransformer = {
-  version: "attendance-record-v1",
+  version: "attendance-record-v2",
   transform(record) {
     try {
       if (
@@ -172,8 +172,13 @@ export const attendanceRecordTransformer: MigrationTransformer = {
       }
 
       const logId = requiredString(record, "LogID");
+      const employeeLegacyId = requiredString(record, "UserID");
+      const compositeLegacyId = `${logId}::USER:${employeeLegacyId}`;
 
-      if (logId !== record.provenance.legacyId) {
+      if (
+        logId !== record.provenance.legacyId &&
+        compositeLegacyId !== record.provenance.legacyId
+      ) {
         throw new Error(
           "TimeLog LogID does not match source-qualified provenance",
         );
@@ -203,7 +208,7 @@ export const attendanceRecordTransformer: MigrationTransformer = {
         targetEntityType: "attendance_record_bundle",
         payload: {
           legacyLogId: logId,
-          employeeLegacyId: requiredString(record, "UserID"),
+          employeeLegacyId,
           workDate,
           checkInAt: bangkokTimestamp(workDate, checkInClock),
           checkOutAt: bangkokTimestamp(workDate, checkOutClock),
@@ -237,7 +242,7 @@ export const attendanceRecordTransformer: MigrationTransformer = {
             ),
             sourceTimezone: "Asia/Bangkok",
           },
-        } satisfies JsonValue,
+      } satisfies JsonValue,
       };
     } catch (error) {
       return {

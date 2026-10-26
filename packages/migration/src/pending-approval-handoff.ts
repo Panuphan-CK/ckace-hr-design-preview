@@ -31,6 +31,24 @@ export interface PendingApprovalHandoffPlan {
   readonly exceptionCodes: readonly string[];
 }
 
+export interface PendingApprovalExceptionGuidance {
+  readonly summary: string;
+  readonly actionRequired: string;
+}
+
+export function pendingApprovalExceptionGuidance(
+  code: string,
+): PendingApprovalExceptionGuidance | null {
+  if (code === "CURRENT_APPROVAL_POLICY_HAS_NO_REMAINING_STEPS") {
+    return {
+      summary: "อนุมัติครบตาม policy ใหม่แล้ว รอ HR ยืนยันปิดคำขอ",
+      actionRequired:
+        "ก่อน write freeze ให้แจ้งผู้อนุมัติปิดคำขอที่ยัง Pending ใน GAS แล้วให้ HR ยืนยันสถานะปิดคำขอ",
+    };
+  }
+  return null;
+}
+
 /**
  * Keep decided GAS approvals as immutable history, then append unresolved or
  * current-policy steps. No missing route can silently turn a request approved.

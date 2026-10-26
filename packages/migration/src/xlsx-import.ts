@@ -86,6 +86,73 @@ const TRANSFORMERS: Readonly<Record<string, MigrationTransformer>> = Object.free
   MedicalAttachments: medicalAttachmentTransformer,
 });
 
+interface AttendanceLogCollision {
+  readonly compositeLegacyId: string | null;
+  readonly exception: {
+    readonly code: string;
+    readonly detail: string;
+    readonly disposition: string;
+    readonly sourceLogId: string;
+    readonly employeeLegacyIds: readonly string[];
+  } | null;
+}
+
+function attendanceRowKey(record: LegacyExtractedRecord): string {
+  return `${record.provenance.sourceTab}::${record.rowNumber}`;
+}
+
+function resolveAttendanceLogCollisions(
+  records: readonly LegacyExtractedRecord[],
+): ReadonlyMap<string, AttendanceLogCollision> {
+  const groups = new Map<string, LegacyExtractedRecord[]>();
+  for (const record of records) {
+    if (!["TimeLog", "TimeLog_2025"].includes(record.provenance.sourceTab)) continue;
+    const rawLogId = record.values.LogID;
+    if (typeof rawLogId !== "string" && typeof rawLogId !== "number") continue;
+    const logId = String(rawLogId).trim();
+    if (!logId || record.provenance.legacyId !== `${logId}::ROW:${record.rowNumber}`) continue;
+    const key = `${record.provenance.sourceTab}::${record.provenance.sourcePeriod}::${logId}`;
+    const group = groups.get(key) ?? [];
+    group.push(record);
+    groups.set(key, group);
+  }
+
+  const result = new Map<string, AttendanceLogCollision>();
+  for (const group of groups.values()) {
+    if (group.length < 2) continue;
+    const rawLogId = group[0]?.values.LogID;
+    const sourceLogId = typeof rawLogId === "string" || typeof rawLogId === "number"
+      ? String(rawLogId).trim()
+      : "";
+    const employeeIds = group.map((record) => {
+      const value = record.values.UserID;
+      return typeof value === "string" || typeof value === "number" ? String(value).trim() : "";
+    });
+    const allEmployeesAreDistinct = employeeIds.every(Boolean) && new Set(employeeIds).size === group.length;
+    const stableEmployeeIds = [...new Set(employeeIds.filter(Boolean))].sort((left, right) => left.localeCompare(right));
+    const exception = allEmployeesAreDistinct
+      ? {
+          code: "ATTENDANCE_LOG_ID_REUSED_ACROSS_EMPLOYEES",
+          detail: `GAS reused source LogID ${sourceLogId} for distinct employees ${stableEmployeeIds.join(", ")}.`,
+          disposition: "OWNER_APPROVED_IMPORT_ALL_DISTINCT_EMPLOYEE_ROWS_WITH_LOG_ID_AND_USER_ID_PROVENANCE",
+          sourceLogId,
+          employeeLegacyIds: stableEmployeeIds,
+        }
+      : null;
+    for (const record of group) {
+      const value = record.values.UserID;
+      const employeeLegacyId = typeof value === "string" || typeof value === "number" ? String(value).trim() : "";
+      result.set(attendanceRowKey(record), {
+        compositeLegacyId: exception && employeeLegacyId
+          ? `${sourceLogId}::USER:${employeeLegacyId}`
+          : null,
+        exception,
+      });
+    }
+  }
+  return result;
+}
+
 function parseDate(value: unknown): Date | null {
   if (typeof value !== "string") return null;
   const ddmmyyyy = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
@@ -197,6 +264,7 @@ function dispatcher(
   records: readonly LegacyExtractedRecord[],
   leaveCandidates: ReadonlyMap<string, readonly LegacyExtractedRecord[]>,
   medicalCandidates: ReadonlyMap<string, readonly LegacyExtractedRecord[]>,
+  attendanceCollisions: ReadonlyMap<string, AttendanceLogCollision>,
 ): MigrationTransformer {
   const pendingRequests = sourcePendingRequests(records, leaveCandidates, medicalCandidates);
   const pendingByKey = new Map(pendingRequests.map((request) => [request.provenanceKey, request]));
@@ -211,21 +279,23 @@ function dispatcher(
     }
   }
   return {
-    version: "xlsx-import-dispatch-v1",
+    version: "xlsx-import-dispatch-v2",
     transform(input) {
       const tab = input.provenance.sourceTab;
-      if (
-        (tab === "TimeLog" || tab === "TimeLog_2025") &&
-        input.values.LogID !== null && input.values.LogID !== undefined &&
-        input.provenance.legacyId === `${String(input.values.LogID).trim()}::ROW:${input.rowNumber}`
-      ) {
+      const collision = attendanceCollisions.get(attendanceRowKey(input));
+      if (collision && !collision.exception) {
         return {
           action: "REJECT",
           code: "ATTENDANCE_DUPLICATE_SOURCE_LOG_ID",
-          reason: "Multiple attendance source rows share one LogID; all colliding rows remain excluded until Owner reconciliation.",
+          reason: "A source LogID is duplicated within one employee or has no unique employee mapping; every colliding row remains rejected.",
         };
       }
-      let record = input;
+      let record = collision?.compositeLegacyId
+        ? {
+            ...input,
+            provenance: { ...input.provenance, legacyId: collision.compositeLegacyId },
+          }
+        : input;
       if (tab === "UserPolicies") {
         const employeeLegacyId = input.values.UserID;
         const users = records.filter((candidate) => candidate.provenance.sourceTab === "Users" && candidate.provenance.legacyId === employeeLegacyId);
@@ -300,6 +370,27 @@ function dispatcher(
             } as JsonValue,
           };
         }
+      }
+      if (collision?.exception && decision.action === "IMPORT") {
+        const payload = decision.payload;
+        if (!payload || typeof payload !== "object" || Array.isArray(payload)) return decision;
+        return {
+          ...decision,
+          payload: {
+            ...payload,
+            sourceException: {
+              code: collision.exception.code,
+              sourceLogId: collision.exception.sourceLogId,
+              employeeLegacyIds: collision.exception.employeeLegacyIds,
+              disposition: collision.exception.disposition,
+            },
+          } as JsonValue,
+          exception: {
+            code: collision.exception.code,
+            detail: collision.exception.detail,
+            disposition: collision.exception.disposition,
+          },
+        };
       }
       return decision;
     },
@@ -435,6 +526,13 @@ export async function runXlsxImport(input: {
       (TAB_ORDER[left.provenance.sourceTab] ?? 99) - (TAB_ORDER[right.provenance.sourceTab] ?? 99) ||
       left.rowNumber - right.rowNumber,
     );
+  const attendanceCollisions = resolveAttendanceLogCollisions(allRecords);
+  const importRecords = allRecords.map((record) => {
+    const collision = attendanceCollisions.get(attendanceRowKey(record));
+    return collision?.compositeLegacyId
+      ? { ...record, provenance: { ...record.provenance, legacyId: collision.compositeLegacyId } }
+      : record;
+  });
   const countsByTab = sourceSnapshots.reduce<Record<string, number>>((counts, snapshot) => {
     counts[snapshot.descriptor.sourceTab] = 0;
     return counts;
@@ -451,11 +549,16 @@ export async function runXlsxImport(input: {
     },
     snapshotHash: sha256Hex(canonicalJson(sourceSnapshots.map((snapshot) => snapshot.snapshotHash))),
     extractedAt: new Date(input.extractedAt).toISOString(),
-    records: allRecords,
+    records: importRecords,
   };
   const leaveCandidates = requestCandidates(allRecords, ["LeaveRequests", "LeaveRequests_2025"]);
   const medicalCandidates = requestCandidates(allRecords, ["MedicalClaims", "MedicalClaims_2025"]);
-  const transformer = dispatcher(allRecords, leaveCandidates, medicalCandidates);
+  const transformer = dispatcher(
+    allRecords,
+    leaveCandidates,
+    medicalCandidates,
+    attendanceCollisions,
+  );
   const pendingRequests = sourcePendingRequests(
     allRecords,
     leaveCandidates,
@@ -474,10 +577,17 @@ export async function runXlsxImport(input: {
     targetStore: input.targetStore,
   });
   const targetSummary = await input.targetStore.finishRun?.(report);
-  const tabByKey = new Map(allRecords.map((record) => [
-    `${record.provenance.sourceSystem}::${record.provenance.sourceWorkbook}::${record.provenance.sourceTab}::${record.provenance.sourcePeriod ?? "CURRENT"}::${record.provenance.legacyId}`,
-    record.provenance.sourceTab,
-  ]));
+  const tabByKey = new Map<string, string>();
+  for (const record of importRecords) {
+    tabByKey.set(legacyProvenanceKey(record.provenance), record.provenance.sourceTab);
+    const collision = attendanceCollisions.get(attendanceRowKey(record));
+    if (collision?.compositeLegacyId) {
+      tabByKey.set(
+        legacyProvenanceKey({ ...record.provenance, legacyId: collision.compositeLegacyId }),
+        record.provenance.sourceTab,
+      );
+    }
+  }
   const outcomesByTab: Record<string, Record<string, number>> = {};
   for (const outcome of report.outcomes) {
     const tab = tabByKey.get(outcome.provenanceKey) ?? "UNKNOWN";

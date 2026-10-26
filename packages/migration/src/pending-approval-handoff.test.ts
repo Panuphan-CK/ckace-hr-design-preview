@@ -1,8 +1,51 @@
 import { describe, expect, it } from "vitest";
 
-import { planPendingApprovalHandoff } from "./pending-approval-handoff";
+import {
+  pendingApprovalExceptionGuidance,
+  planPendingApprovalHandoff,
+} from "./pending-approval-handoff";
 
 describe("pending approval handoff", () => {
+  it("reports policy-complete Pending requests as an HR close-out exception", () => {
+    expect(pendingApprovalExceptionGuidance("CURRENT_APPROVAL_POLICY_HAS_NO_REMAINING_STEPS")).toEqual({
+      summary: "อนุมัติครบตาม policy ใหม่แล้ว รอ HR ยืนยันปิดคำขอ",
+      actionRequired: expect.stringContaining("แจ้งผู้อนุมัติปิดคำขอที่ยัง Pending ใน GAS"),
+    });
+    expect(pendingApprovalExceptionGuidance("CURRENT_APPROVER_UNRESOLVED_OR_REQUESTER_ONLY")).toBeNull();
+  });
+
+  it("keeps a GAS Pending request open when decided history is longer than the current policy", () => {
+    const plan = planPendingApprovalHandoff({
+      requestStatus: "PENDING",
+      requesterEmployeeId: "requester",
+      historicalSteps: [1, 2, 3].map((stepOrder) => ({
+        stepOrder,
+        status: "APPROVED",
+        approverEmployeeId: `approver-${stepOrder}`,
+      })),
+      currentPolicySteps: [
+        { candidateEmployeeIds: ["new-lead"] },
+        { candidateEmployeeIds: ["new-admin"] },
+      ],
+      policyAvailable: true,
+      oldNextApproverIds: ["gas-next-approver"],
+    });
+
+    expect(plan).toMatchObject({
+      isPending: true,
+      decidedHistoryCount: 3,
+      pendingBefore: 1,
+      pendingAfter: 1,
+      exceptionCodes: expect.arrayContaining(["CURRENT_APPROVAL_POLICY_HAS_NO_REMAINING_STEPS"]),
+    });
+    expect(plan.steps).toEqual([
+      expect.objectContaining({
+        approverEmployeeId: null,
+        exceptionCode: "CURRENT_APPROVAL_POLICY_HAS_NO_REMAINING_STEPS",
+      }),
+    ]);
+  });
+
   it("replaces a pending first GAS step with all current-policy steps", () => {
     const plan = planPendingApprovalHandoff({
       requestStatus: "PENDING",

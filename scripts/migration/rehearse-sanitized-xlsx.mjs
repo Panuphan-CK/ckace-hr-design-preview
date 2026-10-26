@@ -10,6 +10,7 @@ import {
   runXlsxImport,
   summarizeOutcomes,
 } from "@ckace/migration";
+import { resolveSnapshotDirectory } from "./snapshot-directory.mjs";
 
 const requiredEnvironment = {
   CKACE_RUNTIME_STAGE: "dev",
@@ -27,7 +28,7 @@ const databaseUrl = process.env.DATABASE_URL?.trim();
 if (!databaseUrl) throw new Error("DATABASE_URL must be set locally.");
 assertDisposableMigrationDatabase(databaseUrl);
 
-const snapshotDirectory = "D:\\CKACE_HR_snapshot";
+const snapshotDirectory = resolveSnapshotDirectory();
 const workbookFiles = {
   "CKRR_Requests_sanitized.xlsx": path.join(snapshotDirectory, "CKRR_Requests_sanitized.xlsx"),
   "Data_CKRR_Requests_sanitized.xlsx": path.join(snapshotDirectory, "Data_CKRR_Requests_sanitized.xlsx"),
@@ -84,6 +85,13 @@ try {
       changedNextApprovers: [],
       unresolvedApprovers: [],
     },
+    namedSourceExceptions: result.report.outcomes
+      .filter((outcome) => outcome.status === "IMPORTED" && outcome.code)
+      .map((outcome) => ({
+        sourceId: outcome.legacyId,
+        code: outcome.code,
+        disposition: outcome.disposition,
+      })),
     evidencePolicy: "Counts, source IDs, hashes and exception codes only; no source row values.",
     completedAt: new Date().toISOString(),
   };

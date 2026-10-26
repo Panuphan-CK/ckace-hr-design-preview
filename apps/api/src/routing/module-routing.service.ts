@@ -6,7 +6,11 @@ import {
 import { Injectable } from "@nestjs/common";
 
 import { readRuntimeConfig } from "../runtime/runtime-config";
-import { readModuleRoutingConfig } from "./module-routing-config";
+import {
+  readModuleRoutingConfig,
+  summarizeModuleRoutingState,
+  type ModuleRoutingMode,
+} from "./module-routing-config";
 
 @Injectable()
 export class ModuleRoutingService {
@@ -21,6 +25,10 @@ export class ModuleRoutingService {
 
   get systemReadOnly(): boolean {
     return this.config.systemWriteMode === "READ_ONLY";
+  }
+
+  get authorityMode(): ModuleRoutingMode {
+    return summarizeModuleRoutingState(this.config.state);
   }
 
   resolve(routeKey: ModuleRouteKey): ServerModuleRouteContext {

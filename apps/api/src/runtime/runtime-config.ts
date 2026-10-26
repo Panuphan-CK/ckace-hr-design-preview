@@ -2,7 +2,6 @@ export type RuntimeStage = "local" | "dev" | "test" | "production";
 
 export interface RuntimeConfig {
   stage: RuntimeStage;
-  moduleRouting: "LEGACY";
   databaseRequired: boolean;
   serviceRevision: string;
 }
@@ -87,15 +86,6 @@ export function readRuntimeConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): RuntimeConfig {
   const stage = readStage(env.CKACE_RUNTIME_STAGE);
-  const moduleRouting = (env.CKACE_MODULE_ROUTING ?? "LEGACY")
-    .trim()
-    .toUpperCase();
-
-  if (moduleRouting !== "LEGACY") {
-    throw new Error(
-      "Runtime must keep CKACE_MODULE_ROUTING=LEGACY until a later owner-approved module cutover.",
-    );
-  }
 
   if (stage !== "local" && !env.DATABASE_URL?.trim()) {
     throw new Error(
@@ -109,7 +99,6 @@ export function readRuntimeConfig(
 
   return {
     stage,
-    moduleRouting: "LEGACY",
     databaseRequired: stage !== "local",
     serviceRevision:
       env.K_REVISION?.trim() ||

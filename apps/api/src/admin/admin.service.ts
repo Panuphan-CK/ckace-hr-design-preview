@@ -11,6 +11,7 @@ import {
 } from "@nestjs/common";
 
 import { readRuntimeConfig } from "../runtime/runtime-config";
+import { readModuleRoutingConfig, summarizeModuleRoutingState } from "../routing/module-routing-config";
 
 export const NOTIFICATION_ADMIN_REPOSITORY = "CKACE_NOTIFICATION_ADMIN_REPOSITORY";
 
@@ -56,9 +57,10 @@ export class AdminService {
 
   settings(): AdminSettingsView {
     const runtime = readRuntimeConfig();
+    const routing = readModuleRoutingConfig(process.env, runtime.stage);
     return {
       runtimeStage: runtime.stage,
-      moduleRouting: runtime.moduleRouting,
+      moduleRouting: summarizeModuleRoutingState(routing.state),
       storageProvider: "R2",
       permanentPublicStorageUrls: false,
       protectedActorRequiresActiveAccount: true,

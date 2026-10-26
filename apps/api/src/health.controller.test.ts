@@ -8,10 +8,10 @@ function fakeReadiness(stage: "test" | "production") {
   return {
     getRuntimeConfig: () => ({
       stage,
-      moduleRouting: "LEGACY" as const,
       databaseRequired: true,
       serviceRevision: "test-revision",
     }),
+    getModuleRoutingMode: () => "LEGACY" as const,
     attestTestDatabase: vi.fn().mockResolvedValue({
       ok: true,
       attestation: "VERIFIED",

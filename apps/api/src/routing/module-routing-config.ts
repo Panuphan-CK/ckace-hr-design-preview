@@ -18,6 +18,16 @@ export interface ModuleRoutingConfig {
   readonly systemWriteMode: SystemWriteMode;
 }
 
+export type ModuleRoutingMode = "LEGACY" | "NEW" | "MIXED";
+
+export function summarizeModuleRoutingState(
+  state: ModuleRoutingState,
+): ModuleRoutingMode {
+  const authorities = new Set(Object.values(state));
+  if (authorities.size !== 1) return "MIXED";
+  return authorities.values().next().value === "NEW" ? "NEW" : "LEGACY";
+}
+
 function isAuthorityTarget(value: unknown): value is AuthorityTarget {
   return value === "LEGACY" || value === "NEW";
 }
@@ -82,36 +92,16 @@ function readRoutingState(
       (routeKey) => state[routeKey] === "NEW",
     );
 
-    if (!productionCutoverModule) {
-      if (newRoutes.length > 0) {
-        throw new Error(
-          "Production module routing requires an explicit bounded cutover module.",
-        );
-      }
-    } else {
-      if (!HR_MODULE_KEYS.includes(productionCutoverModule as HrModuleKey)) {
-        throw new Error(
-          "Unknown Production cutover module.",
-        );
-      }
-
-      const approvedModule = productionCutoverModule as HrModuleKey;
-      const approvedRead = `${approvedModule}_READ` as ModuleRouteKey;
-      const approvedWrite = `${approvedModule}_WRITE` as ModuleRouteKey;
-      const unexpectedNew = newRoutes.filter(
-        (routeKey) =>
-          routeKey !== approvedRead && routeKey !== approvedWrite,
+    if (productionCutoverModule) {
+      throw new Error(
+        "CKACE_PRODUCTION_CUTOVER_MODULE is unsupported; Production routing must switch the full system together.",
       );
+    }
 
-      if (
-        state[approvedRead] !== "NEW" ||
-        state[approvedWrite] !== "NEW" ||
-        unexpectedNew.length > 0
-      ) {
-        throw new Error(
-          `Production cutover module ${approvedModule} must be the only paired NEW authority.`,
-        );
-      }
+    if (newRoutes.length !== 0 && newRoutes.length !== MODULE_ROUTE_KEYS.length) {
+      throw new Error(
+        "Production module routing must be all LEGACY or all NEW; mixed authority is not allowed.",
+      );
     }
   }
 

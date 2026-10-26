@@ -11,22 +11,30 @@ import {
   readRuntimeConfig,
   type RuntimeConfig,
 } from "./runtime-config";
+import { readModuleRoutingConfig, summarizeModuleRoutingState, type ModuleRoutingMode } from "../routing/module-routing-config";
 import { attestTestRuntime } from "../security/test-runtime-boundary";
 
 export interface ReadinessSnapshot {
   ok: boolean;
   database: "not-required" | "connected" | "unavailable";
   stage: RuntimeConfig["stage"];
-  moduleRouting: RuntimeConfig["moduleRouting"];
+  moduleRouting: ModuleRoutingMode;
   serviceRevision: string;
 }
 
 @Injectable()
 export class RuntimeReadinessService implements OnApplicationShutdown {
   private readonly config = readRuntimeConfig();
+  private readonly moduleRouting = summarizeModuleRoutingState(
+    readModuleRoutingConfig(process.env, this.config.stage).state,
+  );
 
   getRuntimeConfig(): RuntimeConfig {
     return this.config;
+  }
+
+  getModuleRoutingMode(): ModuleRoutingMode {
+    return this.moduleRouting;
   }
 
   async attestTestDatabase(env: NodeJS.ProcessEnv = process.env) {
@@ -58,7 +66,7 @@ export class RuntimeReadinessService implements OnApplicationShutdown {
         ok: true,
         database: "not-required",
         stage: this.config.stage,
-        moduleRouting: this.config.moduleRouting,
+        moduleRouting: this.moduleRouting,
         serviceRevision: this.config.serviceRevision,
       };
     }
@@ -70,7 +78,7 @@ export class RuntimeReadinessService implements OnApplicationShutdown {
         ok: true,
         database: "connected",
         stage: this.config.stage,
-        moduleRouting: this.config.moduleRouting,
+        moduleRouting: this.moduleRouting,
         serviceRevision: this.config.serviceRevision,
       };
     } catch {
@@ -78,7 +86,7 @@ export class RuntimeReadinessService implements OnApplicationShutdown {
         ok: false,
         database: "unavailable",
         stage: this.config.stage,
-        moduleRouting: this.config.moduleRouting,
+        moduleRouting: this.moduleRouting,
         serviceRevision: this.config.serviceRevision,
       };
     }

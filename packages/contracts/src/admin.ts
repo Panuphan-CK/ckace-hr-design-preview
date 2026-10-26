@@ -10,7 +10,7 @@ export interface NotificationAdminOverview {
 }
 export interface NotificationRetryResult { readonly id: string; readonly status: "PENDING"; }
 export interface AdminSettingsView {
-  readonly runtimeStage: string; readonly moduleRouting: "LEGACY" | "PROJECT_B";
+  readonly runtimeStage: string; readonly moduleRouting: "LEGACY" | "NEW" | "MIXED";
   readonly storageProvider: "R2"; readonly permanentPublicStorageUrls: false;
   readonly protectedActorRequiresActiveAccount: true; readonly pendingLineBindingSupported: true;
 }

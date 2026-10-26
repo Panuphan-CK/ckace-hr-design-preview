@@ -4,7 +4,6 @@ import { readRuntimeConfig } from "./runtime-config";
 
 const productionEnv = {
   CKACE_RUNTIME_STAGE: "production",
-  CKACE_MODULE_ROUTING: "LEGACY",
   DATABASE_URL: "postgresql://synthetic.invalid/ckace_hr_prod",
   CKACE_LEGACY_BRIDGE_SECRET: "synthetic-bridge-secret",
   R2_ACCOUNT_ID: "synthetic-account",
@@ -18,7 +17,6 @@ describe("readRuntimeConfig", () => {
   it("defaults local runtime to LEGACY without requiring a database", () => {
     expect(readRuntimeConfig({})).toEqual({
       stage: "local",
-      moduleRouting: "LEGACY",
       databaseRequired: false,
       serviceRevision: "local",
     });
@@ -28,7 +26,6 @@ describe("readRuntimeConfig", () => {
     expect(() =>
       readRuntimeConfig({
         CKACE_RUNTIME_STAGE: "test",
-        CKACE_MODULE_ROUTING: "LEGACY",
       }),
     ).toThrow(/DATABASE_URL/);
   });
@@ -36,14 +33,12 @@ describe("readRuntimeConfig", () => {
   it("accepts hosted TEST without exposing the connection string", () => {
     const config = readRuntimeConfig({
       CKACE_RUNTIME_STAGE: "test",
-      CKACE_MODULE_ROUTING: "LEGACY",
       DATABASE_URL: "postgresql://synthetic.invalid/ckace_hr_dev",
       K_REVISION: "ckace-hr-api-test-00001",
     });
 
     expect(config).toEqual({
       stage: "test",
-      moduleRouting: "LEGACY",
       databaseRequired: true,
       serviceRevision: "ckace-hr-api-test-00001",
     });
@@ -54,7 +49,6 @@ describe("readRuntimeConfig", () => {
     expect(() =>
       readRuntimeConfig({
         CKACE_RUNTIME_STAGE: "production",
-        CKACE_MODULE_ROUTING: "LEGACY",
       }),
     ).toThrow(/DATABASE_URL/);
   });
@@ -86,7 +80,7 @@ describe("readRuntimeConfig", () => {
     ).toThrow(/ckace-hr-prod-private/);
   });
 
-  it("accepts Production readiness while keeping LEGACY routing", () => {
+  it("accepts Production readiness without a duplicate single-value routing flag", () => {
     const config = readRuntimeConfig({
       ...productionEnv,
       K_REVISION: "ckace-hr-api-prod-00001",
@@ -94,19 +88,10 @@ describe("readRuntimeConfig", () => {
 
     expect(config).toEqual({
       stage: "production",
-      moduleRouting: "LEGACY",
       databaseRequired: true,
       serviceRevision: "ckace-hr-api-prod-00001",
     });
     expect(JSON.stringify(config)).not.toContain("postgresql://");
   });
 
-  it("rejects any premature NEW module routing", () => {
-    expect(() =>
-      readRuntimeConfig({
-        ...productionEnv,
-        CKACE_MODULE_ROUTING: "NEW",
-      }),
-    ).toThrow(/LEGACY/);
-  });
 });

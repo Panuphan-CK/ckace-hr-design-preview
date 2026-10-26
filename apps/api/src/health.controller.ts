@@ -25,7 +25,7 @@ export class HealthController {
       service: "ckace-hr-api",
       stage: runtime.stage,
       runtime: runtime.stage === "production" ? "PRODUCTION" : "NON_PRODUCTION",
-      moduleRouting: runtime.moduleRouting,
+      moduleRouting: this.readiness.getModuleRoutingMode(),
       serviceRevision: runtime.serviceRevision,
       contractVersion: CONTRACT_VERSION,
     } as const;

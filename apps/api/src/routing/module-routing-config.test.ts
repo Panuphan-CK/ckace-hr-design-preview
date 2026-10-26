@@ -91,67 +91,50 @@ describe("readModuleRoutingConfig", () => {
     ).toThrow(/LEGACY or NEW/);
   });
 
-  it("keeps Production fail-closed unless a bounded cutover module is explicit", () => {
-    expect(() =>
-      readModuleRoutingConfig(
-        {
-          CKACE_MODULE_ROUTING_STATE: JSON.stringify({
-            LEAVE_READ: "NEW",
-            LEAVE_WRITE: "NEW",
-          }),
-        },
-        "production",
-      ),
-    ).toThrow(/explicit bounded cutover module/);
+  it("accepts Production with every route on LEGACY or every route on NEW", () => {
+    const legacy = readModuleRoutingConfig({}, "production");
+    expect(Object.values(legacy.state).every((authority) => authority === "LEGACY")).toBe(true);
 
-    const config = readModuleRoutingConfig(
-      {
-        CKACE_PRODUCTION_CUTOVER_MODULE: "LEAVE",
-        CKACE_MODULE_ROUTING_STATE: JSON.stringify({
-          LEAVE_READ: "NEW",
-          LEAVE_WRITE: "NEW",
-        }),
-      },
+    const allNewState = Object.fromEntries(MODULE_ROUTE_KEYS.map((routeKey) => [routeKey, "NEW"]));
+    const allNew = readModuleRoutingConfig(
+      { CKACE_MODULE_ROUTING_STATE: JSON.stringify(allNewState) },
       "production",
     );
-    expect(config.state.LEAVE_READ).toBe("NEW");
-    expect(config.state.LEAVE_WRITE).toBe("NEW");
-    expect(config.state.OT_READ).toBe("LEGACY");
+    expect(Object.values(allNew.state).every((authority) => authority === "NEW")).toBe(true);
   });
 
-  it("rejects invalid or broader Production NEW authority", () => {
+  it("fails startup for any mixed Production authority state", () => {
     expect(() =>
       readModuleRoutingConfig(
         {
-          CKACE_PRODUCTION_CUTOVER_MODULE: "MAGIC",
-        },
-        "production",
-      ),
-    ).toThrow(/Unknown Production cutover module/);
-
-    expect(() =>
-      readModuleRoutingConfig(
-        {
-          CKACE_PRODUCTION_CUTOVER_MODULE: "LEAVE",
           CKACE_MODULE_ROUTING_STATE: JSON.stringify({
             LEAVE_READ: "NEW",
             LEAVE_WRITE: "NEW",
-            OT_READ: "NEW",
-            OT_WRITE: "NEW",
           }),
         },
         "production",
       ),
-    ).toThrow(/only paired NEW authority/);
+    ).toThrow(/all LEGACY or all NEW/);
 
+    const mixedState = Object.fromEntries(MODULE_ROUTE_KEYS.map((routeKey) => [routeKey, "NEW"]));
+    const lastModule = HR_MODULE_KEYS.at(-1)!;
+    mixedState[`${lastModule}_READ`] = "LEGACY";
+    mixedState[`${lastModule}_WRITE`] = "LEGACY";
     expect(() =>
       readModuleRoutingConfig(
-        {
-          CKACE_PRODUCTION_CUTOVER_MODULE: "LEAVE",
-        },
+        { CKACE_MODULE_ROUTING_STATE: JSON.stringify(mixedState) },
         "production",
       ),
-    ).toThrow(/only paired NEW authority/);
+    ).toThrow(/all LEGACY or all NEW/);
+  });
+
+  it("rejects the superseded bounded Production cutover selector", () => {
+    expect(() =>
+      readModuleRoutingConfig(
+        { CKACE_PRODUCTION_CUTOVER_MODULE: "LEAVE" },
+        "production",
+      ),
+    ).toThrow(/must switch the full system together/);
   });
 
   it("parses bounded module write-freeze state and rejects unknown modules", () => {

@@ -9,6 +9,7 @@ import type {
 import {
   Inject,
   Injectable,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
@@ -30,6 +31,9 @@ export class ModuleRoutingGuard implements CanActivate {
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
+    const request =
+      context.switchToHttp().getRequest<SecurityRequest>();
+    const systemReadOnly = this.routing.systemReadOnly;
     const routeKey =
       this.reflector.getAllAndOverride<ModuleRouteKey>(
         MODULE_ROUTE_KEY_METADATA,
@@ -40,6 +44,16 @@ export class ModuleRoutingGuard implements CanActivate {
       );
 
     if (!routeKey) {
+      if (
+        systemReadOnly &&
+        isMutationMethod(request.method) &&
+        !isSessionOperation(context)
+      ) {
+        throw new ServiceUnavailableException({
+          code: "SYSTEM_READ_ONLY",
+          retryable: false,
+        });
+      }
       return true;
     }
 
@@ -52,11 +66,10 @@ export class ModuleRoutingGuard implements CanActivate {
         REQUIRE_PERMISSION_KEY,
         targets,
       );
-    const request =
-      context.switchToHttp().getRequest<SecurityRequest>();
     const resolved = this.routing.resolve(routeKey);
 
     request.moduleRouting = resolved;
+    request.systemReadOnly = systemReadOnly;
 
     // Protected routes must authenticate/authorize before freeze state is
     // disclosed. AuthorizationGuard enforces the freeze after permission
@@ -68,4 +81,22 @@ export class ModuleRoutingGuard implements CanActivate {
 
     return true;
   }
+}
+
+function isMutationMethod(method: string | undefined): boolean {
+  return ["POST", "PUT", "PATCH", "DELETE"].includes(
+    method?.toUpperCase() ?? "",
+  );
+}
+
+/** Authentication/session endpoints do not mutate HR business data. */
+function isSessionOperation(context: ExecutionContext): boolean {
+  const controllerName = context.getClass().name;
+  const handlerName = context.getHandler().name;
+  return (
+    controllerName === "DesktopAuthController" &&
+    ["login", "lineLogin", "logout", "requireSession"].includes(
+      handlerName,
+    )
+  );
 }

@@ -2,6 +2,7 @@ import {
   disconnectPrismaClient,
   getPrismaClient,
 } from "@ckace/database";
+import { readSystemWriteMode } from "./runtime/system-write-mode";
 
 const EMPLOYEE_IDS = [
   "29000000-0000-4000-9000-000000000001",
@@ -170,6 +171,10 @@ async function assertPreflight(): Promise<{
   outboxIds: string[];
   auditIds: string[];
 }> {
+  if (readSystemWriteMode() === "READ_ONLY") {
+    throw new Error("TASK36_BLOCKED_SYSTEM_READ_ONLY");
+  }
+
   if (
     required("CKACE_TASK36_CLEANUP") !== "YES" ||
     required("CKACE_TASK36_R2_CLEANUP_CONFIRMED") !== "YES" ||

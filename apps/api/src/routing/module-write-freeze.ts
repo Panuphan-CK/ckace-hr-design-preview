@@ -7,6 +7,13 @@ export function assertModuleWriteAllowed(
 ): void {
   const route = request.moduleRouting;
 
+  if (route?.access === "WRITE" && request.systemReadOnly) {
+    throw new ServiceUnavailableException({
+      code: "SYSTEM_READ_ONLY",
+      retryable: false,
+    });
+  }
+
   if (!route?.writeFrozen) {
     return;
   }

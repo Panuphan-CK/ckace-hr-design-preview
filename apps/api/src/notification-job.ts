@@ -9,6 +9,7 @@ import {
 
 import { SmtpEmailSender } from "./notifications/email-sender";
 import { LinePushSender } from "./notifications/line-sender";
+import { readSystemWriteMode } from "./runtime/system-write-mode";
 
 /**
  * One notification cycle: queue overdue-approval reminders (24h, repeating every 24h, working hours),
@@ -16,6 +17,17 @@ import { LinePushSender } from "./notifications/line-sender";
  * (Cloud Run Job + scheduler). Channels without credentials are simply skipped, so the inbox always works.
  */
 async function main(): Promise<void> {
+  if (readSystemWriteMode() === "READ_ONLY") {
+    console.log(
+      JSON.stringify({
+        job: "notification-cycle",
+        skipped: true,
+        reason: "SYSTEM_READ_ONLY",
+      }),
+    );
+    return;
+  }
+
   const prisma = getPrismaClient();
   const senders: NotificationSender[] = [];
   const lineToken = process.env.LINE_CHANNEL_ACCESS_TOKEN?.trim();

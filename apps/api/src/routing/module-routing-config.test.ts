@@ -1,4 +1,5 @@
 import {
+  HR_MODULE_KEYS,
   LEGACY_ONLY_ROUTING,
   MODULE_ROUTE_KEYS,
 } from "@ckace/contracts";
@@ -11,6 +12,7 @@ describe("readModuleRoutingConfig", () => {
     const config = readModuleRoutingConfig({}, "test");
     expect(config.state).toEqual(LEGACY_ONLY_ROUTING);
     expect(config.frozenWriteModules).toEqual([]);
+    expect(config.systemWriteMode).toBe("ACTIVE");
     expect(MODULE_ROUTE_KEYS).toHaveLength(26);
   });
 
@@ -172,5 +174,16 @@ describe("readModuleRoutingConfig", () => {
         "dev",
       ),
     ).toThrow(/Unknown module write-freeze key/);
+  });
+
+  it("freezes every user module in system-wide read-only mode", () => {
+    const config = readModuleRoutingConfig(
+      { CKACE_SYSTEM_WRITE_MODE: "READ_ONLY" },
+      "test",
+    );
+
+    expect(config.systemWriteMode).toBe("READ_ONLY");
+    expect(config.frozenWriteModules).toEqual(HR_MODULE_KEYS);
+    expect(config.state).toEqual(LEGACY_ONLY_ROUTING);
   });
 });

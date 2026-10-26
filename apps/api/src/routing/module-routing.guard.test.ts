@@ -26,6 +26,18 @@ function contextFor(request: Record<string, unknown>): ExecutionContext {
   } as unknown as ExecutionContext;
 }
 
+function sessionContextFor(request: Record<string, unknown>): ExecutionContext {
+  return {
+    getHandler: () => function login() {},
+    getClass: () => class DesktopAuthController {},
+    switchToHttp: () => ({
+      getRequest: () => request,
+      getResponse: () => undefined,
+      getNext: () => undefined,
+    }),
+  } as unknown as ExecutionContext;
+}
+
 function reflectorFor(
   routeKey: string | undefined,
   requirement?: PermissionRequirement,
@@ -131,5 +143,27 @@ describe("ModuleRoutingGuard", () => {
     );
 
     expect(guard.canActivate(contextFor({}))).toBe(true);
+  });
+
+  it("rejects unclassified user mutations while read-only, fail-closed", () => {
+    const guard = new ModuleRoutingGuard(
+      reflectorFor(undefined) as never,
+      { systemReadOnly: true } as never,
+    );
+
+    expect(() =>
+      guard.canActivate(contextFor({ method: "POST" })),
+    ).toThrow(ServiceUnavailableException);
+  });
+
+  it("preserves session login while read-only because it is not a module write", () => {
+    const guard = new ModuleRoutingGuard(
+      reflectorFor(undefined) as never,
+      { systemReadOnly: true } as never,
+    );
+
+    expect(
+      guard.canActivate(sessionContextFor({ method: "POST" })),
+    ).toBe(true);
   });
 });

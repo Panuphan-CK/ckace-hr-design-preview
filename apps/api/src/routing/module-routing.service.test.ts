@@ -78,4 +78,22 @@ describe("ModuleRoutingService", () => {
       writeFrozen: false,
     });
   });
+
+  it("freezes writes across every module only when the system switch is enabled", () => {
+    vi.stubEnv("CKACE_RUNTIME_STAGE", "local");
+    vi.stubEnv("CKACE_MODULE_ROUTING", "LEGACY");
+    vi.stubEnv("CKACE_MODULE_ROUTING_STATE", "");
+    vi.stubEnv("CKACE_MODULE_WRITE_FREEZE", "");
+    vi.stubEnv("CKACE_SYSTEM_WRITE_MODE", "READ_ONLY");
+
+    const routing = new ModuleRoutingService();
+
+    expect(routing.systemReadOnly).toBe(true);
+    expect(routing.resolve("LEAVE_READ").writeFrozen).toBe(false);
+    expect(routing.resolve("LEAVE_WRITE").writeFrozen).toBe(true);
+    expect(routing.resolve("ATTENDANCE_WRITE").writeFrozen).toBe(true);
+    expect(routing.resolve("OT_WRITE").writeFrozen).toBe(true);
+    expect(routing.resolve("MEDICAL_WRITE").writeFrozen).toBe(true);
+    expect(routing.resolve("ADMIN_WRITE").writeFrozen).toBe(true);
+  });
 });

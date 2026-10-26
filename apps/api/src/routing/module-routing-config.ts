@@ -10,10 +10,12 @@ import {
 } from "@ckace/contracts";
 
 import type { RuntimeStage } from "../runtime/runtime-config";
+import { readSystemWriteMode, type SystemWriteMode } from "../runtime/system-write-mode";
 
 export interface ModuleRoutingConfig {
   readonly state: ModuleRoutingState;
   readonly frozenWriteModules: readonly HrModuleKey[];
+  readonly systemWriteMode: SystemWriteMode;
 }
 
 function isAuthorityTarget(value: unknown): value is AuthorityTarget {
@@ -147,7 +149,13 @@ export function readModuleRoutingConfig(
   stage: RuntimeStage,
 ): ModuleRoutingConfig {
   const state = readRoutingState(env, stage);
-  const frozenWriteModules = readWriteFreeze(env);
+  const systemWriteMode = readSystemWriteMode(env);
+  const configuredFreeze = readWriteFreeze(env);
+  const frozenWriteModules = Object.freeze(
+    systemWriteMode === "READ_ONLY"
+      ? [...new Set([...HR_MODULE_KEYS, ...configuredFreeze])]
+      : [...configuredFreeze],
+  );
 
   for (const routeKey of MODULE_ROUTE_KEYS) {
     const definition = MODULE_ROUTE_DEFINITIONS[routeKey];
@@ -161,5 +169,6 @@ export function readModuleRoutingConfig(
   return Object.freeze({
     state,
     frozenWriteModules,
+    systemWriteMode,
   });
 }

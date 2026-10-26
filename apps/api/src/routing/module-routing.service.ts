@@ -19,6 +19,10 @@ export class ModuleRoutingService {
     this.config.frozenWriteModules,
   );
 
+  get systemReadOnly(): boolean {
+    return this.config.systemWriteMode === "READ_ONLY";
+  }
+
   resolve(routeKey: ModuleRouteKey): ServerModuleRouteContext {
     const definition = MODULE_ROUTE_DEFINITIONS[routeKey];
 

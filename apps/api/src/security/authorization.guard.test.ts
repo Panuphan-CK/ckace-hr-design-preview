@@ -256,4 +256,39 @@ describe("AuthorizationGuard", () => {
       ),
     ).toThrow(ServiceUnavailableException);
   });
+
+  it("blocks authorized protected writes with the system read-only switch", () => {
+    const guard = new AuthorizationGuard(new Reflector());
+    const writer: InternalActorContext = {
+      ...actor,
+      permissions: ["medical.self.write"],
+    };
+
+    try {
+      guard.canActivate(
+        contextFor(
+          { permission: "medical.self.write", scope: "SELF" },
+          {
+            actor: writer,
+            systemReadOnly: true,
+            moduleRouting: {
+              routeKey: "MEDICAL_WRITE",
+              module: "MEDICAL",
+              access: "WRITE",
+              authority: "LEGACY",
+              writeFrozen: true,
+            },
+          },
+          true,
+        ),
+      );
+      throw new Error("Expected write to be blocked");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ServiceUnavailableException);
+      expect((error as ServiceUnavailableException).getResponse()).toMatchObject({
+        code: "SYSTEM_READ_ONLY",
+        retryable: false,
+      });
+    }
+  });
 });

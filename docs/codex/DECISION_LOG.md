@@ -35,16 +35,28 @@ This is a migration/rehearsal business-rule decision only, not Production approv
 
 ## PROD-READINESS-06 — Reviewer rehearsal dispositions and migration tools (2026-10-26)
 
-The Owner reviewed the disposable PostgreSQL 16 rehearsal from revision `21101da` and confirmed these dispositions for the next DEV rehearsal:
+The Owner reviewed the disposable PostgreSQL 16 rehearsal from revision `21101da` and confirmed these dispositions for the next DEV rehearsal. At that point, the exact TESTm74 policy export had not yet been supplied; the later reviewer result below supersedes that waiting status.
 
 - `TimeLog.LogID` `LOG-001112` is reused by different employees in the source GAS bug. Import both rows with `(LogID, UserID)` provenance and record `ATTENDANCE_LOG_ID_REUSED_ACROSS_EMPLOYEES` as a named exception. If a LogID repeats for the same employee, reject every row in that collision group as before.
 - A Pending request with no remaining step under the target policy, including LEV-0109, stays Pending as an HR exception. Report “อนุมัติครบตาม policy ใหม่แล้ว รอ HR ยืนยันปิดคำขอ”. Before future write freeze, notify the assigned approver to close the still-Pending request in GAS and have HR confirm its terminal status. Never auto-approve or close it in CKACE HR.
 - The 34 legacy attachment records are deferred to separate file-transfer work. PROD-READINESS-06 may prepare a local SHA-256-checked copy tool, but must not upload objects in this round.
 - Snapshot paths may be overridden by `CKACE_SNAPSHOT_DIR`; the default stays `D:\CKACE_HR_snapshot`.
 - `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` rejects all API POST/PUT/PATCH/DELETE operations, including routes labelled READ. Only desktop login, LINE login, and logout remain allowed; session confirmation and password-recovery mutations are blocked.
-- The prior reviewer-created temporary global approval policies are not verified as the actual TESTm74 baseline. Do not copy those values into code/docs as current policy. Require a sanitized external policy export matching TESTm74 revision `1322ed48e98428ffd580a6ec2e8bb7cdec5132c7`; if the export is scoped or multi-policy, extend the seeder rather than flattening it.
+- The prior reviewer-created temporary global approval policies were not verified as the TESTm74 baseline. Do not copy those values into code/docs as current policy. The owner-supplied sanitized export and reviewer read-only verification are recorded in the following result section.
 
 These are DEV migration and rehearsal instructions only. The review does not authorize Production database/resource creation, data mutation, deploy, traffic/DNS/LINE changes, or cutover.
+
+## PROD-READINESS-06 reviewer result and TESTm74 policy evidence (2026-10-26)
+
+The reviewer reported a PostgreSQL 16 loopback `ckace_hr_dev` rehearsal from revision `a793020` using the sanitized snapshot and the actual TESTm74 policy export. This is reviewer-provided evidence; Codex did not connect to the database in PROD-READINESS-07.
+
+- Import accounted for 5,269 rows: 5,234 imported, 35 skipped, 0 rejected, 0 unaccounted, 0 ambiguous writes, and no early stop; elapsed time 62 seconds.
+- Target counts: 25 employees, 193 leave requests, 508 OT requests, 2,416 attendance records, 23 medical claims, 64 time corrections, and 1,948 approval steps. The 2026 entitlement set covered 23 employees x 3 types.
+- Replay skipped 5,234 identical rows and added 0 rows. Pending source/target count was 1/1; LEV-0109 remained an HR exception. Backup/restore/reset took 0.30/0.59/0.83 seconds. Restore returned to baseline with 0 employee rows and 4 policy rows.
+- Read-only TESTm74 policy evidence: 4 active global policies (LEAVE, TIME_CORRECTION, OVERTIME, MEDICAL), each `ADMIN/SAME_AGENCY` then `SUPERADMIN/GLOBAL`; all employees use `STANDARD`. The names and table are in `docs/migration/REHEARSAL_POLICY_BASELINE.md`. The sanitized seeder JSON remains outside Git.
+- Owner accepts 2 cross-employee LOG-001112 attendance rows, LEV-0109 as an HR close-out exception, and 34 attachment rows without bytes as a separately deferred transfer. The runner may exit 0 only for this exact named/count disposition set plus the expected replaced Pending approval step; any other mismatch remains exit 2.
+
+This result does not authorize Production actions. It does not change the full-system authority/rollback blocker or the requirement for separate Owner approval for each Production action.
 
 ## Implementation implications
 

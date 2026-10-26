@@ -9,7 +9,7 @@ This is a DEV-only rehearsal. It reads only the Owner-supplied sanitized XLSX fi
 3. Set `DATABASE_URL` in the local process environment using the local credential manager. Do not save it in Git or send it in chat.
 4. Ensure `DATABASE_URL` points to the disposable local database. The rehearsal runner independently checks host and database name.
 5. Confirm both sanitized workbooks and `MANIFEST.md` are present under the directory selected by `CKACE_SNAPSHOT_DIR` (or the default). Example: `$env:CKACE_SNAPSHOT_DIR = 'D:\CKACE_HR_snapshot'`.
-6. Obtain an external sanitized JSON export of the actual active global approval policies from TESTm74. The repository does not contain their runtime DB rows; read `docs/migration/REHEARSAL_POLICY_BASELINE.md` and do not substitute the prior reviewer-created policy rows. The current script fails closed for scoped or multiple active policies.
+6. Use the sanitized policy JSON captured from the read-only TESTm74 review at `D:\CKACE_HR_snapshot\testm74-approval-policies.json`. Its reviewed values are summarized in `docs/migration/REHEARSAL_POLICY_BASELINE.md`; do not substitute the earlier temporary reviewer-created values. Keep the JSON outside Git.
 7. The snapshot contains no notification-delivery history (LINE/chat tabs are excluded) and its attachment URLs are redacted. These remain explicit out-of-scope/blocked reconciliation items until separately supplied through an approved safe transfer.
 
 ## Prepare the database
@@ -32,10 +32,10 @@ Do this after schema migration and before import/baseline backup. The input poli
 $env:CKACE_RUNTIME_STAGE = 'dev'
 $env:CKACE_SYSTEM_WRITE_MODE = 'READ_ONLY'
 $env:CKACE_MIGRATION_JOB = 'YES'
-node scripts/migration/seed-rehearsal-policies.mjs --policy-baseline "$env:TEMP\TESTm74_approval_policy_baseline.json"
+node scripts/migration/seed-rehearsal-policies.mjs --policy-baseline "D:\CKACE_HR_snapshot\testm74-approval-policies.json"
 ```
 
-The script ensures the four canonical role keys, inserts only absent global policy rows, skips exact matches, and refuses conflicts. The external JSON path must remain outside Git. If the actual TESTm74 table contains agency-scoped or multiple active policies, stop here; the current seeder does not support that shape and must not flatten it to global.
+The script ensures the four canonical role keys, inserts only absent global policy rows, skips exact matches, and refuses conflicts. Keep the external JSON outside Git. If its values conflict with the read-only reviewed table in `REHEARSAL_POLICY_BASELINE.md`, stop and request Owner review; never flatten or overwrite a different policy.
 
 ## Capture the baseline backup
 
@@ -113,6 +113,10 @@ npx vitest run apps/api/src/runtime/system-write-mode.test.ts apps/api/src/routi
 ```
 
 `CKACE_SYSTEM_WRITE_MODE` absent or set to `ACTIVE` preserves existing DEV/TEST writes. `READ_ONLY` rejects every `POST`/`PUT`/`PATCH`/`DELETE` business endpoint, including routes whose metadata says `READ`; only Desktop login, LINE login, and logout remain available. Session confirmation and password recovery mutations are blocked during the freeze. The notification and cleanup jobs skip/refuse writes. The standalone migration runner is the only component permitted to bypass the HTTP write guard.
+
+The runner reads `scripts/migration/approved-rehearsal-dispositions.mjs`. It exits `0` only when outcomes match the exact approved counts and IDs, all hard gates pass, and the only unresolved approval case is the approved LEV-0109 HR close-out exception. The accepted set is 34 attachment rows without sanitized bytes, one pending legacy approval step intentionally replaced by the target policy, and the two Owner-approved cross-employee LOG-001112 rows. A changed count/ID, new code, extra pending request, changed next approver, rejected row, ambiguous write, or accounting gap keeps exit code `2`.
+
+The latest numeric rehearsal evidence is `docs/migration/evidence/prod-readiness-06-rehearsal-20261026.json`. These are reviewer-run results; this task does not connect to a database.
 
 ## Evidence files
 

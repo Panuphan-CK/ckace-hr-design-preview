@@ -154,6 +154,12 @@ describe("sanitized XLSX import orchestration", () => {
       }),
     ]);
     expect(result.outcomesByTab.ApprovalSteps).toEqual({ SKIPPED_TRANSFORM: 1 });
+    expect(result.outcomeDetails).toContainEqual({
+      sourceTab: "ApprovalSteps",
+      legacyId: "STEP-900",
+      status: "SKIPPED_TRANSFORM",
+      code: "LEGACY_PENDING_APPROVAL_REPLACED_BY_CURRENT_POLICY",
+    });
   });
 
   it("imports distinct employees sharing a GAS LogID with a named composite-key exception", async () => {
@@ -172,6 +178,13 @@ describe("sanitized XLSX import orchestration", () => {
     expect(result.report.outcomes.filter((outcome) => outcome.code === "ATTENDANCE_LOG_ID_REUSED_ACROSS_EMPLOYEES")).toMatchObject([
       { legacyId: "LOG-900::USER:USER-012", status: "IMPORTED", disposition: expect.stringContaining("OWNER_APPROVED") },
       { legacyId: "LOG-900::USER:USER-007", status: "IMPORTED", disposition: expect.stringContaining("OWNER_APPROVED") },
+    ]);
+    expect(result.outcomeDetails
+      .filter((outcome) => outcome.code === "ATTENDANCE_LOG_ID_REUSED_ACROSS_EMPLOYEES")
+      .map(({ sourceTab, legacyId }) => [sourceTab, legacyId])
+      .sort((left, right) => left[1].localeCompare(right[1]))).toEqual([
+      ["TimeLog", "LOG-900::USER:USER-007"],
+      ["TimeLog", "LOG-900::USER:USER-012"],
     ]);
     expect(targetStore.createdInputs
       .filter((input) => input.targetEntityType === "attendance_record_bundle")

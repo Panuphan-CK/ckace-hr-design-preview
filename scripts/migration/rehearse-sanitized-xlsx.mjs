@@ -11,6 +11,7 @@ import {
   summarizeOutcomes,
 } from "@ckace/migration";
 import { resolveSnapshotDirectory } from "./snapshot-directory.mjs";
+import { evaluateRehearsalDispositions } from "./rehearsal-disposition.mjs";
 
 const requiredEnvironment = {
   CKACE_RUNTIME_STAGE: "dev",
@@ -95,23 +96,27 @@ try {
     evidencePolicy: "Counts, source IDs, hashes and exception codes only; no source row values.",
     completedAt: new Date().toISOString(),
   };
+  const dispositionEvaluation = evaluateRehearsalDispositions({
+    outcomes: result.outcomeDetails,
+    rowAccounting: summary.rowAccounting,
+    stoppedEarly: result.report.stoppedEarly,
+    ambiguousWriteCount: result.report.ambiguousWriteCount,
+    rejectedCount: result.report.rejectedCount,
+    pendingApprovalHandoff: summary.pendingApprovalHandoff,
+  });
+  summary.approvedDispositions = {
+    passed: dispositionEvaluation.passed,
+    outcomes: dispositionEvaluation.outcomeDispositions,
+    pending: dispositionEvaluation.pendingDispositions,
+    unapprovedOutcomeCount: dispositionEvaluation.unapprovedOutcomeCount,
+    hardGates: dispositionEvaluation.hardGates,
+  };
   const evidenceDirectory = path.join(repoRoot, "docs", "migration", "evidence");
   await mkdir(evidenceDirectory, { recursive: true });
   const evidencePath = path.join(evidenceDirectory, `${migrationRunId}-import-summary.json`);
   await writeFile(evidencePath, `${JSON.stringify(summary, null, 2)}\n`, { encoding: "utf8", flag: "wx" });
   process.stdout.write(`${JSON.stringify({ ...summary, evidenceFile: path.relative(repoRoot, evidencePath) }, null, 2)}\n`);
-  const hasUnaccountedRows = Object.values(summary.rowAccounting).some((row) => row.unaccountedRows !== 0);
-  const handoff = summary.pendingApprovalHandoff;
-  const requiresOwnerReview = handoff.changedNextApprovers.length > 0 || handoff.unresolvedApprovers.length > 0;
-  if (
-    result.report.stoppedEarly ||
-    result.report.ambiguousWriteCount > 0 ||
-    result.report.rejectedCount > 0 ||
-    result.report.mismatchCount > 0 ||
-    hasUnaccountedRows ||
-    !handoff.pendingRequestCountMatches ||
-    requiresOwnerReview
-  ) process.exitCode = 2;
+  if (!dispositionEvaluation.passed) process.exitCode = 2;
 } finally {
   await prisma.$disconnect();
 }

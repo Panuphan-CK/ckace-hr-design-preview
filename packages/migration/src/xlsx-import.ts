@@ -504,6 +504,12 @@ export interface XlsxImportResult {
   readonly sourceSnapshots: readonly LegacySourceSnapshot[];
   readonly countsByTab: Readonly<Record<string, number>>;
   readonly outcomesByTab: Readonly<Record<string, Readonly<Record<string, number>>>>;
+  readonly outcomeDetails: readonly {
+    readonly sourceTab: string;
+    readonly legacyId: string;
+    readonly status: MigrationRunReport["outcomes"][number]["status"];
+    readonly code: string | null;
+  }[];
   readonly pendingApprovalHandoff?: PendingApprovalHandoffReport;
 }
 
@@ -589,17 +595,25 @@ export async function runXlsxImport(input: {
     }
   }
   const outcomesByTab: Record<string, Record<string, number>> = {};
+  const outcomeDetails: XlsxImportResult["outcomeDetails"][number][] = [];
   for (const outcome of report.outcomes) {
     const tab = tabByKey.get(outcome.provenanceKey) ?? "UNKNOWN";
     const counts = outcomesByTab[tab] ?? {};
     counts[outcome.status] = (counts[outcome.status] ?? 0) + 1;
     outcomesByTab[tab] = counts;
+    outcomeDetails.push({
+      sourceTab: tab,
+      legacyId: outcome.legacyId,
+      status: outcome.status,
+      code: outcome.code,
+    });
   }
   return {
     report,
     sourceSnapshots,
     countsByTab,
     outcomesByTab,
+    outcomeDetails,
     ...(targetSummary?.pendingApprovalHandoff
       ? { pendingApprovalHandoff: targetSummary.pendingApprovalHandoff }
       : {}),

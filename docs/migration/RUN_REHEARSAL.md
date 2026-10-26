@@ -1,6 +1,6 @@
 # Local sanitized XLSX migration rehearsal
 
-This is a DEV-only rehearsal. It reads only the Owner-supplied sanitized XLSX files in `D:\CKACE_HR_snapshot` and writes only to a loopback PostgreSQL database named `ckace_hr_dev`. The scripts reject remote database hosts and any other database name. They do not invoke Cloud tools, contact GAS/Drive, publish a deployment, or access Production.
+This is a DEV-only rehearsal. It reads only the Owner-supplied sanitized XLSX files from `CKACE_SNAPSHOT_DIR` (default `D:\CKACE_HR_snapshot`) and writes only to a loopback PostgreSQL database named `ckace_hr_dev`. The scripts reject remote database hosts and any other database name. They do not invoke Cloud tools, contact GAS/Drive, publish a deployment, or access Production.
 
 ## Preconditions
 
@@ -8,8 +8,8 @@ This is a DEV-only rehearsal. It reads only the Owner-supplied sanitized XLSX fi
 2. Create a disposable local PostgreSQL database named `ckace_hr_dev` on `127.0.0.1` or `localhost`.
 3. Set `DATABASE_URL` in the local process environment using the local credential manager. Do not save it in Git or send it in chat.
 4. Ensure `DATABASE_URL` points to the disposable local database. The rehearsal runner independently checks host and database name.
-5. Confirm both sanitized workbooks and `MANIFEST.md` are present under `D:\CKACE_HR_snapshot`.
-6. Provision the target role catalog and active approval policies for Leave, Time Correction, OT, and Medical from an Owner-approved non-Production baseline before taking the baseline dump. The checked-in schema migrations do not seed these business policies. The importer never invents a policy; if one is absent/ambiguous or yields no approver, the request remains Pending with an explicit HR exception.
+5. Confirm both sanitized workbooks and `MANIFEST.md` are present under the directory selected by `CKACE_SNAPSHOT_DIR` (or the default). Example: `$env:CKACE_SNAPSHOT_DIR = 'D:\CKACE_HR_snapshot'`.
+6. Obtain an external sanitized JSON export of the actual active global approval policies from TESTm74. The repository does not contain their runtime DB rows; read `docs/migration/REHEARSAL_POLICY_BASELINE.md` and do not substitute the prior reviewer-created policy rows. The current script fails closed for scoped or multiple active policies.
 7. The snapshot contains no notification-delivery history (LINE/chat tabs are excluded) and its attachment URLs are redacted. These remain explicit out-of-scope/blocked reconciliation items until separately supplied through an approved safe transfer.
 
 ## Prepare the database
@@ -23,6 +23,19 @@ npm run build:packages
 ```
 
 `migrate deploy` here targets only the local `ckace_hr_dev` connection supplied through `DATABASE_URL`.
+
+## Seed the temporary role catalog and approval policies
+
+Do this after schema migration and before import/baseline backup. The input policy JSON is an external sanitized export of the **actual** TESTm74 global policy table; no policy values are embedded in the repository because the checked-in code stores them as runtime DB data.
+
+```powershell
+$env:CKACE_RUNTIME_STAGE = 'dev'
+$env:CKACE_SYSTEM_WRITE_MODE = 'READ_ONLY'
+$env:CKACE_MIGRATION_JOB = 'YES'
+node scripts/migration/seed-rehearsal-policies.mjs --policy-baseline "$env:TEMP\TESTm74_approval_policy_baseline.json"
+```
+
+The script ensures the four canonical role keys, inserts only absent global policy rows, skips exact matches, and refuses conflicts. The external JSON path must remain outside Git. If the actual TESTm74 table contains agency-scoped or multiple active policies, stop here; the current seeder does not support that shape and must not flatten it to global.
 
 ## Capture the baseline backup
 
@@ -49,7 +62,7 @@ The importer runs through the shared migration engine, persists target rows and 
 
 For every source request that is Pending at import time, the importer keeps decided approval steps as history and does not keep the old GAS Pending assignment active. It resolves the current target policy and writes new Pending steps after the decided history. Multiple current eligible approvers are stored as one primary approver plus co-approvers. The requester is always excluded. A policy gap, missing/inactive approver, or requester-only candidate creates an unassigned Pending placeholder and an HR exception; the request is never auto-approved and no stage is silently removed. Completed requests get no new steps and retain their request status. The evidence report lists any changed next approver by stable request/USER IDs for HR review before cutover.
 
-When a source approval ID collides between current and 2025 tabs, the importer links it only if exactly one candidate request date has the same year as the approval assignment date. Missing or non-unique date matches are explicit period-ambiguity rejections. It never selects a current/archive request by row order. The supplied sanitized snapshot has one conflicting `TimeLog.LogID` group containing two rows; both colliding rows are rejected with `ATTENDANCE_DUPLICATE_SOURCE_LOG_ID` so no attendance row is silently selected. Resolve that source collision before expecting a clean reconciliation.
+When a source approval ID collides between current and 2025 tabs, the importer links it only if exactly one candidate request date has the same year as the approval assignment date. Missing or non-unique date matches are explicit period-ambiguity rejections. It never selects a current/archive request by row order. The supplied snapshot also has `TimeLog.LogID` `LOG-001112` on two rows for different employees. Those rows are imported with composite provenance `LogID::USER:USER-xxx` and carry the named exception `ATTENDANCE_LOG_ID_REUSED_ACROSS_EMPLOYEES`; the source `LogID` is preserved in the attendance payload. If a repeated LogID occurs more than once for the same employee, every row in that collision group remains rejected with `ATTENDANCE_DUPLICATE_SOURCE_LOG_ID`.
 
 Pending-specific code tests cover stage 1, stage 2 after a decided step, co-approvers, a resigned former approver, requester-only eligibility, and completed requests. The script reports Pending request counts before/after, rerouted count, changed approvers, and unresolved cases.
 
@@ -57,8 +70,8 @@ Acceptance for this rehearsal:
 
 - All source data rows must have one outcome: `outcomesByTab` counts sum to `sourceRowsByTab` counts for every tab; unaccounted rows = **0**.
 - `ambiguousWrites` = **0** and `stoppedEarly` = **false**.
-- `rejected` = **0** except a named, Owner-approved source exception with an explicit disposition.
-- If duplicate attendance `LogID` values exist, every colliding row is reported with `ATTENDANCE_DUPLICATE_SOURCE_LOG_ID` and none is imported. Resolve the source conflict before requiring zero rejected rows; do not choose a winner automatically.
+- `rejected` = **0** except a named source exception with an explicit Owner-approved disposition.
+- `ATTENDANCE_LOG_ID_REUSED_ACROSS_EMPLOYEES` is acceptable only when every row has a unique, non-empty `UserID`; every row is imported, keyed by `LogID + UserID`, and reported with the stable user IDs. A same-employee duplicate or missing/ambiguous employee mapping remains rejected in full.
 - Every non-PASS reconciliation is tied to an exception code and disposition. No unexplained mismatch is accepted.
 - `pendingApprovalHandoff.pendingRequestCountMatches` = **true**; source and target Pending request counts must be exactly equal.
 - Every changed next approver is listed by request/USER ID and reviewed by HR before cutover; unresolved approver count = **0** for cutover.
@@ -87,15 +100,19 @@ node scripts/migration/backup-restore-local.mjs reset "$env:TEMP\ckace-hr-dev-ba
 
 The database name and loopback checks apply to backup, restore and reset. Never point these commands at a shared, hosted, TEST or Production database.
 
+## Cutover-day Pending request close-out
+
+Before enabling the GAS write freeze, HR must review the Pending handoff report. For an item reported as `CURRENT_APPROVAL_POLICY_HAS_NO_REMAINING_STEPS`, the report states “อนุมัติครบตาม policy ใหม่แล้ว รอ HR ยืนยันปิดคำขอ”. Notify the assigned approver to close the still-Pending request in GAS before the freeze, then have HR confirm its terminal status and ensure the final sanitized snapshot/reconciliation reflects that closure. Never auto-approve or close it in CKACE HR. If the owner/approver cannot close it or the final Pending count changes unexpectedly, keep the cutover blocked and record an exception.
+
 ## Read-only switch checks
 
 Run the read-only and default-`ACTIVE` tests from the repository root:
 
 ```powershell
-npx vitest run apps/api/src/runtime/system-write-mode.test.ts apps/api/src/routing/module-routing-config.test.ts apps/api/src/routing/module-routing.service.test.ts apps/api/src/routing/module-routing.guard.test.ts apps/api/src/security/authorization.guard.test.ts --pool=threads --maxWorkers=1
+npx vitest run apps/api/src/runtime/system-write-mode.test.ts apps/api/src/routing/module-routing-config.test.ts apps/api/src/routing/module-routing.service.test.ts apps/api/src/routing/module-routing.guard.test.ts apps/api/src/routing/system-readonly-endpoint-matrix.test.ts apps/api/src/security/authorization.guard.test.ts --pool=threads --maxWorkers=1
 ```
 
-`CKACE_SYSTEM_WRITE_MODE` absent or set to `ACTIVE` preserves existing DEV/TEST writes. `READ_ONLY` freezes every module write route; unclassified mutation endpoints fail closed; authentication/session operations remain available. The notification and cleanup jobs skip/refuse writes. The standalone migration runner is the only component permitted to bypass the HTTP write guard.
+`CKACE_SYSTEM_WRITE_MODE` absent or set to `ACTIVE` preserves existing DEV/TEST writes. `READ_ONLY` rejects every `POST`/`PUT`/`PATCH`/`DELETE` business endpoint, including routes whose metadata says `READ`; only Desktop login, LINE login, and logout remain available. Session confirmation and password recovery mutations are blocked during the freeze. The notification and cleanup jobs skip/refuse writes. The standalone migration runner is the only component permitted to bypass the HTTP write guard.
 
 ## Evidence files
 

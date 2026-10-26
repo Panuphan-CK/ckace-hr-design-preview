@@ -33,6 +33,19 @@ The Owner selected Option B for requests still Pending at a future cutover:
 
 This is a migration/rehearsal business-rule decision only, not Production approval.
 
+## PROD-READINESS-06 — Reviewer rehearsal dispositions and migration tools (2026-10-26)
+
+The Owner reviewed the disposable PostgreSQL 16 rehearsal from revision `21101da` and confirmed these dispositions for the next DEV rehearsal:
+
+- `TimeLog.LogID` `LOG-001112` is reused by different employees in the source GAS bug. Import both rows with `(LogID, UserID)` provenance and record `ATTENDANCE_LOG_ID_REUSED_ACROSS_EMPLOYEES` as a named exception. If a LogID repeats for the same employee, reject every row in that collision group as before.
+- A Pending request with no remaining step under the target policy, including LEV-0109, stays Pending as an HR exception. Report “อนุมัติครบตาม policy ใหม่แล้ว รอ HR ยืนยันปิดคำขอ”. Before future write freeze, notify the assigned approver to close the still-Pending request in GAS and have HR confirm its terminal status. Never auto-approve or close it in CKACE HR.
+- The 34 legacy attachment records are deferred to separate file-transfer work. PROD-READINESS-06 may prepare a local SHA-256-checked copy tool, but must not upload objects in this round.
+- Snapshot paths may be overridden by `CKACE_SNAPSHOT_DIR`; the default stays `D:\CKACE_HR_snapshot`.
+- `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` rejects all API POST/PUT/PATCH/DELETE operations, including routes labelled READ. Only desktop login, LINE login, and logout remain allowed; session confirmation and password-recovery mutations are blocked.
+- The prior reviewer-created temporary global approval policies are not verified as the actual TESTm74 baseline. Do not copy those values into code/docs as current policy. Require a sanitized external policy export matching TESTm74 revision `1322ed48e98428ffd580a6ec2e8bb7cdec5132c7`; if the export is scoped or multi-policy, extend the seeder rather than flattening it.
+
+These are DEV migration and rehearsal instructions only. The review does not authorize Production database/resource creation, data mutation, deploy, traffic/DNS/LINE changes, or cutover.
+
 ## Implementation implications
 
 - Current module contracts expose 26 route keys across 13 modules. Current Production validation permits exactly one module pair to be NEW and rejects a multi-module full-system route state.

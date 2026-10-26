@@ -21,12 +21,11 @@ Last Updated: 2026-10-26
 
 Current verified TEST baseline: TESTm74, built from unified source/main commit 1322ed48e98428ffd580a6ec2e8bb7cdec5132c7.
 
-## Owner-selected Leave data boundary
+## Owner-selected full-system data boundary
 
-The target plan is a bounded Leave cutover: LEAVE_READ and LEAVE_WRITE use NEW; every other module route, including IDENTITY, remains LEGACY. This is a planning decision only. No Production route, resource, data, or deployment change is authorized.
+The target plan migrates all employee-facing modules from GAS to CKACE HR together so employees use one system. The earlier Leave-only Option 2 is superseded. Leave entitlements are calculated from CKACE HR tenure rules; GAS quota is reconciliation evidence only.
 
-CKACE HR migration code currently contains contracts, snapshot hashing, and entity transformers. It does not yet evidence a concrete APP_LEAVE_GAS Sheets/Drive reader, a persistent migration target adapter, organization mapping, bulk legacy attachment copy to R2, or a tested reverse-write rollback path. See HANDOFF.md for the Local-only gap inventory and proposed acceptance plan.
-
+This is a planning decision, not Production approval. Current per-module route state is not a universal data dispatcher, and current Production validation rejects more than one module pair set to NEW. Implement and prove one fail-closed LEGACY/FROZEN/NEW system mode and all-path coverage before a full-system rehearsal/cutover. See HANDOFF.md for XLSX inventory, model map, acceptance plan, and Owner inputs.
 ## Boundaries
 
 Web and LIFF are clients, not authorization authorities.

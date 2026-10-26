@@ -6,127 +6,175 @@ Last Updated: 2026-10-26 Asia/Bangkok
 
 - Active executor: Codex Local.
 - Application repository: Panuphan-CK/ckace-hr, remote source.
-- Current worktree: D:\CKACE_HR\.worktrees\main-integration, branch codex/main-integration. The similarly written path D:\CKACE_HR.worktrees\main-integration does not exist. The primary checkout D:\CKACE_HR was not accessed for this task.
+- Current worktree: D:\CKACE_HR\.worktrees\main-integration, branch codex/main-integration. The Owner-typed D:\CKACE_HR.worktrees\main-integration path does not exist. The primary checkout D:\CKACE_HR was not modified.
 - Verified application source: source/main commit 1322ed48e98428ffd580a6ec2e8bb7cdec5132c7; deployed TEST baseline is TESTm74.
-- Continuation branch last published before this task at 43b73bfd14a72b00b7a6dba5a2efb437ea014101.
-- Production is NO-GO. No Production access, commands, deployment, resource, database, credential, or traffic action was performed.
-- No live Google Sheets/Drive data or Project A repository/source was accessed. This assessment uses CKACE_HR Local source and Owner direction only.
+- Owner's new target is a coordinated full-system GAS-to-CKACE HR cutover so employees use one system. The earlier bounded Leave-only Option 2 is superseded.
+- This is a planning decision only. Production remains NO-GO until separate named Owner approval for each Production action.
+- No live Sheets/Drive data, Project A repo/config, Production system, cloud command, deployment, or source-code edit was used for this documentation task.
 
-## TESTm74 evidence carried forward
+## Prior XLSX import and current repository evidence
 
-- Cloud Build 3830ed94-07c4-49b5-a7e3-adaa073abd48 released TESTm74 from the unified source commit. API/Web reached 100% traffic on m74; public health reported stage=test and runtime=NON_PRODUCTION; Firebase Hosting release and /desktop response were verified.
-- Authenticated Leave request LEV-0024 passed Employee submission, Manager first approval, SuperAdmin second approval, and Employee final status/notification verification.
-- Documented Employee, Manager, and SuperAdmin NAV/direct-URL checks and responsive checks at 390px passed for the tested destinations. This does not claim full business transaction testing of every non-Leave module.
-- Local checks on the unified code commit passed lint, typecheck, Vitest 109 files/796 tests, package/API builds, Web production build with webpack (31/31 routes), and Prisma validation with a dummy Local URL.
+Owner reports that real employee records and Leave balances were previously loaded into TEST from an Owner-uploaded XLSX. I searched only this CKACE_HR checkout and its reachable repository history.
 
-## Owner decision PROD-READINESS-02
-
-Owner selected Option 2 on 2026-10-26: bounded Leave cutover only. LEAVE_READ and LEAVE_WRITE are the only routes intended to use NEW; every other route, including IDENTITY, remains LEGACY. The business goal is to migrate Leave data from APP_LEAVE_GAS so employees and approvers can continue current work in CKACE HR.
-
-This is a planning decision only. It is not approval to read live GAS data, create Production resources, change credentials/Secret Manager/IAM, deploy, change traffic, DNS/Firebase, LINE/LIFF, mutate Production data, or perform cutover.
-
-Required route shape for a future separately approved Production release:
-- CKACE_PRODUCTION_CUTOVER_MODULE=LEAVE.
-- CKACE_MODULE_ROUTING_STATE sets LEAVE_READ=NEW and LEAVE_WRITE=NEW; the other 24 route keys remain LEGACY.
-- CKACE_MODULE_ROUTING remains LEGACY because runtime-config currently only accepts that global value. The per-module route state is configured separately by module-routing-config.
-
-## Local-only gap inventory
-
-| Area | Status | Evidence from CKACE_HR source | Gap / consequence |
-| --- | --- | --- | --- |
-| a. Read-only GAS source and route dispatch | มี contracts/config; ไม่มี concrete Sheets/Drive reader or target store. Actual per-module dispatch is not proven end to end. | packages/migration/src/migration-contracts.ts defines ReadOnlyLegacySource.readRows; packages/migration/src/source-snapshot.ts calls it and calculates canonical SHA-256 hashes. Implementations found only in tests. MigrationTargetStore is also only an interface in runtime code; test stores are in identity-profile.test.ts and engine.test.ts. In the API, ModuleRoutingGuard attaches route context; static search found authority consumed in legacy-leave-liff.service.ts, while standard LeaveController calls PrismaLeaveRepository without authority dispatch. | No live extraction, persistent target writer, or end-to-end LEGACY/NEW source switch is evidenced. The route-state contract alone does not prove the bounded cutover works. Require route integration evidence before any Production plan can pass. |
-| b. Employee identity and organization | มี identity transformer; ไม่มี org/approval-policy transformer | packages/migration/src/identity-profile.ts maps Users to employee/account/role/LINE/profile metadata and stores legacyAgencyId/legacyDepartmentId. packages/database/prisma/schema.prisma defines Company, Agency, Department, Employee, UserAccount, LineAccount, UserRole and Employee.managerEmployeeId relations. | Leave requests and entitlements require target Employee/LeaveType references; approver steps require Employee references. Migrate minimal identity/reference rows for Leave FKs while leaving IDENTITY authority LEGACY. Organization/role/scope/policy mappings and stable ID crosswalks must exist first. Password-hash compatibility is supported in code for legacy GAS hashes but must be verified against the approved sanitized fixture; do not move credentials into test snapshots. |
-| c. LEGACY_DRIVE attachments to R2 | มี reference transform and R2 upload/inspect primitives; ไม่มี bulk migration copier | packages/migration/src/leave.ts emits a legacyDriveUrl and a reference-only migration marker. packages/storage/src/private-attachment-storage.service.ts and r2-aws-request-signer.ts validate R2 uploads and inspect downloaded R2 bytes for size, MIME type, and SHA-256. AttachmentController labels these APIs ATTACHMENTS_READ/WRITE; both routes remain LEGACY in the selected boundary while the service uses Prisma/R2. | A privileged migration job must read each approved Drive file, stream bytes to a private R2 key, hash source and destination bytes, verify metadata/owner/request/privacy, then change provider metadata only after all checks pass. Prove how Leave files remain available without silently expanding the selected route boundary. Do not trust ETag as SHA-256. |
-| d. Current-year entitlement/balance | มี entitlement transform and target usage formula; ไม่แน่ใจ about live GAS semantics | packages/migration/src/leave.ts maps UserPolicies.LeaveQuota to leave_entitlement quota but does not set validity dates or model an opening balance. packages/database/src/leave-repository.ts calculates remaining as quota minus approved usage and pending/revision reservations. packages/business-rules/src/leave-entitlement.ts and migration 20261027_entitlements_calendar_year state calendar-year/no-carry-over target rules. | The current code compares entitlement count and total quota, not each employee/type balance. Live GAS policy, manual adjustments, carry-over, and whether LeaveQuota means granted quota or remaining balance are unknown. Reconcile each person/type before accepting; do not infer a new balance from incomplete history. |
-| e. Requests pending approval | มี request/status and single-approver step transformers; full continuity is unverified | packages/migration/src/leave.ts maps LeaveRequests and LeaveRequests_2025; its ApprovalSteps transformer maps one approverLegacyId, order, status, dates and comments. It does not map ApprovalInstance, coApproverEmployeeIds, or decidedByEmployeeId. archiveApprovalHistoryDisposition marks unavailable archived approval history as an exception. | At freeze, every open request must carry status, exact current step, full assigned/co-approver set, pending/decided steps, comments, actor/decider identities and entitlement reservation. Reject cutover if any open request/approver is missing. Avoid duplicate notifications when imported work resumes. |
-| f. LINE LIFF/notifications after cutover | มี CKACE HR LIFF/API and LINE sender; ไม่แน่ใจ about Project A live target/config | apps/web/src/app/liff/page.tsx authenticates via CKACE HR same-origin API; apps/web/src/app/liff/bridge.ts sends Leave reads/writes to /api/leave routes. Its source comment says the screens are Project A's while the host/API provides Project B rules. apps/api/src/notifications/line-sender.ts sends through LINE Messaging API using runtime token configuration. | CKACE_HR Local source cannot establish the live Project A GAS web-app endpoint, LIFF ID/endpoint configuration, GAS triggers/webhooks, or named owners. Later, the Project A Apps Script admin must disable old Leave writes/triggers and duplicate sends; the LINE Developers/LIFF owner must verify and point the entry route to the approved CKACE HR LIFF endpoint; the CKACE HR runtime owner must configure the matching LIFF/channel and notification settings through secure config. Identify those people and URLs before cutover. No Project A file/config was touched. |
-| g. Write freeze and downtime | มี CKACE API module freeze; ไม่มี GAS freeze procedure or measured cutover duration | apps/api/src/routing/module-routing-config.ts reads CKACE_MODULE_WRITE_FREEZE; module-write-freeze.ts rejects writes through CKACE HR API. | This does not freeze Google Apps Script, Sheets edits, LINE entry points, or Project A triggers. A Project A operator must freeze every Leave submission/edit/cancel/approval path and related triggers, then confirm a stable final snapshot. Proposed interruption is Leave writes only for at most 60 minutes; reads should remain on LEGACY until NEW passes smoke, but this availability is unproven until the route rehearsal. If rehearsal cannot keep the write freeze and read-path target, stop and obtain a revised Owner window. The 60-minute cap is unmeasured and requires Owner approval. |
-
-## Dependency and migration order
-
-1. Confirm the source tab/column manifest, stable legacy IDs, leave-year scope and explicit exceptions using an approved sanitized snapshot. Source transformers currently expect Users, UserPolicies, LeaveRequests, LeaveRequests_2025, ApprovalSteps and Attachments; the real live GAS schema remains unverified.
-2. Create/map reference catalogs needed by the target: Company, Agency, Department, roles/scopes, LeaveType, active approval policy and policy steps, plus required manager/approver relationships.
-3. Create Employee identities from Users using stable source-qualified provenance. Create employees first, then resolve managerEmployeeId in a second pass to handle cycles/order. Add UserAccount, role/scope and LineAccount mappings only after owner confirms which are required and safe. Validate legacy password hash compatibility without exporting credentials.
-4. Import current-year LeaveEntitlement records after identity and LeaveType keys exist. Preserve the exact source-authoritative entitlement policy; derive target used/pending/remaining only after all in-scope requests and adjustments are reconciled.
-5. Import Leave request records and their ApprovalInstance/ApprovalStep state. Preserve exact status/current step/assigned approvers/comments and never auto-resubmit.
-6. Copy and verify attachment bytes to private DEV/TEST R2, then persist the target attachment links. Do not mark an object R2 until its SHA-256, size, ownership, privacy, and request link are verified.
-7. Capture the final delta while the legacy source remains frozen, import/reconcile it idempotently, prove that the configured route state is actually consumed by every Leave read/write path, verify attachment/notification dependencies and unaffected legacy modules, then release only the Leave path under a separately approved cutover.
-
-## PROD-READINESS-03 — Proposed acceptance plan
-
-These numeric values are proposed DEV/TEST rehearsal targets, not confirmed Production SLOs. Confirm the proposed freeze <=60 minutes, restore RTO <=60 minutes, and RPO=0 committed Leave writes after the final freeze snapshot before using them for a Production gate.
-
-### 1. Rehearse from a sanitized DEV/TEST snapshot
-
-- Owner supplies a synthetic or anonymized export plus workbook/tab/column dictionary. Replace direct identifiers with stable pseudonymous keys so relationships remain testable.
-- 100% of required manifest tabs and rows are accounted for; 0 unmasked names, employee IDs, emails, phones, LINE IDs, credentials, live Drive URLs, or private file content in the test fixture.
-- Two reads of an unchanged source produce identical SHA-256 hashes per tab and snapshot-set hash.
-- Run at least 2 DEV/TEST rehearsals: baseline import and idempotent replay. The replay creates 0 duplicate target rows.
-- Evidence: sanitized fixture fingerprint, tab/row manifest, importer version/run IDs, source and target snapshots. No live GAS connection is used in this plan.
-
-### 2. Reconcile source and target
-
-- Match 100% of in-scope rows by source tab/entity and stable provenance; match 100% of employee identity sets and account states.
-- Match 100% of Leave request IDs, request statuses, leave types, dates/durations and approval-step IDs/status/order/approver sets.
-- Match 100% of each employee/leave-type current-year granted quota and remaining balance; target balance difference must be <=0.01 day per employee/type.
-- Match 100% of open requests and their current approval step; 0 lost, duplicated, or orphaned pending requests.
-- 0 unexplained differences and 0 unapproved exceptions. A named exception is acceptable only with source/target IDs, count, reason, impact, disposition, and Owner sign-off. The existing aggregate reconcileLeaveModule helper alone is insufficient for this gate.
-
-### 3. Perform and time a real DEV/TEST database backup/restore
-
-- Complete 2 restore rehearsals from a backup of the fully imported DEV/TEST candidate into an isolated recovery database.
-- Restore 100% of in-scope Leave, identity, approval and migration-provenance row counts/hashes; database health, readiness, auth, and Leave reads pass 100%.
-- Proposed RPO=0 committed Leave writes after the final freeze snapshot; proposed RTO<=60 minutes from restore start to validated service readiness.
-- Record backup/restore IDs, timestamps, duration, row/hash comparisons, and operator. Current M8 helper is DEV-guarded and is not evidence of a completed production-provider restore.
-
-### 4. Rehearse rollback to LEGACY
-
-- Complete 2 DEV/TEST rollback rehearsals. Each includes at least 1 request and 1 approval written after switching Leave to NEW.
-- Freeze NEW writes, replay/reconcile the post-switch delta back into the legacy test fixture through an explicit idempotent adapter, and compare 100% of request state, approvals, entitlement impact and attachment links.
-- 0 missing or duplicate writes; 100% delta parity; proposed rollback completion <=60 minutes.
-- Current source only builds a plan-only reset of imported target records; it has no proven reverse writer to GAS. If reverse replay is unavailable, rollback after the first NEW write is NOT PASS. A route flip alone is unsafe because it can hide NEW writes.
-
-### 5. Establish minimum monitoring and alerting
-
-- Health/readiness probes every 60 seconds; alert after 2 consecutive failed probes (<=2 minutes). Database unavailable alerts within 1 minute.
-- Alert when API 5xx rate is >5% for 5 minutes with at least 20 requests, or P95 latency is >2 seconds for 5 minutes.
-- Alert when Leave notification outbox has any item failing for >5 minutes, or when module routing differs from the approved pair.
-- Simulate 4 cases (readiness failure, database failure, 5xx threshold, notification backlog); 4/4 alerts arrive at the named on-call destination within 5 minutes and are acknowledged. These are proposed initial thresholds, not existing configured alerts.
-
-### 6. Cutover-day checklist
-
-- Separate named Owner approval is recorded for Production data access, resource use, migration, route change, traffic/deploy if needed, and fallback execution. This planning decision is not that approval.
-- Verify final backup/restore and rollback evidence; zero open blockers and zero unapproved exceptions.
-- Project A operator freezes every Leave create/edit/cancel/approval path and relevant automatic trigger; capture final snapshot; two consecutive post-freeze snapshot hashes are identical.
-- Proposed write freeze stays <=60 minutes. If the ceiling is exceeded, any hash changes unexpectedly, or any reconciliation/runtime check fails, abort and keep/fall back to LEGACY while still frozen.
-- Apply exact route state: LEAVE_READ=NEW, LEAVE_WRITE=NEW, the other 24 route keys=LEGACY, and CKACE_PRODUCTION_CUTOVER_MODULE=LEAVE. Keep global CKACE_MODULE_ROUTING=LEGACY. Verify direct service integration proves every Leave API reaches the intended source while ATTACHMENTS and NOTIFICATIONS dependencies remain correct without changing other route authority.
-- Pass 10/10 smoke bundles: (1) health/readiness, (2) Employee identity, (3) current balance/history, (4) Leave submit, (5) Employee history refresh, (6) Manager queue/assignee, (7) Manager approval, (8) SuperAdmin approval, (9) exactly-once notification and authorized/denied attachment access, (10) unaffected module route/data-source checks. Any Production write smoke requires a separately approved test identity and synthetic marker; otherwise keep write checks in DEV/TEST.
-- Final row/status/balance/attachment reconciliation is 100% or has only preapproved named exceptions; release the write freeze and observe the agreed monitoring window. Record exact timestamps and approvers.
-
-## Owner resources required by phase
-
-| Acceptance step | Owner-provided access/resources | Approval boundary |
+| Question | Local evidence | Finding |
 | --- | --- | --- |
-| 1. Sanitized DEV/TEST snapshot | Approved sanitized export, source tab/column dictionary, history period, stable pseudonymization method, and allowed storage location. | No live Sheets/Drive read in this task; snapshot must contain 0 unmasked direct identifiers/secrets. |
-| 2. Reconciliation and identity/org mapping | Stable employee key; Company/Agency/Department/manager/approver/role-scope crosswalk; source-of-truth for quota, carry-over, manual adjustments, request statuses, and exception sign-off owner. | No passwords, password hashes, LINE IDs, secrets, or keys in chat/test fixture. |
-| 3. DEV/TEST backup/restore | Isolated disposable DEV/TEST database, backup/restore capability, database operator, and private TEST R2 read/write access for attachment verification. | TEST resources only; no Production credentials or database. |
-| 4. DEV/TEST rollback | Isolated LEGACY test fixture plus a named test operator who can replay the frozen delta idempotently; test-only permission to exercise the rollback adapter. | Do not read or write live Project A. Any later real GAS access or change needs separate Owner authorization. |
-| 5. Monitoring/alert rehearsal | Test monitoring sink, named on-call recipient, approved alert thresholds, and a safe test notification channel. | Do not use Production LINE credentials or send real employee notifications in rehearsal. |
-| 6. Future cutover | Read-only Sheets/Drive access for final extraction; named Project A GAS admin to freeze/restore all Leave writers/triggers; named LINE Developers/LIFF owner; CKACE HR operations owner; dedicated database ckace_hr_prod, private bucket ckace-hr-prod-private, backup/restore, monitoring, and least-privilege identities. | Every Production resource, access, data read/write, route, deploy, LINE, and rollback action requires separate explicit Owner approval. Nothing was provisioned or accessed here. |
+| Is the prior workbook checked in or present in this worktree? | No XLSX/XLS files are listed by the repository file scan. | Not found here. |
+| Is there an XLSX importer or migrate job to extend? | No workbook parser or durable XLSX-to-Prisma adapter was found. infra/cloudbuild/test-release.yaml does contain a migrate-test step that updates and executes ckace-hr-migrate-test after building the API image. The job command/configuration itself is not defined in the repository, so its data-migration behavior cannot be established from local source. | No in-repo importer found. |
+| What does ExcelJS do here? | apps/api/src/management/management-report-workbook.ts and overtime-report-workbook.ts build report workbooks and call writeBuffer; package-lock contains ExcelJS. | Export/report generation only, not import. |
+| What migration code exists? | packages/migration/src/migration-contracts.ts defines ReadOnlyLegacySource and MigrationTargetStore contracts; source-snapshot.ts hashes snapshots; engine.ts has provenance/idempotency orchestration; module transformer files map selected source tabs. | Reuse this contract/transformer layer; add an offline XLSX source adapter and durable target adapter. No live Sheets/Drive reader is needed. |
+| Can the earlier TEST import source and scope be proven? | No workbook, upload artifact, XLSX importer path, run ID, or commit evidence was found in the inspected checkout/history. The repository proves a migrate-test job is invoked by the TEST release workflow, but does not define its command or prove that it imports XLSX data. | The Owner's prior import report is recorded as Owner-provided context, not independently verified. Owner must provide the prior file/run reference to trace it exactly. |
 
-## Current unresolved risks
+Do not search Project A or live GAS to fill this gap. A future test snapshot should be a values-only XLSX, pseudonymized with stable keys, protected outside Git, with no credentials, direct identifiers, live Drive URLs, or real medical files. Keep export time, row counts, tab/column dictionary, timezone, history period, and workbook/per-tab hashes.
 
-- Real GAS tab names/columns and policy semantics are not validated against a sanitized export.
-- No runtime Sheets/Drive reader or Prisma-backed MigrationTargetStore exists in the examined migration package.
-- No organization/approval-policy transformer or crosswalk, bulk Drive-to-R2 copier, or proven rollback writer exists.
-- The live Project A LIFF/GAS/LINE destination and responsible configuration owner are unknown from CKACE_HR Local source. The Leave-only routing boundary may also conflict with separately keyed ATTACHMENTS/NOTIFICATIONS routes; prove the path without expanding the route boundary.
-- Proposed freeze/RTO/RPO/monitor thresholds require Owner ratification before a Production readiness decision.
-- Production remains NO-GO; no Production action was taken.
+## GAS sheet to CKACE HR model inventory
+
+The actual GAS workbook/tab list is not available in this repository. Names below are only the tab names current transformers recognize; they are not proof of today's live GAS schema. Status meanings: มี = transformer/mapping exists only; ไม่มี = no mapper found; ไม่แน่ใจ = actual source tab/columns or semantics need the Owner's workbook manifest. No row in this table claims that a runnable importer exists.
+
+| Module / source family | GAS sheet name recognized in local code (actual tab still unverified) | CKACE HR target table/model | Status and evidence |
+| --- | --- | --- | --- |
+| Identity | Users | Employee, UserAccount, UserRole, LineAccount (identity_profile_bundle transform) | มี — packages/migration/src/identity-profile.ts maps Users; no durable writer or XLSX reader. Account/role fields must be deliberately filtered for privacy. |
+| Organization | Company, Agency, Department, team, manager, reporting-line sheets | Company, Agency, Department, Employee.managerEmployeeId | ไม่แน่ใจ — target schema exists; no organization/crosswalk transformer was found. User transformer preserves legacy Agency/Department IDs only. |
+| Roles and approval configuration | Role, role-scope, approval-policy/step sheets | Role, Permission, UserRole, RolePermission, ApprovalPolicy, ApprovalPolicyStep, ApprovalDelegation | ไม่แน่ใจ — target models exist; actual source tabs and a migration mapper were not found. Must preserve least privilege and approval order. |
+| Leave catalogs and entitlement inputs | UserPolicies | LeaveType, LeaveTypeAlias, LeaveEntitlement | มี — UserPolicies maps LeaveQuota to a quota-shaped transform. Per Owner direction it is diagnostic only; the new balance must be derived from CKACE HR tenure rules and migrated use/history. LeaveType source tabs are not recognized. |
+| Leave requests | LeaveRequests, LeaveRequests_2025 | LeaveRequest, ApprovalInstance | มี — packages/migration/src/leave.ts recognizes current/archive requests; approval-instance and all workflow detail need complete bundle reconciliation. |
+| Leave approval history | ApprovalSteps | ApprovalInstance, ApprovalStep | มี — current ApprovalSteps transformer handles a single approver field/step data; full co-approver, decider, actor, and archived history continuity is not proven. |
+| Attendance history | TimeLog | AttendanceRecord, AttendanceCalculation | มี — packages/migration/src/attendance.ts maps a record bundle; check the source work-date, timezone, corrections, duplicate-day exceptions, and target recalculation separately. |
+| Time corrections | TimeCorrections | TimeCorrectionRequest, ApprovalInstance, ApprovalStep | มี — transformer exists; all source approval states/history and joins must be verified. |
+| Attendance policies and calendar | Holiday, WeeklyWorkRule, AttendancePolicy, shift/schedule tabs | Holiday, WeeklyWorkRule, AttendancePolicy | ไม่แน่ใจ — target models exist; no source mapper/tab inventory was found. Needed before deriving attendance, late, and OT totals. |
+| OT requests and segments | OvertimeRequests | OvertimeRequest, OvertimeSegment, ApprovalInstance | มี — packages/migration/src/overtime.ts recognizes OvertimeRequests and emits a request bundle. Source columns and attachment relations still need workbook verification. |
+| OT approvals | OT_ApprovalSteps | ApprovalInstance, ApprovalStep | มี — transformer recognizes current OT_ApprovalSteps; complete/archive/co-approver history is unproven. |
+| OT configuration | OT allowance, professional-role, work-rule sheets | OvertimeAllowancePolicy, ProfessionalRole, EmployeeProfessionalRole, AttendancePolicy | ไม่แน่ใจ — target tables exist; source tabs/mapping absent. |
+| Medical claims | MedicalClaims, MedicalClaims_2025 | MedicalClaim, ApprovalInstance | มี — packages/migration/src/medical.ts recognizes current/archive claim tabs; preserve exact amount, status, dates, and sensitive-data class. |
+| Medical approvals | Medical_ApprovalSteps | ApprovalInstance, ApprovalStep | มี — current approval transformer exists; full historical/co-approver continuity needs proof. |
+| Medical attachments | MedicalAttachments | Attachment, MedicalClaimAttachment | มี — metadata/reference transform only; no file-byte copier. |
+| Leave attachments | Attachments | Attachment, LeaveRequestAttachment | มี — metadata/reference transform only; no Drive-to-R2 copy. |
+| OT attachment files | OT attachment tab(s) | Attachment, OvertimeRequestAttachment | ไม่แน่ใจ — target relation exists; no dedicated OT attachment-tab transformer was found. |
+| General announcements | ManagerDB | Announcement, AnnouncementAttachment | มี — packages/migration/src/announcements.ts maps announcement-shaped ManagerDB rows and keeps legacy attachment references only. This is not evidence that ManagerDB is an org directory. |
+| Notifications and delivery history | notification, LINE-send, inbox, trigger-log tabs | NotificationOutbox, NotificationDelivery, InAppNotification | ไม่แน่ใจ — target models exist; no source tab or transformer was found. Import pending state without sending; do not replay already-delivered messages. |
+| Reports | report/summary tabs, if any | No report fact table; reports are generated from canonical module data and exported as XLSX | ไม่แน่ใจ — no source report tabs are known. Rebuild target reports after module reconciliation; do not treat a report workbook as canonical data. |
+| Import audit/provenance | No GAS sheet assumed | MigrationRun, LegacyRecord, MigrationReconciliationResult, AuditLog | ไม่มี source mapping — these should be generated by CKACE HR migration/audit process, not copied from an unknown tab without a schema. |
+
+The source tab names currently found in code are Users, UserPolicies, LeaveRequests, LeaveRequests_2025, ApprovalSteps, Attachments, TimeLog, TimeCorrections, OvertimeRequests, OT_ApprovalSteps, MedicalClaims, MedicalClaims_2025, Medical_ApprovalSteps, MedicalAttachments, and ManagerDB. Owner must provide the full actual tab manifest before calling the inventory complete.
+
+## Rule differences to reconcile explicitly
+
+| Domain | Current CKACE HR behavior / model | Migration rule |
+| --- | --- | --- |
+| Leave entitlement and remaining balance | Current target entitlement rules derive quota from employment tenure and calendar year; usage/reservations are calculated from LeaveRequest status. | Do not write GAS UserPolicies.LeaveQuota as target entitlement or opening balance. Import employmentStart and leave history; recompute with current rules. Every employee/type delta must be explained and Owner-approved. |
+| Leave history and approvals | Target uses LeaveRequest + ApprovalInstance + ordered ApprovalStep, including current policy relations, co-approvers, and decision actors. | Preserve immutable legacy request IDs/status/history and map actors. Do not auto-submit pending work or replace historical approvers with the current policy. |
+| Attendance and corrections | Target keeps raw AttendanceRecord, computed AttendanceCalculation, AttendancePolicy, Holiday, WeeklyWorkRule, and TimeCorrectionRequest. | Preserve raw source timestamps exactly; normalize timezone only with an approved rule. Recalculate derived values using the target policy and report deltas separately. Do not silently erase duplicate, missing checkout, or out-of-radius records. |
+| OT | Target uses OvertimeRequest/OvertimeSegment linked to attendance, plus allowance/professional-role rules. | Preserve approved/requested minutes, dates, breaks, approvals, and payment inputs. Recompute only derived amounts under an approved policy; compare exact decimal totals and document rule changes. |
+| Medical | Target uses BenefitPolicy and MedicalClaim with exact decimal amounts, approval state, and private attachments. | Preserve financial/request facts and workflow; apply target auto-approval/per-claim policy only prospectively unless Owner approves a historical restatement. TEST fixtures must replace real health details/files. |
+| Organization and permission | Target has Company/Agency/Department, manager links, scopes, roles, permissions, and approval policies. | Build stable crosswalks first. Do not widen roles or infer manager/approval hierarchy from display names alone. |
+| Attachments | Target stores protected file bytes in private R2 and metadata/relationships in Attachment/join tables; legacy Drive references are not private R2 copies. | XLSX contains metadata only. Copy approved bytes separately; compare SHA-256 and exact size, owner, privacy class, and request relation before switching the provider. |
+| Notifications | Target separates NotificationOutbox, NotificationDelivery, and InAppNotification. | Migrate/preserve pending delivery state; suppress dispatch while loading; exactly-once keys prevent duplicate sends. Already-sent historical messages must never be resent. |
+| Reports | Reports are generated from module facts and current rules; no report table exists. | Rebuild reports after reconciliation and compare old/new totals under explicit rule mapping; explain policy-driven differences. |
+
+## Route authority, global switch, and rollback
+
+The current implementation is not ready to switch all modules by configuration alone:
+
+- packages/contracts/src/module-routing.ts defines 26 route keys across 13 modules.
+- apps/api/src/routing/module-routing-config.ts defaults each key to LEGACY and enforces paired READ/WRITE values. In Production it currently requires one named module to be the only pair set to NEW; a full-system state is rejected by design.
+- ModuleRoutingGuard attaches the resolved authority to the request. The standard LeaveController calls LeaveService; route context is used for write-freeze checks, not as a universal LEGACY/NEW dispatcher. The existence of CKACE_MODULE_ROUTING_STATE therefore does not prove every controller/service reads from the selected authority.
+- CKACE_MODULE_ROUTING in runtime-config remains hard-locked to LEGACY. CKACE_MODULE_WRITE_FREEZE can list module write freezes, but universal route and background-worker coverage is not established.
+
+Recommendation: use an auditable all-system mode with three fail-closed states: LEGACY, FROZEN/MAINTENANCE, NEW. Keep one stable employee entry URL. Enforce the mode at the web/API boundary, every API read and write path, scheduled/background jobs, notification dispatch, and external ingress. Keep per-module route keys as coverage/telemetry assertions, not as the sole switch. Do not allow a split authority state.
+
+Safe cutover/rollback order:
+
+1. Before release, implement and test the global mode, all-route coverage, worker stop/resume, and independent GAS freeze runbook. Default/invalid config must fail closed.
+2. Cutover: stop GAS writes/triggers and CKACE writes; capture two identical final XLSX/supplemental-file manifests; import final deltas and reconcile every module; then set the whole system NEW and update the single employee/LIFF entry point under a separately approved Production action.
+3. Rollback: set whole system FROZEN first; stop NEW writes, notification dispatch, and workers; export the post-cutover change set; replay/reconcile it idempotently to the LEGACY test/source mapping; verify 100% parity and 0 duplicates; only then restore LEGACY entry and re-enable GAS triggers.
+4. If reverse replay is unavailable or parity fails, keep writes frozen/read-only and do not flip to LEGACY. A route flag flip alone is unsafe.
+
+## PROD-READINESS-04 — Full cutover plan and measurable acceptance
+
+Numbers below are proposed DEV/TEST rehearsal targets, not Production SLOs. Proposed full-system write freeze <=120 minutes, restore RTO <=60 minutes, rollback RTO <=60 minutes, and RPO=0 after final freeze must be ratified by the Owner before any Production use.
+
+### 1. Sanitize and rehearse the XLSX snapshot in DEV/TEST
+
+- Owner exports all actual GAS tabs to a values-only workbook and supplies a tab/column dictionary, stable pseudonymous IDs, source period, timezone, export time, and per-tab row counts.
+- Two independent parses of an unchanged workbook produce identical workbook/per-tab SHA-256 hashes.
+- 100% of declared tabs and rows are accounted for; 0 unknown tabs, duplicate source IDs, required formula-only values, unmasked direct identifiers/secrets, or live Drive links.
+- Run at least 2 DEV/TEST passes: dry-run/initial import and idempotent replay. Second pass creates 0 duplicates.
+- Files remain outside Git. Attachment content is synthetic/redacted in TEST; workbook references contain no private Drive URL or token.
+
+### 2. Reconcile every module
+
+- Shared identity/org/policy prerequisites: 100% active employees, company/team, manager, role/scope, approver, leave type, attendance policy, holiday/work-rule, OT policy, and benefit-policy references resolve; 0 orphan FKs, unauthorized role grants, or unresolved manager cycles.
+- Leave: 100% in-scope request IDs, counts, statuses, dates, durations, and approval history match. Entitlements are recalculated using CKACE HR tenure policy, never copied from GAS quota. 100% per-employee/type differences are documented and Owner-approved; 0 silent quota imports.
+- Attendance and Time Corrections: 100% source rows, request statuses, IDs, exact input timestamps, and required relationships are accounted for. 100% recalculated totals/differences are compared under the target timezone/policy; 0 unexplained or unapproved duplicate/missing-punch exceptions.
+- OT: 100% requests, segments, approvers, status, requested/approved minutes, and money totals reconcile to source precision; 0 missing/duplicate open requests.
+- Medical: 100% claim counts, statuses, amount totals (to 0.01 THB), policy/owner links, and approvals reconcile; 0 unapproved health-data exceptions.
+- Attachments across all request types: 100% of in-scope bytes match exact SHA-256 and byte size; 100% owner/request/privacy metadata matches; 0 missing, public, unauthorized, duplicated, or orphan objects.
+- Notifications: 100% pending/outstanding event/delivery states accounted for; 0 duplicate sends. Historical sent messages are imported only within the Owner-approved retention window or listed as an explicit exclusion.
+- Announcements: 100% of in-scope records, recipient scope, and attachment links reconcile; 0 wrong-scope recipients.
+- Reports: execute 12 fixed scenarios (Leave, Attendance, OT, Medical x current period, year-to-date, full history); 100% of row counts/totals match after approved rule translation, or have a signed exception; 0 unexplained deltas.
+- Provenance: 100% imported/excluded rows have workbook, tab, period, stable ID, disposition, and run provenance; 0 silent drops.
+
+### 3. Back up and restore the full DEV/TEST candidate
+
+- Complete 2 full-system backup/restore rehearsals into an isolated recovery database and private TEST object store.
+- 100% of in-scope database row counts, source provenance, and attachment object checksums match after restore.
+- Proposed RPO=0 committed writes after final freeze; proposed restore RTO <=60 minutes from restore start to verified application readiness.
+- Record backup IDs, restore IDs, timings, counts, hashes, operator, and health checks.
+
+### 4. Rehearse whole-system rollback to LEGACY
+
+- Complete 2 rollback rehearsals. Each includes at least 1 post-cutover create/update/approval mutation per in-scope module, including a file operation and a queued notification.
+- Freeze NEW writes/workers first; reverse-replay the delta to the legacy test fixture; compare 100% record/status/relationship/attachment/delivery state.
+- 0 lost, duplicated, or externally re-sent mutations; 100% idempotent replay and audit trail; proposed rollback completion <=60 minutes.
+- Current source has no proven reverse writer to GAS. If reverse replay cannot pass, the rollback rehearsal fails and the system must remain frozen.
+
+### 5. Prove minimum monitoring and alerts
+
+- Probe employee web entry, API/readiness, database, private object storage, each module's synthetic read/write gate, and notification queue every 60 seconds.
+- Alert after 2 consecutive failed probes; database unavailable within 1 minute; API 5xx >5% over 5 minutes with >=20 requests; P95 >2 seconds over 5 minutes; pending notification older than 5 minutes; migration/reconciliation drift >0.
+- Simulate 6 failures (web entry, API, DB, R2 object, module write gate, notification backlog); 6/6 alerts reach the named on-call destination within 5 minutes and are acknowledged.
+- These are proposed thresholds, not existing configured monitors or Production SLOs.
+
+### 6. Cutover-day checklist and employee/LIFF communication
+
+- Require separate Owner approval for live export/read, Production database/bucket/secrets/monitoring, migration, full-system switch, deploy/traffic, DNS/Firebase, LINE/LIFF, employee notice, and rollback.
+- Confirm 0 open P0/P1 issues, 0 unapproved exceptions, two identical final source manifests, 100% pre-cutover reconciliation, and passing restore/rollback evidence.
+- Freeze all GAS and CKACE writes, schedules/triggers, notification sends, and file mutations; complete final delta. Proposed entire-system write freeze <=120 minutes, subject to Owner ratification.
+- Update the single stable employee entry point to CKACE HR only after the global NEW mode passes all 13 module smoke routes. Verify all 26 paired route keys agree with the approved full-system state; 0 route remains split or unguarded.
+- Run 13/13 module smoke bundles for identity/org, Leave, Attendance, Time Corrections, OT, Medical/Benefits, Attachments, Notifications, Announcements, Reports, Request Status, Admin, and Onboarding. Each bundle includes its relevant role allow/deny, one synthetic read, and one approved TEST write.
+- HR communications owner publishes an in-app notice to 100% of active accounts and schedules the employee notice before the window. In LINE rehearsal, dispatch to synthetic test recipients only; proposed success >=99%, with 100% of failures in a fallback list. No real Production employee message is sent without separate approval.
+- LINE Developers/LIFF owner points the employee LIFF entry to the approved CKACE HR LIFF URL and verifies login/return path; GAS admin disables old write endpoints/triggers and duplicate notifications. CKACE HR operations verifies matching LINE login/channel/notification config through the secure approved process. No Project A code/config is edited by this task.
+- If any gate fails or freeze exceeds the approved cap, remain FROZEN and follow the approved rollback sequence; do not let employees write to two systems.
+
+## Owner access/resources by phase
+
+| Priority / phase | Owner action or resource | Boundary |
+| --- | --- | --- |
+| P1 / before importer | Supply full sanitized XLSX snapshot through a protected local path, with every sheet, tab/column dictionary, stable pseudonymous keys, periods/timezone, export timestamp, and counts. Also provide the earlier TEST workbook reference or job/run/build ID if exact lineage is needed. | No unredacted medical/employee data, secrets, credentials, or live file URLs in chat/Git. No live GAS read in this task. |
+| P1 / mapping | Confirm source crosswalks and in-scope periods for org/manager/role/approver, holidays/work rules, Leave history, OT/benefit policies, attachments, notification retention, and report filters. | Leave quota is explicitly derived from CKACE HR tenure rules; GAS quota is diagnostic. Exceptions need a named Owner approver. |
+| P1 / rehearsal gates | Ratify proposed full-system freeze <=120m, restore/rollback RTO <=60m, RPO=0 after freeze, alert thresholds, and whether an all-module TEST database/R2 rehearsal may write. | DEV/TEST only; no cloud action in this planning task. |
+| Later / operations | Name GAS administrator, LINE Developers/LIFF administrator, CKACE HR database/runtime operator, HR communications owner, rollback operator, and on-call recipient. Provide a safe TEST channel and synthetic accounts. | Each Production action still requires separate Owner approval. |
+| Later / Production | If separately approved: dedicated ckace_hr_prod database, private ckace-hr-prod-private bucket, backups/restore, monitoring, least-privilege identities, and securely configured runtime credentials. | No resources, credentials, or permissions were created/accessed here. Production remains NO-GO. |
+
+## Owner next actions (priority order)
+
+1. Provide the sanitized complete XLSX snapshot and manifest via a protected local path; do not commit the workbook.
+2. If the previous TEST upload must be traced, provide its workbook reference or run/build identifier. No in-repository importer/workbook/run evidence was found.
+3. Confirm crosswalk, history window, target policy details, attachment/notification retention, and named exception approver.
+4. Ratify the proposed freeze/RTO/RPO and alert thresholds before a Production gate.
+5. Name the future GAS, LINE/LIFF, CKACE operations, employee communications, and on-call owners.
+
+## Current risks
+
+- Actual GAS tab names, columns, formulas, periods, and rule semantics are unknown until the Owner supplies a sanitized workbook manifest.
+- The claimed previous XLSX TEST import cannot be traced to a checked-in file/job/run from this repo/history.
+- No XLSX importer, durable database target adapter, full org/policy mapper, bulk file-byte copier, system-wide dispatcher/switch, or reverse-to-GAS writer has been demonstrated in current CKACE_HR source.
+- Current Production module routing intentionally rejects multiple module pairs set to NEW; all-module mode and end-to-end dispatch must be implemented/tested first.
+- Proposed thresholds are not approved Production SLAs. Production remains NO-GO; no Production access/action was performed.
 
 ## Next active task
 
-PROD-READINESS-04 — DEV/TEST Leave migration rehearsal from approved sanitized source. Wait for the required sanitized snapshot/schema and the Owner's confirmation of proposed operational limits. Implement and run the rehearsal in DEV/TEST only.
+PROD-READINESS-05 — Sanitized XLSX import tooling + full-module DEV/TEST rehearsal. Begin only after the Owner supplies the sanitized workbook/manifest and mapping decisions. No cloud/TEST job execution unless separately requested under the TEST build process.
 
 ## Safety rules
 
-Preserve uncertain Local work. Do not reset, clean, stash, discard, rebase, or force-push. Do not inspect the primary D:\CKACE_HR checkout for this task. Do not query live GAS or Project A sources. Do not touch Production, Secret Manager, IAM, gateways, project settings, protected design, or LINE configuration without the required separate approval.
+Preserve uncertain Local work. Do not reset, clean, stash, discard, rebase, or force-push. Do not edit the primary D:\CKACE_HR checkout for this task. Do not inspect Project A or query live GAS. Do not touch Production, Secret Manager, IAM, gateways, project settings, protected design, or LINE configuration without the required separate approval.

@@ -18,49 +18,23 @@ Repository role:
 
 - Codex Local is the only active implementation assistant for now.
 - The verified application baseline is source/main commit 1322ed48e98428ffd580a6ec2e8bb7cdec5132c7, released as TESTm74.
-- The current continuation branch is codex/main-integration; all application pushes must explicitly name remote source and the intended branch.
-- Current active task is PROD-READINESS-04 — DEV/TEST Leave migration rehearsal from an Owner-approved sanitized source snapshot.
-- Owner selected a planning-only bounded Leave cutover: LEAVE_READ/LEAVE_WRITE are the only routes intended for NEW; every other module remains LEGACY.
-- Production remains NO-GO. The selected data-authority boundary is not Production deployment, data access, or mutation approval.
+- The current continuation branch is codex/main-integration; application pushes explicitly name remote source and the intended branch.
+- The Owner replaced the earlier bounded Leave-only Option 2 with a full-system GAS-to-CKACE HR cutover so employees use one system. Leave balances use CKACE HR tenure rules, not GAS quota values.
+- Production remains NO-GO unless the Owner separately approves each named Production action.
 
-Treat the verified TESTm74 state and the current active TASK as the baseline. Older milestone snapshots and history do not override current verified evidence.
+Treat verified TESTm74 evidence and the current explicit Owner direction as the baseline. Older plans do not override newer Owner decisions.
 
-## Authority order
+## Current TESTm74 / full-system migration workstream
 
-Use this priority:
-
-1. current explicit Owner direction;
-2. current verified source/main implementation and TEST evidence;
-3. `AGENTS.md`;
-4. `HANDOFF.md`;
-5. `PROJECT_PLAN.md`;
-6. `docs/codex/ACTIVE_TASK.md`;
-7. current source/tests/contracts/schema and verified TEST evidence.
-
-Do not promote stale plan text over newer verified implementation evidence.
-
-## Active-only documentation policy
-
-- Keep exactly one active task in `docs/codex/ACTIVE_TASK.md`.
-- When a task finishes, update `HANDOFF.md` and `PROJECT_PLAN.md`, then replace `ACTIVE_TASK.md` with the next active task.
-- Do not keep completed-task sections, old task queues, superseded plans, historical task documents, or repository archive folders.
-- **Design preview ownership moved out of this repository.** Do not add or publish UX/UI preview artifacts under `docs/design/desktop-20261018/**` here.
-- All CKACE HR design-preview work must be maintained and published in `Panuphan-CK/ckace-hr-design-preview`.
-- This repository remains the source/runtime/TEST repository; design-preview publication must not be reintroduced here.
-- Git history is the archive.
-- Historical material is retrieved only when the Owner explicitly asks.
-
-## Current TESTm74 / Production Leave cutover workstream
-
-The current priority is PROD-READINESS-04, a DEV/TEST migration rehearsal using an Owner-approved sanitized snapshot. The task is ready after the Owner supplies the snapshot/schema and confirms the proposed operational limits.
+The active priority is PROD-READINESS-05: use an Owner-exported sanitized XLSX snapshot for an offline full-module DEV/TEST migration rehearsal. The prior Leave-only Option 2 is superseded.
 
 Before changing source:
 
 1. Inspect the active source/main and continuation branch state and relevant implementation/tests.
-2. Compare Local changes against the verified TESTm74 implementation.
-3. Preserve Local-only work that is not part of the active task.
-4. Do not inspect Project A, live APP_LEAVE_GAS Sheets/Drive, or Git history for Project A material unless the Owner explicitly authorizes that specific access.
-5. Keep the exercise in DEV/TEST. Production access or actions require separate named Owner approval.
+2. Preserve Local-only work that is not part of the active task.
+3. Do not inspect Project A, live APP_LEAVE_GAS Sheets/Drive, or Git history for Project A material unless the Owner explicitly authorizes that specific access.
+4. Reuse the migration contracts/transformers; do not build a live GAS reader for this task.
+5. Keep the work in Local/isolated DEV/TEST. Any Production access or action requires separate named Owner approval.
 
 ## Codex Lead Mode
 

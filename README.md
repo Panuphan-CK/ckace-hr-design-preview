@@ -7,8 +7,8 @@ CKACE HR is the employee and people-operations platform for C.K.ACE.
 - Active executor: Codex Local.
 - Verified application baseline: source/main commit 1322ed48e98428ffd580a6ec2e8bb7cdec5132c7.
 - Current TEST baseline: TESTm74.
-- Current workstream: PROD-READINESS-04 — DEV/TEST Leave migration rehearsal using an approved sanitized source snapshot.
-- Owner-selected target is a planning-only bounded Leave cutover: LEAVE_READ/LEAVE_WRITE=NEW; every other module=LEGACY.
+- Current workstream: PROD-READINESS-05 — sanitized XLSX import tooling and full-module DEV/TEST rehearsal.
+- Owner-selected target is a coordinated full-system GAS-to-CKACE HR cutover so employees use one system; the earlier Leave-only Option 2 is superseded.
 - Production: NO-GO. No Production action is authorized by the data-authority decision.
 
 ## Start here

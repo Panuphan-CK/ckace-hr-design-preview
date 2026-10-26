@@ -2,45 +2,47 @@
 
 Updated: 2026-10-26 Asia/Bangkok
 
-## PROD-READINESS-04 — DEV/TEST Leave migration rehearsal from approved sanitized source
+## PROD-READINESS-05 — Sanitized XLSX import tooling + full-module DEV/TEST rehearsal
 
-Status: READY AFTER OWNER INPUT — no live GAS or Production access
-Priority: P1 — the selected bounded cutover has no end-to-end source/target importer or evidence yet
+Status: READY AFTER OWNER INPUT
+Priority: P1 — the Owner has selected a full-system cutover, but the repository has no XLSX reader, durable target writer, global source switch, or complete module mapping.
 
 Decision boundary:
-The Owner selected a planning-only Leave cutover. LEAVE_READ and LEAVE_WRITE are the only routes intended for NEW; every other module remains LEGACY. This is not Production approval.
+The current plan moves all employee-facing modules together so employees use one system. The earlier Leave-only Option 2 is superseded. Leave balances are calculated from CKACE HR's tenure rules, not copied from GAS quotas. This remains planning/DEV/TEST work only; it is not Production approval.
 
 Objective / why now:
-Turn the Local migration contracts and Leave transformers into an evidenced DEV/TEST rehearsal using an Owner-approved, privacy-scrubbed APP_LEAVE_GAS snapshot. Prove that identities, organization references, entitlements, requests, approval state and attachments can be mapped and reconciled before any Production decision.
+Use an Owner-exported, sanitized XLSX snapshot as the reproducible source for a complete cross-module migration rehearsal. Extend the existing migration contracts and transformers rather than building a live Sheets/Drive connector. Prove identity/org dependencies, rule translations, module reconciliation, attachments, notifications, routing, backup/restore, and rollback before any Production readiness decision.
 
-Required Owner inputs:
-- An approved sanitized snapshot/export with stable pseudonymous IDs and no unmasked names, emails, phone numbers, LINE IDs, credentials, or live private file URLs/content.
-- A tab/column data dictionary and confirmation of which tabs and historical periods are authoritative.
-- Leave quota semantics for the cutover year: granted quota versus current remaining balance, manual adjustments, carry-over, and treatment of pending/sent-back requests.
-- Confirmation of the proposed rehearsal ceilings: write-freeze maximum 60 minutes, restore RTO maximum 60 minutes, and RPO 0 committed writes after the final freeze snapshot.
-- A named Project A/GAS and LINE configuration owner for a later separately approved cutover; no access is requested in this task.
+Required Owner inputs, in priority order:
+1. Complete sanitized XLSX snapshot covering all in-scope GAS tabs, with tab/column dictionary, stable pseudonymous keys, export timestamp, period/timezone, and row counts. Keep the file outside Git and provide it through an approved local data-transfer path; do not attach unredacted employee/medical data or credentials in chat.
+2. If the historical TEST import must be traced exactly, provide its workbook path/name or migration job/run/build identifier. No XLSX importer/workbook/run evidence was found; infra/cloudbuild/test-release.yaml invokes ckace-hr-migrate-test but does not define its command or prove XLSX import.
+3. Confirm source-to-target crosswalks for companies, teams/departments, managers, roles, approval chains, attendance policies/holidays, OT policies, benefit policies, attachments, and notification retention. Confirm target effective-date/timezone rules and any exception approver.
+4. Ratify measurable rehearsal limits: full-system write freeze/downtime target (proposed <=120 minutes), restore and rollback RTO (proposed <=60 minutes), and RPO=0 after final freeze. These are proposals, not approved SLAs.
+5. Name later cutover owners: GAS administrator, LINE Developers/LIFF administrator, CKACE HR operations/database operator, employee communications owner, and on-call/monitoring recipient.
 
 Scope:
-- Implement a read-only source adapter and a durable, provenance-keyed DEV/TEST target-store adapter only after the sanitized fixture contract is approved. Prove each LEAVE_READ/LEAVE_WRITE route is consumed by the intended service; do not infer a source switch from route configuration alone.
-- Map the required organization and employee identity dependencies before importing Leave entitlements, requests, approval steps, and attachment links.
-- Rehearse full snapshot plus final delta, idempotent replay, reconciliation, pending-request continuity, attachment copy/checksum, DEV/TEST backup/restore, and rollback behavior.
-- Keep evidence tagged DEV_TEST_EVIDENCE_ONLY and keep all other module routes on LEGACY.
+- Implement an offline XLSX-backed ReadOnlyLegacySource and a durable provenance-keyed DEV/TEST target adapter using the current MigrationRun/LegacyRecord/Reconciliation contracts where appropriate.
+- Inventory all workbook tabs and reject unknown tabs, duplicate IDs, missing required keys, formulas without approved cached values, unsafe URLs, or privacy failures.
+- Map all source data needed for identity/org/policies/approvals, Leave, Attendance/Time Corrections, OT, Medical, Attachments, Notifications, Announcements, and report reproduction.
+- Treat LeaveQuota as diagnostic only; derive target entitlement and balance using CKACE HR tenure rules and reconciled historical usage.
+- Implement and test a full-system LEGACY/FROZEN/NEW switch enforced by every API write/read path and side-effect worker before exercising cutover/rollback.
+- Run only local or isolated DEV/TEST rehearsals from sanitized fixtures. No Production access/action.
 
 Out of scope:
-- Reading live Sheets/Drive or inspecting Project A source/configuration.
-- Production DB, R2 bucket, credentials, Secret Manager, IAM, Cloud settings, migration, deploy, traffic, DNS/Firebase, or LINE changes.
-- Any Production cutover or data mutation; those require separate named Owner approval.
-- Treating a proposed RTO/freeze threshold as approved until the Owner confirms it.
+- Reading live GAS Sheets/Drive or inspecting/changing Project A source/configuration.
+- Production database, R2, credentials, Secret Manager, IAM, cloud settings/commands, migration, deployment, traffic, DNS/Firebase, LINE/LIFF, or real employee notification.
+- Production cutover. Every Production action needs separate explicit Owner approval.
+- Importing GAS LeaveQuota as the authoritative new balance.
 
 Acceptance criteria:
-1. Two extractions of an unchanged sanitized snapshot produce identical per-tab SHA-256 hashes; 100% of manifest-required tabs/rows are accounted for; privacy scan finds 0 unmasked direct identifiers or secrets.
-2. 100% of employee identities and required org/role references map; 100% of in-scope Leave row counts and request statuses match. Per-employee/type balance delta is at most 0.01 day; 0 unexplained differences. Every exception has a unique ID, owner-approved reason, and disposition.
-3. 100% of in-scope current Leave attachments are present in DEV/TEST R2 with exact SHA-256, byte size, owner/request link, and privacy class; 0 missing or unauthorized objects.
-4. Re-running the same migration creates 0 duplicate target rows and reports 100% idempotent matches.
-5. 100% of open requests retain the same status, current step, full approver/co-approver set, comments, and history; 0 pending request is lost or duplicated. ApprovalInstance, co-approver, and decider mappings are covered.
-6. Two DEV/TEST backup/restore rehearsals pass; all in-scope row counts and hashes match 100%; proposed RPO is 0 committed writes after freeze and RTO is at most 60 minutes.
-7. Two rollback rehearsals include at least 1 post-cutover request and 1 approval each; 100% of those writes are replayed/reconciled to LEGACY with 0 lost or duplicate records; proposed rollback completion is at most 60 minutes, subject to Owner confirmation.
-8. Prove 100% of Leave routes reach the intended target, attachment/notification dependencies work without silently broadening the selected boundary, and unaffected modules remain LEGACY. Before PASS, evidence includes source hashes, importer run IDs, reconciliation reports, attachment checksum manifest, backup/restore timings, rollback logs, and route-state integration evidence. No Production system is accessed or changed.
+1. Two parses of an unchanged sanitized XLSX produce identical workbook and per-tab SHA-256 manifests; 100% of declared tabs/rows are accounted for; 0 unknown tabs, duplicate stable IDs, unmasked direct identifiers/secrets, or unsafe live file URLs.
+2. 100% of in-scope records in each source tab are imported, explicitly excluded with Owner-approved disposition, or rejected with a unique reason; 0 silent drops and 0 duplicate target rows on a second import.
+3. 100% of active employees and required company/team/manager/role/approver relationships resolve; 0 orphan references or unauthorized role grants.
+4. Leave history/statuses reconcile 100%; target entitlements are recomputed by the approved tenure policy; 100% of per-employee/type differences are explained and signed off; 0 GAS quotas silently become target balances.
+5. Per-module thresholds in HANDOFF.md pass for Attendance, Time Corrections, OT, Medical, Attachments, Notifications, Announcements, Reports, and provenance. Attachment bytes match exact SHA-256 and size; notification replay produces 0 duplicate sends.
+6. All full-system routes and writes are proven to obey one fail-closed LEGACY/FROZEN/NEW mode; 100% route coverage, 0 unguarded mutation paths, and 0 split-authority state during rehearsal.
+7. Two full-system DEV/TEST backup/restore rehearsals pass with 100% row/object checks; two rollback rehearsals include at least one post-cutover mutation per in-scope module, with 100% replay parity and 0 lost/duplicate effects. Proposed RPO/RTO limits remain subject to Owner ratification.
+8. Evidence includes XLSX hash/tab manifest, import run IDs, per-module reconciliation reports, file checksum manifest, route/write-coverage evidence, notification no-duplicate evidence, backup/restore timings, and rollback logs. No Production system is accessed or changed.
 
 Next TASK:
-After this rehearsal passes, define a separately gated Production readiness/go-no-go task. Production remains NO-GO until that task is complete and separately approved.
+After this rehearsal passes, create a separately gated Production go/no-go and cutover approval task. Production remains NO-GO until the Owner separately approves each action.

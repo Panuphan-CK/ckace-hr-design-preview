@@ -10,51 +10,59 @@ Last Updated: 2026-10-26 Asia/Bangkok
 - Verified application source: source/main commit 1322ed48e98428ffd580a6ec2e8bb7cdec5132c7; deployed TEST baseline is TESTm74.
 - Owner's new target is a coordinated full-system GAS-to-CKACE HR cutover so employees use one system. The earlier bounded Leave-only Option 2 is superseded.
 - This is a planning decision only. Production remains NO-GO until separate named Owner approval for each Production action.
-- No live Sheets/Drive data, Project A repo/config, Production system, cloud command, deployment, or source-code edit was used for this documentation task.
+- Local implementation is prepared on `codex/main-integration`: XLSX read-only source, deterministic import dispatch, in-memory target, DEV-only Prisma target, global API `ACTIVE`/`READ_ONLY` write mode, and rehearsal scripts are implemented.
+- The Owner-supplied sanitized workbooks and manifest are in `D:\CKACE_HR_snapshot`, outside the repository. No workbook or row values were committed.
+- In-memory run of the supplied snapshot accounted for all 5,269 rows: 5,232 imported, 35 explicitly skipped, 2 conflicting attendance rows rejected, 0 unaccounted rows, and 0 ambiguous writes. Aggregate evidence is in `docs/migration/evidence/sanitized-xlsx-in-memory-20261026.json`.
+- The snapshot has one conflicting `TimeLog.LogID` group with two rows. Both are rejected with `ATTENDANCE_DUPLICATE_SOURCE_LOG_ID`; neither is selected. Owner/reviewer must reconcile or replace those source rows before accepting zero rejections.
+- Final local verification passed: lint, workspace typecheck, 115 Vitest files / 824 tests, package build, API build, Prisma validation, and rehearsal script syntax.
+- No disposable local PostgreSQL database was available. The DB import, current-policy resolution, Pending reconciliation against real target rows, backup/restore timings, and reset rehearsal have not run. Reviewer entry point: `docs/migration/RUN_REHEARSAL.md`.
+- This write-freeze mode does not implement a universal LEGACY/NEW data dispatcher or a reverse writer to GAS. Full authority switching and rollback parity remain future gates.
+- Snapshot attachment links are redacted and no file bytes are supplied; notification/LINE logs, chat, settings, announcements, and report extracts are excluded or absent from the manifest. Their migration is not proven by the current importer.
+- No live Sheets/Drive data, Project A repo/config, Production system, cloud command, or deployment was accessed or changed.
 
-## Prior XLSX import and current repository evidence
+## Prior TEST import provenance and current importer
 
-Owner reports that real employee records and Leave balances were previously loaded into TEST from an Owner-uploaded XLSX. I searched only this CKACE_HR checkout and its reachable repository history.
+Owner reports that real employee records and Leave balances were previously loaded into TEST from an uploaded XLSX. That old run remains untraced. The current rehearsal importer is a new, reproducible path based on the sanitized Owner snapshot.
 
 | Question | Local evidence | Finding |
 | --- | --- | --- |
-| Is the prior workbook checked in or present in this worktree? | No XLSX/XLS files are listed by the repository file scan. | Not found here. |
-| Is there an XLSX importer or migrate job to extend? | No workbook parser or durable XLSX-to-Prisma adapter was found. infra/cloudbuild/test-release.yaml does contain a migrate-test step that updates and executes ckace-hr-migrate-test after building the API image. The job command/configuration itself is not defined in the repository, so its data-migration behavior cannot be established from local source. | No in-repo importer found. |
-| What does ExcelJS do here? | apps/api/src/management/management-report-workbook.ts and overtime-report-workbook.ts build report workbooks and call writeBuffer; package-lock contains ExcelJS. | Export/report generation only, not import. |
-| What migration code exists? | packages/migration/src/migration-contracts.ts defines ReadOnlyLegacySource and MigrationTargetStore contracts; source-snapshot.ts hashes snapshots; engine.ts has provenance/idempotency orchestration; module transformer files map selected source tabs. | Reuse this contract/transformer layer; add an offline XLSX source adapter and durable target adapter. No live Sheets/Drive reader is needed. |
-| Can the earlier TEST import source and scope be proven? | No workbook, upload artifact, XLSX importer path, run ID, or commit evidence was found in the inspected checkout/history. The repository proves a migrate-test job is invoked by the TEST release workflow, but does not define its command or prove that it imports XLSX data. | The Owner's prior import report is recorded as Owner-provided context, not independently verified. Owner must provide the prior file/run reference to trace it exactly. |
+| Is the earlier workbook/run present in this worktree? | No prior workbook, upload artifact, run ID, or commit evidence was found. | Old TEST import provenance remains unverified; exact tracing is not required for this new importer. |
+| Does the current branch contain an XLSX importer? | `packages/migration/src/xlsx-source.ts`, `xlsx-import.ts`, `prisma-target-store.ts`, and `in-memory-target-store.ts`. | Yes; local DEV-only path, not DB-rehearsed yet. |
+| What is persisted? | `PrismaMigrationTargetStore` writes domain rows, `MigrationRun`, source-qualified `LegacyRecord` hashes, and reconciliation outcomes. | Idempotent provenance comparison is implemented; actual DB behavior awaits reviewer run. |
+| How are approval Pending requests handled? | `pending-approval-handoff.ts` and policy resolution in `prisma-target-store.ts`. | Decided history is retained; old Pending assignments are replaced by current-policy Pending steps; changed IDs are reported for HR. Missing/self-only routes stay Pending with an exception. |
+| What does ExcelJS do now? | Existing report workbook generation remains; `xlsx-source.ts` also parses the Owner's two snapshot workbooks. | Both export and import paths exist. |
 
-Do not search Project A or live GAS to fill this gap. A future test snapshot should be a values-only XLSX, pseudonymized with stable keys, protected outside Git, with no credentials, direct identifiers, live Drive URLs, or real medical files. Keep export time, row counts, tab/column dictionary, timezone, history period, and workbook/per-tab hashes.
+Do not search Project A or live GAS to fill remaining gaps. Preserve the supplied snapshot outside Git. Evidence files contain aggregate counts, stable source IDs, hashes, and exception codes only.
 
 ## GAS sheet to CKACE HR model inventory
 
-The actual GAS workbook/tab list is not available in this repository. Names below are only the tab names current transformers recognize; they are not proof of today's live GAS schema. Status meanings: มี = transformer/mapping exists only; ไม่มี = no mapper found; ไม่แน่ใจ = actual source tab/columns or semantics need the Owner's workbook manifest. No row in this table claims that a runnable importer exists.
+The Owner-supplied sanitized manifest now provides the snapshot tab names, columns, and row counts for the listed export. Status meanings: มี = importer/transformer exists; ไม่มี = no source/import mapping; ไม่แน่ใจ = target policy, source semantics, or data needed for acceptance remains unverified. Live GAS was not read.
 
 | Module / source family | GAS sheet name recognized in local code (actual tab still unverified) | CKACE HR target table/model | Status and evidence |
 | --- | --- | --- | --- |
-| Identity | Users | Employee, UserAccount, UserRole, LineAccount (identity_profile_bundle transform) | มี — packages/migration/src/identity-profile.ts maps Users; no durable writer or XLSX reader. Account/role fields must be deliberately filtered for privacy. |
-| Organization | Company, Agency, Department, team, manager, reporting-line sheets | Company, Agency, Department, Employee.managerEmployeeId | ไม่แน่ใจ — target schema exists; no organization/crosswalk transformer was found. User transformer preserves legacy Agency/Department IDs only. |
-| Roles and approval configuration | Role, role-scope, approval-policy/step sheets | Role, Permission, UserRole, RolePermission, ApprovalPolicy, ApprovalPolicyStep, ApprovalDelegation | ไม่แน่ใจ — target models exist; actual source tabs and a migration mapper were not found. Must preserve least privilege and approval order. |
-| Leave catalogs and entitlement inputs | UserPolicies | LeaveType, LeaveTypeAlias, LeaveEntitlement | มี — UserPolicies maps LeaveQuota to a quota-shaped transform. Per Owner direction it is diagnostic only; the new balance must be derived from CKACE HR tenure rules and migrated use/history. LeaveType source tabs are not recognized. |
-| Leave requests | LeaveRequests, LeaveRequests_2025 | LeaveRequest, ApprovalInstance | มี — packages/migration/src/leave.ts recognizes current/archive requests; approval-instance and all workflow detail need complete bundle reconciliation. |
-| Leave approval history | ApprovalSteps | ApprovalInstance, ApprovalStep | มี — current ApprovalSteps transformer handles a single approver field/step data; full co-approver, decider, actor, and archived history continuity is not proven. |
-| Attendance history | TimeLog | AttendanceRecord, AttendanceCalculation | มี — packages/migration/src/attendance.ts maps a record bundle; check the source work-date, timezone, corrections, duplicate-day exceptions, and target recalculation separately. |
-| Time corrections | TimeCorrections | TimeCorrectionRequest, ApprovalInstance, ApprovalStep | มี — transformer exists; all source approval states/history and joins must be verified. |
-| Attendance policies and calendar | Holiday, WeeklyWorkRule, AttendancePolicy, shift/schedule tabs | Holiday, WeeklyWorkRule, AttendancePolicy | ไม่แน่ใจ — target models exist; no source mapper/tab inventory was found. Needed before deriving attendance, late, and OT totals. |
-| OT requests and segments | OvertimeRequests | OvertimeRequest, OvertimeSegment, ApprovalInstance | มี — packages/migration/src/overtime.ts recognizes OvertimeRequests and emits a request bundle. Source columns and attachment relations still need workbook verification. |
-| OT approvals | OT_ApprovalSteps | ApprovalInstance, ApprovalStep | มี — transformer recognizes current OT_ApprovalSteps; complete/archive/co-approver history is unproven. |
+| Identity | Users | Employee, UserAccount, UserRole | มี — `identity-profile.ts` + Prisma target store create identity/account/role; role catalog must already be seeded; no passwords or LINE/profile IDs are imported from this sanitized manifest. |
+| Organization | Agency, Departments | Company, Agency, Department, Employee | มี — `organization.ts` uses the Owner company crosswalk. Manager/reporting-line sheet is absent from this manifest. |
+| Roles and approval configuration | Users.Role; no policy sheet | Role, UserRole, ApprovalPolicy, ApprovalPolicyStep | ไม่แน่ใจ — user role assignments are mapped, but role catalog and target approval policies must be supplied from an Owner-approved non-Production baseline; GAS Agency approver columns are ignored. |
+| Leave catalogs and entitlement inputs | UserPolicies | LeaveType, LeaveEntitlement | มี — imports target quotas from CKACE HR 2026 tenure rules; GAS LeaveQuota is only comparison evidence. |
+| Leave requests | LeaveRequests, LeaveRequests_2025 | LeaveRequest, ApprovalInstance | มี — XLSX dispatcher and Prisma target writer import current/archive requests; DB reconciliation remains pending. |
+| Leave approval history | ApprovalSteps | ApprovalInstance, ApprovalStep | มี — decided steps are retained. Pending source assignments are skipped and current target-policy steps are generated; changed next approvers require HR review. |
+| Attendance history | TimeLog, TimeLog_2025 | AttendanceRecord | มี — raw punches import; legacy WorkHours/OT_Hours are ignored. Target calculation/reconciliation remains pending. |
+| Time corrections | TimeCorrections | TimeCorrectionRequest, ApprovalInstance, ApprovalStep | มี — record and decided approver history map; a Pending approval uses the current target policy at finalization. Attendance links require exact resolution. |
+| Attendance policies and calendar | Holidays, DayOfWeek | Holiday, WeeklyWorkRule, AttendancePolicy | มี — holiday/weekly work-rule rows map; AttendancePolicy/shift source is absent, so calculation rules must be provisioned separately. |
+| OT requests and segments | OvertimeRequests | OvertimeRequest, OvertimeSegment, ApprovalInstance | มี — request/segment transformer and durable target writer exist; numeric DB reconciliation remains pending. |
+| OT approvals | OT_ApprovalSteps | ApprovalInstance, ApprovalStep | มี — decided steps import; pending steps route through the current target policy after import. |
 | OT configuration | OT allowance, professional-role, work-rule sheets | OvertimeAllowancePolicy, ProfessionalRole, EmployeeProfessionalRole, AttendancePolicy | ไม่แน่ใจ — target tables exist; source tabs/mapping absent. |
-| Medical claims | MedicalClaims, MedicalClaims_2025 | MedicalClaim, ApprovalInstance | มี — packages/migration/src/medical.ts recognizes current/archive claim tabs; preserve exact amount, status, dates, and sensitive-data class. |
-| Medical approvals | Medical_ApprovalSteps | ApprovalInstance, ApprovalStep | มี — current approval transformer exists; full historical/co-approver continuity needs proof. |
-| Medical attachments | MedicalAttachments | Attachment, MedicalClaimAttachment | มี — metadata/reference transform only; no file-byte copier. |
-| Leave attachments | Attachments | Attachment, LeaveRequestAttachment | มี — metadata/reference transform only; no Drive-to-R2 copy. |
-| OT attachment files | OT attachment tab(s) | Attachment, OvertimeRequestAttachment | ไม่แน่ใจ — target relation exists; no dedicated OT attachment-tab transformer was found. |
+| Medical claims | MedicalClaims, MedicalClaims_2025 | MedicalClaim, ApprovalInstance | มี — current/archive claim rows and approvals are mapped; DB reconciliation remains pending. |
+| Medical approvals | Medical_ApprovalSteps | ApprovalInstance, ApprovalStep | มี — decided history imports; Pending routes use the target policy, with unresolved cases held for HR. |
+| Medical attachments | MedicalAttachments | Attachment, MedicalClaimAttachment | ไม่แน่ใจ — source rows exist but URLs are redacted and no file bytes are supplied; importer records an explicit unavailable-bytes exception. |
+| Leave attachments | Attachments | Attachment, LeaveRequestAttachment | ไม่แน่ใจ — source rows exist but URLs are redacted and no file bytes are supplied; no R2 object is created. |
+| OT attachment files | None in supplied manifest | Attachment, OvertimeRequestAttachment | ไม่มี — no OT attachment source sheet/bytes in the supplied snapshot. |
 | General announcements | ManagerDB | Announcement, AnnouncementAttachment | มี — packages/migration/src/announcements.ts maps announcement-shaped ManagerDB rows and keeps legacy attachment references only. This is not evidence that ManagerDB is an org directory. |
-| Notifications and delivery history | notification, LINE-send, inbox, trigger-log tabs | NotificationOutbox, NotificationDelivery, InAppNotification | ไม่แน่ใจ — target models exist; no source tab or transformer was found. Import pending state without sending; do not replay already-delivered messages. |
-| Reports | report/summary tabs, if any | No report fact table; reports are generated from canonical module data and exported as XLSX | ไม่แน่ใจ — no source report tabs are known. Rebuild target reports after module reconciliation; do not treat a report workbook as canonical data. |
+| Notifications and delivery history | Excluded LINE/chat tabs; no notification sheet | NotificationOutbox, NotificationDelivery, InAppNotification | ไม่มี — manifest explicitly excludes LINE/chat history. No delivery state is imported or replayed; verify new-system notifications separately. |
+| Reports | No report tab | No report fact table; reports are generated from canonical module data and exported as XLSX | ไม่มี — reports must be regenerated from reconciled canonical data; report scenario checks are still outstanding. |
 | Import audit/provenance | No GAS sheet assumed | MigrationRun, LegacyRecord, MigrationReconciliationResult, AuditLog | ไม่มี source mapping — these should be generated by CKACE HR migration/audit process, not copied from an unknown tab without a schema. |
 
-The source tab names currently found in code are Users, UserPolicies, LeaveRequests, LeaveRequests_2025, ApprovalSteps, Attachments, TimeLog, TimeCorrections, OvertimeRequests, OT_ApprovalSteps, MedicalClaims, MedicalClaims_2025, Medical_ApprovalSteps, MedicalAttachments, and ManagerDB. Owner must provide the full actual tab manifest before calling the inventory complete.
+The supplied manifest includes the workbook tabs processed by `xlsx-source.ts`, plus excluded zero-row `LineServiceAttachments`. `ManagerDB` is explicitly excluded by this manifest. Notification/LINE state, approval-policy source, AttendancePolicy/shift source, OT policy source, and report exports are absent or excluded.
 
 ## Rule differences to reconcile explicitly
 
@@ -77,9 +85,10 @@ The current implementation is not ready to switch all modules by configuration a
 - packages/contracts/src/module-routing.ts defines 26 route keys across 13 modules.
 - apps/api/src/routing/module-routing-config.ts defaults each key to LEGACY and enforces paired READ/WRITE values. In Production it currently requires one named module to be the only pair set to NEW; a full-system state is rejected by design.
 - ModuleRoutingGuard attaches the resolved authority to the request. The standard LeaveController calls LeaveService; route context is used for write-freeze checks, not as a universal LEGACY/NEW dispatcher. The existence of CKACE_MODULE_ROUTING_STATE therefore does not prove every controller/service reads from the selected authority.
-- CKACE_MODULE_ROUTING in runtime-config remains hard-locked to LEGACY. CKACE_MODULE_WRITE_FREEZE can list module write freezes, but universal route and background-worker coverage is not established.
+- `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` now freezes every tagged write route, denies unclassified POST/PUT/PATCH/DELETE requests, and stops/refuses notification and Task36 cleanup writes. Missing/`ACTIVE` mode preserves existing TEST behavior; invalid values fail closed. Migration writes require `CKACE_MIGRATION_JOB=YES` and a local `ckace_hr_dev` DATABASE_URL.
+- This implements a system-wide write freeze only. `CKACE_MODULE_ROUTING` remains hard-locked to LEGACY; universal LEGACY/NEW data dispatch, GET/read authority switching, external GAS ingress freeze, and reverse-to-GAS replay remain unimplemented/unproven.
 
-Recommendation: use an auditable all-system mode with three fail-closed states: LEGACY, FROZEN/MAINTENANCE, NEW. Keep one stable employee entry URL. Enforce the mode at the web/API boundary, every API read and write path, scheduled/background jobs, notification dispatch, and external ingress. Keep per-module route keys as coverage/telemetry assertions, not as the sole switch. Do not allow a split authority state.
+For a future full cutover, add an auditable all-system authority state with LEGACY, FROZEN/MAINTENANCE, and NEW. Keep one stable employee entry URL. Enforce authority at every API read/write path, scheduled/background job, notification dispatch, and external ingress. Per-module route keys remain coverage/telemetry assertions, not the sole switch. Do not allow a split authority state.
 
 Safe cutover/rollback order:
 
@@ -149,31 +158,36 @@ Numbers below are proposed DEV/TEST rehearsal targets, not Production SLOs. Prop
 
 | Priority / phase | Owner action or resource | Boundary |
 | --- | --- | --- |
-| P1 / before importer | Supply full sanitized XLSX snapshot through a protected local path, with every sheet, tab/column dictionary, stable pseudonymous keys, periods/timezone, export timestamp, and counts. Also provide the earlier TEST workbook reference or job/run/build ID if exact lineage is needed. | No unredacted medical/employee data, secrets, credentials, or live file URLs in chat/Git. No live GAS read in this task. |
-| P1 / mapping | Confirm source crosswalks and in-scope periods for org/manager/role/approver, holidays/work rules, Leave history, OT/benefit policies, attachments, notification retention, and report filters. | Leave quota is explicitly derived from CKACE HR tenure rules; GAS quota is diagnostic. Exceptions need a named Owner approver. |
-| P1 / rehearsal gates | Ratify proposed full-system freeze <=120m, restore/rollback RTO <=60m, RPO=0 after freeze, alert thresholds, and whether an all-module TEST database/R2 rehearsal may write. | DEV/TEST only; no cloud action in this planning task. |
+| P1 / reviewer DB rehearsal | Reviewer provisions disposable loopback PostgreSQL `ckace_hr_dev`, sets `DATABASE_URL` privately, and supplies the target role catalog plus active approval policies from an Owner-approved non-Production baseline. | No URL/secret in chat or Git. Never use remote, TEST, or Production DB. Do not copy GAS approval columns into the target policy. |
+| P1 / attachment gap | Owner supplies actual file bytes and a safe manifest/checksum through a protected local path if all historical attachments must move. | Current snapshot redacts links and contains no bytes; do not infer or download from GAS/Drive. |
+| P1 / approval handoff | HR reviews every changed next approver in generated evidence and resolves all no-approver/self-only cases. | Pending counts must match exactly; no auto-approval or silent stage skip. |
+| Later / rehearsal gates | Ratify proposed full-system freeze <=120m, restore/rollback RTO <=60m, RPO=0 after freeze, and alert thresholds before a Production gate. | These are not approved Production SLAs; DEV only in the current review run. |
 | Later / operations | Name GAS administrator, LINE Developers/LIFF administrator, CKACE HR database/runtime operator, HR communications owner, rollback operator, and on-call recipient. Provide a safe TEST channel and synthetic accounts. | Each Production action still requires separate Owner approval. |
 | Later / Production | If separately approved: dedicated ckace_hr_prod database, private ckace-hr-prod-private bucket, backups/restore, monitoring, least-privilege identities, and securely configured runtime credentials. | No resources, credentials, or permissions were created/accessed here. Production remains NO-GO. |
 
 ## Owner next actions (priority order)
 
-1. Provide the sanitized complete XLSX snapshot and manifest via a protected local path; do not commit the workbook.
-2. If the previous TEST upload must be traced, provide its workbook reference or run/build identifier. No in-repository importer/workbook/run evidence was found.
-3. Confirm crosswalk, history window, target policy details, attachment/notification retention, and named exception approver.
-4. Ratify the proposed freeze/RTO/RPO and alert thresholds before a Production gate.
-5. Name the future GAS, LINE/LIFF, CKACE operations, employee communications, and on-call owners.
+1. Owner/reviewer resolves or supplies a corrected sanitized snapshot for the conflicting attendance `LogID` group; keep both rows rejected until then.
+2. Reviewer provisions the temporary database and ensures role and approval-policy seed comes from an approved current non-Production target baseline; no policy is inferred from GAS approval columns.
+3. Reviewer runs the temporary database rehearsal in `docs/migration/RUN_REHEARSAL.md`, then returns evidence counts, pending approvals report, backup/restore/reset timings, and exception list.
+4. Owner supplies safe attachment bytes if all historical file retention is required.
+5. HR reviews changed approver IDs and resolves all pending route exceptions.
+6. Before any Production gate, separately ratify RTO/RPO/freeze thresholds and name future operations/LINE/communications/on-call owners.
 
 ## Current risks
 
-- Actual GAS tab names, columns, formulas, periods, and rule semantics are unknown until the Owner supplies a sanitized workbook manifest.
+- The sanitized manifest establishes the supplied snapshot's tabs/columns, but does not prove future live GAS schema changes or every formula/rule semantic.
 - The claimed previous XLSX TEST import cannot be traced to a checked-in file/job/run from this repo/history.
-- No XLSX importer, durable database target adapter, full org/policy mapper, bulk file-byte copier, system-wide dispatcher/switch, or reverse-to-GAS writer has been demonstrated in current CKACE_HR source.
-- Current Production module routing intentionally rejects multiple module pairs set to NEW; all-module mode and end-to-end dispatch must be implemented/tested first.
+- One sanitized TimeLog ID collision group (two rows) remains a source exception; it is intentionally not imported until reconciled.
+- DB-backed import and Pending route reconciliation, backup/restore/reset timings, and DB evidence are unverified because no local DEV database is available.
+- Attachment bytes are absent; Notifications/LINE history, chat, and settings are excluded; Announcements and Reports are not source tabs in the supplied manifest.
+- Target role catalog and active module approval policies must be provisioned in the temporary DEV database; checked-in schema migrations do not seed business approval policies.
+- `READ_ONLY` is a verified write freeze only; full-system LEGACY/NEW read/write dispatch and reverse-to-GAS writer remain unimplemented/unproven. Current Production routing intentionally rejects multiple module pairs set to NEW.
 - Proposed thresholds are not approved Production SLAs. Production remains NO-GO; no Production access/action was performed.
 
 ## Next active task
 
-PROD-READINESS-05 — Sanitized XLSX import tooling + full-module DEV/TEST rehearsal. Begin only after the Owner supplies the sanitized workbook/manifest and mapping decisions. No cloud/TEST job execution unless separately requested under the TEST build process.
+PROD-READINESS-05R — Reviewer-run disposable DEV database rehearsal. Reconcile the two colliding TimeLog rows, then run the prepared importer against loopback `ckace_hr_dev`, review Pending handoff and row accounting, capture restore/reset timings, and resolve exceptions. Production remains NO-GO.
 
 ## Safety rules
 

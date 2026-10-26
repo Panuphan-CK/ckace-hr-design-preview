@@ -1,0 +1,133 @@
+{
+  "task": "PROD-READINESS-05",
+  "rehearsalType": "SANITIZED_XLSX_IN_MEMORY_ONLY",
+  "recordedAt": "2026-10-26T00:00:00+07:00",
+  "databaseRehearsal": "NOT_RUN_NO_LOCAL_DATABASE_URL",
+  "workbookSha256": {
+    "CKRR_Requests_sanitized.xlsx": "8dbdc72fcf812feb08ffe1843290d72d9322d8980de72d80c7bfd6e6b333302b",
+    "Data_CKRR_Requests_sanitized.xlsx": "2e81d887d66284a4e6ecd26055e581059997c4d92ae1c2e96014fad7c4b27552"
+  },
+  "sourceSnapshotHashes": {
+    "Users": "9e7ecc409c27f807f150f8751d5accfbaa436ab284adca1b3d4826409af009cd",
+    "Agency": "51a8d013b24d61a065534d60459c58f3cd6c90cb8c21931ad30a1468d1132fab",
+    "Departments": "290182a8c356d0502c15649d06f4d21c82453c5add999731ba1749c263dfea73",
+    "UserPolicies": "9555da069f0ff9b0bf2061fa4d2c4af65206488d6fd5ecaa9d7e44f290f84bf7",
+    "Holidays": "58268349c67eea5fbc25453e51d7653d41e3d10df83d6d0171db20f820e6c1a7",
+    "DayOfWeek": "d332417d69284ef86d62b234257f449f11a262bb1177c0996ece82eb3f344c4e",
+    "LeaveRequests": "7127eede570534b6d506d3b3f5aa99e71ec69ead82eeb5ddb5bc2d7e0f8954e1",
+    "LeaveRequests_2025": "e042bdc952fec2bcb5e7c68dc203b8e101276dea8b8ae794fa9bc7621b81a39c",
+    "ApprovalSteps": "ab81cc243d3a55e9cd92e57c74050eb9ebcd88bc33ec89c7c84da372a32c4f6c",
+    "OvertimeRequests": "13857375fd4e5ea533214683280c1d190e6108b8447e14fa3e6382129cd6043a",
+    "OT_ApprovalSteps": "2d0ceb201dbebb5311590b832f5eee805530d243a2a02e5860006827811782a2",
+    "TimeLog": "912e1ce41178093c811b1a5a5aa36da92fce310da2ba759b34d459da41f1c447",
+    "TimeLog_2025": "366740867996ecde7733463ecb68cf12438b4ebc4a9d638175fc48abe1a0d6de",
+    "TimeCorrections": "33b48a8aeda8e67c167b6f055e66cf0d01448ef9f1e0ab0917304249480ed9bc",
+    "MedicalClaims": "4c6485b67abec1562fb3c8b426105d2de1987195130558065e0aaa13773b5223",
+    "MedicalClaims_2025": "f46d0ec832703b1da84eac845c0926abe892e1eb2f1307bed4dba2932e22fd97",
+    "Medical_ApprovalSteps": "7cce03157c60dc7b6e27304e3a5b6707a22ff08b04a72a64deb37728e19ee9af",
+    "MedicalAttachments": "27ee2666823cfab9e48b8342359ed151d23fd0000c8821115ec0f829ea687ca7",
+    "Attachments": "867f0195d6f83f2a03affb0fd6b02f8c987c4ab4d4d7f7e3dba209c29608931c",
+    "LineServiceAttachments": "15d3d54069e4d17069c6f9dcbf11e8bb5da7a8f74d4fdcefc9548d580bed0fca"
+  },
+  "sourceRowsByTab": {
+    "Users": 25,
+    "Agency": 3,
+    "Departments": 4,
+    "UserPolicies": 69,
+    "Holidays": 39,
+    "DayOfWeek": 7,
+    "LeaveRequests": 109,
+    "LeaveRequests_2025": 84,
+    "ApprovalSteps": 306,
+    "OvertimeRequests": 508,
+    "OT_ApprovalSteps": 1550,
+    "TimeLog": 2070,
+    "TimeLog_2025": 346,
+    "TimeCorrections": 64,
+    "MedicalClaims": 18,
+    "MedicalClaims_2025": 5,
+    "Medical_ApprovalSteps": 28,
+    "MedicalAttachments": 21,
+    "Attachments": 13,
+    "LineServiceAttachments": 0
+  },
+  "outcomesByTab": {
+    "Agency": {
+      "IMPORTED": 3
+    },
+    "Departments": {
+      "IMPORTED": 4
+    },
+    "Users": {
+      "IMPORTED": 25
+    },
+    "UserPolicies": {
+      "IMPORTED": 69
+    },
+    "Holidays": {
+      "IMPORTED": 39
+    },
+    "DayOfWeek": {
+      "IMPORTED": 7
+    },
+    "LeaveRequests": {
+      "IMPORTED": 109
+    },
+    "LeaveRequests_2025": {
+      "IMPORTED": 84
+    },
+    "OvertimeRequests": {
+      "IMPORTED": 508
+    },
+    "TimeLog": {
+      "IMPORTED": 2068,
+      "REJECTED_TRANSFORM": 2
+    },
+    "TimeLog_2025": {
+      "IMPORTED": 346
+    },
+    "TimeCorrections": {
+      "IMPORTED": 64
+    },
+    "MedicalClaims": {
+      "IMPORTED": 18
+    },
+    "MedicalClaims_2025": {
+      "IMPORTED": 5
+    },
+    "ApprovalSteps": {
+      "IMPORTED": 305,
+      "SKIPPED_TRANSFORM": 1
+    },
+    "OT_ApprovalSteps": {
+      "IMPORTED": 1550
+    },
+    "Medical_ApprovalSteps": {
+      "IMPORTED": 28
+    },
+    "MedicalAttachments": {
+      "SKIPPED_TRANSFORM": 21
+    },
+    "Attachments": {
+      "SKIPPED_TRANSFORM": 13
+    }
+  },
+  "outcomesByCode": {
+    "ATTENDANCE_DUPLICATE_SOURCE_LOG_ID": 2,
+    "LEGACY_PENDING_APPROVAL_REPLACED_BY_CURRENT_POLICY": 1,
+    "SANITIZED_ATTACHMENT_BYTES_UNAVAILABLE": 34
+  },
+  "totalSourceRows": 5269,
+  "outcomeTotals": {
+    "IMPORTED": 5232,
+    "REJECTED_TRANSFORM": 2,
+    "SKIPPED_TRANSFORM": 35
+  },
+  "targetRowsInMemory": 5232,
+  "pendingSourceRequests": 1,
+  "pendingTargetCount": null,
+  "unaccountedByTab": {},
+  "stoppedEarly": false,
+  "ambiguousWrites": 0,
+  "policyRouteResolution": "NOT_RUN_IN_MEMORY_STORE_HAS_NO_DATABASE_POLICY_CATALOG"
+}

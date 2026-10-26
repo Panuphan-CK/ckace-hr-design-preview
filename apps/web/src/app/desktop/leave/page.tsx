@@ -1,13 +1,16 @@
 "use client";
 
-import type {
-  AttachmentDownloadResult,
-  LeaveApprovalStepOptions,
-  LeaveDurationCode,
-  LeaveEntitlementView,
-  LeaveRequestStatus,
-  LeaveRequestView,
-  LeaveSelfOverview,
+import {
+  LEAVE_DURATION_LABELS,
+  LEAVE_REQUEST_STATUS_LABELS,
+  leaveTypeDisplayLabel,
+  type AttachmentDownloadResult,
+  type LeaveApprovalStepOptions,
+  type LeaveDurationCode,
+  type LeaveEntitlementView,
+  type LeaveRequestStatus,
+  type LeaveRequestView,
+  type LeaveSelfOverview,
 } from "@ckace/contracts";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -43,28 +46,21 @@ type PageState =
 type Tone = "leave" | "sick" | "biz" | "gray";
 type HistoryFilter = "ALL" | "PENDING" | "REVISION_REQUESTED" | "APPROVED" | "REJECTED";
 
-const STATUS: Readonly<Record<LeaveRequestStatus, { label: string; tone: string }>> = {
-  PENDING: { label: "รออนุมัติ", tone: "wait" },
-  REVISION_REQUESTED: { label: "รอแก้ไข", tone: "back" },
-  APPROVED: { label: "อนุมัติ", tone: "ok" },
-  REJECTED: { label: "ไม่อนุมัติ", tone: "bad" },
-  CANCELLED: { label: "ยกเลิก", tone: "muted" },
+const STATUS_TONE: Readonly<Record<LeaveRequestStatus, string>> = {
+  PENDING: "wait",
+  REVISION_REQUESTED: "back",
+  APPROVED: "ok",
+  REJECTED: "bad",
+  CANCELLED: "muted",
 };
 
 const FILTERS: readonly { id: HistoryFilter; label: string }[] = [
   { id: "ALL", label: "ทั้งหมด" },
-  { id: "PENDING", label: "รออนุมัติ" },
-  { id: "REVISION_REQUESTED", label: "รอแก้ไข" },
-  { id: "APPROVED", label: "อนุมัติ" },
-  { id: "REJECTED", label: "ไม่อนุมัติ" },
+  { id: "PENDING", label: LEAVE_REQUEST_STATUS_LABELS.PENDING },
+  { id: "REVISION_REQUESTED", label: LEAVE_REQUEST_STATUS_LABELS.REVISION_REQUESTED },
+  { id: "APPROVED", label: LEAVE_REQUEST_STATUS_LABELS.APPROVED },
+  { id: "REJECTED", label: LEAVE_REQUEST_STATUS_LABELS.REJECTED },
 ];
-
-const DURATION_LABEL: Readonly<Record<LeaveDurationCode, string>> = {
-  FULL_DAY: "เต็มวัน",
-  MORNING: "ครึ่งเช้า",
-  AFTERNOON: "ครึ่งบ่าย",
-  HOURLY: "รายชั่วโมง",
-};
 
 const DURATIONS: readonly LeaveDurationCode[] = ["FULL_DAY", "MORNING", "AFTERNOON", "HOURLY"];
 
@@ -284,7 +280,7 @@ export default function LeaveDesktopPage() {
       return;
     }
     if (overQuota && selected) {
-      setActionMessage({ kind: "error", text: `วันลาเกินสิทธิคงเหลือ ${selected.leaveTypeName} เหลือ ${selected.remaining} วัน` });
+      setActionMessage({ kind: "error", text: `วันลาเกินสิทธิคงเหลือ ${leaveTypeDisplayLabel(selected.leaveTypeKey, selected.leaveTypeName)} เหลือ ${selected.remaining} วัน` });
       return;
     }
     if (duration === "HOURLY" && !endTime) {
@@ -457,7 +453,7 @@ export default function LeaveDesktopPage() {
             {overview.entitlements.map((item) => (
               <span key={item.entitlementId} className={"ck-c-" + toneOf(item.leaveTypeKey)}>
                 <i />
-                {item.leaveTypeName} <b>{item.remaining}</b>/{item.quota}
+                {leaveTypeDisplayLabel(item.leaveTypeKey, item.leaveTypeName)} <b>{item.remaining}</b>/{item.quota}
               </span>
             ))}
           </div>
@@ -510,7 +506,7 @@ export default function LeaveDesktopPage() {
                           <Icon name={TONE_ICON[tone]} />
                         </span>
                         <span>
-                          <b>{item.leaveTypeName}</b>
+                          <b>{leaveTypeDisplayLabel(item.leaveTypeKey, item.leaveTypeName)}</b>
                           <small>
                             เหลือ {item.remaining} วัน{item.pending > 0 ? ` (รออนุมัติ ${item.pending})` : ""}
                           </small>
@@ -552,7 +548,7 @@ export default function LeaveDesktopPage() {
                       if (code !== "FULL_DAY") setEndDate(startDate);
                     }}
                   >
-                    {DURATION_LABEL[code]}
+                    {LEAVE_DURATION_LABELS[code]}
                   </button>
                 ))}
               </div>
@@ -655,7 +651,7 @@ export default function LeaveDesktopPage() {
 
           {overQuota && selected ? (
             <p className="ck-msg error" role="alert" style={{ marginTop: 16 }}>
-              เลือกวันลาเกินสิทธิคงเหลือ: {selected.leaveTypeName} เหลือ {selected.remaining} วัน แต่เลือกไว้ประมาณ {estimateDays} วัน
+              เลือกวันลาเกินสิทธิคงเหลือ: {leaveTypeDisplayLabel(selected.leaveTypeKey, selected.leaveTypeName)} เหลือ {selected.remaining} วัน แต่เลือกไว้ประมาณ {estimateDays} วัน
             </p>
           ) : null}
 
@@ -665,11 +661,11 @@ export default function LeaveDesktopPage() {
               {selected && startDate ? (
                 duration === "HOURLY" ? (
                   <>
-                    ลา <b>{selected.leaveTypeName}</b> วันที่ <b>{isoToDmy(startDate)}</b> เวลา <b>{startTime}</b> ถึง <b>{endTime || "—"}</b>
+                    ลา <b>{leaveTypeDisplayLabel(selected.leaveTypeKey, selected.leaveTypeName)}</b> วันที่ <b>{isoToDmy(startDate)}</b> เวลา <b>{startTime}</b> ถึง <b>{endTime || "—"}</b>
                   </>
                 ) : (
                   <>
-                    ลา <b>{selected.leaveTypeName}</b> ประมาณ <b>{estimateDays} วันทำการ</b>{overQuota ? <> · <b>เกินสิทธิ์ {Math.round((estimateDays - (selected?.remaining ?? 0)) * 1000) / 1000} วัน</b></> : <> หลังลาเหลือประมาณ <b>{remainingAfter} วัน</b></>}
+                    ลา <b>{leaveTypeDisplayLabel(selected.leaveTypeKey, selected.leaveTypeName)}</b> ประมาณ <b>{estimateDays} วันทำการ</b>{overQuota ? <> · <b>เกินสิทธิ์ {Math.round((estimateDays - (selected?.remaining ?? 0)) * 1000) / 1000} วัน</b></> : <> หลังลาเหลือประมาณ <b>{remainingAfter} วัน</b></>}
                   </>
                 )
               ) : (
@@ -719,7 +715,7 @@ export default function LeaveDesktopPage() {
                           <Icon name={TONE_ICON[tone]} size={16} />
                         </span>
                         <span className="ck-gcell">
-                          <b>{request.leaveTypeName}</b>
+                          <b>{leaveTypeDisplayLabel(request.leaveTypeKey, request.leaveTypeName)}</b>
                           <small>ยื่น {thaiDateTime(request.submittedAt)}</small>
                         </span>
                       </span>
@@ -733,7 +729,7 @@ export default function LeaveDesktopPage() {
                   render: (request) => (
                     <span className="ck-gcell">
                       <b>{amountLabel(request)}</b>
-                      <small>{DURATION_LABEL[request.durationCode]}</small>
+                      <small>{LEAVE_DURATION_LABELS[request.durationCode]}</small>
                     </span>
                   ),
                 },
@@ -743,7 +739,7 @@ export default function LeaveDesktopPage() {
                   header: "สถานะ",
                   align: "center",
                   width: "80px",
-                  render: (request) => <StatusDot tone={STATUS[request.status].tone as DotTone} label={STATUS[request.status].label} />,
+                  render: (request) => <StatusDot tone={STATUS_TONE[request.status] as DotTone} label={LEAVE_REQUEST_STATUS_LABELS[request.status]} />,
                 },
               ]}
             />
@@ -762,10 +758,10 @@ export default function LeaveDesktopPage() {
               <div>
                 <small>รายละเอียดคำขอลา {detail.requestNo}</small>
                 <h2 id="leave-detail-title">
-                  {detail.leaveTypeName} {amountLabel(detail)}
+                  {leaveTypeDisplayLabel(detail.leaveTypeKey, detail.leaveTypeName)} {amountLabel(detail)}
                 </h2>
               </div>
-              <span className={"ck-pill " + STATUS[detail.status].tone}>{STATUS[detail.status].label}</span>
+              <span className={"ck-pill " + STATUS_TONE[detail.status]}>{LEAVE_REQUEST_STATUS_LABELS[detail.status]}</span>
               <button type="button" className="ck-x" aria-label="ปิด" onClick={() => setDetail(null)}>
                 <Icon name="close" size={18} />
               </button>
@@ -779,7 +775,7 @@ export default function LeaveDesktopPage() {
                 <div>
                   <dt>ช่วงเวลา</dt>
                   <dd>
-                    {DURATION_LABEL[detail.durationCode]}
+                    {LEAVE_DURATION_LABELS[detail.durationCode]}
                     {detail.startTime && detail.endTime ? ` ${detail.startTime} ถึง ${detail.endTime}` : ""}
                   </dd>
                 </div>
@@ -800,7 +796,7 @@ export default function LeaveDesktopPage() {
                 <div className="ck-dlg-sec">
                   <h3>สิทธิคงเหลือ</h3>
                   <p style={{ marginBottom: 8 }}>
-                    {detailEntitlement.leaveTypeName} ใช้ไป <b>{detailEntitlement.used}</b> คงเหลือ <b>{detailEntitlement.remaining}</b> จาก {detailEntitlement.quota} วัน
+                    {leaveTypeDisplayLabel(detailEntitlement.leaveTypeKey, detailEntitlement.leaveTypeName)} ใช้ไป <b>{detailEntitlement.used}</b> คงเหลือ <b>{detailEntitlement.remaining}</b> จาก {detailEntitlement.quota} วัน
                   </p>
                   <div className="ck-track">
                     <i style={{ width: `${detailEntitlement.quota > 0 ? Math.min((detailEntitlement.used / detailEntitlement.quota) * 100, 100) : 0}%` }} />
@@ -871,7 +867,7 @@ export default function LeaveDesktopPage() {
                             className={revision.durationCode === code ? "on" : ""}
                             onClick={() => setRevision({ ...revision, durationCode: code })}
                           >
-                            {code === "FULL_DAY" ? "เต็มวัน" : code === "MORNING" ? "ครึ่งเช้า" : "ครึ่งบ่าย"}
+                            {LEAVE_DURATION_LABELS[code]}
                           </button>
                         ))}
                       </div>

@@ -1,3 +1,4 @@
+import { REQUEST_STATUS_LABELS } from "@ckace/contracts";
 import type {
   OvertimeBreakCode,
   OvertimeRequestStatus,
@@ -70,18 +71,7 @@ export function overtimeRequestMinutes(
 export function overtimeStatusLabel(
   status: OvertimeRequestStatus,
 ): string {
-  switch (status) {
-    case "PENDING":
-      return "รออนุมัติ";
-    case "APPROVED":
-      return "อนุมัติแล้ว";
-    case "REJECTED":
-      return "ไม่อนุมัติ";
-    case "CANCELLED":
-      return "ยกเลิก";
-    case "REVISION_REQUESTED":
-      return "ส่งกลับให้แก้ไข";
-  }
+  return REQUEST_STATUS_LABELS[status];
 }
 
 export function overtimeStatusClass(

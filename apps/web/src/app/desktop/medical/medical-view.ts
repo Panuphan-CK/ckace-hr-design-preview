@@ -1,3 +1,4 @@
+import { REQUEST_STATUS_LABELS } from "@ckace/contracts";
 import type {
   MedicalClaimStatus,
   MedicalSelfOverview,
@@ -62,18 +63,7 @@ export function medicalMetrics(
 export function medicalStatusLabel(
   status: MedicalClaimStatus,
 ): string {
-  switch (status) {
-    case "PENDING":
-      return "รออนุมัติ";
-    case "APPROVED":
-      return "อนุมัติแล้ว";
-    case "REJECTED":
-      return "ไม่อนุมัติ";
-    case "CANCELLED":
-      return "ยกเลิก";
-    case "REVISION_REQUESTED":
-      return "ส่งกลับให้แก้ไข";
-  }
+  return REQUEST_STATUS_LABELS[status];
 }
 
 export function medicalStatusClass(

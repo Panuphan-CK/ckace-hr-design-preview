@@ -1,18 +1,9 @@
 "use client";
 
-import type { RequestTimeline, RequestTimelineStep } from "@ckace/contracts";
+import { APPROVAL_STEP_STATUS_LABELS, type RequestTimeline } from "@ckace/contracts";
 import { useEffect, useState } from "react";
 
 import { thaiDateTime } from "./format";
-
-const STEP_LABEL: Readonly<Record<RequestTimelineStep["status"], string>> = {
-  PENDING: "รอพิจารณา",
-  APPROVED: "อนุมัติแล้ว",
-  REJECTED: "ไม่อนุมัติ",
-  REVISION_REQUESTED: "ส่งกลับให้แก้ไข",
-  SKIPPED: "ข้ามขั้น",
-  CANCELLED: "ยกเลิก",
-};
 
 /** Approval chain of a request (approver names and decisions), loaded when the dialog opens. */
 export function RequestTimelineSection({ requestId }: { readonly requestId: string }) {
@@ -48,7 +39,7 @@ export function RequestTimelineSection({ requestId }: { readonly requestId: stri
             <b>{step.approverName ?? "รอระบบกำหนดผู้อนุมัติ"}</b>{" "}
             {step.decidedByName ? <i>(อนุมัติแทนโดย {step.decidedByName}) </i> : null}
             <span>
-              {STEP_LABEL[step.status]}
+              {APPROVAL_STEP_STATUS_LABELS[step.status]}
               {step.decidedAt ? " · " + thaiDateTime(step.decidedAt) : ""}
             </span>
             {step.comment ? <div style={{ opacity: 0.75 }}>ความเห็น: {step.comment}</div> : null}

@@ -1,10 +1,11 @@
 "use client";
 
-import type {
-  RequestStatusItem,
-  RequestStatusOverview,
-  UnifiedRequestKind,
-  UnifiedRequestStatus,
+import {
+  REQUEST_STATUS_LABELS,
+  type RequestStatusItem,
+  type RequestStatusOverview,
+  type UnifiedRequestKind,
+  type UnifiedRequestStatus,
 } from "@ckace/contracts";
 import Link from "next/link";
 import {
@@ -31,14 +32,6 @@ import {
   type Tone,
 } from "../ui/kit";
 import { RequestTimelineSection } from "../ui/request-timeline";
-
-const STATUS_LABEL: Readonly<Record<UnifiedRequestStatus, string>> = {
-  PENDING: "รออนุมัติ",
-  APPROVED: "อนุมัติแล้ว",
-  REJECTED: "ไม่อนุมัติ",
-  CANCELLED: "ยกเลิก",
-  REVISION_REQUESTED: "ส่งกลับแก้ไข",
-};
 
 const KIND_LABEL: Readonly<Record<UnifiedRequestKind, string>> = {
   LEAVE: "การลา",
@@ -205,7 +198,7 @@ export default function DesktopRequestStatusPage() {
                   header: "สถานะ",
                   align: "center",
                   width: "80px",
-                  render: (request) => <StatusDot tone={STATUS_DOT[request.status]} label={STATUS_LABEL[request.status]} />,
+                  render: (request) => <StatusDot tone={STATUS_DOT[request.status]} label={REQUEST_STATUS_LABELS[request.status]} />,
                 },
               ]}
             />
@@ -219,7 +212,7 @@ export default function DesktopRequestStatusPage() {
           icon={KIND_META[detail.kind].icon}
           kicker={KIND_LABEL[detail.kind]}
           title={detail.summary}
-          status={{ label: STATUS_LABEL[detail.status], tone: STATUS_DOT[detail.status] }}
+          status={{ label: REQUEST_STATUS_LABELS[detail.status], tone: STATUS_DOT[detail.status] }}
           onClose={() => setDetail(null)}
           footer={
             <Link className="ck-btn sky" href={KIND_META[detail.kind].href}>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import ExcelJS from "exceljs";
+import { Prisma } from "@prisma/client";
 import path from "node:path";
 
 import {
@@ -105,7 +106,7 @@ function syntheticExportData() {
       medical: {
         medicalClaim: [{
           id: ids.medical, employeeId: ids.employee, benefitPolicyId: ids.benefitPolicy, approvalInstanceId: ids.medicalApproval,
-          claimDate: afterCutoff, sicknessDate: afterCutoff, amount: "1250.50", description: "ค่ารักษาทดสอบ",
+          claimDate: afterCutoff, sicknessDate: afterCutoff, amount: new Prisma.Decimal("1250.50"), description: "ค่ารักษาทดสอบ",
           status: "APPROVED", submittedAt: afterCutoff,
         }],
       },
@@ -133,6 +134,7 @@ describe("post-cutover HR workbook", () => {
       exportData: syntheticExportData(),
       marker: { schemaVersion: 1, cutoverAt: cutoff.toISOString(), runId: "12345678-1234-4234-8234-123456789abc" },
     });
+    expect(report.sheets.find((sheet) => sheet.name === "การลา").rows[0].status).toBe("อนุมัติ");
     const buffer = await buildPostCutoverHrWorkbookBuffer(report);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(Buffer.from(buffer));
@@ -147,9 +149,11 @@ describe("post-cutover HR workbook", () => {
     expect(leaveText).toContain("พนักงานทดสอบ");
     expect(leaveText).toContain("LEV-0101");
     expect(leaveText).toContain("ลาป่วย");
+    expect(leaveText).toContain("อนุมัติแล้ว");
+    expect(leaveText).toContain("เต็มวัน");
     expect(leaveText).toContain("03/01/2569");
     expect(leaveText).toContain("ผู้อนุมัติ USER-002 ผู้อนุมัติทดสอบ");
-    expect(leaveText).toContain("ผล APPROVED");
+    expect(leaveText).toContain("ผล อนุมัติแล้ว");
     expect(leaveText).toContain("03/01/2569 10:30");
     expect(leaveText).toContain("สร้างใหม่หลัง cutover");
 
@@ -171,6 +175,9 @@ describe("post-cutover HR workbook", () => {
     expect(medicalText).toContain("MED-0101");
     expect(medicalText).toContain("ค่ารักษาพยาบาล");
     expect(medicalText).toContain("1250.5");
+    const amountCell = workbook.getWorksheet("ค่ารักษา").getCell("G2");
+    expect(amountCell.value).toBe(1250.5);
+    expect(amountCell.numFmt).toBe("#,##0.00");
 
     expect(report.summaries).toEqual([
       { moduleName: "การลา", rowCount: 1, created: 1, updated: 0 },

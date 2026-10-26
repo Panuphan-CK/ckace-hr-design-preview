@@ -1,5 +1,12 @@
 import path from "node:path";
 
+import {
+  APPROVAL_STEP_STATUS_LABELS,
+  LEAVE_DURATION_LABELS,
+  LEAVE_REQUEST_STATUS_LABELS,
+  REQUEST_STATUS_LABELS,
+  leaveTypeDisplayLabel,
+} from "@ckace/contracts";
 import ExcelJS from "exceljs";
 
 export const HR_WORKBOOK_LOOKUP_SOURCES = Object.freeze([
@@ -204,7 +211,8 @@ function summarizeApprovals(instanceId, stepsByInstance, employeeById, legacyUse
     const decidedByText = decidedByName && !approverNames.includes(decidedByName)
       ? `; ผู้ตัดสินจริง: ${decidedByName}`
       : "";
-    return `ขั้น ${step.stepOrder}: ผู้อนุมัติ ${approverNames.join(" / ") || "ไม่ระบุ"}; ผล ${safeCellText(step.status)}; เวลา ${decisionTime}${decidedByText}`;
+    const stepStatusLabel = APPROVAL_STEP_STATUS_LABELS[step.status] ?? safeCellText(step.status);
+    return `ขั้น ${step.stepOrder}: ผู้อนุมัติ ${approverNames.join(" / ") || "ไม่ระบุ"}; ผล ${stepStatusLabel}; เวลา ${decisionTime}${decidedByText}`;
   }).join("\n");
 }
 
@@ -221,6 +229,11 @@ function cutoverNote(row, createdField, cutoff) {
 
 function requestLegacyId(mappingByTargetAndType, targetId, targetEntityType) {
   return safeCellText(mappingByTargetAndType.get(`${targetEntityType}:${targetId}`)?.legacyId ?? "");
+}
+
+function requestStatusLabel(moduleKey, status) {
+  const labels = moduleKey === "leave" ? LEAVE_REQUEST_STATUS_LABELS : REQUEST_STATUS_LABELS;
+  return labels[status] ?? safeCellText(status);
 }
 
 function numberValue(value) {
@@ -323,7 +336,7 @@ export async function collectPostCutoverHrWorkbookRows({ prisma, exportData, mar
       const base = {
         ...employee,
         legacyRequestId: requestLegacyId(mappingByTargetAndType, row.id, sheet.entityType),
-        status: safeCellText(row.status),
+        status: safeCellText(requestStatusLabel(sheet.key, row.status)),
         approvals: summarizeApprovals(row.approvalInstanceId, stepsByInstance, employeeById, legacyUserByEmployeeId),
         changeNote: cutoverNote(row, sheet.createdField, cutoff),
       };
@@ -332,11 +345,11 @@ export async function collectPostCutoverHrWorkbookRows({ prisma, exportData, mar
         const leaveType = leaveTypeById.get(row.leaveTypeId);
         return {
           ...base,
-          leaveType: safeCellText(leaveType?.name ?? leaveType?.key ?? ""),
+          leaveType: safeCellText(leaveTypeDisplayLabel(leaveType?.key ?? "", leaveType?.name ?? "")),
           startDate: formatDateBE(row.startDate),
           endDate: formatDateBE(row.endDate),
           timeRange: [formatClock(row.startTime), formatClock(row.endTime)].filter(Boolean).join("–"),
-          duration: safeCellText(row.durationCode),
+          duration: safeCellText(LEAVE_DURATION_LABELS[row.durationCode] ?? row.durationCode),
           description: safeCellText(row.description),
         };
       }
@@ -443,6 +456,9 @@ export async function buildPostCutoverHrWorkbookBuffer(report) {
     const worksheet = workbook.addWorksheet(sheet.name, { views: [{ state: "frozen", ySplit: 1 }] });
     worksheet.columns = sheet.columns.map(({ key, header }) => ({ header, key, width: /อนุมัติ|รายละเอียด|เหตุผล|ช่วงเวลา/.test(header) ? 44 : /ชื่อ|ประเภท/.test(header) ? 22 : 18 }));
     worksheet.addRows(sheet.rows);
+    for (const [columnIndex, { key }] of sheet.columns.entries()) {
+      if (key === "amount") worksheet.getColumn(columnIndex + 1).numFmt = "#,##0.00";
+    }
     const lastColumn = worksheet.getColumn(worksheet.columnCount).letter;
     worksheet.autoFilter = { from: "A1", to: `${lastColumn}1` };
     worksheet.getColumn(1).alignment = { vertical: "top" };

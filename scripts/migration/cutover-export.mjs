@@ -1,6 +1,8 @@
 import path from "node:path";
 import { lstat, mkdir, realpath } from "node:fs/promises";
 
+import { collectPostCutoverHrWorkbookRows } from "./cutover-hr-workbook.mjs";
+
 export const POST_CUTOVER_SOURCES = Object.freeze([
   { module: "identity-organization", delegate: "company", timeFields: ["createdAt", "updatedAt"] },
   { module: "identity-organization", delegate: "agency", timeFields: ["createdAt", "updatedAt"] },
@@ -25,7 +27,7 @@ export const POST_CUTOVER_SOURCES = Object.freeze([
   { module: "attendance", delegate: "timeCorrectionRequest", timeFields: ["requestedAt", "decidedAt", "updatedAt"] },
   { module: "overtime", delegate: "overtimeRequest", timeFields: ["submittedAt", "updatedAt"] },
   { module: "overtime", delegate: "overtimeSegment", timeFields: ["createdAt", "confirmedAt"] },
-  { module: "overtime", delegate: "overtimeAllowancePolicy", timeFields: ["updatedAt"] },
+  { module: "overtime", delegate: "overtimeAllowancePolicy", timeFields: ["updatedAt"], orderBy: [{ kind: "asc" }] },
   { module: "overtime", delegate: "professionalRole", timeFields: ["createdAt", "updatedAt"] },
   { module: "overtime", delegate: "employeeProfessionalRole", timeFields: ["assignedAt"], orderBy: [{ employeeId: "asc" }, { professionalRoleId: "asc" }] },
   { module: "medical", delegate: "benefitPolicy", timeFields: ["createdAt", "updatedAt"] },
@@ -42,13 +44,13 @@ export const POST_CUTOVER_SOURCES = Object.freeze([
   { module: "technical", delegate: "idempotencyKey", timeFields: ["createdAt"] },
 ]);
 
-const RELATION_SOURCES = Object.freeze([
-  { module: "identity-organization", delegate: "rolePermission", auditEntityType: "Role", parentDelegate: "role", parentField: "roleId" },
-  { module: "leave", delegate: "leaveTypeAlias", auditEntityType: "LeaveType", parentDelegate: "leaveType", parentField: "leaveTypeId" },
-  { module: "attachments", delegate: "leaveRequestAttachment", auditEntityType: "LeaveRequest", parentDelegate: "leaveRequest", parentField: "leaveRequestId", attachmentField: "attachmentId" },
-  { module: "attachments", delegate: "overtimeRequestAttachment", auditEntityType: "OvertimeRequest", parentDelegate: "overtimeRequest", parentField: "overtimeRequestId", attachmentField: "attachmentId" },
-  { module: "attachments", delegate: "medicalClaimAttachment", auditEntityType: "MedicalClaim", parentDelegate: "medicalClaim", parentField: "medicalClaimId", attachmentField: "attachmentId" },
-  { module: "attachments", delegate: "announcementAttachment", auditEntityType: "Announcement", parentDelegate: "announcement", parentField: "announcementId", attachmentField: "attachmentId" },
+export const POST_CUTOVER_RELATION_SOURCES = Object.freeze([
+  { module: "identity-organization", delegate: "rolePermission", auditEntityType: "Role", parentDelegate: "role", parentField: "roleId", orderBy: [{ roleId: "asc" }, { permissionId: "asc" }] },
+  { module: "leave", delegate: "leaveTypeAlias", auditEntityType: "LeaveType", parentDelegate: "leaveType", parentField: "leaveTypeId", orderBy: [{ id: "asc" }] },
+  { module: "attachments", delegate: "leaveRequestAttachment", auditEntityType: "LeaveRequest", parentDelegate: "leaveRequest", parentField: "leaveRequestId", attachmentField: "attachmentId", orderBy: [{ attachmentId: "asc" }] },
+  { module: "attachments", delegate: "overtimeRequestAttachment", auditEntityType: "OvertimeRequest", parentDelegate: "overtimeRequest", parentField: "overtimeRequestId", attachmentField: "attachmentId", orderBy: [{ attachmentId: "asc" }] },
+  { module: "attachments", delegate: "medicalClaimAttachment", auditEntityType: "MedicalClaim", parentDelegate: "medicalClaim", parentField: "medicalClaimId", attachmentField: "attachmentId", orderBy: [{ attachmentId: "asc" }] },
+  { module: "attachments", delegate: "announcementAttachment", auditEntityType: "Announcement", parentDelegate: "announcement", parentField: "announcementId", attachmentField: "attachmentId", orderBy: [{ attachmentId: "asc" }] },
 ]);
 
 const SENSITIVE_KEYS = /password|secret|token|authorization|lastError|^error$/i;
@@ -243,7 +245,7 @@ export async function collectPostCutoverExport({ prisma, marker, now = new Date(
   }
 
   const auditEvents = rowsByDelegate.auditLog ?? [];
-  for (const source of RELATION_SOURCES) {
+  for (const source of POST_CUTOVER_RELATION_SOURCES) {
     const delegate = prisma[source.delegate];
     if (!delegate || typeof delegate.findMany !== "function") {
       throw new Error(`Prisma delegate ${source.delegate} is unavailable; export stopped without a partial file.`);
@@ -261,7 +263,7 @@ export async function collectPostCutoverExport({ prisma, marker, now = new Date(
       ? []
       : await delegate.findMany({
           where: clauses.length === 1 ? clauses[0] : { OR: clauses },
-          orderBy: { [source.parentField]: "asc" },
+          orderBy: source.orderBy,
         });
     const sanitized = rows.map(stripSensitiveFields);
     rowsByDelegate[source.delegate] = sanitized;
@@ -304,7 +306,7 @@ export async function collectPostCutoverExport({ prisma, marker, now = new Date(
   };
 }
 
-export async function readPostCutoverExport({ prisma, marker, env = process.env, now = new Date() }) {
+async function readPostCutoverBundleInternal({ prisma, marker, env, now, includeHrWorkbook }) {
   const expected = assertPostCutoverExportEnvironment(env);
   return prisma.$transaction(async (transaction) => {
     await transaction.$executeRawUnsafe("SET TRANSACTION READ ONLY");
@@ -313,6 +315,22 @@ export async function readPostCutoverExport({ prisma, marker, env = process.env,
       throw new Error(`Connected database did not attest as ${expected.databaseName}; export aborted.`);
     }
     const result = await collectPostCutoverExport({ prisma: transaction, marker, now });
-    return { ...result, database: expected.databaseName, runtimeStage: expected.stage };
+    const jsonExport = { ...result, database: expected.databaseName, runtimeStage: expected.stage };
+    if (!includeHrWorkbook) return { jsonExport };
+    const hrWorkbook = await collectPostCutoverHrWorkbookRows({
+      prisma: transaction,
+      exportData: jsonExport,
+      marker,
+    });
+    return { jsonExport, hrWorkbook };
   }, { isolationLevel: "RepeatableRead" });
+}
+
+export async function readPostCutoverExport({ prisma, marker, env = process.env, now = new Date() }) {
+  const { jsonExport } = await readPostCutoverBundleInternal({ prisma, marker, env, now, includeHrWorkbook: false });
+  return jsonExport;
+}
+
+export async function readPostCutoverBundle({ prisma, marker, env = process.env, now = new Date() }) {
+  return readPostCutoverBundleInternal({ prisma, marker, env, now, includeHrWorkbook: true });
 }

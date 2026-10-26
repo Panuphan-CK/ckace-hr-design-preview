@@ -1,15 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
+import { Prisma } from "@prisma/client";
 import path from "node:path";
 
 import {
+  POST_CUTOVER_RELATION_SOURCES,
   POST_CUTOVER_SOURCES,
   assertOutsideRepository,
   ensureOutsideRepositoryPath,
   assertPostCutoverExportEnvironment,
   collectPostCutoverExport,
   createCutoverMarker,
+  readPostCutoverBundle,
   readPostCutoverExport,
 } from "./cutover-export.mjs";
+import { HR_WORKBOOK_LOOKUP_SOURCES } from "./cutover-hr-workbook.mjs";
 
 const marker = {
   schemaVersion: 1,
@@ -43,6 +47,41 @@ function emptyPrisma() {
 }
 
 describe("post-cutover export", () => {
+  it("keeps every export delegate, timestamp, relation field, and order key aligned with Prisma DMMF", () => {
+    const modelsByDelegate = new Map(Prisma.dmmf.datamodel.models.map((model) => [
+      `${model.name.slice(0, 1).toLowerCase()}${model.name.slice(1)}`,
+      model,
+    ]));
+    const sources = [...POST_CUTOVER_SOURCES, ...POST_CUTOVER_RELATION_SOURCES, ...HR_WORKBOOK_LOOKUP_SOURCES];
+
+    for (const source of sources) {
+      const model = modelsByDelegate.get(source.delegate);
+      expect(model, `Prisma model for delegate ${source.delegate}`).toBeDefined();
+      const fieldNames = new Set(model.fields.map((field) => field.name));
+      for (const field of source.timeFields ?? []) {
+        expect(fieldNames, `${source.delegate}.${field}`).toContain(field);
+      }
+      for (const field of source.fields ?? []) {
+        expect(fieldNames, `${source.delegate}.${field}`).toContain(field);
+      }
+      if (source.parentDelegate) {
+        expect(modelsByDelegate.has(source.parentDelegate), `parent delegate ${source.parentDelegate}`).toBe(true);
+        expect(fieldNames, `${source.delegate}.${source.parentField}`).toContain(source.parentField);
+      }
+      if (source.attachmentField) {
+        expect(fieldNames, `${source.delegate}.${source.attachmentField}`).toContain(source.attachmentField);
+      }
+
+      const primaryKeyFields = model.primaryKey?.fields ?? model.fields.filter((field) => field.isId).map((field) => field.name);
+      const orderBy = source.orderBy ?? [{ id: "asc" }];
+      const orderedFields = orderBy.flatMap((entry) => Object.keys(entry));
+      expect(orderedFields, `${source.delegate} orderBy must use its primary key`).toEqual(primaryKeyFields);
+      for (const field of orderedFields) {
+        expect(fieldNames, `${source.delegate} orderBy field ${field}`).toContain(field);
+      }
+    }
+  });
+
   it("creates a timestamped UUID marker and rejects invalid marker content", () => {
     expect(createCutoverMarker({
       now: "2026-10-26T10:00:00.000Z",
@@ -185,6 +224,27 @@ describe("post-cutover export", () => {
     expect(commands).toEqual(["SET TRANSACTION READ ONLY"]);
     expect(result.database).toBe("ckace_hr_dev");
     expect(result.runtimeStage).toBe("dev");
+  });
+
+  it("collects JSON and HR workbook rows inside the same READ ONLY dev transaction", async () => {
+    const prisma = emptyPrisma();
+    const commands = [];
+    const transaction = {
+      ...prisma,
+      $executeRawUnsafe: vi.fn(async (sql) => commands.push(sql)),
+      $queryRawUnsafe: vi.fn(async () => [{ database_name: "ckace_hr_dev" }]),
+    };
+    prisma.$transaction = vi.fn(async (callback, options) => {
+      expect(options).toEqual({ isolationLevel: "RepeatableRead" });
+      return callback(transaction);
+    });
+
+    const result = await readPostCutoverBundle({ prisma, marker, env: devEnvironment });
+
+    expect(commands).toEqual(["SET TRANSACTION READ ONLY"]);
+    expect(result.jsonExport.databaseReadOnly).toBe(true);
+    expect(result.jsonExport.database).toBe("ckace_hr_dev");
+    expect(result.hrWorkbook.sheets.map((sheet) => sheet.name)).toEqual(["การลา", "OT", "ลงเวลา", "แก้ไขเวลา", "ค่ารักษา"]);
   });
 
   it("aborts rather than writing partial export data if a model delegate is absent", async () => {

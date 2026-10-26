@@ -4,7 +4,7 @@ Last Updated: 2026-10-26 Asia/Bangkok
 
 ## One active TASK
 
-PROD-READINESS-09 — Reviewer rerun corrected disposition + full-system routing and export checks. WAITING FOR REVIEWER, P1. Re-run the disposable PostgreSQL rehearsal against the pushed implementation and verify the corrected LEV-0109 disposition, then test marker/export against `ckace_hr_dev` only. Production remains NO-GO.
+PROD-READINESS-12 — Reviewer rerun Decimal-safe JSON + Thai HR XLSX export. WAITING FOR REVIEWER, P1. Re-run the paired exporter on disposable loopback `ckace_hr_dev`, verify all seven Prisma Decimal strings, Thai labels and module-count parity. Production remains NO-GO.
 
 ## Verified baseline
 
@@ -14,6 +14,8 @@ PROD-READINESS-09 — Reviewer rerun corrected disposition + full-system routing
 - Owner snapshot files are outside Git at D:\CKACE_HR_snapshot; `MANIFEST.md` reports 5,269 total source rows and excludes chat/LINE logs and settings.
 - Reviewer reported a disposable PostgreSQL 16 loopback rehearsal from revision `a793020`: 5,269 rows accounted for (5,234 imported / 35 skipped / 0 rejected), 0 unaccounted/ambiguous writes, no early stop; replay skipped 5,234 identical rows and added 0; source and target Pending counts were 1; backup/restore/reset took 0.30/0.59/0.83 seconds. Policy values were read-only checked against TESTm74, not guessed.
 - Reviewer later reported revision `fb0e444`: imported 5,234 / skipped 35 / rejected 0; all configured dispositions matched; unapproved outcome count = 0; runner exit 2 only because changed next approver count = 1 for the already Owner-approved LEV-0109 exception. Backup = 0.30s and full-dump reset = 0.83s. Reviewer rerun after this code fix is pending.
+- Reviewer reported the PostgreSQL 16 loopback run for `558790a`: import 5,234 / skipped 35 / rejected 0, Pending 1=1, backup/restore/reset 0.44/0.59/0.58 seconds. Marker-immediate export had 0 rows; paired JSON/XLSX files were outside Git with mode 0600. Post-marker module counts matched; the workbook contained 0 UUIDs and Buddhist dates. Review exposed the real Prisma.Decimal conversion gap in medical amount and the need to use Thai UI labels. Aggregate-only evidence is in `docs/migration/evidence/prod-readiness-10-review-20261026.json`.
+- PROD-READINESS-11 fixes Decimal conversion for the seven schema fields, tests actual `Prisma.Decimal` values and numeric XLSX cells, and shares Thai labels with the relevant screens without changing Leave-page wording. Local lint, typecheck, full Vitest (123 files / 866 tests), package builds and API build pass. No database was connected by Codex; the reviewer rerun is still pending.
 - PROD-READINESS-08 implementation verification passed locally: lint, workspace typecheck, 121 Vitest files / 858 tests, package builds, API build, and static exporter delegate/timestamp-field checks. Export-path tests reject nested, primary, and unrelated Git checkouts. No DB connection was made; the reviewer rerun remains pending on disposable loopback `ckace_hr_dev` only.
 
 ## Current Owner decision
@@ -81,7 +83,7 @@ See HANDOFF.md for sheet-to-model inventory, code evidence, switch/rollback desi
 
 ## Reviewer/Owner action priority
 
-1. Reviewer reruns post-cutover export on disposable PostgreSQL `ckace_hr_dev`; verify the READ ONLY attestation and paired JSON/XLSX outputs, DMMF-backed orderings, summary/module counts, legacy keys, and no UUIDs in the workbook. Retain numeric-only evidence.
+1. Reviewer reruns post-cutover export on disposable PostgreSQL `ckace_hr_dev`; verify the READ ONLY attestation, all seven fixed-scale Decimal strings, Thai UI labels, and paired JSON/XLSX output counts. Retain numeric-only evidence.
 2. Keep the marker, JSON, workbook, and any database dump outside Git. Do not connect to Production.
 3. Resolve attachment byte retrieval/re-entry and production infrastructure gaps using `PRODUCTION_INFRA_PLAN.md` and `PRODUCTION_CHECKLIST.md`; each Production action requires separate Owner approval.
 4. Production resources, file transfer, employee notice, routing/opening, and manual fallback remain unverified and require separate named Owner approval.

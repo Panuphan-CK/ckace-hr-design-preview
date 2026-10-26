@@ -1,0 +1,37 @@
+{
+  "sourceRevision": "558790a",
+  "postgresMajorVersion": 16,
+  "databaseScope": "loopback ckace_hr_dev",
+  "sourceRows": 5269,
+  "importedRows": 5234,
+  "skippedRows": 35,
+  "rejectedRows": 0,
+  "unaccountedRows": 0,
+  "pendingSource": 1,
+  "pendingTarget": 1,
+  "backupSeconds": 0.44,
+  "restoreSeconds": 0.59,
+  "resetSeconds": 0.58,
+  "markerImmediateExportRows": 0,
+  "pairedExportFiles": 2,
+  "exportFileMode": "0600",
+  "exportOutsideGit": true,
+  "sourceEditsPerBusinessModule": 2,
+  "postMarkerJsonRows": {
+    "leave": 2,
+    "attendance": 4,
+    "overtime": 2,
+    "medical": 2
+  },
+  "workbookJsonCountsMatched": true,
+  "preMarkerRowsExported": 0,
+  "workbookUuidValues": 0,
+  "buddhistDateFormat": true,
+  "reviewFindings": {
+    "decimalFieldsCoveredByFix": 7,
+    "medicalAmountBlankInWorkbook": true,
+    "prismaDecimalInternalShapeInJson": true,
+    "fixedLocally": true,
+    "reviewerRerunAfterFix": false
+  }
+}

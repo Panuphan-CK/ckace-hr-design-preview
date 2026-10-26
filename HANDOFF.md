@@ -185,9 +185,16 @@ Numbers below are proposed DEV/TEST rehearsal targets, not Production SLOs. Prop
 - The current code tests local route validator behavior, not live Production readiness. No Production resources, config, traffic, LINE, DB, or export were inspected or changed.
 - Proposed thresholds are not approved Production SLAs. Production remains NO-GO; no Production access/action was performed.
 
+## Latest post-cutover export review
+
+- Reviewer run for `558790a` used PostgreSQL 16 loopback `ckace_hr_dev`: 5,234 imported / 35 skipped / 0 rejected, Pending 1=1; backup/restore/reset took 0.44/0.59/0.58 seconds. Marker-immediate export was empty and created paired JSON/XLSX files outside Git with mode 0600. Post-marker counts matched across formats; the workbook contained 0 UUIDs and Buddhist dates. See numeric-only `docs/migration/evidence/prod-readiness-10-review-20261026.json`.
+- Review caught an actual Prisma.Decimal failure: medical amount was blank in XLSX and internal Decimal object data in JSON. PROD-READINESS-11 now maps all seven Decimal model fields to schema scales, tests actual Prisma.Decimal instances, and keeps XLSX amounts numeric with two-decimal formatting.
+- Workbook status, approval outcome, leave type, and duration labels now use shared contracts; Leave-specific status wording remains the same as the employee-facing Leave page. Special leave types retain the configured label. Tests use synthetic in-memory Prisma delegates; Codex did not connect to a DB.
+- Local gates passed after implementation: lint, workspace typecheck, 123 Vitest files / 866 tests (threads pool), package builds, API build, and direct lint on changed migration scripts. The default Vitest pool hit Windows sandbox-temp ENOENT; the threads-pool run passed.
+
 ## Next active task
 
-PROD-READINESS-10 — Reviewer rerun post-cutover JSON + HR XLSX export on disposable loopback `ckace_hr_dev`. Confirm the READ ONLY database attestation, paired external outputs, module counts, legacy keys, Buddhist dates, approval details, and no UUIDs in the workbook. Production remains NO-GO.
+PROD-READINESS-12 — Reviewer rerun Decimal-safe JSON + Thai HR XLSX export on disposable loopback `ckace_hr_dev`. Confirm READ ONLY attestation, seven fixed-scale Decimal strings, numeric medical amount, Thai shared labels, paired external outputs and per-module counts, legacy keys, Buddhist dates, and no UUIDs in the workbook. Production remains NO-GO.
 
 ## Safety rules
 

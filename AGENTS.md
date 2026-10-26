@@ -14,24 +14,23 @@ Repository role:
 - `push.default=nothing` is intentional.
 - Never force-push unless the Owner explicitly authorizes that specific recovery.
 
-## Current Owner direction — 2026-10-21
+## Current Owner direction — 2026-10-26
 
-- **Codex Local is the only active implementation assistant for now.**
-- **Use Claude's latest implementation plan and branch history as the primary product/work baseline.**
-- Primary Claude lineage: `source/claude/project-thread-j4idbg`.
-- Primary Claude handoff snapshot: `docs/HANDOFF_20261021.md` on that branch.
-- **Owner-confirmed current TEST baseline: TESTm67.**
-- Continue the m67 workstream first.
-- Production remains NO-GO unless the Owner explicitly approves a Production action.
+- Codex Local is the only active implementation assistant for now.
+- The verified application baseline is source/main commit 1322ed48e98428ffd580a6ec2e8bb7cdec5132c7, released as TESTm74.
+- The current continuation branch is codex/main-integration; all application pushes must explicitly name remote source and the intended branch.
+- Current active task is PROD-READINESS-04 — DEV/TEST Leave migration rehearsal from an Owner-approved sanitized source snapshot.
+- Owner selected a planning-only bounded Leave cutover: LEAVE_READ/LEAVE_WRITE are the only routes intended for NEW; every other module remains LEGACY.
+- Production remains NO-GO. The selected data-authority boundary is not Production deployment, data access, or mutation approval.
 
-Treat the Owner-confirmed TESTm67 state plus the current implementation branch as the active baseline. Older milestone snapshots do not override current verified evidence.
+Treat the verified TESTm74 state and the current active TASK as the baseline. Older milestone snapshots and history do not override current verified evidence.
 
 ## Authority order
 
 Use this priority:
 
 1. current explicit Owner direction;
-2. Claude latest implementation lineage / current handoff evidence;
+2. current verified source/main implementation and TEST evidence;
 3. `AGENTS.md`;
 4. `HANDOFF.md`;
 5. `PROJECT_PLAN.md`;
@@ -51,19 +50,17 @@ Do not promote stale plan text over newer verified implementation evidence.
 - Git history is the archive.
 - Historical material is retrieved only when the Owner explicitly asks.
 
-## Current m67 workstream
+## Current TESTm74 / Production Leave cutover workstream
 
-The current priority is **continue/verify/fix TESTm67**, following Claude's latest plan and evidence.
-
-Use the current implementation branch and verified TESTm67 evidence directly. Do not derive current work from older milestone summaries.
+The current priority is PROD-READINESS-04, a DEV/TEST migration rehearsal using an Owner-approved sanitized snapshot. The task is ready after the Owner supplies the snapshot/schema and confirms the proposed operational limits.
 
 Before changing source:
 
-1. inspect `origin/claude/project-thread-j4idbg`;
-2. inspect the relevant Claude commit/history;
-3. compare Local changes against that lineage;
-4. preserve Local-only work that is not part of the m67 stream;
-5. do not revive obsolete plans from Git history automatically.
+1. Inspect the active source/main and continuation branch state and relevant implementation/tests.
+2. Compare Local changes against the verified TESTm74 implementation.
+3. Preserve Local-only work that is not part of the active task.
+4. Do not inspect Project A, live APP_LEAVE_GAS Sheets/Drive, or Git history for Project A material unless the Owner explicitly authorizes that specific access.
+5. Keep the exercise in DEV/TEST. Production access or actions require separate named Owner approval.
 
 ## Codex Lead Mode
 
@@ -118,7 +115,7 @@ When the task finishes, replace the active task file instead of retaining a comp
 ## Priority
 
 - **P0** security, data loss, broken critical TEST/Production path
-- **P1** blocker/current Owner goal, including m67 continuation
+- **P1** blocker/current Owner goal, including active Production readiness
 - **P2** required behavior of active TASK
 - **P3** acceptance-quality UX/robustness
 - **P4** cleanup/refactor/optimization

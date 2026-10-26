@@ -2,51 +2,45 @@
 
 Updated: 2026-10-26 Asia/Bangkok
 
-## PROD-READINESS-02 — Confirm initial Production data authority and cutover boundary
+## PROD-READINESS-04 — DEV/TEST Leave migration rehearsal from approved sanitized source
 
-Status: **ACTIVE — awaiting Owner decision; no Production action is authorized**
-Priority: **P1 — data authority changes migration, rollback, and Production acceptance criteria**
+Status: READY AFTER OWNER INPUT — no live GAS or Production access
+Priority: P1 — the selected bounded cutover has no end-to-end source/target importer or evidence yet
+
+Decision boundary:
+The Owner selected a planning-only Leave cutover. LEAVE_READ and LEAVE_WRITE are the only routes intended for NEW; every other module remains LEGACY. This is not Production approval.
 
 Objective / why now:
-The Local-only readiness assessment found that the application defaults all module reads/writes to LEGACY and supports an explicit single-module cutover, while no real Production migration, reconciliation, restore, or rollback evidence is available. The Owner must choose the initial data-authority boundary before a detailed Production plan can be made.
+Turn the Local migration contracts and Leave transformers into an evidenced DEV/TEST rehearsal using an Owner-approved, privacy-scrubbed APP_LEAVE_GAS snapshot. Prove that identities, organization references, entitlements, requests, approval state and attachments can be mapped and reconciled before any Production decision.
+
+Required Owner inputs:
+- An approved sanitized snapshot/export with stable pseudonymous IDs and no unmasked names, emails, phone numbers, LINE IDs, credentials, or live private file URLs/content.
+- A tab/column data dictionary and confirmation of which tabs and historical periods are authoritative.
+- Leave quota semantics for the cutover year: granted quota versus current remaining balance, manual adjustments, carry-over, and treatment of pending/sent-back requests.
+- Confirmation of the proposed rehearsal ceilings: write-freeze maximum 60 minutes, restore RTO maximum 60 minutes, and RPO 0 committed writes after the final freeze snapshot.
+- A named Project A/GAS and LINE configuration owner for a later separately approved cutover; no access is requested in this task.
 
 Scope:
-- Confirm whether initial Production operation keeps all module READ/WRITE authority at LEGACY or performs a bounded Leave cutover to NEW authority.
-- Record the chosen authority boundary as a planning decision only.
-- Define the next read-only evidence and readiness TASK for that choice after the Owner responds.
+- Implement a read-only source adapter and a durable, provenance-keyed DEV/TEST target-store adapter only after the sanitized fixture contract is approved. Prove each LEAVE_READ/LEAVE_WRITE route is consumed by the intended service; do not infer a source switch from route configuration alone.
+- Map the required organization and employee identity dependencies before importing Leave entitlements, requests, approval steps, and attachment links.
+- Rehearse full snapshot plus final delta, idempotent replay, reconciliation, pending-request continuity, attachment copy/checksum, DEV/TEST backup/restore, and rollback behavior.
+- Keep evidence tagged DEV_TEST_EVIDENCE_ONLY and keep all other module routes on LEGACY.
 
 Out of scope:
-- Any Production deploy, traffic change, database query/mutation, DNS/Firebase/LINE change, credentials, Secret Manager, IAM, or project setting.
-- TEST build/deploy unless separately requested.
-- Project A research or external legacy-system assumptions not provided by the Owner.
-- Application/source changes; protected design artifacts remain untouched.
+- Reading live Sheets/Drive or inspecting Project A source/configuration.
+- Production DB, R2 bucket, credentials, Secret Manager, IAM, Cloud settings, migration, deploy, traffic, DNS/Firebase, or LINE changes.
+- Any Production cutover or data mutation; those require separate named Owner approval.
+- Treating a proposed RTO/freeze threshold as approved until the Owner confirms it.
 
-Acceptance / verification:
-- Owner selects one authority boundary or gives another explicit scope.
-- The choice and its implications for migration, reconciliation, rollback, and acceptance are documented.
-- No Production system or data is accessed or changed.
-- `HANDOFF.md`, `PROJECT_PLAN.md`, and `docs/codex/ACTIVE_TASK.md` match the chosen decision and next task.
-
-Decision needed:
-1. **Code-only initial release:** keep every module READ/WRITE on LEGACY; do not make CKACE HR PostgreSQL authoritative for a module in the initial release.
-   - Pros: matches the current fail-closed default and avoids an initial data cutover.
-   - Cons: depends on the LEGACY route and its bridge; does not verify new Leave storage/workflow as the Production source of truth.
-2. **Bounded Leave cutover:** set only LEAVE_READ and LEAVE_WRITE to NEW; keep other modules on LEGACY.
-   - Pros: limits the authority change to one module and enables the new Leave database path.
-   - Cons: requires real Leave import/delta reconciliation, write freeze, backup/restore evidence, and a tested rollback plan before any Production release.
-
-Recommendation:
-Choose option 1 as a temporary authority boundary if the goal is to enable the application without moving data; do not treat that as proof that the new Leave system is fully authoritative or Production-ready. Choose option 2 if CKACE HR Leave must own Leave data from the first Production release; complete its data and recovery evidence first. This is a planning decision only, not approval to deploy.
-
-Evidence / current state:
-- `apps/api/src/runtime/runtime-config.ts` requires the Production database name `ckace_hr_prod`, R2 bucket `ckace-hr-prod-private`, and specified runtime dependencies; code-level guards do not prove those services/resources are provisioned.
-- `apps/api/src/routing/module-routing-config.ts` defaults routes to LEGACY, requires paired READ/WRITE authority, and allows only one explicitly named NEW module in Production.
-- `packages/migration/src/cutover-evidence.ts` requires write freeze, matching delta import reports, module reconciliation, and runtime verification; generated evidence is marked `DEV_TEST_EVIDENCE_ONLY` and `productionMutationAuthorized: false`.
-- `packages/database/src/m8-database-rehearsal.ts` is guarded to `ckace_hr_dev` and creates migration/snapshot/recovered rehearsal databases. Its tests verify helper and environment guards; no run output or Production backup/restore evidence is present in current Local documentation.
-- `firebase.prod.json` defines a production Hosting site and API/Web service routes. `infra/cloudbuild/` contains generic image build files and a TEST-only release pipeline; no Production release/rollback verification is evidenced in this checkout. External trigger configuration was not inspected.
-- API `/health` reports stage/revision metadata and `/ready` checks PostgreSQL connectivity. No Local evidence establishes Production monitoring alerts, SLOs, backup schedules, recovery objectives, or rollback drill.
-- `HANDOFF.md`, `PROJECT_PLAN.md`, and `ACTIVE_TASK.md` identify TESTm74. `AGENTS.md`, `README.md`, `docs/ARCHITECTURE.md`, and `docs/codex/DECISION_LOG.md` still state TESTm67/m67; the explicit current Owner direction and current continuity take precedence. Those stale references were not changed in this read-only assessment.
-- Assessment used Local source/config/docs only. No tests, cloud commands, Production endpoints, credentials, or Project A sources were accessed.
+Acceptance criteria:
+1. Two extractions of an unchanged sanitized snapshot produce identical per-tab SHA-256 hashes; 100% of manifest-required tabs/rows are accounted for; privacy scan finds 0 unmasked direct identifiers or secrets.
+2. 100% of employee identities and required org/role references map; 100% of in-scope Leave row counts and request statuses match. Per-employee/type balance delta is at most 0.01 day; 0 unexplained differences. Every exception has a unique ID, owner-approved reason, and disposition.
+3. 100% of in-scope current Leave attachments are present in DEV/TEST R2 with exact SHA-256, byte size, owner/request link, and privacy class; 0 missing or unauthorized objects.
+4. Re-running the same migration creates 0 duplicate target rows and reports 100% idempotent matches.
+5. 100% of open requests retain the same status, current step, full approver/co-approver set, comments, and history; 0 pending request is lost or duplicated. ApprovalInstance, co-approver, and decider mappings are covered.
+6. Two DEV/TEST backup/restore rehearsals pass; all in-scope row counts and hashes match 100%; proposed RPO is 0 committed writes after freeze and RTO is at most 60 minutes.
+7. Two rollback rehearsals include at least 1 post-cutover request and 1 approval each; 100% of those writes are replayed/reconciled to LEGACY with 0 lost or duplicate records; proposed rollback completion is at most 60 minutes, subject to Owner confirmation.
+8. Prove 100% of Leave routes reach the intended target, attachment/notification dependencies work without silently broadening the selected boundary, and unaffected modules remain LEGACY. Before PASS, evidence includes source hashes, importer run IDs, reconciliation reports, attachment checksum manifest, backup/restore timings, rollback logs, and route-state integration evidence. No Production system is accessed or changed.
 
 Next TASK:
-`PROD-READINESS-03 — Define the evidence and acceptance plan for the Owner-selected authority boundary`, after the decision above.
+After this rehearsal passes, define a separately gated Production readiness/go-no-go task. Production remains NO-GO until that task is complete and separately approved.

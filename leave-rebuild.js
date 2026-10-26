@@ -293,7 +293,7 @@
         '<div class="leave-prod-stepper"><span class="active"><i>1</i><b>ประเภทลา</b></span><span><i>2</i><b>วันที่</b></span><span><i>3</i><b>ช่วงเวลา</b></span><span><i>4</i><b>รายละเอียด</b></span><span><i>5</i><b>ผู้อนุมัติ</b></span><span><i>6</i><b>ไฟล์แนบ</b></span></div>' +
         '<form id="leave-prod-form">' +
           '<div class="leave-prod-form-section"><div class="leave-prod-form-title"><span>01</span><div><b>เลือกประเภทการลา</b><small>Production แสดงเฉพาะประเภทที่มีใน User Policy ของผู้ใช้</small></div></div><div class="leave-prod-type-grid">' + typeChoice('vacation',true) + typeChoice('sick',false) + typeChoice('personal',false) + '</div></div>' +
-          '<div class="leave-prod-form-section"><div class="leave-prod-form-title"><span>02</span><div><b>เลือกวันที่ลา</b><small>ระบบไม่นับวันหยุดประจำสัปดาห์และวันหยุดบริษัท</small></div></div><div class="leave-prod-date-grid"><label><span>วันเริ่มลา</span><input type="date" name="leave-prod-start" value="2026-10-26"></label><label><span>วันสิ้นสุดลา</span><input type="date" name="leave-prod-end" value="2026-10-28"></label></div><div class="leave-prod-date-preview" data-count-preview></div></div>' +
+          '<div class="leave-prod-form-section"><div class="leave-prod-form-title"><span>02</span><div><b>เลือกวันที่ลา</b><small>ระบบไม่นับวันหยุดประจำสัปดาห์และวันหยุดบริษัท</small></div></div><div class="leave-prod-date-grid"><label><span>วันเริ่มลา</span><span class="leave-clean-date"><span class="leave-clean-date-value" aria-hidden="true">26/10/2026</span><input type="date" name="leave-prod-start" aria-label="วันเริ่มลา เลือกจากปฏิทิน" value="2026-10-26"></span></label><label><span>วันสิ้นสุดลา</span><span class="leave-clean-date"><span class="leave-clean-date-value" aria-hidden="true">28/10/2026</span><input type="date" name="leave-prod-end" aria-label="วันสิ้นสุดลา เลือกจากปฏิทิน" value="2026-10-28"></span></label></div><div class="leave-prod-date-preview" data-count-preview></div></div>' +
           '<div class="leave-prod-form-section"><div class="leave-prod-form-title"><span>03</span><div><b>เลือกรูปแบบเวลา</b><small>เต็มวัน ครึ่งวันเช้า ครึ่งวันบ่าย หรือรายชั่วโมง</small></div></div><div class="leave-prod-duration-grid">' + durationChoice('F','เต็มวัน','คิดตามวันทำงาน','calendar',true) + durationChoice('AM','ครึ่งวันเช้า','0.5 วัน','clock',false) + durationChoice('PM','ครึ่งวันบ่าย','0.5 วัน','clock',false) + durationChoice('H','รายชั่วโมง','ทุก 15 นาที','clock',false) + '</div><div class="leave-prod-hourly-row" hidden><label><span>เวลาเริ่ม</span><select name="leave-prod-start-time"></select></label><label><span>เวลาสิ้นสุด</span><select name="leave-prod-end-time"></select></label><em>Production: 09:00–17:30 · ทุก 15 นาที</em></div></div>' +
           '<div class="leave-prod-form-section leave-prod-detail-section"><div class="leave-prod-form-title"><span>04</span><div><b>รายละเอียดการลา</b><small>กรอกเหตุผลให้ผู้อนุมัติเข้าใจได้ในครั้งเดียว</small></div></div><label class="leave-prod-detail-field"><span>เหตุผล / รายละเอียด</span><textarea name="leave-prod-reason" rows="4" placeholder="เช่น เดินทางกับครอบครัว"></textarea></label></div>' +
           '<div class="leave-prod-form-section leave-prod-approver-section"><div class="leave-prod-form-title"><span>05</span><div><b>สายการอนุมัติ</b><small>Production โหลดอัตโนมัติตาม UID และสังกัด และแสดงชื่อ + Role ตามลำดับ</small></div></div><div class="leave-prod-approver-list">' + approverRows() + '</div><p class="leave-prod-approver-note">' + svg('shield') + '<span>ระบบจะตรวจสายอนุมัติล่าสุดอีกครั้งก่อนบันทึกจริง</span></p></div>' +
@@ -416,6 +416,16 @@
     fillTimes(root);
     updateClock(root);
     updateSummary(root);
+    const syncDateLabels = () => root.querySelectorAll('.leave-clean-date').forEach(wrap => {
+      const input = wrap.querySelector('input[type="date"]');
+      const label = wrap.querySelector('.leave-clean-date-value');
+      if (input && label) label.textContent = input.value ? input.value.split('-').reverse().join('/') : 'DD/MM/YYYY';
+    });
+    syncDateLabels();
+    root.querySelectorAll('.leave-clean-date input').forEach(input => {
+      input.addEventListener('input', syncDateLabels);
+      input.addEventListener('change', syncDateLabels);
+    });
 
     root.querySelectorAll('[data-scroll-to]').forEach(btn => btn.addEventListener('click', () => document.getElementById(btn.dataset.scrollTo)?.scrollIntoView({behavior:'smooth',block:'start'})));
 

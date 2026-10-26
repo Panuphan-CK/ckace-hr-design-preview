@@ -25,3 +25,6 @@
 .page-shell.leave-page .leave-proportion-donut-center strong span{font-size:11px;font-weight:700}
 .page-shell.leave-page .leave-proportion-legend{display:none}
 
+
+/* All leave donut SVG labels: consistent clean Thai letterforms, no faux-bold stroke. */
+.page-shell.leave-page .leave-donut-callout text{stroke:none!important;stroke-width:0!important;font-family:'Noto Sans Thai','Prompt',sans-serif!important;font-weight:400!important;letter-spacing:0!important}

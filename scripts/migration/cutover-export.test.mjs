@@ -5,6 +5,7 @@ import path from "node:path";
 import {
   POST_CUTOVER_RELATION_SOURCES,
   POST_CUTOVER_SOURCES,
+  POST_CUTOVER_DECIMAL_SCALES,
   assertOutsideRepository,
   ensureOutsideRepositoryPath,
   assertPostCutoverExportEnvironment,
@@ -80,6 +81,61 @@ describe("post-cutover export", () => {
         expect(fieldNames, `${source.delegate} orderBy field ${field}`).toContain(field);
       }
     }
+  });
+
+  it("keeps every Prisma Decimal export field and declared scale aligned with DMMF", () => {
+    const expectedScales = [
+      ["LeaveEntitlement", "quota", 2],
+      ["AttendancePolicy", "officeLatitude", 6],
+      ["AttendancePolicy", "officeLongitude", 6],
+      ["AttendancePolicy", "radiusKm", 2],
+      ["BenefitPolicy", "annualLimit", 2],
+      ["BenefitPolicy", "perClaimLimit", 2],
+      ["MedicalClaim", "amount", 2],
+    ];
+    const dmmfDecimalFields = [];
+    for (const model of Prisma.dmmf.datamodel.models) {
+      for (const field of model.fields) {
+        if (field.type === "Decimal") dmmfDecimalFields.push(`${model.name}.${field.name}`);
+      }
+    }
+    expect(Object.keys(POST_CUTOVER_DECIMAL_SCALES).sort()).toEqual(dmmfDecimalFields.sort());
+    for (const [modelName, fieldName, expectedScale] of expectedScales) {
+      const model = Prisma.dmmf.datamodel.models.find((candidate) => candidate.name === modelName);
+      const field = model?.fields.find((candidate) => candidate.name === fieldName);
+      expect(field?.type, `${modelName}.${fieldName} must remain Decimal`).toBe("Decimal");
+      expect(POST_CUTOVER_DECIMAL_SCALES[`${modelName}.${fieldName}`], `${modelName}.${fieldName} scale`).toBe(expectedScale);
+    }
+  });
+
+  it("serializes real Prisma.Decimal values as fixed-scale decimal strings", async () => {
+    const prisma = emptyPrisma();
+    const changedAt = new Date(marker.cutoverAt);
+    prisma.leaveEntitlement.findMany.mockResolvedValue([{
+      id: "entitlement-1", createdAt: changedAt, updatedAt: changedAt, quota: new Prisma.Decimal("6.00"),
+    }]);
+    prisma.attendancePolicy.findMany.mockResolvedValue([{
+      id: "attendance-policy-1", createdAt: changedAt, updatedAt: changedAt,
+      officeLatitude: new Prisma.Decimal("13.756300"), officeLongitude: new Prisma.Decimal("100.501800"), radiusKm: new Prisma.Decimal("0.30"),
+    }]);
+    prisma.benefitPolicy.findMany.mockResolvedValue([{
+      id: "benefit-policy-1", createdAt: changedAt, updatedAt: changedAt,
+      annualLimit: new Prisma.Decimal("10000.00"), perClaimLimit: new Prisma.Decimal("1000.00"),
+    }]);
+    prisma.medicalClaim.findMany.mockResolvedValue([{
+      id: "medical-claim-1", submittedAt: changedAt, updatedAt: changedAt, amount: new Prisma.Decimal("280.00"),
+    }]);
+
+    const result = await collectPostCutoverExport({ prisma, marker, now: changedAt });
+
+    expect(result.modules.leave.leaveEntitlement[0].quota).toBe("6.00");
+    expect(result.modules.attendance.attendancePolicy[0]).toMatchObject({
+      officeLatitude: "13.756300", officeLongitude: "100.501800", radiusKm: "0.30",
+    });
+    expect(result.modules.medical.benefitPolicy[0]).toMatchObject({
+      annualLimit: "10000.00", perClaimLimit: "1000.00",
+    });
+    expect(result.modules.medical.medicalClaim[0].amount).toBe("280.00");
   });
 
   it("creates a timestamped UUID marker and rejects invalid marker content", () => {

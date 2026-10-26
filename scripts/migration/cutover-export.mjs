@@ -1,7 +1,32 @@
 import path from "node:path";
 import { lstat, mkdir, realpath } from "node:fs/promises";
 
+import { Prisma } from "@prisma/client";
+
 import { collectPostCutoverHrWorkbookRows } from "./cutover-hr-workbook.mjs";
+
+const PRISMA_MODELS_BY_NAME = new Map(Prisma.dmmf.datamodel.models.map((model) => [model.name, model]));
+const PRISMA_MODELS_BY_DELEGATE = new Map(Prisma.dmmf.datamodel.models.map((model) => [
+  `${model.name[0].toLowerCase()}${model.name.slice(1)}`,
+  model,
+]));
+
+// Prisma DMMF keeps Decimal scalar types but omits the schema's Decimal(p, s) scale.
+export const POST_CUTOVER_DECIMAL_SCALES = Object.freeze({
+  "LeaveEntitlement.quota": 2,
+  "AttendancePolicy.officeLatitude": 6,
+  "AttendancePolicy.officeLongitude": 6,
+  "AttendancePolicy.radiusKm": 2,
+  "BenefitPolicy.annualLimit": 2,
+  "BenefitPolicy.perClaimLimit": 2,
+  "MedicalClaim.amount": 2,
+});
+
+function modelNameForDelegate(delegate) {
+  const model = PRISMA_MODELS_BY_DELEGATE.get(delegate);
+  if (!model) throw new Error(`Prisma model for delegate ${delegate} is unavailable.`);
+  return model.name;
+}
 
 export const POST_CUTOVER_SOURCES = Object.freeze([
   { module: "identity-organization", delegate: "company", timeFields: ["createdAt", "updatedAt"] },
@@ -55,15 +80,23 @@ export const POST_CUTOVER_RELATION_SOURCES = Object.freeze([
 
 const SENSITIVE_KEYS = /password|secret|token|authorization|lastError|^error$/i;
 
-function stripSensitiveFields(value) {
-  if (Array.isArray(value)) return value.map(stripSensitiveFields);
+function stripSensitiveFields(value, modelName, fieldInfo) {
+  if (Array.isArray(value)) return value.map((child) => stripSensitiveFields(child, modelName, fieldInfo));
   if (typeof value === "bigint") return value.toString();
   if (!value || typeof value !== "object" || value instanceof Date) return value;
-  if (value.constructor?.name === "Decimal" && typeof value.toString === "function") return value.toString();
+  if (Prisma.Decimal.isDecimal(value)) {
+    const scale = POST_CUTOVER_DECIMAL_SCALES[`${modelName}.${fieldInfo?.name}`];
+    return Number.isInteger(scale) && scale >= 0 ? value.toFixed(scale) : value.toString();
+  }
+  const model = modelName ? PRISMA_MODELS_BY_NAME.get(modelName) : undefined;
   return Object.fromEntries(
     Object.entries(value)
       .filter(([key]) => !SENSITIVE_KEYS.test(key))
-      .map(([key, child]) => [key, stripSensitiveFields(child)]),
+      .map(([key, child]) => {
+        const field = model?.fields.find((candidate) => candidate.name === key);
+        const childModelName = field?.kind === "object" ? field.type : modelName;
+        return [key, stripSensitiveFields(child, childModelName, field)];
+      }),
   );
 }
 
@@ -238,7 +271,8 @@ export async function collectPostCutoverExport({ prisma, marker, now = new Date(
       where: { OR: source.timeFields.map((field) => ({ [field]: { gte: cutoff } })) },
       orderBy: source.orderBy ?? { id: "asc" },
     });
-    const sanitized = rows.map(stripSensitiveFields);
+    const modelName = modelNameForDelegate(source.delegate);
+    const sanitized = rows.map((row) => stripSensitiveFields(row, modelName));
     rowsByDelegate[source.delegate] = sanitized;
     modules[source.module] ??= {};
     modules[source.module][source.delegate] = sanitized;
@@ -265,7 +299,8 @@ export async function collectPostCutoverExport({ prisma, marker, now = new Date(
           where: clauses.length === 1 ? clauses[0] : { OR: clauses },
           orderBy: source.orderBy,
         });
-    const sanitized = rows.map(stripSensitiveFields);
+    const modelName = modelNameForDelegate(source.delegate);
+    const sanitized = rows.map((row) => stripSensitiveFields(row, modelName));
     rowsByDelegate[source.delegate] = sanitized;
     modules[source.module] ??= {};
     modules[source.module][source.delegate] = sanitized;

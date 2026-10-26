@@ -1,5 +1,7 @@
 export * from "./access-policy";
+export * from "./legacy-attachment-copy";
 export * from "./object-key";
+export * from "./legacy-attachment-copy";
 export * from "./private-attachment-storage.service";
 export * from "./r2-aws-request-signer";
 export * from "./r2-private-object-store";

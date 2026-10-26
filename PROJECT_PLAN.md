@@ -4,7 +4,7 @@ Last Updated: 2026-10-26 Asia/Bangkok
 
 ## One active TASK
 
-PROD-READINESS-06R — Verify TESTm74 policy baseline and rerun updated DEV rehearsal. WAITING FOR OWNER-SUPPLIED SANITIZED POLICY EXPORT, P1. PROD-READINESS-06 implementation is complete except for the exact mutable TESTm74 policy values, which are not checked into source. Production remains NO-GO.
+PROD-READINESS-08 — Implement full-system authority and rollback gates. READY, P1. The importer/policy baseline and reviewer DB rehearsal are now evidenced; current source still lacks a universal fail-closed system authority switch and proven rollback/replay. Production remains NO-GO.
 
 ## Verified baseline
 
@@ -12,7 +12,7 @@ PROD-READINESS-06R — Verify TESTm74 policy baseline and rerun updated DEV rehe
 - TESTm74 release, health, traffic, Hosting, Leave workflow, documented role/NAV, and responsive evidence are recorded in this handoff. The evidence does not prove full transaction coverage for every module.
 - This task used only CKACE_HR files/history in D:\CKACE_HR\.worktrees\main-integration. Root checkout, live GAS, Project A, Production, and cloud commands were not used.
 - Owner snapshot files are outside Git at D:\CKACE_HR_snapshot; `MANIFEST.md` reports 5,269 total source rows and excludes chat/LINE logs and settings.
-- Reviewer reported a disposable PostgreSQL 16 loopback rehearsal from revision `21101da`: 5,269 rows accounted for (5,232 imported / 35 skipped / 2 rejected), 0 ambiguous writes, no early stop; replay was idempotent; source and target Pending counts were 1; backup/restore/reset took 0.29/0.43/0.63 seconds. The temporary policy rows were reviewer-seeded globals, not verified TESTm74 policy evidence.
+- Reviewer reported a disposable PostgreSQL 16 loopback rehearsal from revision `a793020`: 5,269 rows accounted for (5,234 imported / 35 skipped / 0 rejected), 0 unaccounted/ambiguous writes, no early stop; replay skipped 5,234 identical rows and added 0; source and target Pending counts were 1; backup/restore/reset took 0.30/0.59/0.83 seconds. Policy values were read-only checked against TESTm74, not guessed.
 
 ## Current Owner decision
 
@@ -29,16 +29,16 @@ PROD-READINESS-06R — Verify TESTm74 policy baseline and rerun updated DEV rehe
 - Added system-wide API write freeze via `CKACE_SYSTEM_WRITE_MODE=READ_ONLY`; absent/`ACTIVE` preserves current TEST behavior. Tagged and unclassified HTTP mutations fail closed; notification and cleanup jobs stop/refuse writes. Migration writes require the explicit migration-job flag and a loopback `ckace_hr_dev` URL.
 - Owner chose pending approval handoff B: retain decided history, replace source Pending assignment with current-policy Pending steps, report changed approvers for HR review, and keep unresolved/self-only routes Pending with an exception. Completed requests do not receive new steps.
 - `docs/migration/RUN_REHEARSAL.md` explains the reviewer-run database import, pending count reconciliation, and timed backup/restore/reset steps.
-- The earlier snapshot evidence at `docs/migration/evidence/sanitized-xlsx-in-memory-20261026.json` records the pre-06 behavior (two attendance LogID collisions rejected). PROD-READINESS-06 changes this owner-approved distinct-employee collision to two imports with a named exception and composite provenance; same-employee duplicates remain rejected. Updated DB evidence is still required.
+- The earlier snapshot evidence at `docs/migration/evidence/sanitized-xlsx-in-memory-20261026.json` records the pre-06 behavior (two attendance LogID collisions rejected). PROD-READINESS-06 changes this owner-approved distinct-employee collision to two imports with a named exception and composite provenance; same-employee duplicates remain rejected. The reviewer DB evidence is recorded numerically in `docs/migration/evidence/prod-readiness-06-rehearsal-20261026.json`.
 - LEV-0109 remains an HR exception because it is Pending in GAS after three decisions while the current policy has no remaining steps. The report now says “อนุมัติครบตาม policy ใหม่แล้ว รอ HR ยืนยันปิดคำขอ”; notify its GAS approver to close it before the cutover write freeze.
-- The reviewer DB run already demonstrated row accounting, idempotency, pending-count parity, and fast backup/restore/reset for the earlier code. This worktree has no `DATABASE_URL`; rerun the reviewer script against a disposable DB after the item-06 changes.
-- Exact active TESTm74 ApprovalPolicy rows are mutable database configuration and are absent from checked-in code/migrations. The policy seeder requires an external sanitized policy JSON; its current implementation deliberately supports one global policy per request kind and rejects agency-scoped/multiple policy shapes rather than flattening them.
+- The reviewer DB run on a793020 demonstrated row accounting, idempotency, Pending-count parity, and backup/restore/reset. Codex did not connect to the database in this task.
+- Actual active TESTm74 ApprovalPolicy rows were read-only confirmed: four active global policies, each `ADMIN/SAME_AGENCY` then `SUPERADMIN/GLOBAL`; every employee uses `STANDARD`. `REHEARSAL_POLICY_BASELINE.md` contains the names and details. The sanitized seeder JSON remains outside Git.
 - `CKACE_SNAPSHOT_DIR` now selects the external workbook folder; default remains `D:\CKACE_HR_snapshot`.
 - READ_ONLY now denies every controller `POST`/`PUT`/`PATCH`/`DELETE`, including routes marked READ; only desktop login, LINE login, and logout are exempt. The endpoint matrix covers the current 19 API controllers.
-- A local attachment-copy planner supports SHA-256 validation and defaults to dry-run. No R2 client, credentials, or upload operation was used; attachment bytes remain deferred until separately supplied.
+- The local attachment copier supports exact `FileID`/filename matching, rejects missing or ambiguous files, computes SHA-256, and defaults to dry-run. No R2 client, credentials, or upload operation was used; 34 attachment rows without bytes remain deferred.
 - The snapshot redacts attachment URLs and contains no file bytes; those records remain explicit exceptions until safe bytes are supplied. Notification/LINE history, chat, announcements, and report exports are not present as source rows in the supplied manifest; do not invent them.
 - The prior TEST workbook/run provenance is still unverified; the new importer is the reproducible path for this rehearsal.
-- PROD-READINESS-06 local verification passed: lint, workspace typecheck, 119 Vitest files / 841 tests, package builds, API build, and migration script syntax checks. Exact TESTm74 policy seeding and post-change DB rehearsal remain Owner/reviewer inputs.
+- PROD-READINESS-07 local verification passed: lint, workspace typecheck, 120 Vitest files / 847 tests, package builds, API build, and migration script syntax checks. The reported DB rehearsal is reviewer-provided; no local DB run occurred.
 
 ## Full-system data dependencies and implementation order
 
@@ -73,11 +73,9 @@ See HANDOFF.md for sheet-to-model inventory, code evidence, switch/rollback desi
 
 ## Reviewer/Owner action priority
 
-1. Owner supplies the sanitized actual TESTm74 ApprovalPolicy JSON (request kind, policy name, scope/agency stable ID, ordered roles/scopes, active state, capture time); do not reuse the reviewer-created temporary globals.
-2. If that export contains agency-scoped or multiple active policies, extend and test the seeder to represent the exact table before seeding. Never flatten to a global policy.
-3. Reviewer reruns the updated rehearsal and records idempotency, named attendance exceptions, LEV-0109 HR close-out status, Pending parity, and backup/restore/reset timings.
-4. Owner supplies a separate safe attachment byte snapshot if retaining all historical files remains required; no upload occurred in PROD-READINESS-06.
-5. HR reviews all changed next-approver IDs before cutover. Unresolved routes block cutover.
-6. Later Production gates still require separately named Owner approval; no Production action is approved by this plan.
+1. Implement/test whole-system authority state and a rollback/replay contract on synthetic local data; no Project A or Production connection.
+2. Owner downloads the Drive attachment folder as ZIP to a restricted location outside the repository; the reviewer maps current 34 rows and resolves missing/ambiguous source filenames before any transfer.
+3. Owner/reviewer separately approve proposed production monitoring thresholds and exact Production policy/data baseline before a future production-readiness action.
+4. Production resources, file transfer, employee notice, system routing, and rollback remain unverified and require separate named Owner approval.
 
 Production remains NO-GO.

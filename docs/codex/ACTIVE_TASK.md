@@ -2,40 +2,38 @@
 
 Updated: 2026-10-26 Asia/Bangkok
 
-## PROD-READINESS-06R — Verify TESTm74 policy baseline and rerun updated DEV rehearsal
+## PROD-READINESS-08 — Implement full-system authority and rollback gates
 
-Status: WAITING FOR OWNER-SUPPLIED SANITIZED POLICY EXPORT — local implementation and automated coverage are ready; exact mutable TESTm74 policy rows are absent from the repository.
-Priority: P1 — the migration seeder must use the actual active policy table, and the reviewer must rerun database reconciliation after the approved LogID exception change.
+Status: READY — DEV/TEST implementation and verification only.
+Priority: P1 — the current routing context is not a universal module dispatcher, and reverse replay is not implemented or proven. These are blockers to a safe full-system cutover.
 
 Objective / why now:
-Capture the actual TESTm74 approval-policy configuration without guessing, seed the disposable loopback `ckace_hr_dev` rehearsal database, then rerun the updated importer, idempotency, pending handoff, and timed backup/restore/reset evidence. Production remains NO-GO.
-
-Owner input required:
-- Provide an external sanitized JSON export of TESTm74 active approval policies from revision `1322ed48e98428ffd580a6ec2e8bb7cdec5132c7` (request kind, policy name, global or agency stable ID, active state, ordered role/scope steps, capture time). Do not include employees, request rows, credentials, or secrets.
-- Keep the export and database dump outside Git. The repository has no checked-in policy seeds; reviewer-created temporary global policies are not evidence of TESTm74 values.
+Implement and prove a fail-closed whole-system `LEGACY` / `FROZEN` / `NEW` authority mechanism and a recoverable rollback ledger for every module and side-effect worker, using synthetic or disposable DEV/TEST data. Production remains NO-GO.
 
 Scope:
-- Use only `docs/migration/RUN_REHEARSAL.md` on `codex/main-integration`, sanitized Owner workbooks, and a disposable loopback `ckace_hr_dev` database.
-- Run the policy seeder only after the supplied baseline is checked against TESTm74 and the schema is migrated.
-- Rerun import/reconcile after the approved `LOG-001112` cross-employee composite identity handling; verify two named exception imports and same-employee duplicate rejection.
-- Recheck LEV-0109 remains Pending with the HR close-out exception and all source/target Pending counts match.
-- Rerun idempotent import, backup/restore/reset timings, and record aggregate evidence without source cell values.
+- Inspect all API controllers/services, scheduled jobs, notification senders, LIFF entry paths, and module route guards before changing architecture.
+- Define one system-level authority state; require writes to fail closed during `FROZEN`; keep current DEV/TEST defaults unchanged.
+- Cover all reads/writes and background workers with route/permission/write-freeze tests. Migration-job exception remains restricted to the existing guarded local DEV target.
+- Build a testable post-cutover change ledger/export and rollback/replay contract with idempotency, ordering, and audit evidence for each in-scope module.
+- Exercise synthetic rollback and verify zero lost/duplicated mutations and bounded restore/reconciliation time.
 
 Out of scope:
-- Root checkout `D:\CKACE_HR`, Project A, live GAS/Sheets/Drive, cloud commands, Production, deploy, real notifications, credential/IAM changes, or R2 upload.
-- Treating reviewer-created rehearsal policies as TESTm74 truth or auto-approving/closing any request.
+- Root checkout `D:\CKACE_HR`, Project A source/config, live GAS or Sheets/Drive, cloud commands, Production, deploy, Production resources/secrets/IAM, traffic/DNS/Firebase, LINE Production config, employee notifications, or real user data.
+- Claiming a real GAS reverse writer or Production rollback is proven without a separately approved and independently rehearsed integration.
 
 Acceptance criteria:
-1. The supplied policy baseline identifies the verified revision and accounts for every active TESTm74 policy without flattening scoped rules.
-2. Role and policy seeding is idempotent, never overwrites conflict, and writes only to the loopback `ckace_hr_dev` database with DEV + READ_ONLY + migration-job guards.
-3. Every source row has exactly one outcome; zero unaccounted rows, zero ambiguous writes, and all named exceptions are dispositioned.
-4. Distinct-employee repeated LogID rows import under `(LogID, UserID)` provenance; same-employee repeats remain rejected.
-5. Pending source and target counts match exactly; LEV-0109 remains an HR close-out exception; no completed request changes status or gains a step.
-6. The second import adds zero duplicate rows. Backup, restore, and reset complete on the disposable DB and record elapsed seconds.
-7. No attachment upload is performed in this task; the separate copy tool remains dry-run by default.
+1. Every API route, controller/service write path, job, notification side effect, and LIFF mutation path has an explicit authority decision; uncovered paths = **0**.
+2. `FROZEN` rejects **100%** of user/business writes and side effects; only the authorized local migration job retains its narrow guarded write path.
+3. `LEGACY` and `NEW` route every in-scope module consistently; mixed authority and unknown states fail closed.
+4. Synthetic rollback ledger records every post-cutover mutation with stable idempotency keys and produces a deterministic replay/export plan for all modules.
+5. Rehearsal replays **100%** of synthetic changes with **0** lost, duplicated, reordered, or unowned writes; recovery completes within **60 minutes** and RPO is **0**.
+6. Existing TEST behavior is unchanged when the switch is unset/default; all mode transitions and failure cases have automated tests.
+7. No Production or Project A operation occurs.
 
 Verification:
-- Full lint, typecheck, Vitest suite, API build, script syntax checks.
-- Reviewer output and aggregate evidence under `docs/migration/evidence/`; keep all XLSX and database dumps outside Git.
+- Full lint, typecheck, Vitest suite, API build, route/worker coverage report, and synthetic freeze/replay evidence.
+- Use only local/in-memory or disposable DEV/TEST stores; keep credentials and real employee data outside Git.
+
+Owner decision needed before implementation: None for local discovery and a synthetic DEV/TEST contract. Any behavior that changes user permissions or actual legacy integration must be presented for Owner decision before enabling it.
 
 Production remains NO-GO and requires separate named Owner approval for each Production action.

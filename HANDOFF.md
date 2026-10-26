@@ -21,7 +21,10 @@ Last Updated: 2026-10-26 Asia/Bangkok
 - Local attachment copier matches exact sheet filename or FileID stem, rejects missing/ambiguous matches, computes SHA-256, and defaults to dry-run. No R2 client, credential, network upload, or attachment byte transfer was used. The 34 attachment rows without bytes remain deferred.
 - Reviewer entry point for future disposable DB runs: `docs/migration/RUN_REHEARSAL.md`. This worktree has no `DATABASE_URL`; Codex did not run the reported database rehearsal.
 - PROD-READINESS-07 local verification passed: lint, workspace typecheck, 120 Vitest files / 847 tests, package builds, API build, and script syntax checks. Reviewer results and numeric-only aggregate evidence are in `docs/migration/evidence/prod-readiness-06-rehearsal-20261026.json`.
-- This write-freeze mode does not implement a universal LEGACY/NEW data dispatcher or a reverse writer to GAS. Full authority switching and rollback parity remain future gates.
+- Owner's latest authority model: no per-module dispatcher, no simultaneous GAS/CKACE writes, no reverse replay. Production routing is all 26 keys = LEGACY or all = NEW; mixed routes fail startup. `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` covers preparation/import and `ACTIVE` is used at opening with the employee-link switch.
+- The first official employee-link change is the point of no return. Before it, return links to GAS only after CKACE accepted no employee writes. After it, fix-forward is preferred; forced fallback freezes CKACE, exports post-marker records, requires HR manual re-entry and 100% reconciliation before GAS writes resume. Hypercare is 3 business days.
+- A marker/export tool is now implemented locally. It requires READ_ONLY, uses a PostgreSQL READ ONLY transaction and writes outside all Git checkouts. PROD requires `CKACE_PROD_EXPORT_CONFIRM=YES` plus separate Owner approval; no live DB was connected. R2 file bytes are not included in the JSON export.
+- PROD-READINESS-08 local verification passed: lint, workspace typecheck, 121 Vitest files / 857 tests, package builds, API build, and exporter-to-Prisma-model/field checks. The marker/export tests use mocked Prisma; no PostgreSQL connection was made. Reviewer must still run the corrected import and export rehearsal on loopback `ckace_hr_dev`.
 - Snapshot attachment links are redacted and no file bytes are supplied; notification/LINE logs, chat, settings, announcements, and report extracts are excluded or absent from the manifest. Their migration is not proven by the current importer.
 - No live Sheets/Drive data, Project A repo/config, Production system, cloud command, or deployment was accessed or changed.
 
@@ -83,26 +86,18 @@ The supplied manifest includes the workbook tabs processed by `xlsx-source.ts`, 
 | Notifications | Target separates NotificationOutbox, NotificationDelivery, and InAppNotification. | Migrate/preserve pending delivery state; suppress dispatch while loading; exactly-once keys prevent duplicate sends. Already-sent historical messages must never be resent. |
 | Reports | Reports are generated from module facts and current rules; no report table exists. | Rebuild reports after reconciliation and compare old/new totals under explicit rule mapping; explain policy-driven differences. |
 
-## Route authority, global switch, and rollback
+## Route authority, whole-system opening, and manual fallback
 
-The current implementation is not ready to switch all modules by configuration alone:
+Owner decision PROD-READINESS-08 supersedes the older dispatcher/reverse-replay plan:
 
-- packages/contracts/src/module-routing.ts defines 26 route keys across 13 modules.
-- apps/api/src/routing/module-routing-config.ts defaults each key to LEGACY and enforces paired READ/WRITE values. In Production it currently requires one named module to be the only pair set to NEW; a full-system state is rejected by design.
-- ModuleRoutingGuard attaches the resolved authority to the request. The standard LeaveController calls LeaveService; route context is used for write-freeze checks, not as a universal LEGACY/NEW dispatcher. The existence of CKACE_MODULE_ROUTING_STATE therefore does not prove every controller/service reads from the selected authority.
-- `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` now freezes every tagged write route, denies unclassified POST/PUT/PATCH/DELETE requests, and stops/refuses notification and Task36 cleanup writes. Missing/`ACTIVE` mode preserves existing TEST behavior; invalid values fail closed. Migration writes require `CKACE_MIGRATION_JOB=YES` and a local `ckace_hr_dev` DATABASE_URL.
-- This implements a system-wide write freeze only. `CKACE_MODULE_ROUTING` remains hard-locked to LEGACY; universal LEGACY/NEW data dispatch, GET/read authority switching, external GAS ingress freeze, and reverse-to-GAS replay remain unimplemented/unproven.
+- `packages/contracts/src/module-routing.ts` defines 26 route keys across 13 modules. Production accepts all route keys = `LEGACY` or all = `NEW`; any mixed route state fails startup. `CKACE_PRODUCTION_CUTOVER_MODULE` is obsolete and rejected. The single-value `CKACE_MODULE_ROUTING` runtime label was removed; health/Admin now summarize actual route state.
+- No per-module LEGACY/FROZEN/NEW data dispatcher is planned. No Production parallel run is planned. `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` freezes user writes/jobs during preparation/import; `ACTIVE` is used at opening with the official employee/LIFF/rich-menu entry switch. TEST defaults remain unchanged.
+- Before the point of no return (first official employee link change), return links to GAS and unfreeze it after verifying CKACE accepted **0** employee writes. After that change, prefer fix-forward.
+- If forced to return to GAS after opening: Owner freezes CKACE (`READ_ONLY`); the separate exporter reads all post-marker changes in a READ ONLY transaction; HR manually enters the items into GAS; reviewer reconciles **100%** and finds **0** missing/duplicate items; then Owner may enable GAS writes and links. This is manual recovery, not reverse replay.
+- Marker/export scripts are present locally. Production export needs both `CKACE_PROD_EXPORT_CONFIRM=YES` and separate Owner approval for each run. It writes outside every Git checkout and excludes credentials, but includes personal/medical data. R2 object bytes are not embedded; retain/download them separately for attachment recovery.
+- Hypercare is the first **3 business days**, with per-day health, incident, notification backlog, module total, and Owner sign-off gates in `docs/migration/CUTOVER_RUNBOOK.md`.
 
-For a future full cutover, add an auditable all-system authority state with LEGACY, FROZEN/MAINTENANCE, and NEW. Keep one stable employee entry URL. Enforce authority at every API read/write path, scheduled/background job, notification dispatch, and external ingress. Per-module route keys remain coverage/telemetry assertions, not the sole switch. Do not allow a split authority state.
-
-Safe cutover/rollback order:
-
-1. Before release, implement and test the global mode, all-route coverage, worker stop/resume, and independent GAS freeze runbook. Default/invalid config must fail closed.
-2. Cutover: stop GAS writes/triggers and CKACE writes; capture two identical final XLSX/supplemental-file manifests; import final deltas and reconcile every module; then set the whole system NEW and update the single employee/LIFF entry point under a separately approved Production action.
-3. Rollback: set whole system FROZEN first; stop NEW writes, notification dispatch, and workers; export the post-cutover change set; replay/reconcile it idempotently to the LEGACY test/source mapping; verify 100% parity and 0 duplicates; only then restore LEGACY entry and re-enable GAS triggers.
-4. If reverse replay is unavailable or parity fails, keep writes frozen/read-only and do not flip to LEGACY. A route flag flip alone is unsafe.
-
-## PROD-READINESS-04 — Full cutover plan and measurable acceptance
+## Proposed full-system cutover acceptance targets
 
 Numbers below are proposed DEV/TEST rehearsal targets, not Production SLOs. Proposed full-system write freeze <=120 minutes, restore RTO <=60 minutes, rollback RTO <=60 minutes, and RPO=0 after final freeze must be ratified by the Owner before any Production use.
 
@@ -134,12 +129,11 @@ Numbers below are proposed DEV/TEST rehearsal targets, not Production SLOs. Prop
 - Proposed RPO=0 committed writes after final freeze; proposed restore RTO <=60 minutes from restore start to verified application readiness.
 - Record backup IDs, restore IDs, timings, counts, hashes, operator, and health checks.
 
-### 4. Rehearse whole-system rollback to LEGACY
+### 4. Rehearse manual fallback after the point of no return
 
-- Complete 2 rollback rehearsals. Each includes at least 1 post-cutover create/update/approval mutation per in-scope module, including a file operation and a queued notification.
-- Freeze NEW writes/workers first; reverse-replay the delta to the legacy test fixture; compare 100% record/status/relationship/attachment/delivery state.
-- 0 lost, duplicated, or externally re-sent mutations; 100% idempotent replay and audit trail; proposed rollback completion <=60 minutes.
-- Current source has no proven reverse writer to GAS. If reverse replay cannot pass, the rollback rehearsal fails and the system must remain frozen.
+- Use synthetic/local DEV data only. Freeze all CKACE writes/jobs, create the marker, generate the export to an encrypted/restricted folder outside Git, and verify every module's rows, audit events, and relationship context.
+- HR manually re-enters all eligible records into a disposable legacy fixture; compare **100%** IDs/statuses/relationships and attachment checksums; missing/duplicate items = **0**. Notifications are evidence only and are not resent automatically.
+- Demonstrate a fallback within the proposed **60-minute** target or keep fix-forward as the only safe post-open option. Do not implement reverse replay.
 
 ### 5. Prove minimum monitoring and alerts
 
@@ -172,10 +166,10 @@ Numbers below are proposed DEV/TEST rehearsal targets, not Production SLOs. Prop
 
 ## Owner next actions (priority order)
 
-1. Continue with `PROD-READINESS-08`: inspect and implement a whole-system fail-closed authority switch plus testable rollback/replay ledger using synthetic local/DEV data.
-2. When file transfer is scheduled, Owner downloads the relevant Drive folder as ZIP to a restricted folder outside the repository; reviewer maps every source `FileID`/filename and resolves the 34 currently deferred rows.
-3. Owner/reviewer approve proposed monitoring thresholds, exact Production policy/data baseline, and operations contacts before any future Production action.
-4. At cutover planning, Owner/HR closes pending GAS requests (including LEV-0109), takes a post-freeze snapshot, and separately authorizes each Production action.
+1. Reviewer reruns the corrected DB rehearsal on loopback `ckace_hr_dev`; expected disposition is exit 0 with exactly one approved LEV-0109 changed-next-approver item.
+2. Reviewer tests marker/export in `ckace_hr_dev` only; validate read-only transaction attestation, module counts, and external output. Keep Production untouched.
+3. Close the separate attachment-byte retrieval/re-entry gap and infrastructure inspection items. Each Production action requires separate Owner approval.
+4. Keep hypercare, final snapshot, all-module routing/opening, and any manual fallback subject to the approved runbook and separate Production approvals.
 
 ## Current risks
 
@@ -183,16 +177,16 @@ Numbers below are proposed DEV/TEST rehearsal targets, not Production SLOs. Prop
 - The claimed previous XLSX TEST import cannot be traced to a checked-in file/job/run from this repo/history.
 - The DB rehearsal evidence is reviewer-run and was not independently reproduced by Codex; final production-sized source may differ from the sanitized snapshot.
 - The 34 attachment rows had no bytes in the sanitized XLSX; file availability, mapping, ownership/privacy links, and upload remain unverified.
-- A production rollback is still not proven because whole-system authority dispatch and reverse replay are not implemented/evidenced.
+- A post-open manual GAS fallback is not yet rehearsed end-to-end; export file bytes are not embedded, so any required attachments need a separate secure R2 retrieval/re-entry step.
 - Production resources, secrets, CORS, LINE/LIFF, SMTP, Scheduler, office coordinates, holiday calendar, and alerting remain unverified.
 - Attachment bytes are absent; Notifications/LINE history, chat, and settings are excluded; Announcements and Reports are not source tabs in the supplied manifest.
 - Target role catalog and active module approval policies must be provisioned in the temporary DEV database; checked-in schema migrations do not seed business approval policies.
-- `READ_ONLY` is a verified write freeze only; full-system LEGACY/NEW read/write dispatch and reverse-to-GAS writer remain unimplemented/unproven. Current Production routing intentionally rejects multiple module pairs set to NEW.
+- The current code tests local route validator behavior, not live Production readiness. No Production resources, config, traffic, LINE, DB, or export were inspected or changed.
 - Proposed thresholds are not approved Production SLAs. Production remains NO-GO; no Production access/action was performed.
 
 ## Next active task
 
-PROD-READINESS-08 — Implement full-system authority and rollback gates on synthetic local/DEV data. First inspect all API routes, jobs, notification side effects, and LIFF mutation paths; then implement/test fail-closed `LEGACY` / `FROZEN` / `NEW` state and a deterministic idempotent replay ledger. No Project A, Production, or cloud operations. Production remains NO-GO.
+PROD-READINESS-09 — Reviewer rerun corrected disposition + full-system route/export checks on disposable `ckace_hr_dev`. Confirm runner exit 0 with the exact LEV-0109 exception; test marker/export under READ_ONLY with no Production DB access; review counts and output-path safety. Production remains NO-GO.
 
 ## Safety rules
 

@@ -2,38 +2,41 @@
 
 Updated: 2026-10-26 Asia/Bangkok
 
-## PROD-READINESS-08 — Implement full-system authority and rollback gates
+## PROD-READINESS-09 — Reviewer rerun corrected disposition + full-system route/export checks
 
-Status: READY — DEV/TEST implementation and verification only.
-Priority: P1 — the current routing context is not a universal module dispatcher, and reverse replay is not implemented or proven. These are blockers to a safe full-system cutover.
+Status: WAITING FOR REVIEWER — local implementation and requested code verification passed. Database rehearsal is limited to a disposable loopback PostgreSQL database named `ckace_hr_dev`. Production remains NO-GO.
+
+Priority: P1 — reviewer evidence is still needed to confirm the corrected named exception gate and exercise the marker/export against PostgreSQL before this recovery plan can be treated as rehearsed.
 
 Objective / why now:
-Implement and prove a fail-closed whole-system `LEGACY` / `FROZEN` / `NEW` authority mechanism and a recoverable rollback ledger for every module and side-effect worker, using synthetic or disposable DEV/TEST data. Production remains NO-GO.
+Have the reviewer rerun the sanitized XLSX migration rehearsal against the pushed implementation, then validate the marker and post-cutover read-only export using only disposable loopback `ckace_hr_dev`.
 
 Scope:
-- Inspect all API controllers/services, scheduled jobs, notification senders, LIFF entry paths, and module route guards before changing architecture.
-- Define one system-level authority state; require writes to fail closed during `FROZEN`; keep current DEV/TEST defaults unchanged.
-- Cover all reads/writes and background workers with route/permission/write-freeze tests. Migration-job exception remains restricted to the existing guarded local DEV target.
-- Build a testable post-cutover change ledger/export and rollback/replay contract with idempotency, ordering, and audit evidence for each in-scope module.
-- Exercise synthetic rollback and verify zero lost/duplicated mutations and bounded restore/reconciliation time.
+- Rerun the import and disposition checks, including the exact Owner-approved LEV-0109 changed-next-approver exception.
+- Confirm import accounting, idempotency, Pending parity, and no unapproved disposition outcomes.
+- Generate an external marker and run the exporter while `CKACE_SYSTEM_WRITE_MODE=READ_ONLY`, with the migration-job guard and `ckace_hr_dev` database-name attestation.
+- Review per-module export counts, marker/run ID, read-only transaction evidence, and external output-path safety.
+- Record only numeric/aggregate evidence in Git; keep XLSX, marker, export, dump, and employee data outside Git.
 
 Out of scope:
-- Root checkout `D:\CKACE_HR`, Project A source/config, live GAS or Sheets/Drive, cloud commands, Production, deploy, Production resources/secrets/IAM, traffic/DNS/Firebase, LINE Production config, employee notifications, or real user data.
-- Claiming a real GAS reverse writer or Production rollback is proven without a separately approved and independently rehearsed integration.
+- Production or any non-loopback database, cloud commands, deploy, traffic/DNS/Firebase/LINE changes, Project A, root checkout `D:\CKACE_HR`, production credentials/IAM/secrets, or real employee data access.
+- Reverse replay or automated GAS writes. A forced fallback remains manual HR re-entry after separate Owner approval.
 
 Acceptance criteria:
-1. Every API route, controller/service write path, job, notification side effect, and LIFF mutation path has an explicit authority decision; uncovered paths = **0**.
-2. `FROZEN` rejects **100%** of user/business writes and side effects; only the authorized local migration job retains its narrow guarded write path.
-3. `LEGACY` and `NEW` route every in-scope module consistently; mixed authority and unknown states fail closed.
-4. Synthetic rollback ledger records every post-cutover mutation with stable idempotency keys and produces a deterministic replay/export plan for all modules.
-5. Rehearsal replays **100%** of synthetic changes with **0** lost, duplicated, reordered, or unowned writes; recovery completes within **60 minutes** and RPO is **0**.
-6. Existing TEST behavior is unchanged when the switch is unset/default; all mode transitions and failure cases have automated tests.
-7. No Production or Project A operation occurs.
+1. Reviewer rehearsal exits 0 with 5,234 imported, 35 skipped, 0 rejected, 0 unaccounted/ambiguous writes, all approved dispositions matched, and exactly one changed-next-approver item: LEV-0109. Any other changed item or duplicate remains blocking.
+2. Idempotent rerun adds 0 duplicates; source/target Pending counts match; the LEV-0109 HR exception remains explicit and is not auto-approved.
+3. Marker has a valid UTC `cutoverAt` and unique UUID `runId`, is written outside every Git checkout, and is not overwritten.
+4. Export runs only against loopback `ckace_hr_dev` with `READ_ONLY`; the PostgreSQL transaction is read-only and attests the database name before module queries; exported module counts and marker ID are reviewed.
+5. No export data, workbook, dump, or secrets enter the repository; no Production access or operation occurs.
 
 Verification:
-- Full lint, typecheck, Vitest suite, API build, route/worker coverage report, and synthetic freeze/replay evidence.
-- Use only local/in-memory or disposable DEV/TEST stores; keep credentials and real employee data outside Git.
+- Codex local gates already passed for this implementation: `npm run lint`, `npm run typecheck`, `npm exec -- vitest run --pool=threads --maxWorkers=1`, `npm run build:packages`, and `npm run build -w @ckace/hr-api`.
+- Reviewer runs DB steps from `docs/migration/RUN_REHEARSAL.md` and `docs/migration/POST_CUTOVER_EXPORT.md`; use only loopback `ckace_hr_dev`. Do not execute the documented Production example.
+- Update evidence with aggregates only and rerun relevant tests if any discrepancy requires a code change.
 
-Owner decision needed before implementation: None for local discovery and a synthetic DEV/TEST contract. Any behavior that changes user permissions or actual legacy integration must be presented for Owner decision before enabling it.
+Evidence/result so far:
+- Local code gates: PASS, 121 test files / 857 tests, package builds and API build passed.
+- Static exporter model/delegate/timestamp-field check: PASS, 38 timestamped sources matched Prisma DMMF; no missing delegate/time field found.
+- PostgreSQL importer/export rehearsal on this worktree: NOT RUN; no `DATABASE_URL` was configured. Reviewer execution remains required.
 
-Production remains NO-GO and requires separate named Owner approval for each Production action.
+Owner decision needed: None for the bounded disposable-DEV reviewer rerun. Any real Production export requires separate explicit Owner approval for that exact run; no such operation is authorized by this task.

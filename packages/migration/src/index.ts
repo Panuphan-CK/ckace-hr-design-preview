@@ -14,6 +14,7 @@ export * from "./pending-approval-handoff";
 export * from "./organization";
 export * from "./provenance";
 export * from "./prisma-target-store";
+export * from "./rehearsal-policy-seed";
 export * from "./reconciliation";
 export * from "./reporting";
 export * from "./rollback";

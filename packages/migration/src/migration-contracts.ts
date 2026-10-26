@@ -90,6 +90,35 @@ export interface TargetCreateResult {
   readonly targetEntityId: string;
 }
 
+export interface PendingApprovalSourceStep {
+  readonly stepOrder: number;
+  readonly approverLegacyId: string;
+}
+
+export interface PendingApprovalSourceRequest {
+  readonly provenanceKey: string;
+  readonly targetEntityType: "leave_request" | "time_correction_request" | "overtime_request_bundle" | "medical_claim";
+  readonly requestKind: "LEAVE" | "TIME_CORRECTION" | "OVERTIME" | "MEDICAL";
+  readonly requesterLegacyId: string;
+  readonly legacyPendingSteps: readonly PendingApprovalSourceStep[];
+}
+
+export interface PendingApprovalHandoffReport {
+  readonly sourcePendingRequestCount: number;
+  readonly targetPendingRequestCount: number;
+  readonly pendingRequestCountMatches: boolean;
+  readonly reroutedRequestCount: number;
+  readonly changedNextApprovers: readonly {
+    readonly requestLegacyId: string;
+    readonly oldApproverIds: readonly string[];
+    readonly newApproverIds: readonly string[];
+  }[];
+  readonly unresolvedApprovers: readonly {
+    readonly requestLegacyId: string;
+    readonly reasonCode: string;
+  }[];
+}
+
 export interface MigrationTargetStore {
   findByProvenanceKey(
     provenanceKey: string,
@@ -98,6 +127,17 @@ export interface MigrationTargetStore {
   create(
     input: TargetCreateInput,
   ): Promise<TargetCreateResult>;
+
+  prepareRun?(input: {
+    readonly migrationRunId: string;
+    readonly sourceSnapshot: string;
+    readonly transformerVersion: string;
+    readonly pendingRequests?: readonly PendingApprovalSourceRequest[];
+  }): Promise<void>;
+
+  finishRun?(report: MigrationRunReport): Promise<{
+    readonly pendingApprovalHandoff?: PendingApprovalHandoffReport;
+  } | void>;
 }
 
 export type MigrationRecordOutcomeStatus =

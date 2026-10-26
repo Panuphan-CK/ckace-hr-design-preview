@@ -356,6 +356,7 @@ export const medicalClaimTransformer: MigrationTransformer = {
             ]),
           updatedDate: requiredDate(record, [
             "UpdatedDate",
+            "updatedDate",
             "UpdatedAt",
           ]),
           legacyRaw: record.values,
@@ -374,12 +375,7 @@ export const medicalApprovalStepTransformer: MigrationTransformer = {
   version: "medical-approval-step-v1",
   transform(record) {
     try {
-      if (
-        record.provenance.sourceTab !==
-          APPROVAL_TAB ||
-        record.provenance.sourcePeriod !==
-          "CURRENT"
-      ) {
+      if (record.provenance.sourceTab !== APPROVAL_TAB) {
         throw new Error(
           "Medical approval transformer only accepts current Medical_ApprovalSteps",
         );
@@ -388,11 +384,15 @@ export const medicalApprovalStepTransformer: MigrationTransformer = {
       const stepId = requiredString(record, [
         "step_id",
         "stepId",
+        "StepID",
       ]);
       const requestId = requiredString(record, [
+        "ClaimID",
+        "RequestID",
         "request_id",
         "requestId",
       ]);
+      const requestPeriod = record.values.__legacyRequestPeriod === "2025" || record.provenance.sourcePeriod === "2025" ? "2025" : "CURRENT";
 
       if (
         stepId !==
@@ -420,26 +420,26 @@ export const medicalApprovalStepTransformer: MigrationTransformer = {
           currentRequestProvenanceKey:
             requestProvenanceKey({
               record,
-              sourceTab:
-                CURRENT_REQUEST_TAB,
-              sourcePeriod: "CURRENT",
+              sourceTab: requestPeriod === "2025" ? `${CURRENT_REQUEST_TAB}_2025` : CURRENT_REQUEST_TAB,
+              sourcePeriod: requestPeriod,
               legacyId: requestId,
             }),
           stepOrder: integerValue(record, [
             "step",
             "stepOrder",
+            "Step",
           ]),
           approverLegacyId: requiredString(
             record,
-            ["approver_id", "approverId"],
+            ["approver_id", "approverId", "ApproverID"],
           ),
           assignedDate: requiredDate(
             record,
-            ["createdDate", "assignedAt"],
+            ["createdDate", "assignedAt", "assigned_date"],
           ),
           approvedDate: optionalDate(
             record,
-            ["approvedDate", "approvedAt"],
+            ["approvedDate", "approvedAt", "approved_date"],
           ),
           rawStatus,
           normalizedStatus,
@@ -484,8 +484,8 @@ export const medicalAttachmentTransformer: MigrationTransformer = {
       ]);
 
       if (
-        fileId !==
-        record.provenance.legacyId
+        fileId !== record.provenance.legacyId &&
+        record.provenance.legacyId !== `${fileId}::ROW:${record.rowNumber}`
       ) {
         throw new Error(
           "Medical FileID does not match source-qualified provenance",

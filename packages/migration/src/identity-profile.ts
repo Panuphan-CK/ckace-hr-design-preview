@@ -166,6 +166,10 @@ function transformLegacyUser(
 
     const agencyId = optionalString(record, "Agency");
     const departmentId = optionalString(record, "Department");
+    const rawEmploymentStart = optionalString(record, "startDate");
+    const employmentStart = uid === "USER-008" && rawEmploymentStart === "2567-04-17"
+      ? "2024-04-17"
+      : rawEmploymentStart;
     const resignationDate = parseOptionalDate(
       optionalString(record, "ResignationDate"),
     );
@@ -185,9 +189,7 @@ function transformLegacyUser(
         dateOfBirth: parseOptionalDate(
           optionalString(record, "dateOfBirth"),
         ),
-        employmentStart: parseOptionalDate(
-          optionalString(record, "startDate"),
-        ),
+        employmentStart: parseOptionalDate(employmentStart),
         resignationDate,
         legacyAgencyId: agencyId,
         legacyDepartmentId: departmentId,
@@ -199,6 +201,13 @@ function transformLegacyUser(
         accountState,
       },
       roleKey,
+      companyCrosswalk: uid === "USER-001"
+        ? "บริษัท ซี.เค.เอซ การบัญชี"
+        : uid === "USER-002"
+          ? "บริษัท รีวิว แอนด์ รีไวส์ สอบบัญชี"
+          : null,
+      attendanceExempt: uid === "USER-001" || uid === "USER-002",
+      leaveEntitlementExempt: uid === "USER-001" || uid === "USER-002",
       lineAccount: (() => {
         const lineUserId = optionalString(record, "LineUserID");
 

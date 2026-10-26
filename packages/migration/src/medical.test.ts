@@ -284,14 +284,17 @@ describe("M7 medical migration", () => {
     });
   });
 
-  it("rejects non-current approval rows rather than attaching them to archive by ClaimID", () => {
+  it("source-qualifies archived approval rows to the archived claim", () => {
     expect(
       medicalApprovalStepTransformer.transform(
         step({}, "2025"),
       ),
     ).toMatchObject({
-      action: "REJECT",
-      code: "MEDICAL_APPROVAL_INVALID_SOURCE",
+      action: "IMPORT",
+      payload: {
+        currentRequestProvenanceKey:
+          "APP_LEAVE_GAS::Data_CK&RR_Requests::MedicalClaims_2025::2025::MED-00001",
+      },
     });
   });
 

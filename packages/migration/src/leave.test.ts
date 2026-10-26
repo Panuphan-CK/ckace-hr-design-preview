@@ -153,6 +153,7 @@ describe("M7 leave migration", () => {
             UserID: "USER-001",
             LeaveType: "Annual",
             LeaveQuota: 5,
+            targetQuota: 6,
           },
         }),
       ),
@@ -162,7 +163,9 @@ describe("M7 leave migration", () => {
         legacyPolicyId: "PL-00001",
         employeeLegacyId: "USER-001",
         leaveTypeKey: "ANNUAL",
-        quota: 5,
+        quota: 6,
+        comparisonQuota: 5,
+        quotaDifference: 1,
       },
     });
   });

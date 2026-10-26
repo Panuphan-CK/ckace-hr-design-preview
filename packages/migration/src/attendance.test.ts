@@ -85,7 +85,7 @@ function correction(
 }
 
 describe("M7 attendance migration", () => {
-  it("imports TimeLog facts with Bangkok timestamps and derived legacy calculations", () => {
+  it("imports raw punches with Bangkok timestamps and does not reuse legacy calculations", () => {
     expect(
       attendanceRecordTransformer.transform(timeLog()),
     ).toMatchObject({
@@ -97,12 +97,9 @@ describe("M7 attendance migration", () => {
         workDate: "2026-10-05",
         checkInAt: "2026-10-05T09:05:30+07:00",
         checkOutAt: "2026-10-05T17:30:00+07:00",
-        calculation: {
-          workMinutes: 450,
-          overtimeMinutes: 0,
-          checkInRadius: "INSIDE",
-          checkOutRadius: "INSIDE",
-        },
+        calculation: null,
+        calculationDisposition:
+          "LEGACY_WORKHOURS_AND_OT_HOURS_IGNORED_RECALCULATE_FROM_NEW_POLICY",
       },
     });
   });
@@ -122,23 +119,17 @@ describe("M7 attendance migration", () => {
       payload: {
         checkOutAt: null,
         checkOutLocationText: null,
-        calculation: {
-          workMinutes: null,
-          checkOutRadius: "UNKNOWN",
-        },
+        calculation: null,
       },
     });
   });
 
-  it("rejects unknown radius vocabulary rather than silently guessing", () => {
+  it("does not interpret redacted legacy comment text as a radius calculation", () => {
     expect(
       attendanceRecordTransformer.transform(
         timeLog({ Comment3: "maybe" }),
       ),
-    ).toMatchObject({
-      action: "REJECT",
-      code: "ATTENDANCE_INVALID_SOURCE",
-    });
+    ).toMatchObject({ action: "IMPORT", payload: { calculation: null } });
   });
 
   it("requires TimeLog identity to match source-qualified provenance", () => {
@@ -173,6 +164,24 @@ describe("M7 attendance migration", () => {
           resolutionRule:
             "REQUIRE_EXACTLY_ONE_MATCH_OR_EXPLICIT_EXCEPTION",
         },
+      },
+    });
+  });
+
+  it("normalizes source clocks with a trailing colon and the known no-data sentinel", () => {
+    expect(
+      timeCorrectionTransformer.transform(correction({
+        OriginalCheckIn: "9:01:",
+        OriginalCheckOut: "ไม่มีข้อมูล",
+        CorrectedCheckIn: "9:00:",
+      })),
+    ).toMatchObject({
+      action: "IMPORT",
+      payload: {
+        originalCheckIn: "09:01",
+        originalCheckOut: null,
+        correctedCheckIn: "09:00",
+        correctedCheckOut: null,
       },
     });
   });

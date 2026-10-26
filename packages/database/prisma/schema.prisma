@@ -978,6 +978,8 @@ model LegacyRecord {
   legacyId         String
   rowFingerprint   String
   payloadHash      String?
+  transformedPayloadHash String?
+  transformerVersion String?
   targetEntityType String?
   targetEntityId   String?  @db.Uuid
   importedAt       DateTime @default(now()) @db.Timestamptz(3)

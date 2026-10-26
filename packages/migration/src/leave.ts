@@ -97,7 +97,7 @@ function integerValue(
 
 function mapLegacyApprovalStepStatus(
   legacyStatus: string,
-): "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" {
+): "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" | "SKIPPED" {
   const status = mapLegacyRequestStatus(legacyStatus);
 
   return status === "REVISION_REQUESTED"
@@ -133,10 +133,18 @@ export const leaveEntitlementTransformer: MigrationTransformer = {
       const leaveTypeKey = mapLegacyLeaveType(
         requiredString(record, "LeaveType"),
       );
-      const quota = numericValue(record, "LeaveQuota");
+      const comparisonQuota = numericValue(record, "LeaveQuota");
 
-      if (quota < 0) {
+      if (comparisonQuota < 0) {
         throw new Error("Legacy leave quota cannot be negative");
+      }
+
+      const targetQuotaValue = record.values.targetQuota;
+      const quota = typeof targetQuotaValue === "number"
+        ? targetQuotaValue
+        : Number.NaN;
+      if (!Number.isFinite(quota) || quota < 0) {
+        throw new Error("Target entitlement quota must be supplied from the current leave policy");
       }
 
       return {
@@ -147,6 +155,9 @@ export const leaveEntitlementTransformer: MigrationTransformer = {
           employeeLegacyId,
           leaveTypeKey,
           quota,
+          comparisonQuota,
+          quotaDifference: quota - comparisonQuota,
+          quotaRule: "CURRENT_SYSTEM_POLICY_2026",
         } satisfies JsonValue,
       };
     } catch (error) {
@@ -262,6 +273,10 @@ export const leaveApprovalStepTransformer: MigrationTransformer = {
 
       const stepId = requiredString(record, "stepId");
       const requestId = requiredString(record, "requestId");
+      const requestPeriod = record.values.__legacyRequestPeriod === "2025" ? "2025" : "CURRENT";
+      const rawStatus = requiredString(record, "status");
+      const mappedStatus = mapLegacyApprovalStepStatus(rawStatus);
+      const normalizedStatus = mappedStatus;
 
       return {
         action: "IMPORT",
@@ -271,8 +286,8 @@ export const leaveApprovalStepTransformer: MigrationTransformer = {
           currentRequestProvenanceKey: legacyProvenanceKey({
             sourceSystem: record.provenance.sourceSystem,
             sourceWorkbook: record.provenance.sourceWorkbook,
-            sourceTab: "LeaveRequests",
-            sourcePeriod: "CURRENT",
+            sourceTab: requestPeriod === "2025" ? "LeaveRequests_2025" : "LeaveRequests",
+            sourcePeriod: requestPeriod,
             legacyId: requestId,
           }),
           stepOrder: integerValue(record, "stepOrder"),
@@ -288,10 +303,9 @@ export const leaveApprovalStepTransformer: MigrationTransformer = {
                 requiredString(record, "approvedAt"),
               )
             : null,
-          rawStatus: requiredString(record, "status"),
-          normalizedStatus: mapLegacyApprovalStepStatus(
-            requiredString(record, "status"),
-          ),
+          rawStatus,
+          normalizedStatus,
+          exceptionCode: normalizedStatus === "SKIPPED" ? "TERMINAL_REQUEST_HAS_PENDING_STEP" : null,
           comment: optionalString(record, "comment"),
         } satisfies JsonValue,
       };

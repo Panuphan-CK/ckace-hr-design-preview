@@ -26,6 +26,17 @@ function requiredString(
   return value.trim();
 }
 
+function requiredAliasedString(
+  record: LegacyExtractedRecord,
+  keys: readonly string[],
+): string {
+  for (const key of keys) {
+    const value = record.values[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  throw new Error(`Missing or invalid legacy ${keys.join("/")}`);
+}
+
 function optionalString(
   record: LegacyExtractedRecord,
   key: string,
@@ -44,28 +55,20 @@ function optionalString(
   return normalized || null;
 }
 
-function optionalNumber(
+function optionalAliasedString(
   record: LegacyExtractedRecord,
-  key: string,
-): number | null {
-  const value = record.values[key];
-
-  if (value === null || value === undefined || value === "") {
-    return null;
+  keys: readonly string[],
+): string | null {
+  for (const key of keys) {
+    const value = record.values[key];
+    if (value !== null && value !== undefined && value !== "") {
+      if (typeof value !== "string" && typeof value !== "number") {
+        throw new Error(`Invalid legacy ${key}`);
+      }
+      return String(value).trim() || null;
+    }
   }
-
-  const parsed =
-    typeof value === "number"
-      ? value
-      : typeof value === "string"
-        ? Number(value.trim())
-        : Number.NaN;
-
-  if (!Number.isFinite(parsed)) {
-    throw new Error(`Invalid numeric legacy ${key}`);
-  }
-
-  return parsed;
+  return null;
 }
 
 function parseLegacyClock(
@@ -76,8 +79,12 @@ function parseLegacyClock(
     return null;
   }
 
+  if (value.trim() === "ไม่มีข้อมูล") {
+    return null;
+  }
+
   const match =
-    /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(value.trim());
+    /^(\d{1,2}):(\d{2})(?::(\d{2})?)?$/.exec(value.trim());
 
   if (!match) {
     throw new Error(`Invalid legacy ${key} time`);
@@ -114,40 +121,6 @@ function bangkokTimestamp(
   }
 
   return `${date}T${clock}+07:00`;
-}
-
-function hoursToMinutes(
-  value: number | null,
-  key: string,
-): number | null {
-  if (value === null) {
-    return null;
-  }
-
-  if (value < 0) {
-    throw new Error(`Legacy ${key} cannot be negative`);
-  }
-
-  return Math.round(value * 60);
-}
-
-function radiusState(
-  value: string | null,
-  key: string,
-): "INSIDE" | "OUTSIDE" | "UNKNOWN" {
-  if (!value) {
-    return "UNKNOWN";
-  }
-
-  if (value === "ในรัศมี") {
-    return "INSIDE";
-  }
-
-  if (value === "นอกรัศมี") {
-    return "OUTSIDE";
-  }
-
-  throw new Error(`Unknown legacy ${key} radius marker`);
 }
 
 function correctionStatus(
@@ -189,7 +162,10 @@ export const attendanceRecordTransformer: MigrationTransformer = {
   version: "attendance-record-v1",
   transform(record) {
     try {
-      if (record.provenance.sourceTab !== "TimeLog") {
+      if (
+        record.provenance.sourceTab !== "TimeLog" &&
+        record.provenance.sourceTab !== "TimeLog_2025"
+      ) {
         throw new Error(
           "Attendance transformer only accepts TimeLog",
         );
@@ -239,36 +215,21 @@ export const attendanceRecordTransformer: MigrationTransformer = {
             record,
             "LocationOut",
           ),
-          calculation: {
-            workMinutes: hoursToMinutes(
-              optionalNumber(record, "WorkHours"),
-              "WorkHours",
-            ),
-            overtimeMinutes: hoursToMinutes(
-              optionalNumber(record, "OT_Hours"),
-              "OT_Hours",
-            ),
-            checkInRadius: radiusState(
-              optionalString(record, "Comment3"),
-              "Comment3",
-            ),
-            checkOutRadius: radiusState(
-              optionalString(record, "Comment4"),
-              "Comment4",
-            ),
-          },
+          calculation: null,
+          calculationDisposition:
+            "LEGACY_WORKHOURS_AND_OT_HOURS_IGNORED_RECALCULATE_FROM_NEW_POLICY",
           legacyTrace: {
             fullName: optionalString(record, "Fullname"),
-            checkInComment: optionalString(
+            checkInComment: optionalAliasedString(
               record,
-              "Comment1",
+              ["Comment1", "comments1", "Comments1"],
             ),
-            checkOutComment: optionalString(
+            checkOutComment: optionalAliasedString(
               record,
-              "Comment2",
+              ["Comment2", "comments2", "Comments2"],
             ),
-            rawInRadius: optionalString(record, "Comment3"),
-            rawOutRadius: optionalString(record, "Comment4"),
+            rawInRadius: optionalAliasedString(record, ["Comment3", "comments3", "Comments3"]),
+            rawOutRadius: optionalAliasedString(record, ["Comment4", "comments4", "Comments4"]),
             rawOtStatus: optionalString(record, "OT_Status"),
             linkedOtLegacyId: optionalString(
               record,
@@ -365,7 +326,7 @@ export const timeCorrectionTransformer: MigrationTransformer = {
             "ApproverComment",
           ),
           requestedDate: parseLegacyDateDdMmYyyy(
-            requiredString(record, "RequestDate"),
+            requiredAliasedString(record, ["RequestDate", "SubmissionDate"]),
           ),
           decidedDate: optionalString(record, "ApprovalDate")
             ? parseLegacyDateDdMmYyyy(

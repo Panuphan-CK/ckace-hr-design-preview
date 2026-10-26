@@ -336,6 +336,7 @@ export const overtimeRequestTransformer: MigrationTransformer = {
       ]);
       const updatedDate = requiredDate(record, [
         "UpdatedDate",
+        "updatedDate",
         "UpdatedAt",
       ]);
       const requestDate = requiredDate(record, [
@@ -431,10 +432,12 @@ export const overtimeApprovalStepTransformer: MigrationTransformer = {
       const stepId = requiredString(record, [
         "step_id",
         "stepId",
+        "StepID",
       ]);
       const requestId = requiredString(record, [
         "request_id",
         "requestId",
+        "RequestID",
       ]);
 
       if (stepId !== record.provenance.legacyId) {
@@ -448,10 +451,12 @@ export const overtimeApprovalStepTransformer: MigrationTransformer = {
       const assignedDate = requiredDate(record, [
         "createdDate",
         "assignedAt",
+        "assigned_date",
       ]);
       const approvedDateValue = optionalString(record, [
         "approvedDate",
         "approvedAt",
+        "approved_date",
       ]);
       const approvedDate = approvedDateValue
         ? parseLegacyDateValue(approvedDateValue, "approvedDate")
@@ -472,10 +477,11 @@ export const overtimeApprovalStepTransformer: MigrationTransformer = {
           legacyRequestId: requestId,
           currentRequestProvenanceKey,
           requestProvenanceKey: currentRequestProvenanceKey,
-          stepOrder: integerValue(record, ["step", "stepOrder"]),
+          stepOrder: integerValue(record, ["step", "stepOrder", "StepOrder"]),
           approverLegacyId: requiredString(record, [
             "approver_id",
             "approverId",
+            "ApproverID",
           ]),
           assignedDate,
           approvedDate,

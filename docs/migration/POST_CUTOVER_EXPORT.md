@@ -4,6 +4,8 @@ Status: **Tool and procedure only. No Production export or DB connection was run
 
 The export is an aid for HR manual recovery if the Owner decides to return to GAS after opening. It is not reverse replay and it does not enable parallel writes. Fix-forward remains the default.
 
+Each successful run creates a paired JSON export and HR workbook beside it. For `post-cutover-recovery.json`, the companion is `post-cutover-recovery.hr.xlsx`. Both destinations must be outside every Git checkout, and neither file may already exist. The script creates both exclusively; if creating the second file fails, it removes the first file created by that run so the output is not mistaken for a complete pair.
+
 ## At the approved opening: create the marker
 
 Run from the checked-out application worktree, while CKACE is still `READ_ONLY` and before changing it to `ACTIVE`:
@@ -14,7 +16,7 @@ $env:CKACE_CUTOVER_MARKER_CONFIRM = 'YES'
 node scripts/migration/create-cutover-marker.mjs --output 'D:\CKACE_HR_secure\cutover-marker.json'
 ```
 
-The marker contains a UTC `cutoverAt` and unique UUID `runId`. Store it outside the repository in a restricted directory. The command refuses to overwrite an existing marker and rejects a path that resolves inside the repository. The runbook sequence is: keep CKACE `READ_ONLY`, set all 26 route keys to `NEW`, change the official employee links, record the marker, then set `CKACE_SYSTEM_WRITE_MODE=ACTIVE`. No employee write is accepted before ACTIVE.
+The marker contains a UTC `cutoverAt` and unique UUID `runId`. Store it outside the repository in a restricted directory. The command refuses to overwrite an existing marker and rejects a path that resolves inside any Git checkout. The runbook sequence is: keep CKACE `READ_ONLY`, set all 26 route keys to `NEW`, change the official employee links, record the marker, then set `CKACE_SYSTEM_WRITE_MODE=ACTIVE`. No employee write is accepted before ACTIVE.
 
 ## DEV rehearsal only
 
@@ -49,6 +51,10 @@ This guard accepts only `ckace_hr_prod` on a non-loopback host and requires `CKA
 
 ## Export contents and HR reconciliation
 
+The JSON remains the structured recovery snapshot. The companion XLSX is a separate HR-facing key-back report with a `สรุป` sheet and five business sheets: `การลา`, `OT`, `ลงเวลา`, `แก้ไขเวลา`, and `ค่ารักษา`. Its summary counts rows, new items, and changed items for each module. Each business row uses legacy `USER-xxx`/request IDs where a `LegacyRecord` mapping exists, employee name, type, BE dates (`DD/MM/YYYY`), times, quantities/hours or amounts, current status, and each approval step's approver, result, and decision time. Missing legacy mappings remain blank; the workbook does not show internal UUIDs. Every row is labeled `สร้างใหม่หลัง cutover` or `แก้ไขหลัง cutover` based on its creation timestamp relative to the marker.
+
+The workbook is generated from the same database snapshot and read-only transaction as the JSON. It contains personal and potentially medical data, so store both files together in an encrypted, access-restricted location outside Git and apply the same retention/deletion controls to each. File mode is set to `0600` where supported; the script does not set Windows ACLs or encrypt either output.
+
 - A timestamped scalar snapshot of identity/organization, roles/scopes, approval policy and history, Leave, Attendance/Time Correction, OT, Medical, calendar, attachment metadata, Announcements, Notifications, technical idempotency keys, and audit rows whose supported timestamps are at or after the marker.
 - Relevant current relationship rows are attached to changed/audited parents. Audit events preserve the action/identifier trail for deleted rows; a missing current row must be treated as a possible deletion and reviewed.
 - Reports are rebuilt from canonical Leave/Attendance/OT/Medical records. Report-export audit entries remain in the audit section.
@@ -58,4 +64,4 @@ This guard accepts only `ckace_hr_prod` on a non-loopback host and requires `CKA
 
 The exporter is not a write replay tool. Reviewer/HR must compare per-module IDs, statuses, relationships, and counts, then have HR manually enter the approved changes into GAS. Resume GAS writes only after **100%** item-level reconciliation and **0** unexplained/missing/duplicate items. `counts.totalRecords` includes related context/audit categories and is not itself a business-row reconciliation target.
 
-Protect output with a restricted NTFS ACL and encrypted storage. Node's file mode is set to `0600` where supported, but the script does not configure Windows ACLs or encrypt the JSON. Never commit marker/export/evidence files.
+Protect both outputs with a restricted NTFS ACL and encrypted storage. Node's file mode is set to `0600` where supported, but the script does not configure Windows ACLs or encrypt the files. Never commit marker/export/evidence files.

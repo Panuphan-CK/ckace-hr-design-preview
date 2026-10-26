@@ -74,14 +74,15 @@ All targets below are proposed rehearsal gates, not approved Production SLOs. Fu
 - Reports: 12 report scenarios (4 data domains x 3 periods) regenerate; 100% aggregates match under approved rule mapping or have signed exception; 0 unexplained deltas.
 - Provenance/idempotency: 100% imported records have workbook/tab/period/stable-ID provenance; a second run creates 0 duplicate rows.
 - Restore/fallback: backup/restore proof and 100% row/object checksum parity; before the point of no return, CKACE accepted writes = 0 before returning to GAS. After it, manual fallback export must account for 100% post-marker items, HR re-entry must reconcile 100%, duplicate/missing items = 0, and fallback target remains <=60 minutes. No reverse replay.
+- Post-cutover HR export: JSON and a paired XLSX are created from the same READ ONLY transaction; all configured Prisma delegates/fields/order keys match DMMF; the workbook has a summary plus 5 Thai business sheets, 0 UUID values, and legacy identifiers wherever available. Reviewer verifies per-module counts on loopback `ckace_hr_dev`.
 - Monitoring/cutover: 60-second probes; 6/6 simulated critical alerts reach on-call within 5 minutes; 3 cutover rehearsals stay within proposed 120-minute freeze; 100% of module smoke routes pass; 100% of active test accounts receive in-app change notice, LINE delivery >=99%, and 100% of failures appear in the fallback roster.
 
 See HANDOFF.md for sheet-to-model inventory, code evidence, switch/rollback design, and phase-by-phase Owner inputs.
 
 ## Reviewer/Owner action priority
 
-1. Reviewer reruns the corrected importer/disposition gate on disposable PostgreSQL `ckace_hr_dev`; verify runner exit 0 and retain numeric-only evidence.
-2. Reviewer exercises marker/export against `ckace_hr_dev`, checks READ ONLY transaction attestation and external output path, and reviews per-module counts. Do not connect to Production.
+1. Reviewer reruns post-cutover export on disposable PostgreSQL `ckace_hr_dev`; verify the READ ONLY attestation and paired JSON/XLSX outputs, DMMF-backed orderings, summary/module counts, legacy keys, and no UUIDs in the workbook. Retain numeric-only evidence.
+2. Keep the marker, JSON, workbook, and any database dump outside Git. Do not connect to Production.
 3. Resolve attachment byte retrieval/re-entry and production infrastructure gaps using `PRODUCTION_INFRA_PLAN.md` and `PRODUCTION_CHECKLIST.md`; each Production action requires separate Owner approval.
 4. Production resources, file transfer, employee notice, routing/opening, and manual fallback remain unverified and require separate named Owner approval.
 

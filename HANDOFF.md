@@ -25,6 +25,7 @@ Last Updated: 2026-10-26 Asia/Bangkok
 - The first official employee-link change is the point of no return. Before it, return links to GAS only after CKACE accepted no employee writes. After it, fix-forward is preferred; forced fallback freezes CKACE, exports post-marker records, requires HR manual re-entry and 100% reconciliation before GAS writes resume. Hypercare is 3 business days.
 - A marker/export tool is now implemented locally. It requires READ_ONLY, uses a PostgreSQL READ ONLY transaction and writes outside all Git checkouts. PROD requires `CKACE_PROD_EXPORT_CONFIRM=YES` plus separate Owner approval; no live DB was connected. R2 file bytes are not included in the JSON export.
 - PROD-READINESS-08 local verification passed: lint, workspace typecheck, 121 Vitest files / 858 tests, package builds, API build, and exporter-to-Prisma-model/field checks. Export-path tests reject nested, primary, and unrelated Git checkouts. The marker/export tests use mocked Prisma; no PostgreSQL connection was made. Reviewer must still run the corrected import and export rehearsal on loopback `ckace_hr_dev`.
+- Reviewer follow-up on `6458268` found an actual PostgreSQL export failure: `OvertimeAllowancePolicy` has primary key `kind`, not `id`. Reviewer temporarily changed the order and exported JSON (0 new rows, 1 changed Leave row), but its UUID fields were not usable for HR key-back. PROD-READINESS-09 corrects primary-key order for all non-`id` sources, adds a Prisma DMMF drift test, and creates an HR `.xlsx` companion from the same READ ONLY transaction. The workbook has summary + 5 Thai module sheets, legacy keys/names, Buddhist dates, approval details, and no UUID values. Pair output is exclusive and rolls back the first file if the second file cannot be created. Local lint, typecheck, direct migration-script lint, 122 Vitest files / 862 tests, package build, and API build passed. Codex did not connect to a database; reviewer rerun on loopback `ckace_hr_dev` is still required.
 - Snapshot attachment links are redacted and no file bytes are supplied; notification/LINE logs, chat, settings, announcements, and report extracts are excluded or absent from the manifest. Their migration is not proven by the current importer.
 - No live Sheets/Drive data, Project A repo/config, Production system, cloud command, or deployment was accessed or changed.
 
@@ -186,7 +187,7 @@ Numbers below are proposed DEV/TEST rehearsal targets, not Production SLOs. Prop
 
 ## Next active task
 
-PROD-READINESS-09 — Reviewer rerun corrected disposition + full-system route/export checks on disposable `ckace_hr_dev`. Confirm runner exit 0 with the exact LEV-0109 exception; test marker/export under READ_ONLY with no Production DB access; review counts and output-path safety. Production remains NO-GO.
+PROD-READINESS-10 — Reviewer rerun post-cutover JSON + HR XLSX export on disposable loopback `ckace_hr_dev`. Confirm the READ ONLY database attestation, paired external outputs, module counts, legacy keys, Buddhist dates, approval details, and no UUIDs in the workbook. Production remains NO-GO.
 
 ## Safety rules
 

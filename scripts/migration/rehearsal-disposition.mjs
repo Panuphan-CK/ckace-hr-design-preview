@@ -1,4 +1,5 @@
 import {
+  APPROVED_CHANGED_NEXT_APPROVER_DISPOSITIONS,
   APPROVED_PENDING_HANDOFF_DISPOSITIONS,
   APPROVED_REHEARSAL_OUTCOME_DISPOSITIONS,
 } from "./approved-rehearsal-dispositions.mjs";
@@ -77,6 +78,28 @@ export function evaluateRehearsalDispositions(input) {
   const unapprovedPendingCount = unresolved.filter((entry) =>
     !approvedPendingKeys.has(`${entry.requestLegacyId}::${entry.reasonCode}`),
   ).length;
+  const changedNextApprovers = Array.isArray(handoff.changedNextApprovers)
+    ? handoff.changedNextApprovers
+    : [];
+  const changedNextApproverDispositions = APPROVED_CHANGED_NEXT_APPROVER_DISPOSITIONS.map((disposition) => {
+    const matches = changedNextApprovers.filter((entry) =>
+      entry.requestLegacyId === disposition.requestLegacyId,
+    );
+    return {
+      id: disposition.id,
+      approval: disposition.approval,
+      expectedCount: disposition.count,
+      actualCount: matches.length,
+      matched: matches.length === disposition.count,
+      actualRequestLegacyIds: matches.map((entry) => entry.requestLegacyId).sort(),
+    };
+  });
+  const approvedChangedRequestIds = new Set(
+    APPROVED_CHANGED_NEXT_APPROVER_DISPOSITIONS.map(({ requestLegacyId }) => requestLegacyId),
+  );
+  const unapprovedChangedNextApproverCount = changedNextApprovers.filter((entry) =>
+    !approvedChangedRequestIds.has(entry.requestLegacyId),
+  ).length;
   const unaccountedRows = Object.values(input.rowAccounting ?? {})
     .reduce((total, value) => total + Math.abs(Number(value?.unaccountedRows ?? 0)), 0);
   const hardGates = {
@@ -85,27 +108,28 @@ export function evaluateRehearsalDispositions(input) {
     rejectedRows: Number(input.rejectedCount ?? 0),
     unaccountedRows,
     pendingRequestCountMatches: handoff.pendingRequestCountMatches === true,
-    changedNextApprovers: Array.isArray(handoff.changedNextApprovers)
-      ? handoff.changedNextApprovers.length
-      : Number.POSITIVE_INFINITY,
+    changedNextApprovers: changedNextApprovers.length,
+    unapprovedChangedNextApproverCount,
     unapprovedPendingCount,
   };
   const dispositionCountsMatch =
     outcomeDispositions.every((entry) => entry.matched) &&
-    pendingDispositions.every((entry) => entry.matched);
+    pendingDispositions.every((entry) => entry.matched) &&
+    changedNextApproverDispositions.every((entry) => entry.matched);
   const hardGatesPass =
     !hardGates.stoppedEarly &&
     hardGates.ambiguousWrites === 0 &&
     hardGates.rejectedRows === 0 &&
     hardGates.unaccountedRows === 0 &&
     hardGates.pendingRequestCountMatches &&
-    hardGates.changedNextApprovers === 0 &&
+    hardGates.unapprovedChangedNextApproverCount === 0 &&
     hardGates.unapprovedPendingCount === 0;
 
   return {
     passed: dispositionCountsMatch && hardGatesPass && unapprovedOutcomes.length === 0,
     outcomeDispositions,
     pendingDispositions,
+    changedNextApproverDispositions,
     unapprovedOutcomeCount: unapprovedOutcomes.length,
     unapprovedOutcomes,
     hardGates,

@@ -108,6 +108,7 @@ try {
     passed: dispositionEvaluation.passed,
     outcomes: dispositionEvaluation.outcomeDispositions,
     pending: dispositionEvaluation.pendingDispositions,
+    changedNextApprovers: dispositionEvaluation.changedNextApproverDispositions,
     unapprovedOutcomeCount: dispositionEvaluation.unapprovedOutcomeCount,
     hardGates: dispositionEvaluation.hardGates,
   };

@@ -37,3 +37,12 @@ export const APPROVED_PENDING_HANDOFF_DISPOSITIONS = Object.freeze([
     count: 1,
   },
 ]);
+
+export const APPROVED_CHANGED_NEXT_APPROVER_DISPOSITIONS = Object.freeze([
+  {
+    id: "LEV-0109_CHANGED_NEXT_APPROVER_REQUIRES_HR_CLOSE_OUT",
+    approval: "OWNER_APPROVED_HR_EXCEPTION",
+    requestLegacyId: "LEV-0109",
+    count: 1,
+  },
+]);

@@ -37,7 +37,11 @@ function validInput(overrides = {}) {
       sourcePendingRequestCount: 1,
       targetPendingRequestCount: 1,
       pendingRequestCountMatches: true,
-      changedNextApprovers: [],
+      changedNextApprovers: [{
+        requestLegacyId: "LEV-0109",
+        oldApproverIds: ["old-approver"],
+        newApproverIds: [],
+      }],
       unresolvedApprovers: [{
         requestLegacyId: "LEV-0109",
         reasonCode: "CURRENT_APPROVAL_POLICY_HAS_NO_REMAINING_STEPS",
@@ -57,6 +61,15 @@ describe("approved rehearsal dispositions", () => {
     expect(result.pendingDispositions).toEqual([
       expect.objectContaining({ id: "LEV-0109_REQUIRES_HR_CLOSE_OUT", actualCount: 1, matched: true }),
     ]);
+    expect(result.changedNextApproverDispositions).toEqual([
+      expect.objectContaining({
+        id: "LEV-0109_CHANGED_NEXT_APPROVER_REQUIRES_HR_CLOSE_OUT",
+        actualCount: 1,
+        matched: true,
+      }),
+    ]);
+    expect(result.hardGates.changedNextApprovers).toBe(1);
+    expect(result.hardGates.unapprovedChangedNextApproverCount).toBe(0);
   });
 
   it("fails when an approved exception count changes or an unexpected skip appears", () => {
@@ -104,5 +117,33 @@ describe("approved rehearsal dispositions", () => {
     expect(result.passed).toBe(false);
     expect(result.hardGates.ambiguousWrites).toBe(1);
     expect(result.hardGates.pendingRequestCountMatches).toBe(false);
+  });
+
+  it("fails for another changed approver or a duplicate LEV-0109 change", () => {
+    const unexpectedRequest = evaluateRehearsalDispositions(validInput({
+      pendingApprovalHandoff: {
+        ...validInput().pendingApprovalHandoff,
+        changedNextApprovers: [{ requestLegacyId: "LEV-0110" }],
+      },
+    }));
+    expect(unexpectedRequest.passed).toBe(false);
+    expect(unexpectedRequest.hardGates.unapprovedChangedNextApproverCount).toBe(1);
+
+    const duplicateApprovedRequest = evaluateRehearsalDispositions(validInput({
+      pendingApprovalHandoff: {
+        ...validInput().pendingApprovalHandoff,
+        changedNextApprovers: [
+          { requestLegacyId: "LEV-0109" },
+          { requestLegacyId: "LEV-0109" },
+        ],
+      },
+    }));
+    expect(duplicateApprovedRequest.passed).toBe(false);
+    expect(duplicateApprovedRequest.hardGates.unapprovedChangedNextApproverCount).toBe(0);
+    expect(duplicateApprovedRequest.changedNextApproverDispositions[0]).toMatchObject({
+      actualCount: 2,
+      expectedCount: 1,
+      matched: false,
+    });
   });
 });

@@ -12,11 +12,29 @@ Last Updated: 2026-10-26 Asia/Bangkok
 - Employee NAV destinations (Dashboard, Calendar, five Request pages, Inbox, Profile, Announcements) rendered; direct URLs for Approvals, Reports, and RBAC were denied as expected. Manager's five Reports, five Request destinations, four approval categories, Delegation, Onboarding, Calendar, and ten visible HR Settings destinations rendered; RBAC and approval-policy direct URLs were denied as expected. SuperAdmin's five report routes, Leave/OT/Time Correction/Medical/Attendance requests, four approval categories, Delegation, Onboarding, Calendar, all 12 visible HR Settings destinations, announcement management, and Platform Settings rendered. Its direct URLs for approval policies and RBAC rendered as allowed. The SuperAdmin HR settings routes specifically rechecked on 2026-10-26 included entitlements, work calendar/workdays, attendance policy, announcements, and Platform Settings.
 - At emulated 390 px width, Employee Leave/request menu, Manager dashboard/approval/HR flyouts and checked HR pages, plus SuperAdmin dashboard/full HR flyout/RBAC and Platform Settings were checked. No checked document overflowed horizontally; Platform Settings measured `innerWidth=390`, `scrollWidth=386`. The temporary viewport override was reset and the in-app Browser was returned to authenticated SuperAdmin Dashboard.
 - The authenticated Leave and role/NAV/direct-URL/responsive gate is **PASS** for its navigation/render scope. Adjacent non-Leave forms were not submitted; this does not claim full business-transaction coverage for those modules. No app regression was observed.
-- Production remains **NO-GO**. No current proof yet for dedicated Production provisioning, data import/reconciliation, backup/recovery, monitoring, rollback drill, or source-of-truth switch. A named Owner approval is required for any Production action.
+- Production remains **NO-GO**. Local source review found code-level isolation/cutover guards but no current evidence for Production provisioning, real data import/reconciliation, backup/restore, monitoring/alerting, or rollback drill. Initial data authority is awaiting the Owner decision. A named Owner approval remains required for any Production action.
+
+## Production readiness assessment — Local source only
+
+| Gate | Local evidence | Status |
+| --- | --- | --- |
+| Runtime isolation | Production runtime code checks a dedicated PostgreSQL DB name, R2 bucket and required environment variables. Actual service/database/bucket provisioning was not checked. | Code guard present; deployment NOT VERIFIED |
+| Data authority | Routing defaults to LEGACY; Production permits a single paired READ/WRITE NEW module only with an explicit cutover module. Owner has not selected the initial authority boundary. | Code invariant present; decision pending |
+| Migration/reconciliation | Domain migration and cutover evidence builders enforce import coverage, reconciliation and runtime checks. No real Production dataset/run evidence was found in current Local docs. | NOT VERIFIED |
+| Attachments | Leave/Medical migration code documents legacy-drive references pending R2 copy, checksum and authorization reconciliation. No completed attachment reconciliation evidence was found. | NOT VERIFIED |
+| Backup/restore | M8 rehearsal code is constrained to `ckace_hr_dev`, and uses clone/fingerprint comparison with synthetic rows. Tests cover guard behavior; no rehearsal result or provider backup/restore evidence was found. | NOT VERIFIED |
+| Health/monitoring | `/health` returns stage/revision metadata; `/ready` checks the database. No alerting, SLO, or operational monitoring evidence was found in local deployment files. | Probe code present; operations NOT VERIFIED |
+| Release/rollback | Current Cloud Build release definition deploys TEST and includes TEST traffic rollback. `firebase.prod.json` defines Production routes, but no Production release/rollback proof is available in the checkout. External trigger configuration was not inspected. | NOT VERIFIED |
+| Production approval | This task is read-only; no Production action was approved or performed. | NO-GO |
+
+Production gate assessment:
+- Read-only review completed on 2026-10-26. No Production services, databases, credentials, cloud configuration, or external Project A sources were queried.
+- `AGENTS.md`, `README.md`, `docs/ARCHITECTURE.md`, and `docs/codex/DECISION_LOG.md` still cite TESTm67/m67; current Owner direction and this m74 continuity are authoritative for this task. The stale references remain unchanged.
+- The material Owner decision is whether the first Production release keeps all module authority on LEGACY or moves only Leave to NEW. The next active task records both choices and their consequences.
 
 ## Unified application source and authenticated TEST gate
 
-- The Owner approved publication of the verified integration to `source/main` and then separately instructed `Build`. TESTm74 authenticated functional gate `TESTM74-REGRESSION-01` is now verified; the next active TASK is `PROD-READINESS-01` in `docs/codex/ACTIVE_TASK.md`.
+- The Owner approved publication of the verified integration to `source/main` and then separately instructed `Build`. TESTm74 authenticated functional gate `TESTM74-REGRESSION-01` and Local-only assessment `PROD-READINESS-01` are complete; active task `PROD-READINESS-02` awaits the Owner data-authority decision.
 - `source/main` at `04c3d54` and TESTm73 branch at `095e6bd` diverged. Main-only app/package/infra history is cleanup commit `bdb13a0`; it removes obsolete TEST/UAT controllers and legacy artifacts. TESTm73 carries newer Leave/NAV/functionality.
 - The isolated worktree `D:\CKACE_HR\.worktrees\main-integration` produced merge commit `1322ed4`, which is published on `source/main`. Five Web and three continuity-file conflicts were resolved; TESTm73 page implementations and main-only removal of obsolete TEST/UAT controllers were retained. Continuity uses the current active-only format.
 - Unused `apps/web/public/react-read/**` preview assets and dated `docs/HANDOFF_20261021.md` were excluded from the application candidate; originals remain recoverable in the TESTm73 branch/Git history. The protected current design artifact is unchanged.
@@ -27,7 +45,7 @@ Last Updated: 2026-10-26 Asia/Bangkok
 
 ## Immediate next action
 
-Perform a read-only Production readiness gap assessment from Local source, migrations, deployment configuration, and current documentation. Identify missing evidence and material Owner decisions before proposing any Production action. Production remains NO-GO; do not access or modify Production.
+Wait for the Owner to select the initial Production data-authority boundary in `docs/codex/ACTIVE_TASK.md`. Then define the evidence/acceptance plan for that choice. Production remains NO-GO; no Production access or change is authorized.
 
 ## Safety rules
 

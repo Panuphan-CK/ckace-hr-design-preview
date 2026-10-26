@@ -28,6 +28,18 @@ function entry(content: Buffer, overrides: Partial<LegacyAttachmentCopyManifestE
   };
 }
 
+function autoEntry(content: Buffer, overrides: Partial<LegacyAttachmentCopyManifestEntry> = {}): LegacyAttachmentCopyManifestEntry {
+  const explicit = entry(content);
+  return {
+    sourceAttachmentId: explicit.sourceAttachmentId,
+    targetAttachmentId: explicit.targetAttachmentId,
+    storageKey: explicit.storageKey,
+    privacyClass: explicit.privacyClass,
+    mimeType: explicit.mimeType,
+    ...overrides,
+  };
+}
+
 async function localSource(content: Buffer): Promise<{ root: string; file: string }> {
   const root = await mkdtemp(path.join(os.tmpdir(), "ckace-attachment-copy-"));
   const folder = path.join(root, "nested");
@@ -98,6 +110,50 @@ describe("local legacy attachment copy", () => {
       }));
       expect(store.inspectObject).toHaveBeenCalledWith(`attachments/v1/${TARGET_ID}/${VERSION_ID}`);
       expect(fetcher).toHaveBeenCalledTimes(1);
+    } finally {
+      await rm(source.root, { recursive: true, force: true });
+    }
+  });
+
+  it("matches a downloaded Drive folder by sheet filename or FileID and computes SHA-256", async () => {
+    const content = Buffer.from("matched from sanitized sheet metadata");
+    const source = await localSource(content);
+    try {
+      const byFilename = await planLegacyAttachmentCopy({
+        sourceDirectory: source.root,
+        entries: [autoEntry(content, { originalFilename: "receipt.pdf" })],
+      });
+      expect(byFilename[0]?.localPath).toBe(source.file);
+      expect(byFilename[0]?.sha256).toBe(createHash("sha256").update(content).digest("hex"));
+
+      const idNamedFile = path.join(source.root, "nested", "FILE-001.pdf");
+      await writeFile(idNamedFile, content);
+      const byFileId = await planLegacyAttachmentCopy({
+        sourceDirectory: source.root,
+        entries: [autoEntry(content)],
+      });
+      expect(byFileId[0]?.localPath).toBe(idNamedFile);
+    } finally {
+      await rm(source.root, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects missing or ambiguous filename matches instead of guessing", async () => {
+    const content = Buffer.from("ambiguous attachment");
+    const source = await localSource(content);
+    try {
+      await expect(planLegacyAttachmentCopy({
+        sourceDirectory: source.root,
+        entries: [autoEntry(content, { originalFilename: "not-present.pdf" })],
+      })).rejects.toThrow(/No local file matches/);
+
+      const duplicate = path.join(source.root, "another", "receipt.pdf");
+      await mkdir(path.dirname(duplicate));
+      await writeFile(duplicate, content);
+      await expect(planLegacyAttachmentCopy({
+        sourceDirectory: source.root,
+        entries: [autoEntry(content, { originalFilename: "receipt.pdf" })],
+      })).rejects.toThrow(/Multiple local files match/);
     } finally {
       await rm(source.root, { recursive: true, force: true });
     }

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { lstat, readFile, realpath, stat } from "node:fs/promises";
+import { lstat, readFile, readdir, realpath, stat } from "node:fs/promises";
 import path from "node:path";
 
 import { assertPrivateAttachmentStorageKey } from "./object-key";
@@ -20,12 +20,13 @@ const PRIVACY_CLASSES = new Set<AttachmentPrivacyClass>([
 
 export interface LegacyAttachmentCopyManifestEntry {
   readonly sourceAttachmentId: string;
-  readonly relativePath: string;
+  readonly relativePath?: string;
+  readonly originalFilename?: string | null;
   readonly targetAttachmentId: string;
   readonly storageKey: string;
   readonly privacyClass: AttachmentPrivacyClass;
   readonly mimeType: string;
-  readonly expectedSha256: string;
+  readonly expectedSha256?: string;
 }
 
 export interface PlannedLegacyAttachmentCopy {
@@ -94,10 +95,76 @@ function validateManifestEntry(entry: LegacyAttachmentCopyManifestEntry): void {
   if (typeof entry.mimeType !== "string" || !/^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/i.test(entry.mimeType)) {
     throw new Error("Attachment MIME type is invalid");
   }
-  if (typeof entry.expectedSha256 !== "string" || !SHA256_PATTERN.test(entry.expectedSha256)) {
+  if (entry.expectedSha256 != null && (typeof entry.expectedSha256 !== "string" || !SHA256_PATTERN.test(entry.expectedSha256))) {
     throw new Error("Expected SHA-256 must contain 64 hexadecimal characters");
   }
-  validateRelativePath(entry.relativePath);
+  if (entry.relativePath !== undefined) validateRelativePath(entry.relativePath);
+  if (entry.originalFilename != null) {
+    if (
+      typeof entry.originalFilename !== "string" ||
+      !entry.originalFilename.trim() ||
+      entry.originalFilename !== path.basename(entry.originalFilename) ||
+      entry.originalFilename.includes("/") ||
+      entry.originalFilename.includes("\\")
+    ) {
+      throw new Error("Original attachment filename must be a basename");
+    }
+  }
+  if (entry.relativePath === undefined && !entry.originalFilename?.trim() && !entry.sourceAttachmentId.trim()) {
+    throw new Error("Attachment matching requires a FileID, filename, or explicit relativePath");
+  }
+}
+
+interface LocalAttachmentFile {
+  readonly relativePath: string;
+  readonly fileName: string;
+}
+
+async function listLocalFiles(root: string): Promise<readonly LocalAttachmentFile[]> {
+  const files: LocalAttachmentFile[] = [];
+  async function visit(directory: string): Promise<void> {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const absolutePath = path.join(directory, entry.name);
+      const info = await lstat(absolutePath);
+      if (info.isSymbolicLink()) throw new Error("Attachment source tree must not contain symbolic links");
+      if (info.isDirectory()) {
+        await visit(absolutePath);
+      } else if (info.isFile()) {
+        files.push({
+          relativePath: path.relative(root, absolutePath).split(path.sep).join("/"),
+          fileName: entry.name,
+        });
+      } else {
+        throw new Error("Attachment source tree contains a non-regular file");
+      }
+    }
+  }
+  await visit(root);
+  return files;
+}
+
+function normalizedFilename(value: string): string {
+  return value.normalize("NFC").toLocaleLowerCase("en-US");
+}
+
+function resolveAttachmentRelativePath(
+  entry: LegacyAttachmentCopyManifestEntry,
+  files: readonly LocalAttachmentFile[],
+): string[] {
+  if (entry.relativePath !== undefined) return validateRelativePath(entry.relativePath);
+
+  let matches: readonly LocalAttachmentFile[] = [];
+  if (entry.originalFilename?.trim()) {
+    const filename = normalizedFilename(entry.originalFilename.trim());
+    matches = files.filter((file) => normalizedFilename(file.fileName) === filename);
+  }
+  if (matches.length === 0) {
+    const sourceId = normalizedFilename(entry.sourceAttachmentId.trim());
+    matches = files.filter((file) => normalizedFilename(path.parse(file.fileName).name) === sourceId);
+  }
+  if (matches.length === 0) throw new Error(`No local file matches source attachment ID ${entry.sourceAttachmentId}`);
+  if (matches.length > 1) throw new Error(`Multiple local files match source attachment ID ${entry.sourceAttachmentId}`);
+  return validateRelativePath(matches[0]!.relativePath);
 }
 
 export async function planLegacyAttachmentCopy(input: {
@@ -111,6 +178,7 @@ export async function planLegacyAttachmentCopy(input: {
   const rootInfo = await stat(sourceRoot);
   if (!rootInfo.isDirectory()) throw new Error("Attachment source path must be a directory");
   const realRoot = await realpath(sourceRoot);
+  const localFiles = await listLocalFiles(realRoot);
   const sourceIds = new Set<string>();
   const targetIds = new Set<string>();
   const storageKeys = new Set<string>();
@@ -125,7 +193,7 @@ export async function planLegacyAttachmentCopy(input: {
     targetIds.add(entry.targetAttachmentId);
     storageKeys.add(entry.storageKey);
 
-    const localPath = path.resolve(realRoot, ...validateRelativePath(entry.relativePath));
+    const localPath = path.resolve(realRoot, ...resolveAttachmentRelativePath(entry, localFiles));
     if (!isWithinDirectory(realRoot, localPath)) throw new Error("Attachment path escapes its source directory");
     const linkInfo = await lstat(localPath);
     if (linkInfo.isSymbolicLink() || !linkInfo.isFile()) throw new Error("Attachment source must be a regular non-symlink file");
@@ -133,7 +201,7 @@ export async function planLegacyAttachmentCopy(input: {
     if (!isWithinDirectory(realRoot, realFile)) throw new Error("Attachment file resolves outside its source directory");
     const info = await stat(realFile);
     const sha256 = await sha256File(realFile);
-    if (sha256.toLowerCase() !== entry.expectedSha256.toLowerCase()) {
+    if (entry.expectedSha256 && sha256.toLowerCase() !== entry.expectedSha256.toLowerCase()) {
       throw new Error(`Attachment SHA-256 mismatch for source ID ${entry.sourceAttachmentId}`);
     }
     if (!Number.isSafeInteger(info.size) || info.size < 0) throw new Error("Attachment size is invalid");

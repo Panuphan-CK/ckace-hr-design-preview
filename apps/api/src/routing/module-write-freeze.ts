@@ -7,7 +7,10 @@ export function assertModuleWriteAllowed(
 ): void {
   const route = request.moduleRouting;
 
-  if (route?.access === "WRITE" && request.systemReadOnly) {
+  const isMutationMethod = ["POST", "PUT", "PATCH", "DELETE"].includes(
+    request.method?.toUpperCase() ?? "",
+  );
+  if (request.systemReadOnly && isMutationMethod) {
     throw new ServiceUnavailableException({
       code: "SYSTEM_READ_ONLY",
       retryable: false,

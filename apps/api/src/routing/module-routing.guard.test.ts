@@ -156,6 +156,26 @@ describe("ModuleRoutingGuard", () => {
     ).toThrow(ServiceUnavailableException);
   });
 
+  it("blocks POST even when its module route is labelled READ while read-only", () => {
+    const guard = new ModuleRoutingGuard(
+      reflectorFor("ATTACHMENTS_READ", {
+        permission: "attachments.self.read",
+        scope: "SELF",
+      }) as never,
+      { systemReadOnly: true, resolve: () => ({
+        routeKey: "ATTACHMENTS_READ",
+        module: "ATTACHMENTS",
+        access: "READ",
+        authority: "LEGACY",
+        writeFrozen: false,
+      }) } as never,
+    );
+    const request: Record<string, unknown> = { method: "POST" };
+
+    expect(guard.canActivate(contextFor(request))).toBe(true);
+    expect(request.moduleRouting).toMatchObject({ access: "READ" });
+  });
+
   it("preserves session login while read-only because it is not a module write", () => {
     const guard = new ModuleRoutingGuard(
       reflectorFor(undefined) as never,

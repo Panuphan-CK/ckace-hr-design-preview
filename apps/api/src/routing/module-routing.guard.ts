@@ -47,7 +47,7 @@ export class ModuleRoutingGuard implements CanActivate {
       if (
         systemReadOnly &&
         isMutationMethod(request.method) &&
-        !isSessionOperation(context)
+        !isAllowedAuthenticationOperation(context)
       ) {
         throw new ServiceUnavailableException({
           code: "SYSTEM_READ_ONLY",
@@ -89,13 +89,13 @@ function isMutationMethod(method: string | undefined): boolean {
   );
 }
 
-/** Authentication/session endpoints do not mutate HR business data. */
-function isSessionOperation(context: ExecutionContext): boolean {
+/** Authentication endpoints explicitly allowed during the business write freeze. */
+function isAllowedAuthenticationOperation(context: ExecutionContext): boolean {
   const controllerName = context.getClass().name;
   const handlerName = context.getHandler().name;
   return (
     controllerName === "DesktopAuthController" &&
-    ["login", "lineLogin", "logout", "requireSession"].includes(
+    ["login", "lineLogin", "logout"].includes(
       handlerName,
     )
   );

@@ -270,6 +270,7 @@ describe("AuthorizationGuard", () => {
           { permission: "medical.self.write", scope: "SELF" },
           {
             actor: writer,
+            method: "POST",
             systemReadOnly: true,
             moduleRouting: {
               routeKey: "MEDICAL_WRITE",

@@ -25,7 +25,7 @@ Current verified TEST baseline: TESTm74, built from unified source/main commit 1
 
 The target plan migrates all employee-facing modules from GAS to CKACE HR together so employees use one system. The earlier Leave-only Option 2 is superseded. Leave entitlements are calculated from CKACE HR tenure rules; GAS quota is reconciliation evidence only.
 
-This is a planning decision, not Production approval. Current per-module route state is not a universal data dispatcher, and current Production validation rejects more than one module pair set to NEW. Implement and prove one fail-closed LEGACY/FROZEN/NEW system mode and all-path coverage before a full-system rehearsal/cutover. See HANDOFF.md for XLSX inventory, model map, acceptance plan, and Owner inputs.
+This is a planning decision, not Production approval. The selected cutover has no per-module LEGACY/FROZEN/NEW dispatcher and no period of concurrent GAS/CKACE writes. Production routing validation accepts all route keys = `LEGACY` before the cutover or all route keys = `NEW` after it; mixed authority fails at startup. `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` freezes user/job writes during preparation and import; `ACTIVE` is used at opening together with the official employee-link/LIFF switch. TEST defaults remain unchanged. After the point of no return, fix-forward is preferred; a forced GAS fallback freezes CKACE, exports changes since the marker, and requires HR manual re-entry and 100% reconciliation before GAS writes resume. Reverse replay is not planned. See `docs/migration/CUTOVER_RUNBOOK.md` and `POST_CUTOVER_EXPORT.md` for the approved plan; each Production action still needs separate Owner approval.
 ## Boundaries
 
 Web and LIFF are clients, not authorization authorities.

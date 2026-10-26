@@ -60,18 +60,19 @@ This result does not authorize Production actions. It does not change the full-s
 
 ## Implementation implications
 
-- Current module contracts expose 26 route keys across 13 modules. Current Production validation permits exactly one module pair to be NEW and rejects a multi-module full-system route state.
-- CKACE_MODULE_ROUTING_STATE and ModuleRoutingGuard currently provide per-route authority context. The context is not a universal legacy/new data dispatcher: standard controllers/services can call the new database directly.
-- CKACE_MODULE_WRITE_FREEZE is a per-module API write guard; coverage of every mutation, worker, notification, and external GAS trigger is not yet proven as a system-wide stop switch.
-- `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` is now implemented as a fail-closed system-wide API write freeze; unset/ACTIVE preserves current TEST behavior, and the explicit migration job may write only to a loopback `ckace_hr_dev` database. This is not the full LEGACY/FROZEN/NEW read/write authority dispatcher.
-- The full-system authority mode, stable employee entry point, external GAS ingress freeze, and reverse-replay rollback still need design and proof. Module route metadata alone is insufficient.
-- A rollback must freeze NEW writes and side-effect workers, capture and reverse-reconcile every post-cutover change, and only then restore LEGACY. A config flip alone can lose writes. Reverse import/replay is not implemented or proven.
+- Current module contracts expose 26 route keys across 13 modules. Production startup accepts all routes as `LEGACY` or all as `NEW`; any mixed state fails. The old single-value `CKACE_MODULE_ROUTING` runtime field has been removed so health/Admin report the actual route-state summary.
+- Owner decision PROD-READINESS-08 (2026-10-26) replaces the earlier dispatcher/reverse-replay design: do not build a per-module LEGACY/FROZEN/NEW dispatcher, do not accept concurrent GAS/CKACE writes, and do not reverse-replay data into GAS.
+- Use `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` while preparing/importing, then `ACTIVE` at opening, together with one switch of employee links/LIFF/rich menu. There is no Production parallel run. TEST defaults remain unchanged.
+- The point of no return is the first change of an official employee entry link to CKACE HR. Before it, return links to GAS and unfreeze GAS after verifying CKACE accepted **0** employee writes. After it, fix-forward is preferred. If forced to GAS, freeze CKACE, export post-marker changes, have HR manually re-enter all items, reconcile **100%**, then resume GAS writes. Keep R2 objects for attachment recovery; the JSON exporter contains metadata, not file bytes.
+- `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` is a fail-closed system-wide API write freeze; unset/ACTIVE preserves TEST behavior. Migration data writes remain guarded to a local loopback `ckace_hr_dev`. The new post-cutover export has a separate `READ_ONLY` transaction guard and requires `CKACE_PROD_EXPORT_CONFIRM=YES` for `ckace_hr_prod`; this flag is not Owner approval and the tool has not been run against Production.
 
 ## Data and safety boundaries
 
 - Use an Owner-exported, privacy-scrubbed XLSX snapshot for DEV/TEST rehearsal. Do not create a live Sheets/Drive reader for this plan.
-- A new offline XLSX import path and Prisma target store now exist in `packages/migration/src/`; a DB-backed rehearsal has not run because no disposable local database is configured. The prior TEST workbook/run provenance remains unverified. infra/cloudbuild/test-release.yaml invokes ckace-hr-migrate-test, but its command is configured outside the repository and no local evidence proves it performed the earlier XLSX import.
-- The supplied sanitized snapshot passed an in-memory row-accounting run: 5,269 rows, 0 unaccounted, 0 ambiguous writes. Two rows sharing an attendance `LogID` were both rejected pending source reconciliation. The run does not prove DB writes or target-policy routing.
+- The reviewer reported rehearsal revision `fb0e444`: 5,234 imported, 35 skipped, 0 rejected; every configured disposition matched and `unapprovedOutcomeCount=0`. The runner still exited 2 because `changedNextApprovers=1` for the already Owner-approved LEV-0109 HR exception. The code fix in this work permits only exactly one changed-next-approver row for LEV-0109; the reviewer must rerun to verify it.
+- Reviewer-reported full-dump reset was 0.83 seconds and full-data backup was 0.30 seconds. This is reviewer-provided DEV evidence; Codex did not connect to the temporary database in this task.
+- The prior in-memory run row accounting and the PostgreSQL rehearsal are distinct evidence. The reviewer run from `a793020` imported 5,234, skipped 35, rejected 0, and reported no ambiguous writes; two cross-employee `LOG-001112` rows were imported by the Owner-approved disposition.
+- `docs/migration/RUN_REHEARSAL.md` remains the reviewer entry point for sanitized XLSX import, pending reconciliation, and timed backup/restore/reset. The new `docs/migration/POST_CUTOVER_EXPORT.md` describes a guarded manual recovery export; no live DB operation was performed here.
 - For request IDs duplicated between the current and 2025 tabs, the importer matches approval history only when exactly one candidate request date shares the approval assignment year; otherwise it records a period ambiguity instead of choosing a row.
 - `docs/migration/RUN_REHEARSAL.md` is the reviewer-run entry point for the disposable local DB import, Pending reconciliation, and timed backup/restore/reset. The supplied manifest redacts file URLs and contains no attachment bytes; notification/LINE history and chat are excluded.
 - No live GAS/Sheets/Drive data, Project A repository, Production system, cloud command, deployment, credential, secret, or IAM setting was accessed or changed during this planning task.
@@ -81,3 +82,18 @@ This result does not authorize Production actions. It does not change the full-s
 ## Separate Production approvals
 
 Every future Production action needs separate explicit Owner approval, including live source export/read, production database or bucket creation, credentials/Secret Manager/IAM, migration/data mutation, system routing, deploy/traffic, DNS/Firebase, LINE/LIFF, employee notification, and rollback.
+
+## Owner decision PROD-READINESS-08 — atomic full-system opening and manual fallback (2026-10-26)
+
+This decision supersedes the earlier PROD-READINESS-08 idea of a per-module dispatcher and reverse replay:
+
+- Keep GAS and CKACE HR from accepting writes at the same time. No Production parallel run is planned.
+- Keep `CKACE_SYSTEM_WRITE_MODE=READ_ONLY` during preparation/import; switch all module routes to `NEW`, change official employee entry links, record the cutover marker, then set the system write mode to `ACTIVE` for opening. Mixed route state must fail startup. No module-by-module authority dispatcher is required.
+- The first official employee-link change is the point of no return. Before it, the Owner may return links to GAS and unfreeze GAS after verifying CKACE accepted zero employee writes.
+- After it, fix-forward is preferred. If the Owner chooses a GAS fallback, set CKACE to `READ_ONLY`, export all post-marker module changes, have HR re-enter them manually, and reconcile 100% before enabling GAS writes. Do not reverse-replay into GAS.
+- Hypercare lasts the first three business days and follows the daily gates in `docs/migration/CUTOVER_RUNBOOK.md`.
+- Production export uses a separate guard: READ_ONLY PostgreSQL transaction, `ckace_hr_prod` attestation, and `CKACE_PROD_EXPORT_CONFIRM=YES`. This task did not run or access Production. Each future run still needs separate Owner approval.
+
+## Reviewer finding PROD-READINESS-07 — changed next approver (2026-10-26)
+
+The reviewer reported `fb0e444` returned exit 2 only because `changedNextApprovers=1` for LEV-0109, whose no-remaining-step HR exception is already Owner-approved. This work allows exactly one LEV-0109 changed-next-approver row, and keeps any other ID, duplicate LEV-0109 row, changed count, or other hard-gate failure blocking. Reviewer rerun remains required; the DB rehearsal was not repeated by Codex.

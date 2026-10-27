@@ -20,8 +20,9 @@ import {
   shouldDiscardSubmissionIntent,
   type SubmissionIntent,
 } from "../submission-intent";
-import { DateField, DatePicker } from "../ui/date-picker";
-import { addHours, isoToDmy, thaiDateRange, thaiDateTime } from "../ui/format";
+import { DateField, DatePicker, monthGrid } from "../ui/date-picker";
+import { bangkokDateKey } from "../dashboard-view";
+import { addHours, isoToDmy, thaiDate, thaiDateRange, thaiDateTime } from "../ui/format";
 import { Icon, type IconName } from "../ui/icons";
 import { DataGrid, EmptyState, StatusDot, type DotTone } from "../ui/kit";
 import { useConfirm } from "../ui/confirm";
@@ -437,6 +438,16 @@ export default function LeaveDesktopPage() {
   const hasAvailable = overview.entitlements.some((item) => item.remaining > 0);
   const remainingAfter = selected ? Math.max(selected.remaining - estimateDays, 0) : null;
   const detailEntitlement = detail ? overview.entitlements.find((item) => item.leaveTypeKey === detail.leaveTypeKey) : undefined;
+  const todayKey = bangkokDateKey(new Date());
+  const miniYear = Number(todayKey.slice(0, 4));
+  const miniMonth = Number(todayKey.slice(5, 7)) - 1;
+  const nextHoliday = [...overview.holidays].sort().find((date) => date >= todayKey);
+  const balanceGroups: readonly { tone: Tone; label: string; icon: IconName }[] = [
+    { tone: "leave", label: "ลาพักร้อน", icon: "leave" },
+    { tone: "biz", label: "ลากิจ", icon: "biz" },
+    { tone: "sick", label: "ลาป่วย", icon: "sick" },
+    { tone: "gray", label: "ลาพิเศษ", icon: "calendar" },
+  ];
 
   return (
     <>
@@ -446,17 +457,12 @@ export default function LeaveDesktopPage() {
             <Icon name="leave" size={26} />
           </span>
           <div>
-            <h1>การลา</h1>
+            <h1>การลาของฉัน</h1>
             <p>ยื่นใบลาและดูประวัติการลาของคุณ</p>
           </div>
-          <div className="ck-minibal ck-ml">
-            {overview.entitlements.map((item) => (
-              <span key={item.entitlementId} className={"ck-c-" + toneOf(item.leaveTypeKey)}>
-                <i />
-                {leaveTypeDisplayLabel(item.leaveTypeKey, item.leaveTypeName)} <b>{item.remaining}</b>/{item.quota}
-              </span>
-            ))}
-          </div>
+          <a className="ck-btn ck-primary-action ck-ml" href="#leave-form">
+            <Icon name="plus" size={16} /> ยื่นใบลา
+          </a>
         </div>
       </header>
 
@@ -467,7 +473,116 @@ export default function LeaveDesktopPage() {
           </div>
         ) : null}
 
-        <form className="ck-fbox ck-c-leave" onSubmit={submitLeave} noValidate>
+        <section className="ck-leave-balances" aria-label="สิทธิ์ลาคงเหลือ">
+          {balanceGroups.map((group) => {
+            const items = overview.entitlements.filter((item) => toneOf(item.leaveTypeKey) === group.tone);
+            return (
+              <article className={"ck-balance-card ck-c-" + group.tone} key={group.tone}>
+                <div className="ck-balance-heading">
+                  <span className="ck-chip"><Icon name={group.icon} /></span>
+                  <div><h2>{group.label}</h2><small>สิทธิ์ลาคงเหลือ</small></div>
+                </div>
+                {items.length === 0 ? <p className="ck-balance-empty">ไม่มีข้อมูลสิทธิ์</p> : items.map((item) => (
+                  <div className="ck-balance-item" key={item.entitlementId}>
+                    {items.length > 1 ? <span>{leaveTypeDisplayLabel(item.leaveTypeKey, item.leaveTypeName)}</span> : null}
+                    <span className="ck-balance-quota">สิทธิ์ {item.quota} วัน</span>
+                    <strong>{item.remaining} <small>วัน</small></strong>
+                    {item.quota > 0 ? <div className="ck-balance-progress" role="progressbar" aria-label={leaveTypeDisplayLabel(item.leaveTypeKey, item.leaveTypeName) + " คงเหลือ"} aria-valuemin={0} aria-valuemax={item.quota} aria-valuenow={Math.max(0, Math.min(item.quota, item.remaining))}><span style={{ width: Math.max(0, Math.min(100, item.remaining / item.quota * 100)) + "%" }} /></div> : null}
+                  </div>
+                ))}
+              </article>
+            );
+          })}
+        </section>
+
+
+
+        <div className="ck-leave-columns">
+        <section className="ck-panel ck-c-leave" aria-labelledby="leave-history">
+          <div className="ck-sh">
+            <h2 id="leave-history">ประวัติการลา</h2>
+            <span className="ck-count">{requests.length}</span>
+            <div className="ck-filters ck-ml" role="tablist">
+              {FILTERS.map((item) => (
+                <button key={item.id} type="button" role="tab" aria-selected={filter === item.id} className={filter === item.id ? "on" : ""} onClick={() => setFilter(item.id)}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="ck-hist">
+            <DataGrid
+              rows={filtered}
+              rowKey={(request) => request.requestId}
+              onRowClick={setDetail}
+              empty={
+                <EmptyState icon="leave" title={requests.length === 0 ? "ยังไม่มีประวัติการลา" : "ไม่มีคำขอในสถานะนี้"}>
+                  ใบลาที่ยื่นแล้วจะแสดงที่นี่
+                </EmptyState>
+              }
+              columns={[
+                {
+                  key: "type",
+                  header: "ประเภท",
+                  render: (request) => {
+                    const tone = toneOf(request.leaveTypeKey);
+                    return (
+                      <span className={"ck-gkind ck-c-" + tone}>
+                        <span className="ck-chip">
+                          <Icon name={TONE_ICON[tone]} size={16} />
+                        </span>
+                        <span className="ck-gcell">
+                          <b>{leaveTypeDisplayLabel(request.leaveTypeKey, request.leaveTypeName)}</b>
+                          <small>ยื่น {thaiDateTime(request.submittedAt)}</small>
+                        </span>
+                      </span>
+                    );
+                  },
+                },
+                { key: "date", header: "วันที่ลา", render: (request) => thaiDateRange(request.startDate, request.endDate) },
+                {
+                  key: "amount",
+                  header: "จำนวน",
+                  render: (request) => (
+                    <span className="ck-gcell">
+                      <b>{amountLabel(request)}</b>
+                      <small>{LEAVE_DURATION_LABELS[request.durationCode]}</small>
+                    </span>
+                  ),
+                },
+                { key: "reason", header: "เหตุผล", render: (request) => <span className="ck-gcell"><small>{request.description || "—"}</small></span> },
+                {
+                  key: "status",
+                  header: "สถานะ",
+                  align: "center",
+                  width: "80px",
+                  render: (request) => <StatusDot tone={STATUS_TONE[request.status] as DotTone} label={LEAVE_REQUEST_STATUS_LABELS[request.status]} />,
+                },
+              ]}
+            />
+          </div>
+        </section>
+        <aside className="ck-leave-aside" aria-label="ข้อมูลประกอบการลา">
+          <section className="ck-panel">
+            <h2>ปฏิทินการลา</h2>
+            <p>{new Intl.DateTimeFormat("th-TH", { month: "long", year: "numeric", timeZone: "Asia/Bangkok" }).format(new Date())}</p>
+            <div className="ck-mini-calendar" role="group" aria-label="ปฏิทินการลาเดือนนี้">
+              {["จ", "อ", "พ", "พฤ", "ศ", "ส", "อา"].map((day) => <b key={day}>{day}</b>)}
+              {monthGrid(miniYear, miniMonth).map((day, index) => day ? (
+                <span role="img" key={day} className={bookedDays.has(day) ? "booked" : holidaySet.has(day) ? "holiday" : ""} aria-label={thaiDate(day) + (bookedDays.has(day) ? " มีใบลา" : holidaySet.has(day) ? " วันหยุด" : "")}>{Number(day.slice(-2))}</span>
+              ) : <span key={"blank-" + index} aria-hidden="true" />)}
+            </div>
+            <small>สีฟ้า: มีใบลา · สีแดง: วันหยุด</small>
+          </section>
+          <section className="ck-panel"><h2>ผู้อนุมัติของฉัน</h2>
+            {approvalOptions.length ? approvalOptions.map((step) => <p key={step.stepOrder}>ขั้น {step.stepOrder}: {step.candidates.length ? step.candidates.map((person) => person.displayName).join(", ") : "ไม่มีข้อมูลผู้อนุมัติ"}</p>) : <p>ยังไม่มีข้อมูลผู้อนุมัติ</p>}
+          </section>
+          <section className="ck-panel"><h2>ระเบียบการลา</h2><p>ยังไม่มีข้อมูลระเบียบการลา</p></section>
+          <section className="ck-panel"><h2>วันหยุดถัดไป</h2><p>{nextHoliday ? thaiDate(nextHoliday) : "ไม่มีข้อมูลวันหยุดถัดไป"}</p></section>
+        </aside>
+        </div>
+
+        <form id="leave-form" className="ck-fbox ck-c-leave" onSubmit={submitLeave} noValidate>
           <div className="ck-sh">
             <h2>ยื่นใบลา</h2>
             <span className="ck-hint">หัวหน้าได้รับแจ้งทันที</span>
@@ -680,71 +795,6 @@ export default function LeaveDesktopPage() {
             </button>
           </div>
         </form>
-
-        <section className="ck-panel ck-c-leave" aria-labelledby="leave-history">
-          <div className="ck-sh">
-            <h2 id="leave-history">ประวัติการลา</h2>
-            <span className="ck-count">{requests.length}</span>
-            <div className="ck-filters ck-ml" role="tablist">
-              {FILTERS.map((item) => (
-                <button key={item.id} type="button" role="tab" aria-selected={filter === item.id} className={filter === item.id ? "on" : ""} onClick={() => setFilter(item.id)}>
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="ck-hist">
-            <DataGrid
-              rows={filtered}
-              rowKey={(request) => request.requestId}
-              onRowClick={setDetail}
-              empty={
-                <EmptyState icon="leave" title={requests.length === 0 ? "ยังไม่มีประวัติการลา" : "ไม่มีคำขอในสถานะนี้"}>
-                  ใบลาที่ยื่นแล้วจะแสดงที่นี่
-                </EmptyState>
-              }
-              columns={[
-                {
-                  key: "type",
-                  header: "ประเภท",
-                  render: (request) => {
-                    const tone = toneOf(request.leaveTypeKey);
-                    return (
-                      <span className={"ck-gkind ck-c-" + tone}>
-                        <span className="ck-chip">
-                          <Icon name={TONE_ICON[tone]} size={16} />
-                        </span>
-                        <span className="ck-gcell">
-                          <b>{leaveTypeDisplayLabel(request.leaveTypeKey, request.leaveTypeName)}</b>
-                          <small>ยื่น {thaiDateTime(request.submittedAt)}</small>
-                        </span>
-                      </span>
-                    );
-                  },
-                },
-                { key: "date", header: "วันที่ลา", render: (request) => thaiDateRange(request.startDate, request.endDate) },
-                {
-                  key: "amount",
-                  header: "จำนวน",
-                  render: (request) => (
-                    <span className="ck-gcell">
-                      <b>{amountLabel(request)}</b>
-                      <small>{LEAVE_DURATION_LABELS[request.durationCode]}</small>
-                    </span>
-                  ),
-                },
-                { key: "reason", header: "เหตุผล", render: (request) => <span className="ck-gcell"><small>{request.description || "—"}</small></span> },
-                {
-                  key: "status",
-                  header: "สถานะ",
-                  align: "center",
-                  width: "80px",
-                  render: (request) => <StatusDot tone={STATUS_TONE[request.status] as DotTone} label={LEAVE_REQUEST_STATUS_LABELS[request.status]} />,
-                },
-              ]}
-            />
-          </div>
-        </section>
       </div>
 
       {detail ? (

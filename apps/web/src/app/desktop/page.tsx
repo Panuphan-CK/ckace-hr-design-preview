@@ -72,7 +72,7 @@ function Ring({ remaining, quota }: { readonly remaining: number; readonly quota
   return (
     <span className="ck-ring-svg" aria-hidden="true">
       <svg viewBox="0 0 76 76" width="76" height="76">
-        <circle cx="38" cy="38" r={radius} fill="none" stroke="#eef0f3" strokeWidth="8" />
+        <circle cx="38" cy="38" r={radius} fill="none" stroke="var(--ck-line2)" strokeWidth="8" />
         <circle
           cx="38"
           cy="38"

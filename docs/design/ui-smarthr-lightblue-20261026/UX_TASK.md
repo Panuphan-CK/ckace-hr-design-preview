@@ -2,7 +2,7 @@
 
 Updated: 2026-10-27 Asia/Bangkok
 
-Status: IMPLEMENTED — scoped web checks pass; the approved preview deployment remains.
+Status: PARTIAL — implementation and scoped checks pass; preview deployment was stopped because it requires API routing outside this task scope.
 
 ## Scope and boundaries
 
@@ -37,16 +37,18 @@ No new navigation actions or metrics were added. Existing loading, empty, error,
 - Login, registration and password-reset visual styles.
 - This visual specification and progress record.
 
-No logic files changed. The temporary local API rewrite and preview tooling are not part of the deliverable and must be removed before staging.
+No logic files changed. The temporary local API rewrite, mock server, logs, and lint tooling were removed before staging.
 
 ## Verification and preview
 
 - Scoped apps/web lint: PASS (ESLint, zero warnings).
 - Scoped apps/web typecheck: PASS (`tsc --noEmit`).
 - Scoped apps/web Vitest: PASS (22 files / 103 tests). The repository-wide Vitest suite was not run.
-- Preview Cloud Run deploy: pending. The only permitted target is the new `ckace-hr-web-ux-preview` service in `ckrr-leave-system-2026`, `asia-southeast1`, min 0/max 1, 512 MiB, using the existing TEST API configuration. No other cloud target may be changed.
-- Preview URL and final commit hashes: record after deployment.
+- Read-only inspection of `ckace-hr-web-test` in project `ckrr-leave-system-2026`, region `asia-southeast1`, showed a direct Cloud Run URL and only `CKACE_RUNTIME_STAGE` / `CKACE_MODULE_ROUTING` environment variable names; there is no API base URL in the service config.
+- Desktop browser code calls same-origin `/api/...`; `apps/web/next.config.ts` has no rewrites and `apps/web/src/app/api` does not exist. A new Cloud Run `run.app` URL would not route those requests to `ckace-hr-api-test`. Firebase Hosting supplies the existing shared route but is forbidden by this task.
+- Stopped before deploy per the explicit API-change gate. No preview service was created and no existing TEST service was changed; the only cloud operation was a read-only description of `ckace-hr-web-test`.
+- Preview URL: none. Page-group commits pushed: `82e5b0f`, `78500fe`, `248c5be`.
 
 ## Needs decision
 
-None for this visual-only scope. If deployment requires a new secret, permission, or API change, stop deployment and report it.
+No design or product decision is needed. The remaining preview step requires API routing, which is outside the approved UI-only scope; the PM must build the pushed branch to TEST or the Owner must authorize a separate routing task.

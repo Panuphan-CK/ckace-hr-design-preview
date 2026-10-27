@@ -1,0 +1,41 @@
+/* SmartHR light-blue authentication surfaces; behavior remains in the page components. */
+.production-login-page {
+  --auth-primary: #1f6fd1;
+  --auth-tint: #eaf4ff;
+  min-height: 100svh;
+  padding: clamp(20px, 4vw, 48px) 16px;
+  background: linear-gradient(135deg, #eaf4ff 0%, #f8fbff 58%, #eaf4ff 100%);
+}
+.production-auth-card {
+  max-width: 520px;
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid #d9e9f8;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 34px rgba(31, 111, 209, .12);
+}
+.production-login-logo-wrap { min-height: auto; margin: 0 0 12px; }
+.company-logo.production-login-logo { width: min(190px, 62vw); height: clamp(58px, 11vh, 88px); margin: 0; }
+.production-auth-title { margin: 8px 0 24px; color: #174a7c; font-family: "Noto Sans Thai", "Prompt", system-ui, sans-serif; }
+.production-login-form label { color: #334155; font-size: .94rem; }
+.production-login-form input:not([type="checkbox"]) { min-height: 46px; border: 1px solid #d9e9f8; border-radius: 10px; background: #fff; color: #111827; }
+.production-login-form input:not([type="checkbox"]):focus { border-color: #1f6fd1; box-shadow: 0 0 0 3px rgba(31, 111, 209, .16); }
+.production-login-submit { border-radius: 10px; background: #1f6fd1; box-shadow: 0 6px 16px rgba(31, 111, 209, .2); }
+.production-login-submit:hover:not(:disabled) { background: #1859a8; }
+.production-link-button { color: #1f6fd1; }
+.production-link-button:hover { color: #1859a8; }
+.production-auth-footer, .production-version { color: #526579; }
+.production-registration-form { gap: 14px; }
+
+body.dark .production-login-page { background: linear-gradient(135deg, #0d1a28 0%, #13263b 60%, #0d1a28 100%); }
+body.dark .production-auth-card { border-color: #2b4158; background: #15283d; color: #e5edf7; }
+body.dark .production-auth-title, body.dark .production-login-form label, body.dark .production-auth-footer, body.dark .production-version { color: #d7e7f8; }
+body.dark .production-login-form input:not([type="checkbox"]) { border-color: #2b4158; background: #102237; color: #e5edf7; }
+body.dark .production-login-form input:not([type="checkbox"])::placeholder { color: #9dafc1; }
+
+@media (max-width: 480px) {
+  .production-auth-card { padding: 64px 20px 24px; border-radius: 16px; }
+  .production-auth-title { margin-bottom: 20px; font-size: 1.35rem; }
+  .production-registration-grid { grid-template-columns: 1fr; }
+  .production-login-options { align-items: flex-start; flex-wrap: wrap; gap: 10px; }
+}

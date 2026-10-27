@@ -3,7 +3,7 @@
 import type { MonthBucket, TypeShare } from "./report-stats";
 import { formatNumber } from "./report-stats";
 
-export const SERIES_COLORS = ["#2f6fed", "#e0475e", "#7c4dff", "#e38a00", "#10a37f", "#64748b"] as const;
+export const SERIES_COLORS = ["var(--ck-primary)", "var(--ck-pink)", "var(--ck-purple)", "var(--ck-amber)", "var(--ck-green)", "var(--ck-cyan)"] as const;
 
 export function seriesColor(index: number): string {
   return SERIES_COLORS[index % SERIES_COLORS.length] ?? SERIES_COLORS[0];
@@ -20,7 +20,7 @@ export function MonthlyChart({ buckets, types }: { readonly buckets: readonly Mo
   return (
     <div>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="กราฟแท่งรายเดือน" style={{ width: "100%", height: "auto" }}>
-        <line x1={pad.left} x2={width - pad.right} y1={height - pad.bottom} y2={height - pad.bottom} stroke="#e3e6ec" />
+        <line x1={pad.left} x2={width - pad.right} y1={height - pad.bottom} y2={height - pad.bottom} stroke="var(--ck-line)" />
         {buckets.map((bucket, index) => {
           const x = pad.left + slot * index + (slot - barW) / 2;
           let y = height - pad.bottom;
@@ -33,10 +33,10 @@ export function MonthlyChart({ buckets, types }: { readonly buckets: readonly Mo
                 y -= h;
                 return <rect key={type} x={x} y={y} width={barW} height={Math.max(h - 1, 1)} rx={3} fill={seriesColor(typeIndex)} />;
               })}
-              <text x={x + barW / 2} y={y - 6} textAnchor="middle" fontSize="12" fontWeight="600" fill="#111827">
+              <text x={x + barW / 2} y={y - 6} textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--ck-ink)">
                 {formatNumber(bucket.total)}
               </text>
-              <text x={x + barW / 2} y={height - 10} textAnchor="middle" fontSize="12" fill="#6b7280">
+              <text x={x + barW / 2} y={height - 10} textAnchor="middle" fontSize="12" fill="var(--ck-ink2)">
                 {bucket.label}
               </text>
             </g>
@@ -64,7 +64,7 @@ export function DonutChart({ shares, centerLabel, unit }: { readonly shares: rea
     <div>
       <div style={{ position: "relative", width: 180, height: 180, margin: "0 auto" }}>
         <svg viewBox="0 0 180 180" role="img" aria-label="สัดส่วนตามประเภท" style={{ transform: "rotate(-90deg)" }}>
-          <circle cx="90" cy="90" r={radius} fill="none" stroke="#f1f2f5" strokeWidth="22" />
+          <circle cx="90" cy="90" r={radius} fill="none" stroke="var(--ck-line2)" strokeWidth="22" />
           {total > 0
             ? shares.map((share, index) => {
                 const length = (share.value / total) * circumference;

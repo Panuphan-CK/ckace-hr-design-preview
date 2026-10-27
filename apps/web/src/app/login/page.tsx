@@ -1,6 +1,7 @@
 "use client";
 
 import "../desktop/ui/ck.css";
+import "./ck-login-smarthr.css";
 import { DateField } from "../desktop/ui/date-picker";
 import type { FormEvent } from "react";
 import {

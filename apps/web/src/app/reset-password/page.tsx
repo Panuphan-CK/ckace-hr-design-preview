@@ -1,4 +1,5 @@
 "use client";
+import "../login/ck-login-smarthr.css";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";

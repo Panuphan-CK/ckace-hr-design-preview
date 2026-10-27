@@ -580,3 +580,17 @@ body.dark .ck-app .ck-empty { background: #15283d; color: #e5edf7; }
 .ck-app .ck-live { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: stretch; padding: 8px 0 12px; }
 .ck-app .ck-live .ck-orb { width: auto; height: 88px; border-radius: 14px; }
 @media (max-width: 960px) { .ck-app .ck-live { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Existing request and approval filters retain their actions with a blue selected state. */
+.ck-app .ck-filters button {
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  transition: color .15s, background .15s, border-color .15s;
+}
+.ck-app .ck-filters button:hover { color: var(--ck-primary); background: var(--ck-hover); }
+.ck-app .ck-filters button.on {
+  color: var(--ck-primary);
+  border: 1px solid var(--ck-line);
+  background: var(--ck-accent-soft);
+}
+.ck-app .ck-filters button:focus-visible { outline: 2px solid var(--ck-primary); outline-offset: 2px; }

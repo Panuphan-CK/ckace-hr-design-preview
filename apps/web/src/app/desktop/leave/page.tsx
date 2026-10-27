@@ -577,7 +577,7 @@ export default function LeaveDesktopPage() {
           <section className="ck-panel"><h2>ผู้อนุมัติของฉัน</h2>
             {approvalOptions.length ? approvalOptions.map((step) => <p key={step.stepOrder}>ขั้น {step.stepOrder}: {step.candidates.length ? step.candidates.map((person) => person.displayName).join(", ") : "ไม่มีข้อมูลผู้อนุมัติ"}</p>) : <p>ยังไม่มีข้อมูลผู้อนุมัติ</p>}
           </section>
-          <section className="ck-panel"><h2>ระเบียบการลา</h2><p>ยังไม่มีข้อมูลระเบียบการลา</p></section>
+
           <section className="ck-panel"><h2>วันหยุดถัดไป</h2><p>{nextHoliday ? thaiDate(nextHoliday) : "ไม่มีข้อมูลวันหยุดถัดไป"}</p></section>
         </aside>
         </div>

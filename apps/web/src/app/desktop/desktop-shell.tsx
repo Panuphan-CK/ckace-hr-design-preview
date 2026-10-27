@@ -14,13 +14,13 @@ import { requestDesktopLogout } from "./logout-request";
 import { canAccessDesktopRoute } from "./desktop-route-access";
 import {
   DESKTOP_NAV_ACCESSIBLE_NAMES,
-  desktopSectionAccessibleName,
 } from "./desktop-nav-accessibility";
 import { installHashChangeEvents } from "./ui/hash-events";
 import { Icon, type IconName } from "./ui/icons";
 import { PageHead, type Tone as PageTone } from "./ui/kit";
 import "./ui/ck.css";
 import "./ui/ck-v2.css";
+import "./ui/smarthr.css";
 
 interface NavigationCapabilities {
   leave: boolean;
@@ -200,17 +200,6 @@ function initials(fullName: string | null | undefined): string {
   return (first + second) || "ฉัน";
 }
 
-const TONE_CLASS: Record<Tone, string> = {
-  leave: "ck-c-leave",
-  sick: "ck-c-sick",
-  biz: "ck-c-biz",
-  ot: "ck-c-ot",
-  time: "ck-c-time",
-  med: "ck-c-med",
-  gray: "ck-c-gray",
-  accent: "ck-c-accent",
-};
-
 /** "5 นาทีที่แล้ว" style age for the bell list. */
 function thaiAgo(iso: string): string {
   const minutes = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000));
@@ -230,7 +219,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
   const [inbox, setInbox] = useState<InboxOverview | null>(null);
   const [pendingByKind, setPendingByKind] = useState<Readonly<Record<string, number>>>({});
   const [hash, setHash] = useState("");
-  const [openSection, setOpenSection] = useState<SectionId | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [popover, setPopover] = useState<"me" | "apps" | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
@@ -365,17 +354,10 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
     })).filter((section) => section.links.length > 0);
   }, [navigation]);
 
-  const activeSection = useMemo<SectionId | null>(() => {
-    for (const section of sections) {
-      if (section.links.some((link) => isActive(link.href, pathname, hash))) return section.id;
-    }
-    return null;
-  }, [sections, pathname, hash]);
-
   useEffect(() => {
-    setOpenSection(null);
+    setMobileNavOpen(false);
     setPopover(null);
-  }, [activeSection, pathname]);
+  }, [pathname, hash]);
 
   useEffect(() => {
     if (!popover) return;
@@ -430,154 +412,165 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
 
   const nav = state.session.navigation;
   const routeAllowed = canAccessDesktopRoute(nav, pathname, hash);
-  const flySection = sections.find((section) => section.id === openSection) ?? null;
   const displayName = profile?.fullName ?? "บัญชีพนักงาน";
   const subtitle = [profile?.roles[0], profile?.department?.name].filter(Boolean).join(" ") || "พนักงาน";
-
-  function tabButton(id: SectionId, label: string, icon: IconName, badge?: number) {
-    const section = sections.find((item) => item.id === id);
-    if (!section) return null;
-    const on = openSection === id || (openSection === null && activeSection === id);
-    return (
-      <button
-        type="button"
-        className={on ? "ck-tab on" : "ck-tab"}
-        aria-label={desktopSectionAccessibleName(label, badge)}
-        aria-expanded={openSection === id}
-        aria-haspopup="menu"
-        onClick={() => {
-          setPopover(null);
-          setOpenSection((current) => (current === id ? null : id));
-        }}
-      >
-        <Icon name={icon} size={18} />
-        <span>{label}</span>
-        {badge ? <span className="ck-badge">{badge}</span> : null}
-        <Icon name="chevron" size={13} />
-      </button>
-    );
-  }
-
-  let lastGroup: string | undefined;
+  const activeLink = sections.flatMap((section) => section.links).find((link) => isActive(link.href, pathname, hash));
+  const legacyHead = LEGACY_HEADS.find((item) => pathname === item.path || pathname.startsWith(item.path + "/"));
+  const pageTitle =
+    pathname === "/desktop"
+      ? (nav.managementAdmin ? "แดชบอร์ดผู้ดูแล" : "แดชบอร์ดพนักงาน")
+      : pathname === "/desktop/leave"
+        ? "การลาของฉัน"
+        : pathname === "/desktop/requests"
+          ? "สถานะคำขอ"
+          : pathname === "/desktop/admin/management"
+            ? "จัดการข้อมูลองค์กร"
+            : pathname === "/desktop/reports"
+              ? "รายงาน"
+              : pathname === "/desktop/attendance"
+                ? "ลงเวลาเข้า-ออกงาน"
+                : (legacyHead?.title ?? activeLink?.label ?? "พื้นที่บริการพนักงาน");
 
   return (
-    <div className="ck-app">
-      <header className="ck-top">
-        <Link href="/desktop" className="ck-brand" aria-label="CKACE HR หน้าแรก">
-          <span className="ck-brand-mark">C</span>
-          <span>
-            <b>CKACE</b>
-            <small>HR WORKSPACE</small>
-          </span>
+    <div className="ck-app sh-app">
+      <aside className={"sh-sidebar" + (mobileNavOpen ? " is-open" : "")} aria-label="เมนูหลัก">
+        <Link href="/desktop" className="sh-brand" aria-label="CKACE HR หน้าแรก" onClick={() => setMobileNavOpen(false)}>
+          <span className="sh-brand-mark">CK</span>
+          <span><b>CKACE <em>HR</em></b><small>HR WORKSPACE</small></span>
         </Link>
-        <nav className="ck-tabs" aria-label="เมนูหลัก">
+        <button type="button" className="sh-sidebar-close" aria-label="ปิดเมนูหลัก" onClick={() => setMobileNavOpen(false)}>
+          <Icon name="close" size={18} />
+        </button>
+        <nav className="sh-nav">
+          <div className="sh-nav-caption">เมนูหลัก</div>
           <Link
             href="/desktop"
-            className={pathname === "/desktop" ? "ck-tab on" : "ck-tab"}
+            className={"sh-nav-link" + (pathname === "/desktop" ? " is-active" : "")}
             aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.dashboard}
-            onClick={() => setOpenSection(null)}
+            aria-current={pathname === "/desktop" ? "page" : undefined}
+            onClick={() => setMobileNavOpen(false)}
           >
-            <Icon name="dashboard" size={18} />
+            <span className="sh-nav-icon" data-tone="accent"><Icon name="dashboard" size={17} /></span>
             <span>ภาพรวม</span>
           </Link>
-          {tabButton("requests", "ยื่นคำขอ", "document")}
-          {tabButton("approvals", "งานอนุมัติ", "check", totalPending || undefined)}
           {nav.calendar ? (
             <Link
               href="/desktop/calendar"
-              className={pathname === "/desktop/calendar" ? "ck-tab on" : "ck-tab"}
+              className={"sh-nav-link" + (pathname === "/desktop/calendar" ? " is-active" : "")}
               aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.calendar}
-              onClick={() => setOpenSection(null)}
+              aria-current={pathname === "/desktop/calendar" ? "page" : undefined}
+              onClick={() => setMobileNavOpen(false)}
             >
-              <Icon name="calendar" size={18} />
+              <span className="sh-nav-icon" data-tone="leave"><Icon name="calendar" size={17} /></span>
               <span>ปฏิทิน</span>
             </Link>
           ) : null}
-          {tabButton("reports", "รายงาน", "chart")}
-          {tabButton("settings", "ตั้งค่า HR", "gear")}
+          {sections.map((section) => {
+            let lastGroup: string | undefined;
+            return (
+              <section className="sh-nav-group" aria-label={section.title} key={section.id}>
+                <div className="sh-nav-section-title">
+                  <span className="sh-nav-icon" data-tone={section.tone}><Icon name={section.icon} size={17} /></span>
+                  <span>{section.title}</span>
+                  {section.id === "approvals" && totalPending > 0 ? <span className="sh-nav-total">{totalPending}</span> : null}
+                </div>
+                {section.links.map((link) => {
+                  const showGroup = link.group !== undefined && link.group !== lastGroup;
+                  lastGroup = link.group;
+                  const count = link.countKey ? pendingByKind[link.countKey] : undefined;
+                  const active = isActive(link.href, pathname, hash);
+                  return (
+                    <div className="sh-nav-entry" key={link.id}>
+                      {showGroup ? <div className="sh-nav-subtitle">{link.group}</div> : null}
+                      <Link
+                        href={link.href}
+                        className={"sh-nav-link sh-nav-child" + (active ? " is-active" : "")}
+                        aria-current={active ? "page" : undefined}
+                        onClick={() => {
+                          setHash(link.href.includes("#") ? "#" + link.href.split("#")[1] : "");
+                          setMobileNavOpen(false);
+                        }}
+                      >
+                        <span className="sh-nav-icon" data-tone={link.tone}><Icon name={link.icon} size={16} /></span>
+                        <span className="sh-nav-label">{link.label}</span>
+                        {count ? <span className="sh-nav-count">{count}</span> : null}
+                      </Link>
+                    </div>
+                  );
+                })}
+              </section>
+            );
+          })}
         </nav>
-        <div className="ck-top-r">
+      </aside>
+      {mobileNavOpen ? <button type="button" className="sh-nav-backdrop" aria-label="ปิดเมนู" onClick={() => setMobileNavOpen(false)} /> : null}
+      <div className="sh-workspace">
+        <header className="ck-top sh-top">
           <button
             type="button"
-            className="ck-ibtn"
-            aria-haspopup="dialog"
-            aria-expanded={popover === "apps"}
-            aria-label="แอปพลิเคชัน"
-            title="แอปพลิเคชัน"
-            onClick={() => {
-              setOpenSection(null);
-              setPopover((current) => (current === "apps" ? null : "apps"));
-            }}
+            className="sh-mobile-toggle"
+            aria-label={mobileNavOpen ? "ปิดเมนูหลัก" : "เปิดเมนูหลัก"}
+            aria-expanded={mobileNavOpen}
+            onClick={() => setMobileNavOpen((open) => !open)}
           >
-            <Icon name="apps" size={20} />
+            <Icon name="menu" size={19} />
           </button>
-          <button
-            type="button"
-            className="ck-ibtn"
-            aria-haspopup="dialog"
-            aria-label="การแจ้งเตือน"
-            title="การแจ้งเตือน"
-            onClick={() => {
-              setOpenSection(null);
-              setPopover((current) => (current === "me" ? null : "me"));
-            }}
-          >
-            <Icon name="bell" size={20} />
-            {(inbox?.unread ?? 0) > 0 ? <span className="ck-badge">{inbox?.unread}</span> : null}
-          </button>
-          <button
-            type="button"
-            className="ck-me-btn"
-            aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
-            aria-haspopup="dialog"
-            aria-expanded={popover === "me"}
-            onClick={() => {
-              setOpenSection(null);
-              setPopover((current) => (current === "me" ? null : "me"));
-            }}
-          >
-            <span className="ck-av">{initials(profile?.fullName)}</span>
-            <span className="ck-me-name">{displayName}</span>
-            <Icon name="chevron" size={13} />
-          </button>
-        </div>
-      </header>
-
-      {flySection ? (
-        <>
-          <button type="button" className="ck-scrim" style={{ background: "transparent", zIndex: 44 }} aria-label="ปิดเมนู" onClick={() => setOpenSection(null)} />
-          <div id="ck-fly" className={"ck-menu " + TONE_CLASS[flySection.tone]} role="menu" aria-label={flySection.title}>
-            <div className="ck-menu-grid">
-              {flySection.links.map((link) => {
-                const showGroup = link.group !== lastGroup && link.group !== undefined;
-                lastGroup = link.group;
-                const count = link.countKey ? pendingByKind[link.countKey] : undefined;
-                return (
-                  <div key={link.id} className="ck-menu-item">
-                    {showGroup ? <div className="ck-fly-label">{link.group}</div> : null}
-                    <Link
-                      href={link.href}
-                      role="menuitem"
-                      className={(isActive(link.href, pathname, hash) ? "on " : "") + TONE_CLASS[link.tone]}
-                      onClick={() => {
-                        setHash(link.href.includes("#") ? "#" + link.href.split("#")[1] : "");
-                        setOpenSection(null);
-                      }}
-                    >
-                      <span className="ck-chip sm">
-                        <Icon name={link.icon} size={16} />
-                      </span>
-                      {link.label}
-                      {count ? <span className="ck-n">{count}</span> : null}
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="sh-top-title">
+            <b>{pageTitle}</b>
+            <small>CKACE HR <span aria-hidden="true">/</span> {pageTitle}</small>
           </div>
-        </>
-      ) : null}
-
+          <label className="sh-search" aria-label="ค้นหา">
+            <Icon name="search" size={17} />
+            <input type="search" readOnly aria-label="ค้นหาข้อมูล (ยังไม่เปิดใช้งาน)" placeholder="ค้นหาข้อมูล..." />
+            <kbd>⌘ K</kbd>
+          </label>
+          <div className="ck-top-r sh-top-actions">
+            <button
+              type="button"
+              className="ck-ibtn"
+              aria-haspopup="dialog"
+              aria-expanded={popover === "apps"}
+              aria-label="แอปพลิเคชัน"
+              title="แอปพลิเคชัน"
+              onClick={() => {
+                setMobileNavOpen(false);
+                setPopover((current) => (current === "apps" ? null : "apps"));
+              }}
+            >
+              <Icon name="apps" size={20} />
+            </button>
+            <button
+              type="button"
+              className="ck-ibtn"
+              aria-haspopup="dialog"
+              aria-label="การแจ้งเตือน"
+              title="การแจ้งเตือน"
+              aria-expanded={popover === "me"}
+              onClick={() => {
+                setMobileNavOpen(false);
+                setPopover((current) => (current === "me" ? null : "me"));
+              }}
+            >
+              <Icon name="bell" size={20} />
+              {(inbox?.unread ?? 0) > 0 ? <span className="ck-badge">{inbox?.unread}</span> : null}
+            </button>
+            <button
+              type="button"
+              className="ck-me-btn"
+              aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
+              aria-haspopup="dialog"
+              aria-expanded={popover === "me"}
+              onClick={() => {
+                setMobileNavOpen(false);
+                setPopover((current) => (current === "me" ? null : "me"));
+              }}
+            >
+              <span className="ck-av">{initials(profile?.fullName)}</span>
+              <span className="ck-me-name">{displayName}</span>
+              <Icon name="chevron" size={13} />
+            </button>
+          </div>
+        </header>
       {popover ? (
         <button type="button" className="ck-scrim" style={{ background: "transparent", zIndex: 40 }} aria-label="ปิด" onClick={() => setPopover(null)} />
       ) : null}
@@ -694,10 +687,10 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
           </>
         )}
       </main>
+      </div>
     </div>
   );
 }
-
 function AppGrid() {
   const apps: readonly { label: string; icon: IconName; color: string; current?: boolean }[] = [
     { label: "HR", icon: "calendar", color: "var(--ck-t-leave)", current: true },

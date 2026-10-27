@@ -4,9 +4,9 @@ Updated: 2026-10-27 Asia/Bangkok
 
 ## Visual direction
 
-Use the Owner-selected SmartHR HRM Figma community kit as a visual reference, recoloured light blue. Do not copy code from the paid ThemeForest template. Preserve the separate `docs/design/desktop-20261018/**` work exactly.
+Use the seven screenshots in `smarthr-original/` to understand the SmartHR page structure. For the three pages that have approved mock-ups, `reference/` is the visual source of truth at 1440px and takes precedence over the original screenshots. Apply the Owner-selected A direction: SmartHR structure recoloured light blue, with primary `#1F6FD1`, tint `#EAF4FF`, navy `#174A7C`, clean white cards, progress bars on balance cards, 14px corners, coloured headings, and Archivo + Noto Sans Thai. Do not copy code from a paid ThemeForest template or place the original screenshots in the app. Preserve the separate `docs/design/desktop-20261018/**` work exactly.
 
-Reference: https://www.figma.com/proto/B6jLuCqhxxuBGpBlUXrhbT/SmartHR---Free-Figma-UI-Kit-for-HRM---Employee-Management--Community-?node-id=1805-240056&p=f&t=P71wH8WPDsZgL5N7-1&scaling=scale-down&content-scaling=fixed&page-id=273%3A57897
+Reference files: `smarthr-original/` (structure), `reference/admin-overview.html`, `reference/my-leave.html`, and `reference/leave-list.html` (approved visual layouts).
 
 ## Tokens
 
@@ -18,23 +18,22 @@ Reference: https://www.figma.com/proto/B6jLuCqhxxuBGpBlUXrhbT/SmartHR---Free-Fig
 
 ## Shared shell and components
 
-- Desktop uses the existing role-filtered navigation and existing menu-group controls. Present it as a light-blue left sidebar with icon tiles and a dark-blue selected item.
-- At tablet/mobile widths the same menu groups become a horizontally scrollable bar below the top bar. Keep the existing links and expansion behavior; add no new navigation actions.
-- Keep the existing top-bar application, notification and profile controls. Do not add search, full-screen or message actions as part of this visual-only task.
+- Desktop uses the existing role-filtered navigation as a fixed light-blue-gradient left sidebar with grouped menu items, coloured icon tiles, and a solid dark-blue selected item.
+- At tablet/mobile widths the same role-filtered menu becomes an off-canvas sidebar opened from the top bar. Keep the existing links and route access; add no destination or permission.
+- Keep the existing top-bar application, notification and profile controls. Show a read-only search field for visual parity; do not add search behavior, full-screen or message actions.
 - Reuse existing data, API calls, validation, permissions, routes, calculations and settings rules. Do not invent data or endpoints. Where existing data is unavailable, retain truthful empty/error states.
 
 ## Page order
 
 1. Existing `/desktop` overview: style existing greeting, capability-gated stats and quick actions as SmartHR cards; preserve its current data and visibility rules.
-2. `/desktop/leave`: show existing leave balances, history, calendar/approver context and submission form in the SmartHR layout.
-3. `/desktop/approvals#leave`: style the existing assigned approval queue and history. Keep the existing approver scope and filters.
-4. `/desktop/requests`: style the existing request summary and filters.
-5. Apply the shared system to all remaining Desktop routes: settings, employees/organization, OT, medical, attendance, time correction, reports, profile, inbox, announcements, notifications, calendar, benefits, delegation, onboarding, login, registration and password reset.
+2. `/desktop/leave`: match the approved balance-card, request-history, calendar, approver, and form arrangement using existing data.
+3. `/desktop/requests`: match the approved leave-list structure where the available page data permits; do not fabricate organization-wide leave rows.
+4. Apply the shared system to employee/organization tables, reports, attendance, approvals, settings, OT, medical, time correction, profile, inbox, announcements, notifications, calendar, benefits, delegation, onboarding, login, registration and password reset.
 
 ## Verification and boundaries
 
-Run only `apps/web` lint, typecheck and tests. Check Desktop at default width and 390px, confirm document width does not exceed viewport, and capture screenshots for the Owner. LIFF, API, schema, migrations, roles, data fetching and business logic remain untouched. Do not deploy any environment other than the specifically approved `ckace-hr-web-ux-preview` service.
+Run only `apps/web` lint, typecheck and tests. Check Desktop at 1440px and 390px, confirm document width does not exceed viewport, and capture synthetic-data comparison screenshots for the Owner. LIFF, API, schema, migrations, roles, data fetching and business logic remain untouched. Do not deploy; the PM handles the TEST build.
 
 Worktree: `D:\CKACE_HR.worktrees\ux-ui`
 Branch: `codex/ui-smarthr-lightblue`
-Base: `bd96ac0c910a8cab2e9ab013aeb8bc7819b1df5b`
+Base: `eeb609aed25f03a1f8e675597be2a7e876032d06`

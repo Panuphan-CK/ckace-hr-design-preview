@@ -25,7 +25,7 @@ import {
 } from "./dashboard-view";
 import { thaiDate, thaiDateRange } from "./ui/format";
 import { Icon, type IconName } from "./ui/icons";
-import { EmptyState, ErrorState, HeroBand, LoadingState, SectionHead, StatOrb, StatusDot, toneClass, type Tone } from "./ui/kit";
+import { EmptyState, ErrorState, LoadingState, SectionHead, StatusDot, toneClass, type Tone } from "./ui/kit";
 
 interface Session {
   readonly employeeId: string;
@@ -63,30 +63,6 @@ async function optional<T>(url: string): Promise<T | null> {
   } catch {
     return null;
   }
-}
-
-function Ring({ remaining, quota }: { readonly remaining: number; readonly quota: number }) {
-  const radius = 32;
-  const length = 2 * Math.PI * radius;
-  const ratio = quota > 0 ? Math.max(0, Math.min(1, remaining / quota)) : 0;
-  return (
-    <span className="ck-ring-svg" aria-hidden="true">
-      <svg viewBox="0 0 76 76" width="76" height="76">
-        <circle cx="38" cy="38" r={radius} fill="none" stroke="var(--ck-line2)" strokeWidth="8" />
-        <circle
-          cx="38"
-          cy="38"
-          r={radius}
-          fill="none"
-          stroke="var(--tc)"
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={`${length * ratio} ${length}`}
-        />
-      </svg>
-      <b>{dayLabel(remaining)}</b>
-    </span>
-  );
 }
 
 export default function DesktopDashboardPage() {
@@ -131,10 +107,7 @@ export default function DesktopDashboardPage() {
   const nav = data.session.navigation;
   const firstName = data.profile?.nickname || data.profile?.fullName.split(/\s+/)[0] || "";
   const entitlements = data.leave?.entitlements ?? [];
-  const vacationRemaining = entitlements
-    .filter((entitlement) => entitlement.leaveTypeKey === "VACATION")
-    .reduce((sum, entitlement) => sum + entitlement.remaining, 0);
-  const hasVacation = entitlements.some((entitlement) => entitlement.leaveTypeKey === "VACATION");
+
   const progress = inProgressRequests(data.requests?.requests ?? []);
   const team = teamLeaveThisWeek(data.team?.items ?? [], data.session.employeeId, todayKey);
   const announcements = data.announcements?.announcements ?? [];
@@ -154,29 +127,63 @@ export default function DesktopDashboardPage() {
 
   return (
     <>
-      <div className="ck-wrap ck-stack ck-home">
-        <HeroBand
-          eyebrow={longThaiDate(todayKey)}
-          title={`${greeting(now)} ${firstName}`.trim()}
-          subtitle={
-            data.leave && hasVacation
-              ? `ปีนี้คุณยังมีวันลาพักร้อนเหลือ ${dayLabel(vacationRemaining)} วัน`
-              : "ขอให้เป็นวันที่ดีนะครับ"
-          }
-          action={
-            nav.attendance ? (
-              <Link className="ck-btn ck-btn-light" href="/desktop/attendance">
+        <div className="ck-wrap ck-stack ck-home">
+        <div className="sh-page-heading">
+          <div>
+            <p className="sh-eyebrow">{longThaiDate(todayKey)}</p>
+            <h1>{nav.managementAdmin ? "แดชบอร์ดผู้ดูแล" : [greeting(now), firstName].filter(Boolean).join(" ") || "ภาพรวมของฉัน"}</h1>
+            <p>
+              {nav.managementAdmin
+                ? "สรุปข้อมูลและรายการที่บัญชีนี้เข้าถึงได้"
+                : data.leave
+                  ? "ภาพรวมการลาและคำขอของคุณ"
+                  : "ภาพรวมพื้นที่บริการพนักงาน"}
+            </p>
+          </div>
+          {nav.attendance ? (
+            <div className="sh-page-actions">
+              <Link className="ck-btn sky" href="/desktop/attendance">
                 <Icon name="pin" size={16} />
-                ลงเวลาเข้า-ออกงานวันนี้
+                ลงเวลาเข้า-ออกงาน
               </Link>
-            ) : null
-          }
-        >
-          {hasVacation ? <StatOrb value={dayLabel(vacationRemaining)} label="วันลาพักร้อน" /> : null}
-          {nav.requestStatus ? <StatOrb value={String(progress.length)} label="คำขอรออนุมัติ" /> : null}
-          {nav.calendar ? <StatOrb value={String(team.length)} label="ทีมลาสัปดาห์นี้" /> : null}
-          {data.medical ? <StatOrb value={baht(data.medical.entitlement.remaining)} label="ค่ารักษาคงเหลือ" /> : null}
-        </HeroBand>
+            </div>
+          ) : null}
+        </div>
+
+        {nav.requestStatus || nav.calendar || data.medical ? (
+          <section className="sh-home-stats" aria-label="สรุปข้อมูลของฉัน">
+            {nav.requestStatus ? (
+              <article className="sh-home-stat">
+                <div className="sh-home-stat-top">
+                  <span className="sh-home-stat-icon"><Icon name="document" size={18} /></span>
+                  <span className="sh-home-stat-label">คำขอของฉันที่กำลังดำเนินการ</span>
+                </div>
+                <div className="sh-home-stat-value">{progress.length}</div>
+                <div className="sh-home-stat-note">ดูสถานะคำขอที่ส่งแล้ว</div>
+              </article>
+            ) : null}
+            {nav.calendar ? (
+              <article className="sh-home-stat">
+                <div className="sh-home-stat-top">
+                  <span className="sh-home-stat-icon"><Icon name="calendar" size={18} /></span>
+                  <span className="sh-home-stat-label">ทีมลาสัปดาห์นี้</span>
+                </div>
+                <div className="sh-home-stat-value">{team.length}</div>
+                <div className="sh-home-stat-note">รายการลาที่อนุมัติแล้วในช่วงสัปดาห์นี้</div>
+              </article>
+            ) : null}
+            {data.medical ? (
+              <article className="sh-home-stat">
+                <div className="sh-home-stat-top">
+                  <span className="sh-home-stat-icon"><Icon name="med" size={18} /></span>
+                  <span className="sh-home-stat-label">วงเงินค่ารักษาคงเหลือ</span>
+                </div>
+                <div className="sh-home-stat-value">{baht(data.medical.entitlement.remaining)}</div>
+                <div className="sh-home-stat-note">สิทธิ์ของบัญชีที่เข้าสู่ระบบ</div>
+              </article>
+            ) : null}
+          </section>
+        ) : null}
 
         {quick.some((entry) => entry.show) ? (
           <div className="ck-qgrid">
@@ -198,25 +205,47 @@ export default function DesktopDashboardPage() {
         ) : null}
 
         {entitlements.length > 0 ? (
-          <div className="ck-rgrid">
-            {entitlements.map((entitlement) => {
-              const tone = leaveTone(entitlement.leaveTypeKey);
-              return (
-                <div key={entitlement.entitlementId} className={"ck-ring " + toneClass(tone)}>
-                  <Ring remaining={entitlement.remaining} quota={entitlement.quota} />
-                  <span>
-                    <b className="t">{entitlement.leaveTypeName}</b>
-                    <small>
-                      เหลือ {dayLabel(entitlement.remaining)} จาก {dayLabel(entitlement.quota)} วัน
-                    </small>
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          <section className="sh-home-balance-section" aria-label="สิทธิ์วันลาคงเหลือ">
+            <SectionHead title="สิทธิ์วันลาคงเหลือ" count={entitlements.length} />
+            <div className="sh-home-balance-grid">
+              {entitlements.map((entitlement) => {
+                const tone = leaveTone(entitlement.leaveTypeKey);
+                const percent = entitlement.quota > 0
+                  ? Math.max(0, Math.min(100, (entitlement.remaining / entitlement.quota) * 100))
+                  : 0;
+                return (
+                  <article key={entitlement.entitlementId} className={"sh-home-balance ck-c-" + tone}>
+                    <div className="sh-home-balance-heading">
+                      <span className="ck-chip"><Icon name="leave" size={18} /></span>
+                      <span>
+                        <b>{entitlement.leaveTypeName}</b>
+                        <small>สิทธิ์คงเหลือ</small>
+                      </span>
+                    </div>
+                    <div className="sh-home-balance-value">
+                      <strong>{dayLabel(entitlement.remaining)} <small>วัน</small></strong>
+                      <span>จาก {dayLabel(entitlement.quota)} วัน</span>
+                    </div>
+                    {entitlement.quota > 0 ? (
+                      <div
+                        className="ck-balance-progress"
+                        role="progressbar"
+                        aria-label={entitlement.leaveTypeName + " คงเหลือ"}
+                        aria-valuemin={0}
+                        aria-valuemax={entitlement.quota}
+                        aria-valuenow={Math.max(0, Math.min(entitlement.quota, entitlement.remaining))}
+                      >
+                        <span style={{ width: percent + "%" }} />
+                      </div>
+                    ) : null}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
         ) : null}
 
-        <div className="ck-two">
+        <div className="ck-two sh-home-body">
           {nav.requestStatus ? (
             <section className="ck-panel ck-c-leave" aria-labelledby="dash-progress">
               <SectionHead title="คำขอที่กำลังดำเนินการ" id="dash-progress" count={progress.length} />

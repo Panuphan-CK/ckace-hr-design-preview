@@ -10,22 +10,22 @@ import type {
   UnifiedRequestKind,
 } from "@ckace/contracts";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 
 import {
   baht,
   bangkokDateKey,
   dayLabel,
-  greeting,
   inProgressRequests,
   leaveTone,
-  longThaiDate,
   teamLeaveThisWeek,
   weekRange,
 } from "./dashboard-view";
 import { thaiDate, thaiDateRange } from "./ui/format";
 import { Icon, type IconName } from "./ui/icons";
-import { EmptyState, ErrorState, LoadingState, SectionHead, StatusDot, toneClass, type Tone } from "./ui/kit";
+import { DashboardCalendar } from "./dashboard-calendar";
+import { DashboardLocalCompany, DashboardLocalFilter, DashboardLocalPreview } from "./dashboard-local-preview";
+import { EmptyState, ErrorState, LoadingState, StatusDot, toneClass, type Tone } from "./ui/kit";
 
 interface Session {
   readonly employeeId: string;
@@ -56,6 +56,74 @@ const KIND: Readonly<Record<UnifiedRequestKind, { label: string; icon: IconName;
 
 const ANNOUNCEMENT_TONES: readonly Tone[] = ["leave", "med", "ot"];
 
+interface KpiCardProps {
+  readonly icon: IconName;
+  readonly tone: Tone;
+  readonly title: string;
+  readonly badge: string;
+  readonly description: string;
+  readonly usedPercent: number;
+  readonly usedLabel: string;
+  readonly remainingLabel: string;
+  readonly value: string;
+  readonly valueUnit: string;
+  readonly sample: boolean;
+}
+
+function percent(value: number): number {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function KpiCard({
+  icon,
+  tone,
+  title,
+  badge,
+  description,
+  usedPercent,
+  usedLabel,
+  remainingLabel,
+  value,
+  valueUnit,
+  sample,
+}: KpiCardProps) {
+  return (
+    <article className={"sh-kpi-card " + toneClass(tone)} data-tone={tone}>
+      {sample ? <span className="sh-kpi-sample">* ข้อมูลตัวอย่าง</span> : null}
+      <header className="sh-new-kpi-header">
+        <span className="sh-new-kpi-icon" aria-hidden="true"><Icon name={icon} size={21} /></span>
+        <div className="sh-new-kpi-copy">
+          <b className="sh-kpi-english">{({ leave: "VACATION", sick: "SICK LEAVE", biz: "PERSONAL LEAVE", med: "MEDICAL BENEFIT", accent: "REQUESTS" } as Partial<Record<Tone, string>>)[tone] ?? "LEAVE"}</b>
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+        <span className="sh-kpi-badge">{badge}</span>
+      </header>
+      <div className="sh-kpi-progress-block">
+        <div
+          className="sh-kpi-progress"
+          role="progressbar"
+          aria-label={title + " สัดส่วนการใช้"}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={usedPercent}
+          aria-valuetext={usedLabel + ", " + remainingLabel}
+          style={{ "--sh-kpi-used": usedPercent + "%" } as CSSProperties}
+        >
+          <span />
+        </div>
+        <div className="sh-kpi-progress-labels">
+          <span>{usedLabel}</span>
+          <span>{remainingLabel}</span>
+        </div>
+      </div>
+      <div className="sh-kpi-value">
+        <strong>{value}</strong>
+        <span>{valueUnit}</span>
+      </div>
+    </article>
+  );
+}
 async function optional<T>(url: string): Promise<T | null> {
   try {
     const response = await fetch(url, { credentials: "same-origin", cache: "no-store" });
@@ -67,6 +135,11 @@ async function optional<T>(url: string): Promise<T | null> {
 
 export default function DesktopDashboardPage() {
   const [state, setState] = useState<State>({ status: "loading" });
+  const [localPreview, setLocalPreview] = useState(false);
+
+  useEffect(() => {
+    setLocalPreview(process.env.NODE_ENV === "development" && ["localhost", "127.0.0.1"].includes(window.location.hostname) && new URLSearchParams(window.location.search).get("syntheticPreview") === "1");
+  }, []);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -83,7 +156,7 @@ export default function DesktopDashboardPage() {
         nav.medical ? optional<MedicalSelfOverview>("/api/medical/me") : Promise.resolve(null),
         nav.requestStatus ? optional<RequestStatusOverview>("/api/requests/me") : Promise.resolve(null),
         nav.calendar
-          ? optional<LeaveCalendarView>(`/api/management/calendar?from=${week.from}&to=${week.to}`)
+          ? optional<LeaveCalendarView>("/api/management/calendar?from=" + week.from + "&to=" + week.to)
           : Promise.resolve(null),
         nav.announcements ? optional<AnnouncementListResult>("/api/announcements") : Promise.resolve(null),
       ]);
@@ -105,171 +178,114 @@ export default function DesktopDashboardPage() {
 
   const { data } = state;
   const nav = data.session.navigation;
-  const firstName = data.profile?.nickname || data.profile?.fullName.split(/\s+/)[0] || "";
   const entitlements = data.leave?.entitlements ?? [];
-
-  const progress = inProgressRequests(data.requests?.requests ?? []);
-  const team = teamLeaveThisWeek(data.team?.items ?? [], data.session.employeeId, todayKey);
+  const validEntitlements = entitlements.filter((item) => item.quota > 0);
+  const openRequests = inProgressRequests(data.requests?.requests ?? []);
+  const allRequests = data.requests?.requests ?? [];
+  const closedRequestCount = Math.max(0, allRequests.length - openRequests.length);
+  const closedRequestPercent = allRequests.length > 0 ? percent((closedRequestCount / allRequests.length) * 100) : 0;
+  const teamLeave = teamLeaveThisWeek(data.team?.items ?? [], data.session.employeeId, todayKey);
   const announcements = data.announcements?.announcements ?? [];
-  const quick: { href: string; label: string; hint: string; icon: IconName; tone: Tone; show: boolean }[] = [
-    { href: "/desktop/leave", label: "ขอลางาน", hint: "พักร้อน ป่วย กิจ", icon: "leave", tone: "leave", show: Boolean(nav.leave) },
-    { href: "/desktop/overtime", label: "ขอทำ OT", hint: "บันทึกล่วงเวลา", icon: "ot", tone: "ot", show: Boolean(nav.overtime) },
-    { href: "/desktop/time-correction", label: "แก้ไขเวลา", hint: "ลืมสแกนเข้าออก", icon: "time", tone: "time", show: Boolean(nav.attendance) },
-    {
-      href: "/desktop/medical",
-      label: "เบิกค่ารักษา",
-      hint: data.medical ? `เหลือ ${baht(data.medical.entitlement.remaining)} บาท` : "ค่ารักษาพยาบาล",
-      icon: "med",
-      tone: "med",
-      show: Boolean(nav.medical),
-    },
-  ];
+  const isLead = Boolean(nav.approvals || nav.managementAdmin || nav.reports || nav.admin);
+  const kpiCount = validEntitlements.length + (data.medical && data.medical.entitlement.annualLimit > 0 ? 1 : 0) + (allRequests.length > 0 ? 1 : 0);
 
-  return (
-    <>
-        <div className="ck-wrap ck-stack ck-home">
-        <div className="sh-page-heading">
-          <div>
-            <p className="sh-eyebrow">{longThaiDate(todayKey)}</p>
-            <h1>{nav.managementAdmin ? "แดชบอร์ดผู้ดูแล" : [greeting(now), firstName].filter(Boolean).join(" ") || "ภาพรวมของฉัน"}</h1>
-            <p>
-              {nav.managementAdmin
-                ? "สรุปข้อมูลและรายการที่บัญชีนี้เข้าถึงได้"
-                : data.leave
-                  ? "ภาพรวมการลาและคำขอของคุณ"
-                  : "ภาพรวมพื้นที่บริการพนักงาน"}
-            </p>
+  const kpiCards = kpiCount > 0 ? (
+          <div className="sh-kpi-grid">
+            {validEntitlements.map((entitlement) => {
+              const tone = leaveTone(entitlement.leaveTypeKey);
+              const usedPercent = entitlement.quota > 0 ? percent((entitlement.used / entitlement.quota) * 100) : 0;
+              const remainingPercent = entitlement.quota > 0 ? percent((entitlement.remaining / entitlement.quota) * 100) : 0;
+              return (
+                <KpiCard
+                  key={entitlement.entitlementId}
+                  icon="leave"
+                  sample={localPreview}
+                  tone={tone}
+                  title={entitlement.leaveTypeName}
+                  badge="สิทธิปีนี้"
+                  description={"ใช้แล้ว " + dayLabel(entitlement.used) + " วัน · รออนุมัติ " + dayLabel(entitlement.pending) + " วัน"}
+                  usedPercent={usedPercent}
+                  usedLabel={usedPercent + "% ใช้แล้ว"}
+                  remainingLabel={remainingPercent + "% เหลือ"}
+                  value={dayLabel(entitlement.remaining)}
+                  valueUnit="วันคงเหลือ"
+                />
+              );
+            })}
+            {data.medical && data.medical.entitlement.annualLimit > 0 ? (() => {
+              const { annualLimit, approved, committed, remaining } = data.medical.entitlement;
+              const pendingAmount = Math.max(committed - approved, 0);
+              const usedPercent = percent((approved / annualLimit) * 100);
+              const remainingPercent = percent((remaining / annualLimit) * 100);
+              return (
+                <KpiCard
+                  icon="med"
+                  sample={localPreview}
+                  tone="med"
+                  title="วงเงินค่ารักษา"
+                  badge="วงเงินต่อปี"
+                  description={"อนุมัติแล้ว ฿" + baht(approved) + " · รอพิจารณา ฿" + baht(pendingAmount)}
+                  usedPercent={usedPercent}
+                  usedLabel={usedPercent + "% อนุมัติแล้ว"}
+                  remainingLabel={remainingPercent + "% เหลือ"}
+                  value={"฿" + baht(remaining)}
+                  valueUnit="วงเงินคงเหลือ"
+                />
+              );
+            })() : null}
+            {allRequests.length > 0 ? (
+              <KpiCard
+                icon="document"
+                sample={localPreview}
+                tone="accent"
+                title="คำขอของฉัน"
+                badge={allRequests.length + " รายการ"}
+                description={"ทั้งหมด " + allRequests.length + " คำขอ · ทุกประเภท"}
+                usedPercent={closedRequestPercent}
+                usedLabel={closedRequestPercent + "% ปิดแล้ว"}
+                remainingLabel={100 - closedRequestPercent + "% กำลังดำเนินการ"}
+                value={String(openRequests.length)}
+                valueUnit="รายการคงค้าง"
+              />
+            ) : null}
           </div>
-          {nav.attendance ? (
-            <div className="sh-page-actions">
-              <Link className="ck-btn sky" href="/desktop/attendance">
-                <Icon name="pin" size={16} />
-                ลงเวลาเข้า-ออกงาน
-              </Link>
-            </div>
-          ) : null}
-        </div>
-
-        {nav.requestStatus || nav.calendar || data.medical ? (
-          <section className="sh-home-stats" aria-label="สรุปข้อมูลของฉัน">
-            {nav.requestStatus ? (
-              <article className="sh-home-stat">
-                <div className="sh-home-stat-top">
-                  <span className="sh-home-stat-icon"><Icon name="document" size={18} /></span>
-                  <span className="sh-home-stat-label">คำขอของฉันที่กำลังดำเนินการ</span>
-                </div>
-                <div className="sh-home-stat-value">{progress.length}</div>
-                <div className="sh-home-stat-note">ดูสถานะคำขอที่ส่งแล้ว</div>
-              </article>
-            ) : null}
-            {nav.calendar ? (
-              <article className="sh-home-stat">
-                <div className="sh-home-stat-top">
-                  <span className="sh-home-stat-icon"><Icon name="calendar" size={18} /></span>
-                  <span className="sh-home-stat-label">ทีมลาสัปดาห์นี้</span>
-                </div>
-                <div className="sh-home-stat-value">{team.length}</div>
-                <div className="sh-home-stat-note">รายการลาที่อนุมัติแล้วในช่วงสัปดาห์นี้</div>
-              </article>
-            ) : null}
-            {data.medical ? (
-              <article className="sh-home-stat">
-                <div className="sh-home-stat-top">
-                  <span className="sh-home-stat-icon"><Icon name="med" size={18} /></span>
-                  <span className="sh-home-stat-label">วงเงินค่ารักษาคงเหลือ</span>
-                </div>
-                <div className="sh-home-stat-value">{baht(data.medical.entitlement.remaining)}</div>
-                <div className="sh-home-stat-note">สิทธิ์ของบัญชีที่เข้าสู่ระบบ</div>
-              </article>
-            ) : null}
-          </section>
-        ) : null}
-
-        {quick.some((entry) => entry.show) ? (
-          <div className="ck-qgrid">
-            {quick
-              .filter((entry) => entry.show)
-              .map((entry) => (
-                <Link key={entry.href} href={entry.href} className={"ck-qa " + toneClass(entry.tone)}>
-                  <span className="ck-chip">
-                    <Icon name={entry.icon} />
-                  </span>
-                  <span>
-                    <b>{entry.label}</b>
-                    <small>{entry.hint}</small>
-                  </span>
-                  <Icon name="chevron" size={16} />
-                </Link>
-              ))}
+        ) : (
+          <div className="sh-kpi-empty">
+            <EmptyState title="ยังไม่มีข้อมูลตัวชี้วัด">ข้อมูลสิทธิและคำขอจะแสดงเมื่อระบบมีข้อมูลที่บัญชีนี้เข้าถึงได้</EmptyState>
           </div>
-        ) : null}
+        );
 
-        {entitlements.length > 0 ? (
-          <section className="sh-home-balance-section" aria-label="สิทธิ์วันลาคงเหลือ">
-            <SectionHead title="สิทธิ์วันลาคงเหลือ" count={entitlements.length} />
-            <div className="sh-home-balance-grid">
-              {entitlements.map((entitlement) => {
-                const tone = leaveTone(entitlement.leaveTypeKey);
-                const percent = entitlement.quota > 0
-                  ? Math.max(0, Math.min(100, (entitlement.remaining / entitlement.quota) * 100))
-                  : 0;
-                return (
-                  <article key={entitlement.entitlementId} className={"sh-home-balance ck-c-" + tone}>
-                    <div className="sh-home-balance-heading">
-                      <span className="ck-chip"><Icon name="leave" size={18} /></span>
-                      <span>
-                        <b>{entitlement.leaveTypeName}</b>
-                        <small>สิทธิ์คงเหลือ</small>
-                      </span>
-                    </div>
-                    <div className="sh-home-balance-value">
-                      <strong>{dayLabel(entitlement.remaining)} <small>วัน</small></strong>
-                      <span>จาก {dayLabel(entitlement.quota)} วัน</span>
-                    </div>
-                    {entitlement.quota > 0 ? (
-                      <div
-                        className="ck-balance-progress"
-                        role="progressbar"
-                        aria-label={entitlement.leaveTypeName + " คงเหลือ"}
-                        aria-valuemin={0}
-                        aria-valuemax={entitlement.quota}
-                        aria-valuenow={Math.max(0, Math.min(entitlement.quota, entitlement.remaining))}
-                      >
-                        <span style={{ width: percent + "%" }} />
-                      </div>
-                    ) : null}
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        ) : null}
-
-        <div className="ck-two sh-home-body">
+  const overviewPanels = nav.requestStatus || nav.calendar ? (
+    <div className="sh-overview-secondary">
           {nav.requestStatus ? (
-            <section className="ck-panel ck-c-leave" aria-labelledby="dash-progress">
-              <SectionHead title="คำขอที่กำลังดำเนินการ" id="dash-progress" count={progress.length} />
-              {progress.length === 0 ? (
+            <section className="ck-panel sh-overview-panel sh-board-work" aria-labelledby="dash-progress">
+              <header className="sh-framed-heading sh-panel-heading">
+                <span className="sh-section-icon sh-section-icon-violet" aria-hidden="true"><Icon name="document" size={18} /></span>
+                <div>
+                  <h2 id="dash-progress">งานและคำขอของฉัน</h2>
+                  <p>สถานะล่าสุดที่ต้องติดตาม</p>
+                </div>
+                <span className="sh-section-count">{localPreview ? "* ข้อมูลตัวอย่าง" : `${openRequests.length} ค้าง`}</span>
+              </header>
+              {openRequests.length === 0 ? (
                 <EmptyState title="ไม่มีคำขอที่กำลังดำเนินการ">คำขอที่ส่งแล้วและรอผลจะแสดงที่นี่</EmptyState>
               ) : (
-                <div className="ck-flist">
-                  {progress.slice(0, 6).map((request) => {
+                <div className="ck-flist sh-overview-list">
+                  {openRequests.slice(0, 6).map((request) => {
                     const kind = KIND[request.kind];
-                    const back = request.status === "REVISION_REQUESTED";
+                    const needsEdit = request.status === "REVISION_REQUESTED";
                     return (
-                      <Link key={request.id} href={"/desktop/requests"} className={"ck-fitem " + toneClass(kind.tone)}>
-                        <span className="ck-chip">
-                          <Icon name={kind.icon} />
-                        </span>
+                      <Link key={request.id} href="/desktop/requests" className={"ck-fitem " + toneClass(kind.tone)}>
+                        <span className="ck-chip"><Icon name={kind.icon} /></span>
                         <span>
                           <b>{request.summary}</b>
                           <small>
                             {kind.label}
-                            {back && request.decisionReason ? ` ${request.decisionReason}` : ""}
-                            {!back && request.stepOrder ? ` ขั้นที่ ${request.stepOrder}` : ""}
+                            {needsEdit && request.decisionReason ? " · " + request.decisionReason : ""}
+                            {!needsEdit && request.stepOrder ? " · ขั้นที่ " + request.stepOrder : ""}
                           </small>
                         </span>
-                        <StatusDot tone={back ? "back" : "wait"} label={back ? "ส่งกลับให้แก้ไข" : "รออนุมัติ"} />
+                        <StatusDot tone={needsEdit ? "back" : "wait"} label={needsEdit ? "ส่งกลับให้แก้ไข" : "รออนุมัติ"} />
                       </Link>
                     );
                   })}
@@ -279,63 +295,82 @@ export default function DesktopDashboardPage() {
           ) : null}
 
           {nav.calendar ? (
-            <section className="ck-panel ck-c-biz" aria-labelledby="dash-team">
-              <SectionHead title="ทีมของฉันสัปดาห์นี้" id="dash-team">
-                <Link className="ck-more ck-ml" href="/desktop/calendar">
-                  ดูปฏิทิน
-                  <Icon name="chevron" size={14} />
-                </Link>
-              </SectionHead>
-              {team.length === 0 ? (
-                <EmptyState title="สัปดาห์นี้ไม่มีใครลา">การลาของเพื่อนร่วมงานที่อนุมัติแล้วจะแสดงที่นี่</EmptyState>
+            <section className="ck-panel sh-overview-panel sh-board-team sh-team-requests" aria-labelledby="dash-team">
+              <header className="sh-framed-heading sh-panel-heading">
+                <span className="sh-section-icon sh-section-icon-green" aria-hidden="true"><Icon name="calendar" size={18} /></span>
+                <div>
+                  <h2 id="dash-team">TEAM LEAVE</h2>
+                  <p>{isLead ? "วันลาของทีม" : "ทีมของฉันสัปดาห์นี้"}</p>
+                </div>
+                <span className="sh-section-count">{localPreview ? "* ข้อมูลตัวอย่าง" : `${teamLeave.length} คน`}</span>
+              </header>
+              {teamLeave.length === 0 ? (
+                <EmptyState title="สัปดาห์นี้ไม่มีใครลา">รายการลาที่อนุมัติแล้วจะแสดงที่นี่</EmptyState>
               ) : (
-                <div className="ck-flist">
-                  {team.slice(0, 6).map((entry) => (
+                <div className="ck-flist sh-overview-list">
+                  {teamLeave.slice(0, 6).map((entry) => (
                     <div key={entry.id} className="ck-fitem ck-c-biz">
                       <span className="ck-av">{entry.employeeName.slice(0, 1)}</span>
                       <span>
                         <b>{entry.employeeName}</b>
-                        <small>
-                          {entry.leaveType} {entry.today ? "วันนี้" : thaiDateRange(entry.startDate, entry.endDate)}
-                        </small>
+                        <small>{entry.leaveType} · {entry.today ? "วันนี้" : thaiDateRange(entry.startDate, entry.endDate)}</small>
                       </span>
-                      <span className="dot" />
+                      <span className="sh-team-leave-mark" aria-label="อนุมัติแล้ว"><Icon name="check" size={14} /></span>
                     </div>
                   ))}
                 </div>
               )}
             </section>
           ) : null}
-        </div>
+    </div>
+  ) : null;
 
-        {nav.announcements ? (
-          <section className="ck-panel ck-c-med" aria-labelledby="dash-news">
-            <SectionHead title="ประกาศจากบริษัท" id="dash-news">
-              {nav.announcementAdmin ? (
-                <Link className="ck-btn quiet ck-ml" href="/desktop/announcements/manage">
-                  จัดการประกาศ
-                </Link>
-              ) : null}
-            </SectionHead>
-            {announcements.length === 0 ? (
-              <EmptyState title="ยังไม่มีประกาศ">ประกาศจากบริษัทจะแสดงที่นี่</EmptyState>
-            ) : (
-              <div className="ck-agrid3">
-                {announcements.slice(0, 3).map((announcement, index) => (
-                  <article key={announcement.id} className={"ck-anno " + toneClass(ANNOUNCEMENT_TONES[index % ANNOUNCEMENT_TONES.length] ?? "leave")}>
-                    <span className="tag">
-                      {announcement.scope === "GLOBAL" ? "ทั่วไป" : announcement.scope === "AGENCY" ? "หน่วยงาน" : "ฝ่าย"}
-                    </span>
-                    <h3>{announcement.title || "ประกาศ"}</h3>
-                    <p>{announcement.content}</p>
-                    <small>{announcement.publishedAt ? thaiDate(announcement.publishedAt) : ""}</small>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
-        ) : null}
-      </div>
-    </>
+  return (
+    <div className="ck-wrap ck-stack ck-home sh-dashboard">
+      <section className="sh-overview-section" aria-labelledby="dashboard-kpis">
+        <header className="sh-framed-heading sh-dashboard-heading">
+          <span className="sh-section-icon sh-section-icon-blue" aria-hidden="true"><Icon name="dashboard" size={18} /></span>
+          <div>
+            <h1 id="dashboard-kpis">{isLead ? "แดชบอร์ดผู้ดูแล" : "แดชบอร์ดพนักงาน"}</h1>
+          </div>
+          {localPreview ? <DashboardLocalFilter year={todayKey.slice(0, 4)} /> : null}
+        </header>
+        {localPreview ? <DashboardLocalPreview requests={data.requests} afterKpis={overviewPanels}>{kpiCards}</DashboardLocalPreview> : <>{kpiCards}{overviewPanels}</>}
+      </section>
+
+      {nav.calendar ? <DashboardCalendar todayKey={todayKey} holidays={data.leave?.holidays ?? []} preview={localPreview} /> : null}
+
+      {localPreview && nav.announcements ? <DashboardLocalCompany announcements={data.announcements} /> : null}
+
+      {nav.announcements && !localPreview ? (
+        <section className="ck-panel sh-overview-panel sh-announcements sh-board-news" aria-labelledby="dash-news">
+          <header className="sh-framed-heading sh-panel-heading">
+            <span className="sh-section-icon sh-section-icon-coral" aria-hidden="true"><Icon name="megaphone" size={18} /></span>
+            <div>
+              <h2 id="dash-news">ข่าวสารจากบริษัท</h2>
+              <p>ประกาศที่บัญชีนี้มีสิทธิ์เห็น</p>
+            </div>
+            <span className="sh-section-count">{announcements.length} ข่าว</span>
+          </header>
+          {announcements.length === 0 ? (
+            <EmptyState title="ยังไม่มีประกาศ">ประกาศที่เผยแพร่จะแสดงที่นี่</EmptyState>
+          ) : (
+            <div className="sh-announcement-grid">
+              {announcements.slice(0, 3).map((announcement, index) => (
+                <article key={announcement.id} className={"ck-anno " + toneClass(ANNOUNCEMENT_TONES[index % ANNOUNCEMENT_TONES.length] ?? "leave")}>
+                  <span className="tag">
+                    {announcement.scope === "GLOBAL" ? "ทั่วไป" : announcement.scope === "AGENCY" ? "หน่วยงาน" : "ฝ่าย"}
+                  </span>
+                  <h3>{announcement.title || "ประกาศ"}</h3>
+                  <p>{announcement.content}</p>
+                  <small>{announcement.publishedAt ? thaiDate(announcement.publishedAt) : ""}</small>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+          ) : null}
+
+    </div>
   );
 }

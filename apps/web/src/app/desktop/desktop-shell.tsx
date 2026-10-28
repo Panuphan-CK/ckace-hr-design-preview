@@ -220,6 +220,8 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
   const [pendingByKind, setPendingByKind] = useState<Readonly<Record<string, number>>>({});
   const [hash, setHash] = useState("");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sideFlyout, setSideFlyout] = useState<{ id: SectionId; top: number } | null>(null);
   const [popover, setPopover] = useState<"me" | "apps" | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
@@ -357,16 +359,17 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
   useEffect(() => {
     setMobileNavOpen(false);
     setPopover(null);
+    setSideFlyout(null);
   }, [pathname, hash]);
 
   useEffect(() => {
-    if (!popover) return;
+    if (!popover && !sideFlyout) return;
     const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setPopover(null);
+      if (event.key === "Escape") { setPopover(null); setSideFlyout(null); }
     };
     window.addEventListener("keydown", close);
     return () => window.removeEventListener("keydown", close);
-  }, [popover]);
+  }, [popover, sideFlyout]);
 
   const totalPending = Object.values(pendingByKind).reduce((sum, value) => sum + value, 0);
 
@@ -432,26 +435,29 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
                 : (legacyHead?.title ?? activeLink?.label ?? "พื้นที่บริการพนักงาน");
 
   return (
-    <div className="ck-app sh-app">
+    <div className={"ck-app sh-app" + (sidebarCollapsed ? " sh-collapsed" : "")}>
       <aside className={"sh-sidebar" + (mobileNavOpen ? " is-open" : "")} aria-label="เมนูหลัก">
+        <div className="sh-sidebar-head">
         <Link href="/desktop" className="sh-brand" aria-label="CKACE HR หน้าแรก" onClick={() => setMobileNavOpen(false)}>
           <span className="sh-brand-mark">CK</span>
           <span><b>CKACE <em>HR</em></b><small>HR WORKSPACE</small></span>
         </Link>
+        <button type="button" className="sh-collapse-toggle" aria-label={sidebarCollapsed ? "ขยายเมนูหลัก" : "ย่อเมนูหลัก"} aria-expanded={!sidebarCollapsed} onClick={() => { setSidebarCollapsed((value) => !value); setSideFlyout(null); setPopover(null); }}><Icon name="menu" size={20} /></button>
+        </div>
         <button type="button" className="sh-sidebar-close" aria-label="ปิดเมนูหลัก" onClick={() => setMobileNavOpen(false)}>
           <Icon name="close" size={18} />
         </button>
-        <nav className="sh-nav">
+        <nav className="sh-nav" onScroll={() => setSideFlyout(null)}>
           <div className="sh-nav-caption">เมนูหลัก</div>
           <Link
             href="/desktop"
             className={"sh-nav-link" + (pathname === "/desktop" ? " is-active" : "")}
-            aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.dashboard}
+            aria-label={pathname === "/desktop" ? "หน้าแรก" : DESKTOP_NAV_ACCESSIBLE_NAMES.dashboard}
             aria-current={pathname === "/desktop" ? "page" : undefined}
             onClick={() => setMobileNavOpen(false)}
           >
             <span className="sh-nav-icon" data-tone="accent"><Icon name="dashboard" size={17} /></span>
-            <span>ภาพรวม</span>
+            <span>{pathname === "/desktop" ? "หน้าแรก" : "ภาพรวม"}</span>
           </Link>
           {nav.calendar ? (
             <Link
@@ -474,6 +480,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
                   <span>{section.title}</span>
                   {section.id === "approvals" && totalPending > 0 ? <span className="sh-nav-total">{totalPending}</span> : null}
                 </div>
+                <button type="button" className={"sh-group-toggle" + (section.links.some((link) => isActive(link.href, pathname, hash)) ? " is-active" : "")} aria-label={section.title} title={section.title} aria-controls="sh-side-flyout" aria-expanded={sideFlyout?.id === section.id} onClick={(event) => { const top = event.currentTarget.getBoundingClientRect().top; setPopover(null); setSideFlyout((current) => current?.id === section.id ? null : { id: section.id, top: Math.max(8, Math.min(top, window.innerHeight - 120)) }); }}><Icon name={section.icon} size={20} /></button>
                 {section.links.map((link) => {
                   const showGroup = link.group !== undefined && link.group !== lastGroup;
                   lastGroup = link.group;
@@ -492,7 +499,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
                         }}
                       >
                         <span className="sh-nav-icon" data-tone={link.tone}><Icon name={link.icon} size={16} /></span>
-                        <span className="sh-nav-label">{link.label}</span>
+                        <span className="sh-nav-label">{pathname === "/desktop" && link.id === "overtime" ? "OT" : pathname === "/desktop" && link.id === "medical" ? "ค่ารักษาพยาบาล" : pathname === "/desktop" && link.id === "attendance" ? "ลงเวลา" : link.label}</span>
                         {count ? <span className="sh-nav-count">{count}</span> : null}
                       </Link>
                     </div>
@@ -502,7 +509,19 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
             );
           })}
         </nav>
+        <div className="sh-side-actions" aria-label="เครื่องมือบัญชี">
+          <button type="button" className="ck-ibtn" aria-label="การแจ้งเตือน" title="การแจ้งเตือน" aria-haspopup="dialog" aria-expanded={popover === "me"} onClick={() => { setSideFlyout(null); setPopover((current) => current === "me" ? null : "me"); }}><Icon name="bell" size={20} />{(inbox?.unread ?? 0) > 0 ? <span className="ck-badge">{inbox?.unread}</span> : null}</button>
+          <button type="button" className="ck-ibtn" aria-label="แอปพลิเคชัน" title="แอปพลิเคชัน" aria-haspopup="dialog" aria-expanded={popover === "apps"} onClick={() => { setSideFlyout(null); setPopover((current) => current === "apps" ? null : "apps"); }}><Icon name="apps" size={20} /></button>
+          <button type="button" className="ck-ibtn" aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile} title="โปรไฟล์" aria-haspopup="dialog" aria-expanded={popover === "me"} onClick={() => { setSideFlyout(null); setPopover((current) => current === "me" ? null : "me"); }}><Icon name="user" size={20} /></button>
+        </div>
       </aside>
+      {sideFlyout ? <>
+        <button type="button" className="sh-flyout-backdrop" aria-label="ปิดเมนูย่อย" onClick={() => setSideFlyout(null)} />
+        <div id="sh-side-flyout" className="sh-side-flyout" role="navigation" aria-label={sections.find((section) => section.id === sideFlyout.id)?.title} style={{ top: sideFlyout.top }}>
+          <strong>{sections.find((section) => section.id === sideFlyout.id)?.title}</strong>
+          {sections.find((section) => section.id === sideFlyout.id)?.links.map((link) => <Link key={link.id} href={link.href} className={"sh-flyout-link" + (isActive(link.href, pathname, hash) ? " is-active" : "")} onClick={() => { setHash(link.href.includes("#") ? "#" + link.href.split("#")[1] : ""); setSideFlyout(null); }}><Icon name={link.icon} size={18} /><span>{link.label}</span>{link.countKey && pendingByKind[link.countKey] ? <b>{pendingByKind[link.countKey]}</b> : null}</Link>)}
+        </div>
+      </> : null}
       {mobileNavOpen ? <button type="button" className="sh-nav-backdrop" aria-label="ปิดเมนู" onClick={() => setMobileNavOpen(false)} /> : null}
       <div className="sh-workspace">
         <header className="ck-top sh-top">
@@ -521,7 +540,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
           </div>
           <label className="sh-search" aria-label="ค้นหา">
             <Icon name="search" size={17} />
-            <input type="search" readOnly aria-label="ค้นหาข้อมูล (ยังไม่เปิดใช้งาน)" placeholder="ค้นหาข้อมูล..." />
+            <input type="search" readOnly aria-label="ค้นหาข้อมูล (ยังไม่เปิดใช้งาน)" placeholder={pathname === "/desktop" ? "ค้นหาในระบบ" : "ค้นหาข้อมูล..."} />
             <kbd>⌘ K</kbd>
           </label>
           <div className="ck-top-r sh-top-actions">

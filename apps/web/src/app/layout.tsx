@@ -3,6 +3,12 @@ import type { ReactNode } from "react";
 
 import "./globals.css";
 
+// Render pages per request so Firebase Hosting's CDN never caches HTML/RSC
+// (Next.js otherwise sends `s-maxage=31536000` for static pages). A cached page
+// outlives each Web deploy and keeps referencing deleted `/_next/static` chunks,
+// and authenticated pages would be stored at the edge keyed by `__session`.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "ระบบพนักงาน C.K.ACE",
   description: "ระบบบริหารงานบุคคลและบริการพนักงาน C.K.ACE",

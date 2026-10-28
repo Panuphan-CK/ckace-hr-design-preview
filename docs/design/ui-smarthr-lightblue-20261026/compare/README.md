@@ -22,3 +22,11 @@ The seven originals are reference-only. None of these source images is bundled i
 - `reference-admin.png`, `reference-my-leave.png`, and `reference-leave-list.png` are the rendered approved HTML mock-ups used in the composites.
 
 There is intentionally no 1:1 approved reference for reports. Its application capture is included separately; no mock-up numbers or employee records were copied into it.
+
+## Current Owner overview iteration — 2026-10-27
+
+The dashboard captures above show the prior local overview and do not reflect the latest light-pastel HERO and KPI-label adjustments. A final 1440px/390px screenshot pair is pending; the Browser QA tool timed out before the updated render could be captured. Do not use the earlier dashboard capture as approval evidence for this iteration.
+
+The Owner rejected the preceding overview iteration. Current replacement screenshots are synthetic captures in the OS temporary directory; the existing comparison images are not evidence of the replacement or Owner approval.
+
+Owner selected the Claude SmartHR mock-ups as the sole reference and removed the HERO. Earlier overview captures are superseded and do not show the current Desktop iteration.

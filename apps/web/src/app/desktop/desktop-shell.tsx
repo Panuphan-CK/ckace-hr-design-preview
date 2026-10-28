@@ -1,19 +1,23 @@
 "use client";
 
 import type {
+  AnnouncementListResult,
+  AnnouncementView,
   InboxOverview,
+  InAppNotificationItem,
   RequestStatusOverview,
   SelfProfileResponse,
 } from "@ckace/contracts";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { requestDesktopLogout } from "./logout-request";
 import { canAccessDesktopRoute } from "./desktop-route-access";
 import {
   DESKTOP_NAV_ACCESSIBLE_NAMES,
+  desktopSectionAccessibleName,
 } from "./desktop-nav-accessibility";
 import { installHashChangeEvents } from "./ui/hash-events";
 import { Icon, type IconName } from "./ui/icons";
@@ -79,166 +83,179 @@ type SessionState =
   | { status: "error"; message: string };
 
 type Tone = "leave" | "sick" | "biz" | "ot" | "time" | "med" | "gray" | "accent";
-type SectionId = "requests" | "approvals" | "reports" | "settings";
 
-interface FlyLink {
+interface FlatNavItem {
   readonly id: string;
   readonly label: string;
   readonly href: string;
   readonly icon: IconName;
   readonly tone: Tone;
-  readonly capability: Capability;
-  readonly group?: string;
-  readonly countKey?: "LEAVE" | "OVERTIME" | "TIME_CORRECTION" | "MEDICAL";
+  readonly capability?: Capability;
+  readonly isDivider?: boolean;
+  readonly isApprovals?: boolean;
 }
 
-interface FlySection {
-  readonly id: SectionId;
-  readonly title: string;
+const FLAT_NAV_ITEMS: readonly FlatNavItem[] = [
+  { id: "dashboard", label: "แดชบอร์ด", href: "/desktop", icon: "dashboard", tone: "accent" },
+  { id: "leave", label: "คำขอลางาน", href: "/desktop/leave", icon: "leave", tone: "leave", capability: "leave" },
+  { id: "overtime", label: "คำขอ OT", href: "/desktop/overtime", icon: "ot", tone: "ot", capability: "overtime" },
+  { id: "attendance", label: "ลงเวลา / แก้ไขเวลา", href: "/desktop/attendance", icon: "clock", tone: "time", capability: "attendance" },
+  { id: "medical", label: "เบิกค่ารักษา", href: "/desktop/medical", icon: "med", tone: "med", capability: "medical" },
+  { id: "divider-1", label: "", href: "", icon: "leave", tone: "gray", isDivider: true },
+  { id: "approvals", label: "งานอนุมัติ", href: "/desktop/approvals", icon: "check", tone: "leave", capability: "approvals", isApprovals: true },
+  { id: "reports", label: "รายงาน", href: "/desktop/reports", icon: "chart", tone: "biz", capability: "reports" },
+  { id: "settings", label: "ตั้งค่าระบบ", href: "/desktop/admin/management", icon: "gear", tone: "gray", capability: "managementAdmin" },
+];
+
+const LEGACY_HEADS: readonly {
+  readonly path: string;
+  readonly tone: PageTone;
   readonly icon: IconName;
-  readonly tone: Tone;
-  readonly links: readonly FlyLink[];
+  readonly title: string;
+  readonly subtitle: string;
+}[] = [
+  {
+    path: "/desktop/attendance",
+    tone: "time",
+    icon: "clock",
+    title: "ลงเวลาเข้า - ออกงาน",
+    subtitle: "บันทึกเวลาทำงานประจำวัน และประวัติการเข้างานย้อนหลัง",
+  },
+  {
+    path: "/desktop/leave",
+    tone: "leave",
+    icon: "leave",
+    title: "การลาของฉัน",
+    subtitle: "ยื่นใบลา ตรวจสอบสิทธิคงเหลือ และติดตามสถานะ",
+  },
+  {
+    path: "/desktop/overtime",
+    tone: "ot",
+    icon: "ot",
+    title: "ทำงานล่วงเวลา (OT)",
+    subtitle: "ขออนุมัติทำงานล่วงเวลาและติดตามผลการพิจารณา",
+  },
+  {
+    path: "/desktop/time-correction",
+    tone: "time",
+    icon: "time",
+    title: "ขอแก้ไขเวลาทำงาน",
+    subtitle: "กรณีลืมลงเวลา เข้า-ออกงานผิดพลาด หรือมีเหตุจำเป็น",
+  },
+  {
+    path: "/desktop/medical",
+    tone: "med",
+    icon: "med",
+    title: "เบิกค่ารักษาพยาบาล",
+    subtitle: "แนบใบเสร็จ ยื่นขอเบิก และตรวจสอบวงเงินคงเหลือประจำปี",
+  },
+  {
+    path: "/desktop/calendar",
+    tone: "leave",
+    icon: "calendar",
+    title: "ปฏิทินวันลา",
+    subtitle: "ภาพรวมวันลาของทีมและวันหยุดประจำปีของบริษัท",
+  },
+  {
+    path: "/desktop/profile",
+    tone: "accent",
+    icon: "user",
+    title: "โปรไฟล์ของฉัน",
+    subtitle: "ข้อมูลส่วนบุคคล สิทธิ์การใช้งาน และความปลอดภัย",
+  },
+  {
+    path: "/desktop/admin/management",
+    tone: "gray",
+    icon: "gear",
+    title: "จัดการข้อมูลองค์กร",
+    subtitle: "โครงสร้างองค์กร บทบาทหน้าที่ และนโยบายสิทธิประโยชน์",
+  },
+  {
+    path: "/desktop/approvals",
+    tone: "leave",
+    icon: "check",
+    title: "งานรออนุมัติ",
+    subtitle: "พิจารณาคำขอลา ทำงานล่วงเวลา และเบิกสวัสดิการของทีม",
+  },
+  {
+    path: "/desktop/reports",
+    tone: "biz",
+    icon: "chart",
+    title: "รายงานและการวิเคราะห์",
+    subtitle: "สถิติการมาทำงาน การลา และการใช้งบประมาณสวัสดิการ",
+  },
+];
+
+const REDESIGNED_PATHS = new Set<string>([
+  "/desktop",
+  "/desktop/approvals",
+  "/desktop/inbox",
+  "/desktop/notifications",
+  "/desktop/requests",
+  "/desktop/reports",
+  "/desktop/admin/management",
+]);
+
+function thaiAgo(iso: string): string {
+  try {
+    const diffSeconds = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+    if (diffSeconds < 60) return "เมื่อสักครู่";
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    if (diffMinutes < 60) return diffMinutes + " นาทีที่แล้ว";
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return diffHours + " ชั่วโมงที่แล้ว";
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return diffDays + " วันที่แล้ว";
+    const d = new Date(iso);
+    return d.toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "2-digit" });
+  } catch {
+    return "";
+  }
 }
 
-const SECTIONS: readonly FlySection[] = [
-  {
-    id: "requests",
-    title: "ยื่นคำขอ",
-    icon: "document",
-    tone: "leave",
-    links: [
-      { id: "leave", label: "การลา", href: "/desktop/leave", icon: "leave", tone: "leave", capability: "leave" },
-      { id: "overtime", label: "ทำงานล่วงเวลา", href: "/desktop/overtime", icon: "ot", tone: "ot", capability: "overtime" },
-      { id: "time-correction", label: "แก้ไขเวลา", href: "/desktop/time-correction", icon: "time", tone: "time", capability: "attendance" },
-      { id: "medical", label: "เบิกค่ารักษา", href: "/desktop/medical", icon: "med", tone: "med", capability: "medical" },
-      { id: "attendance", label: "ลงเวลาเข้าออก", href: "/desktop/attendance", icon: "clock", tone: "time", capability: "attendance", group: "บันทึกเวลาและสิทธิ" },
-    ],
-  },
-  {
-    id: "approvals",
-    title: "งานอนุมัติ",
-    icon: "check",
-    tone: "med",
-    links: [
-      { id: "approval-leave", label: "การลา", href: "/desktop/approvals#leave", icon: "leave", tone: "leave", capability: "leaveApprovals", countKey: "LEAVE" },
-      { id: "approval-overtime", label: "ทำงานล่วงเวลา", href: "/desktop/approvals#overtime", icon: "ot", tone: "ot", capability: "overtimeApprovals", countKey: "OVERTIME" },
-      { id: "approval-time", label: "แก้ไขเวลา", href: "/desktop/approvals#time-correction", icon: "time", tone: "time", capability: "timeCorrectionApprovals", countKey: "TIME_CORRECTION" },
-      { id: "approval-medical", label: "เบิกค่ารักษา", href: "/desktop/approvals#medical", icon: "med", tone: "med", capability: "medicalApprovals", countKey: "MEDICAL" },
-      { id: "delegation", label: "ผู้อนุมัติแทน", href: "/desktop/delegation", icon: "users", tone: "biz", capability: "delegation" },
-      { id: "onboarding", label: "สมาชิกใหม่รออนุมัติ", href: "/desktop/onboarding", icon: "users", tone: "biz", capability: "onboarding", group: "บัญชีผู้ใช้" },
-    ],
-  },
-  {
-    id: "reports",
-    title: "รายงาน",
-    icon: "chart",
-    tone: "biz",
-    links: [
-      { id: "report-overview", label: "ภาพรวม", href: "/desktop/reports#overview", icon: "dashboard", tone: "accent", capability: "reports" },
-      { id: "report-leave", label: "การลา", href: "/desktop/reports#leave", icon: "leave", tone: "leave", capability: "reports" },
-      { id: "report-attendance", label: "การเข้างาน", href: "/desktop/reports#attendance", icon: "clock", tone: "time", capability: "reports" },
-      { id: "report-overtime", label: "OT", href: "/desktop/reports#overtime", icon: "ot", tone: "ot", capability: "reports" },
-      { id: "report-medical", label: "ค่ารักษาพยาบาล", href: "/desktop/reports#medical", icon: "med", tone: "med", capability: "reports" },
-    ],
-  },
-  {
-    id: "settings",
-    title: "ตั้งค่า HR",
-    icon: "gear",
-    tone: "gray",
-    links: [
-      { id: "leave-entitlements", label: "สิทธิวันลา", href: "/desktop/admin/management#entitlements", icon: "leave", tone: "leave", capability: "entitlementAdmin", group: "การลา" },
-      { id: "work-calendar", label: "วันหยุดและวันทำงาน", href: "/desktop/admin/management#work-calendar", icon: "calendar", tone: "sick", capability: "workCalendarAdmin", group: "การลา" },
-      { id: "ot-allowance", label: "ค่าข้าว/ค่ารถ OT", href: "/desktop/admin/overtime-allowance", icon: "ot", tone: "ot", capability: "organizationAdmin", group: "การลา" },
-      { id: "medical-policy", label: "วงเงินค่ารักษา", href: "/desktop/admin/medical-policy", icon: "med", tone: "med", capability: "organizationAdmin", group: "การลา" },
-      { id: "attendance-policy", label: "นโยบายลงเวลา", href: "/desktop/admin/attendance-policy", icon: "clock", tone: "time", capability: "organizationAdmin", group: "การลา" },
-      { id: "employee-master", label: "ฐานข้อมูลพนักงาน", href: "/desktop/admin/management#users", icon: "users", tone: "biz", capability: "usersAdmin", group: "พนักงานและสิทธิ์" },
-      { id: "organization", label: "โครงสร้างและสังกัด", href: "/desktop/admin/management#organization", icon: "building", tone: "time", capability: "organizationAdmin", group: "พนักงานและสิทธิ์" },
-      { id: "professional-roles", label: "บทบาทวิชาชีพ", href: "/desktop/admin/professional-roles", icon: "users", tone: "biz", capability: "usersAdmin", group: "พนักงานและสิทธิ์" },
-      { id: "approval-policies", label: "สายอนุมัติ", href: "/desktop/admin/approval-policies", icon: "lock", tone: "ot", capability: "rbacAdmin", group: "พนักงานและสิทธิ์" },
-      { id: "access-control", label: "สิทธิ์และการเข้าถึง", href: "/desktop/admin/management#roles", icon: "lock", tone: "ot", capability: "rbacAdmin", group: "พนักงานและสิทธิ์" },
-      { id: "announcements", label: "ประกาศ", href: "/desktop/announcements", icon: "megaphone", tone: "med", capability: "announcementAdmin", group: "อื่น ๆ" },
-      { id: "platform-settings", label: "ตั้งค่าระบบ", href: "/desktop/admin", icon: "gear", tone: "gray", capability: "adminSettings", group: "อื่น ๆ" },
-    ],
-  },
-];
-
-/** Pages already rebuilt on the ck- design system render edge to edge; the rest keep their legacy padding. */
-const REDESIGNED_PATHS: ReadonlySet<string> = new Set(["/desktop", "/desktop/delegation", "/desktop/leave", "/desktop/overtime", "/desktop/medical", "/desktop/time-correction", "/desktop/attendance", "/desktop/approvals", "/desktop/profile", "/desktop/reports", "/desktop/requests", "/desktop/notifications", "/desktop/announcements", "/desktop/onboarding", "/desktop/inbox", "/desktop/admin", "/desktop/admin/medical-policy", "/desktop/admin/overtime-allowance", "/desktop/admin/attendance-policy", "/desktop/admin/professional-roles", "/desktop/admin/approval-policies"]);
-
-/** Page header for pages that are not yet rebuilt: one consistent band across the whole system. */
-const LEGACY_HEADS: readonly { readonly path: string; readonly tone: PageTone; readonly icon: IconName; readonly title: string; readonly subtitle: string }[] = [
-  { path: "/desktop/admin/management", tone: "gray", icon: "building", title: "จัดการข้อมูลองค์กร", subtitle: "พนักงาน บริษัท ทีม แผนก วันหยุด และสิทธิ์" },
-  { path: "/desktop/admin/professional-roles", tone: "gray", icon: "audit", title: "บทบาทวิชาชีพ", subtitle: "ผู้ทำบัญชี ผู้รับผิดชอบงาน ผู้สอบบัญชี และการยกเว้นลงเวลา" },
-  { path: "/desktop/admin/approval-policies", tone: "gray", icon: "flow", title: "สายอนุมัติ", subtitle: "กำหนดลำดับผู้อนุมัติของคำขอแต่ละประเภท" },
-  { path: "/desktop/admin/overtime-allowance", tone: "ot", icon: "ot", title: "ค่าข้าวและค่ารถ OT", subtitle: "เงื่อนไขและจำนวนเงินที่จ่ายเมื่อเลิกงานดึก" },
-  { path: "/desktop/admin/medical-policy", tone: "med", icon: "med", title: "วงเงินค่ารักษา", subtitle: "วงเงินต่อปีและต่อครั้งของการเบิกค่ารักษา" },
-  { path: "/desktop/admin/attendance-policy", tone: "time", icon: "clock", title: "นโยบายลงเวลา", subtitle: "ที่ตั้งสำนักงาน เวลาเข้า-เลิกงาน และเวลาพัก" },
-  { path: "/desktop/admin", tone: "gray", icon: "gear", title: "ตั้งค่าระบบ", subtitle: "การตั้งค่าและประชาสัมพันธ์ของระบบ" },
-  { path: "/desktop/announcements", tone: "ot", icon: "megaphone", title: "ข่าวประกาศ", subtitle: "ข่าวสารและประกาศของบริษัท" },
-  { path: "/desktop/calendar", tone: "leave", icon: "calendar", title: "ปฏิทินการลา", subtitle: "ดูวันลาของพนักงานทั้งเดือน" },
-  { path: "/desktop/benefits", tone: "med", icon: "med", title: "สิทธิและสวัสดิการ", subtitle: "วงเงินค่ารักษาและประวัติการใช้สิทธิ" },
-  { path: "/desktop/requests", tone: "gray", icon: "document", title: "สถานะคำขอ", subtitle: "คำขอทุกประเภทของคุณในที่เดียว" },
-  { path: "/desktop/notifications", tone: "gray", icon: "bell", title: "การส่งแจ้งเตือน", subtitle: "สถานะการส่งข้อความผ่าน LINE และอีเมล" },
-  { path: "/desktop/inbox", tone: "gray", icon: "bell", title: "กล่องแจ้งเตือน", subtitle: "ข้อความแจ้งเตือนถึงคุณ" },
-  { path: "/desktop/onboarding", tone: "biz", icon: "users", title: "สมาชิกใหม่รออนุมัติ", subtitle: "อนุมัติบัญชีพนักงานที่สมัครเข้ามา" },
-];
+function initials(name: string | undefined): string {
+  if (!name) return "พ";
+  const cleaned = name.replace(/^(นาย|นางสาว|นาง|คุณ|ด\.ช\.|ด\.ญ\.)\s*/, "").trim();
+  return (cleaned[0] || name[0] || "พ").toUpperCase();
+}
 
 function isActive(href: string, pathname: string, hash: string): boolean {
-  const [path = href, hashPart] = href.split("#", 2);
-  if (hashPart) return pathname === path && hash === "#" + hashPart;
-  if (path === "/desktop") return pathname === path;
-  if (path === "/desktop/admin") return pathname === path;
-  return (pathname === path || pathname.startsWith(path + "/")) && hash === "";
-}
-
-function initials(fullName: string | null | undefined): string {
-  if (!fullName) return "ฉัน";
-  const parts = fullName.trim().split(/\s+/);
-  const first = Array.from(parts[0] ?? "")[0] ?? "";
-  const second = Array.from(parts[1] ?? "")[0] ?? "";
-  return (first + second) || "ฉัน";
-}
-
-/** "5 นาทีที่แล้ว" style age for the bell list. */
-function thaiAgo(iso: string): string {
-  const minutes = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000));
-
-  if (minutes < 1) return "เมื่อสักครู่";
-  if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
-  if (minutes < 24 * 60) return `${Math.floor(minutes / 60)} ชั่วโมงที่แล้ว`;
-
-  return `${Math.floor(minutes / (24 * 60))} วันที่แล้ว`;
+  if (!href) return false;
+  if (href === "/desktop") return pathname === "/desktop";
+  if (href.includes("#")) {
+    const [path, targetHash] = href.split("#");
+    return pathname === path && hash === "#" + targetHash;
+  }
+  return pathname === href || pathname.startsWith(href + "/");
 }
 
 export function DesktopShell({ children }: { readonly children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [hash, setHash] = useState("");
   const [state, setState] = useState<SessionState>({ status: "loading" });
   const [profile, setProfile] = useState<SelfProfileResponse | null>(null);
   const [inbox, setInbox] = useState<InboxOverview | null>(null);
-  const [pendingByKind, setPendingByKind] = useState<Readonly<Record<string, number>>>({});
-  const [hash, setHash] = useState("");
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [announcements, setAnnouncements] = useState<readonly AnnouncementView[]>([]);
+  const [pendingByKind, setPendingByKind] = useState<Record<string, number>>({});
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [sideFlyout, setSideFlyout] = useState<{ id: SectionId; top: number } | null>(null);
-  const [popover, setPopover] = useState<"me" | "apps" | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTab, setDrawerTab] = useState<"all" | "system" | "announcement">("all");
+  const [profilePopupOpen, setProfilePopupOpen] = useState(false);
+  const [popover, setPopover] = useState<"apps" | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
 
   useEffect(() => {
     installHashChangeEvents();
-  }, []);
-
-  useEffect(() => {
-    const sync = () => setHash(window.location.hash);
+    const sync = () => setHash(window.location.hash || "");
     sync();
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
-  }, [pathname]);
+  }, []);
 
   useEffect(() => {
-    // Notice when the session ends while the page stays open (idle timeout, logged out elsewhere).
     const timer = window.setInterval(() => {
       void fetch("/api/security/session", { credentials: "same-origin", cache: "no-store" })
         .then((response) => {
@@ -257,17 +274,21 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
           if (!cancelled) router.replace("/login");
           return null;
         }
-        if (!response.ok) throw new Error("session unavailable");
-        return response.json() as Promise<SessionPayload>;
+        if (!response.ok) {
+          throw new Error("เซสชันไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่");
+        }
+        return (await response.json()) as SessionPayload;
       })
       .then((session) => {
-        if (!cancelled && session) setState({ status: "ready", session });
+        if (!cancelled && session) {
+          setState({ status: "ready", session });
+        }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (!cancelled) {
           setState({
             status: "error",
-            message: "ไม่สามารถตรวจสอบสิทธิ์การเข้าใช้งานได้ กรุณาลองใหม่อีกครั้ง",
+            message: error instanceof Error ? error.message : "ไม่สามารถยืนยันตัวตนได้",
           });
         }
       });
@@ -278,8 +299,9 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
 
   const navigation = state.status === "ready" ? state.session.navigation : null;
 
+  // Fetch Profile
   useEffect(() => {
-    if (!navigation?.profile) return;
+    if (!navigation) return;
     let cancelled = false;
     void fetch("/api/profile/me", { credentials: "same-origin", cache: "no-store" })
       .then((response) => (response.ok ? (response.json() as Promise<SelfProfileResponse>) : null))
@@ -290,26 +312,83 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [navigation?.profile]);
+  }, [navigation, pathname]);
 
-  // In-app inbox (bell): refreshed on navigation and every minute while the tab is open.
+  // Fetch Inbox & Announcements
   useEffect(() => {
-    if (!navigation?.profile) return;
+    if (!navigation) return;
     let cancelled = false;
-    const load = () =>
+    const loadInbox = () => {
       void fetch("/api/inbox/me", { credentials: "same-origin", cache: "no-store" })
         .then((response) => (response.ok ? (response.json() as Promise<InboxOverview>) : null))
         .then((value) => {
           if (!cancelled && value) setInbox(value);
         })
         .catch(() => undefined);
-    load();
-    const timer = window.setInterval(load, 60_000);
+    };
+    const loadAnnouncements = () => {
+      void fetch("/api/announcements", { credentials: "same-origin", cache: "no-store" })
+        .then((response) => (response.ok ? (response.json() as Promise<AnnouncementListResult>) : null))
+        .then((value) => {
+          if (!cancelled && value?.announcements) setAnnouncements(value.announcements);
+        })
+        .catch(() => undefined);
+    };
+    loadInbox();
+    loadAnnouncements();
+    const timer = window.setInterval(() => {
+      loadInbox();
+      loadAnnouncements();
+    }, 60_000);
     return () => {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [navigation?.profile, pathname]);
+  }, [navigation, pathname]);
+
+  // Fetch Approvals pending counts
+  useEffect(() => {
+    if (!navigation?.approvals && !navigation?.leaveApprovals) return;
+    let cancelled = false;
+    void fetch("/api/requests/assigned", { credentials: "same-origin", cache: "no-store" })
+      .then((response) => (response.ok ? (response.json() as Promise<RequestStatusOverview>) : null))
+      .then((value) => {
+        if (cancelled || !value) return;
+        const counts: Record<string, number> = {};
+        for (const item of value.requests) {
+          if (item.canDecide) counts[item.kind] = (counts[item.kind] ?? 0) + 1;
+        }
+        setPendingByKind(counts);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation?.approvals, navigation?.leaveApprovals, pathname]);
+
+  // Close drawers/popovers on route change
+  useEffect(() => {
+    setMobileNavOpen(false);
+    setProfilePopupOpen(false);
+    setPopover(null);
+  }, [pathname, hash]);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!drawerOpen && !profilePopupOpen && !popover) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setDrawerOpen(false);
+        setProfilePopupOpen(false);
+        setPopover(null);
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [drawerOpen, profilePopupOpen, popover]);
+
+  const totalPending = Object.values(pendingByKind).reduce((sum, value) => sum + value, 0);
+  const unreadCount = inbox?.unread ?? 0;
 
   async function markInboxRead() {
     try {
@@ -328,50 +407,6 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
       /* the next refresh shows the real state */
     }
   }
-
-  useEffect(() => {
-    if (!navigation?.approvals) return;
-    let cancelled = false;
-    void fetch("/api/requests/assigned", { credentials: "same-origin", cache: "no-store" })
-      .then((response) => (response.ok ? (response.json() as Promise<RequestStatusOverview>) : null))
-      .then((value) => {
-        if (cancelled || !value) return;
-        const counts: Record<string, number> = {};
-        for (const item of value.requests) {
-          if (item.canDecide) counts[item.kind] = (counts[item.kind] ?? 0) + 1;
-        }
-        setPendingByKind(counts);
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, [navigation?.approvals, pathname]);
-
-  const sections = useMemo(() => {
-    if (!navigation) return [];
-    return SECTIONS.map((section) => ({
-      ...section,
-      links: section.links.filter((link) => navigation[link.capability]),
-    })).filter((section) => section.links.length > 0);
-  }, [navigation]);
-
-  useEffect(() => {
-    setMobileNavOpen(false);
-    setPopover(null);
-    setSideFlyout(null);
-  }, [pathname, hash]);
-
-  useEffect(() => {
-    if (!popover && !sideFlyout) return;
-    const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { setPopover(null); setSideFlyout(null); }
-    };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, [popover, sideFlyout]);
-
-  const totalPending = Object.values(pendingByKind).reduce((sum, value) => sum + value, 0);
 
   async function logout() {
     if (loggingOut) return;
@@ -415,114 +450,486 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
 
   const nav = state.session.navigation;
   const routeAllowed = canAccessDesktopRoute(nav, pathname, hash);
-  const displayName = profile?.fullName ?? "บัญชีพนักงาน";
-  const subtitle = [profile?.roles[0], profile?.department?.name].filter(Boolean).join(" ") || "พนักงาน";
-  const activeLink = sections.flatMap((section) => section.links).find((link) => isActive(link.href, pathname, hash));
+  const displayName = profile?.fullName ?? "คุณพนักงาน";
+  const subtitle = [profile?.roles[0], profile?.department?.name].filter(Boolean).join(" · ") || "พนักงาน";
   const legacyHead = LEGACY_HEADS.find((item) => pathname === item.path || pathname.startsWith(item.path + "/"));
   const pageTitle =
     pathname === "/desktop"
       ? (nav.managementAdmin ? "แดชบอร์ดผู้ดูแล" : "แดชบอร์ดพนักงาน")
       : pathname === "/desktop/leave"
-        ? "การลาของฉัน"
-        : pathname === "/desktop/requests"
-          ? "สถานะคำขอ"
-          : pathname === "/desktop/admin/management"
-            ? "จัดการข้อมูลองค์กร"
-            : pathname === "/desktop/reports"
-              ? "รายงาน"
-              : pathname === "/desktop/attendance"
-                ? "ลงเวลาเข้า-ออกงาน"
-                : (legacyHead?.title ?? activeLink?.label ?? "พื้นที่บริการพนักงาน");
+        ? "คำขอลางาน"
+        : pathname === "/desktop/overtime"
+          ? "คำขอทำงานล่วงเวลา (OT)"
+          : pathname === "/desktop/attendance"
+            ? "ลงเวลาเข้า-ออกงาน"
+            : pathname === "/desktop/medical"
+              ? "เบิกค่ารักษาพยาบาล"
+              : pathname === "/desktop/approvals"
+                ? "งานอนุมัติ"
+                : pathname === "/desktop/reports"
+                  ? "รายงานและการวิเคราะห์"
+                  : pathname === "/desktop/admin/management"
+                    ? "จัดการข้อมูลองค์กร"
+                    : pathname === "/desktop/profile"
+                      ? "โปรไฟล์ของฉัน"
+                      : (legacyHead?.title ?? "พื้นที่บริการพนักงาน");
+
+  // Filtered navigation items for single-level flat sidebar
+  const visibleNavItems = FLAT_NAV_ITEMS.filter((item) => {
+    if (item.isDivider) return true;
+    if (!item.capability) return true;
+    if (item.isApprovals) {
+      return nav.approvals || nav.leaveApprovals || nav.overtimeApprovals || nav.medicalApprovals;
+    }
+    if (item.id === "settings") {
+      return (
+        nav.managementAdmin ||
+        nav.admin ||
+        nav.usersAdmin ||
+        nav.organizationAdmin ||
+        nav.rbacAdmin ||
+        nav.profile
+      );
+    }
+    return Boolean(nav[item.capability]);
+  });
 
   return (
     <div className={"ck-app sh-app" + (sidebarCollapsed ? " sh-collapsed" : "")}>
+      {/* ===== 1. Single-level Flat Sidebar (Slide bar with NO sub-menus) ===== */}
       <aside className={"sh-sidebar" + (mobileNavOpen ? " is-open" : "")} aria-label="เมนูหลัก">
         <div className="sh-sidebar-head">
-        <Link href="/desktop" className="sh-brand" aria-label="CKACE HR หน้าแรก" onClick={() => setMobileNavOpen(false)}>
-          <span className="sh-brand-mark">CK</span>
-          <span><b>CKACE <em>HR</em></b><small>HR WORKSPACE</small></span>
-        </Link>
-        <button type="button" className="sh-collapse-toggle" aria-label={sidebarCollapsed ? "ขยายเมนูหลัก" : "ย่อเมนูหลัก"} aria-expanded={!sidebarCollapsed} onClick={() => { setSidebarCollapsed((value) => !value); setSideFlyout(null); setPopover(null); }}><Icon name="menu" size={20} /></button>
-        </div>
-        <button type="button" className="sh-sidebar-close" aria-label="ปิดเมนูหลัก" onClick={() => setMobileNavOpen(false)}>
-          <Icon name="close" size={18} />
-        </button>
-        <nav className="sh-nav" onScroll={() => setSideFlyout(null)}>
-          <div className="sh-nav-caption">เมนูหลัก</div>
           <Link
             href="/desktop"
-            className={"sh-nav-link" + (pathname === "/desktop" ? " is-active" : "")}
-            aria-label={pathname === "/desktop" ? "หน้าแรก" : DESKTOP_NAV_ACCESSIBLE_NAMES.dashboard}
-            aria-current={pathname === "/desktop" ? "page" : undefined}
+            className="sh-brand"
+            aria-label="CKACE HR หน้าแรก"
             onClick={() => setMobileNavOpen(false)}
           >
-            <span className="sh-nav-icon" data-tone="accent"><Icon name="dashboard" size={17} /></span>
-            <span>{pathname === "/desktop" ? "หน้าแรก" : "ภาพรวม"}</span>
+            <span className="sh-brand-mark">CK</span>
+            <span>
+              <b>CKACE <em>HR</em></b>
+              <small>HR WORKSPACE</small>
+            </span>
           </Link>
-          {nav.calendar ? (
-            <Link
-              href="/desktop/calendar"
-              className={"sh-nav-link" + (pathname === "/desktop/calendar" ? " is-active" : "")}
-              aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.calendar}
-              aria-current={pathname === "/desktop/calendar" ? "page" : undefined}
-              onClick={() => setMobileNavOpen(false)}
-            >
-              <span className="sh-nav-icon" data-tone="leave"><Icon name="calendar" size={17} /></span>
-              <span>ปฏิทิน</span>
-            </Link>
-          ) : null}
-          {sections.map((section) => {
-            let lastGroup: string | undefined;
+          <button
+            type="button"
+            className="sh-collapse-toggle"
+            aria-label={sidebarCollapsed ? "ขยายเมนูหลัก" : "ย่อเมนูหลัก"}
+            aria-expanded={!sidebarCollapsed}
+            onClick={() => {
+              setSidebarCollapsed((value) => !value);
+              setProfilePopupOpen(false);
+              setPopover(null);
+            }}
+          >
+            <Icon name="menu" size={20} />
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className="sh-sidebar-close"
+          aria-label="ปิดเมนูหลัก"
+          onClick={() => setMobileNavOpen(false)}
+        >
+          <Icon name="close" size={18} />
+        </button>
+
+        {/* Flat single-level nav items */}
+        <nav className="sh-flat-nav" aria-label="เมนูหลัก">
+          {visibleNavItems.map((item) => {
+            if (item.isDivider) {
+              return <div key={item.id} className="sh-flat-divider" />;
+            }
+
+            const active = isActive(item.href, pathname, hash);
+            const pendingCount = item.isApprovals ? totalPending : 0;
+            const accessibleName = item.isApprovals
+              ? desktopSectionAccessibleName(item.label, pendingCount)
+              : item.id === "dashboard"
+                ? DESKTOP_NAV_ACCESSIBLE_NAMES.dashboard
+                : item.label;
+
             return (
-              <section className="sh-nav-group" aria-label={section.title} key={section.id}>
-                <div className="sh-nav-section-title">
-                  <span className="sh-nav-icon" data-tone={section.tone}><Icon name={section.icon} size={17} /></span>
-                  <span>{section.title}</span>
-                  {section.id === "approvals" && totalPending > 0 ? <span className="sh-nav-total">{totalPending}</span> : null}
-                </div>
-                <button type="button" className={"sh-group-toggle" + (section.links.some((link) => isActive(link.href, pathname, hash)) ? " is-active" : "")} aria-label={section.title} title={section.title} aria-controls="sh-side-flyout" aria-expanded={sideFlyout?.id === section.id} onClick={(event) => { const top = event.currentTarget.getBoundingClientRect().top; setPopover(null); setSideFlyout((current) => current?.id === section.id ? null : { id: section.id, top: Math.max(8, Math.min(top, window.innerHeight - 120)) }); }}><Icon name={section.icon} size={20} /></button>
-                {section.links.map((link) => {
-                  const showGroup = link.group !== undefined && link.group !== lastGroup;
-                  lastGroup = link.group;
-                  const count = link.countKey ? pendingByKind[link.countKey] : undefined;
-                  const active = isActive(link.href, pathname, hash);
-                  return (
-                    <div className="sh-nav-entry" key={link.id}>
-                      {showGroup ? <div className="sh-nav-subtitle">{link.group}</div> : null}
-                      <Link
-                        href={link.href}
-                        className={"sh-nav-link sh-nav-child" + (active ? " is-active" : "")}
-                        aria-current={active ? "page" : undefined}
-                        onClick={() => {
-                          setHash(link.href.includes("#") ? "#" + link.href.split("#")[1] : "");
-                          setMobileNavOpen(false);
-                        }}
-                      >
-                        <span className="sh-nav-icon" data-tone={link.tone}><Icon name={link.icon} size={16} /></span>
-                        <span className="sh-nav-label">{pathname === "/desktop" && link.id === "overtime" ? "OT" : pathname === "/desktop" && link.id === "medical" ? "ค่ารักษาพยาบาล" : pathname === "/desktop" && link.id === "attendance" ? "ลงเวลา" : link.label}</span>
-                        {count ? <span className="sh-nav-count">{count}</span> : null}
-                      </Link>
-                    </div>
-                  );
-                })}
-              </section>
+              <Link
+                key={item.id}
+                href={item.href}
+                className={"sh-flat-item" + (active ? " active" : "")}
+                aria-label={accessibleName}
+                aria-current={active ? "page" : undefined}
+                onClick={() => {
+                  if (item.href.includes("#")) {
+                    setHash("#" + item.href.split("#")[1]);
+                  }
+                  setMobileNavOpen(false);
+                }}
+              >
+                <span className="sh-flat-icon" data-tone={item.tone}>
+                  <Icon name={item.icon} size={19} />
+                </span>
+                <span className="sh-flat-label">{item.label}</span>
+                {pendingCount > 0 ? (
+                  <span className="sh-flat-badge">{pendingCount}</span>
+                ) : null}
+              </Link>
             );
           })}
         </nav>
-        <div className="sh-side-actions" aria-label="เครื่องมือบัญชี">
-          <button type="button" className="ck-ibtn" aria-label="การแจ้งเตือน" title="การแจ้งเตือน" aria-haspopup="dialog" aria-expanded={popover === "me"} onClick={() => { setSideFlyout(null); setPopover((current) => current === "me" ? null : "me"); }}><Icon name="bell" size={20} />{(inbox?.unread ?? 0) > 0 ? <span className="ck-badge">{inbox?.unread}</span> : null}</button>
-          <button type="button" className="ck-ibtn" aria-label="แอปพลิเคชัน" title="แอปพลิเคชัน" aria-haspopup="dialog" aria-expanded={popover === "apps"} onClick={() => { setSideFlyout(null); setPopover((current) => current === "apps" ? null : "apps"); }}><Icon name="apps" size={20} /></button>
-          <button type="button" className="ck-ibtn" aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile} title="โปรไฟล์" aria-haspopup="dialog" aria-expanded={popover === "me"} onClick={() => { setSideFlyout(null); setPopover((current) => current === "me" ? null : "me"); }}><Icon name="user" size={20} /></button>
+
+        {/* Sidebar Footer with Notification bell, Apps, and Profile Avatar */}
+        <div className="sh-flat-footer" aria-label="เครื่องมือบัญชี">
+          <button
+            type="button"
+            className="sh-flat-footer-btn"
+            id="shBellBtn"
+            aria-label="การแจ้งเตือน"
+            title="การแจ้งเตือน"
+            aria-haspopup="dialog"
+            aria-expanded={drawerOpen}
+            onClick={() => {
+              setProfilePopupOpen(false);
+              setPopover(null);
+              setDrawerOpen(true);
+            }}
+          >
+            <Icon name="bell" size={20} />
+            {unreadCount > 0 ? <span className="badge-dot">{unreadCount}</span> : null}
+          </button>
+
+          <button
+            type="button"
+            className="sh-flat-footer-btn"
+            aria-label="แอปพลิเคชัน"
+            title="แอปพลิเคชัน"
+            aria-haspopup="dialog"
+            aria-expanded={popover === "apps"}
+            onClick={() => {
+              setDrawerOpen(false);
+              setProfilePopupOpen(false);
+              setPopover((current) => (current === "apps" ? null : "apps"));
+            }}
+          >
+            <Icon name="apps" size={20} />
+          </button>
+
+          <button
+            type="button"
+            className="sh-flat-footer-btn avatar-btn"
+            id="shProfileBtn"
+            aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
+            title="โปรไฟล์"
+            aria-haspopup="dialog"
+            aria-expanded={profilePopupOpen}
+            onClick={() => {
+              setDrawerOpen(false);
+              setPopover(null);
+              setProfilePopupOpen((open) => !open);
+            }}
+          >
+            {initials(profile?.fullName)}
+            <span className="status-dot" />
+          </button>
         </div>
       </aside>
-      {sideFlyout ? <>
-        <button type="button" className="sh-flyout-backdrop" aria-label="ปิดเมนูย่อย" onClick={() => setSideFlyout(null)} />
-        <div id="sh-side-flyout" className="sh-side-flyout" role="navigation" aria-label={sections.find((section) => section.id === sideFlyout.id)?.title} style={{ top: sideFlyout.top }}>
-          <strong>{sections.find((section) => section.id === sideFlyout.id)?.title}</strong>
-          {sections.find((section) => section.id === sideFlyout.id)?.links.map((link) => <Link key={link.id} href={link.href} className={"sh-flyout-link" + (isActive(link.href, pathname, hash) ? " is-active" : "")} onClick={() => { setHash(link.href.includes("#") ? "#" + link.href.split("#")[1] : ""); setSideFlyout(null); }}><Icon name={link.icon} size={18} /><span>{link.label}</span>{link.countKey && pendingByKind[link.countKey] ? <b>{pendingByKind[link.countKey]}</b> : null}</Link>)}
+
+      {/* Mobile nav backdrop */}
+      {mobileNavOpen ? (
+        <button
+          type="button"
+          className="sh-nav-backdrop"
+          aria-label="ปิดเมนู"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      ) : null}
+
+      {/* ===== 2. Right-side Slide-over Notification Drawer ===== */}
+      <div
+        className={"drawer-overlay" + (drawerOpen ? " open" : "")}
+        onClick={() => setDrawerOpen(false)}
+        aria-hidden="true"
+      />
+      <aside
+        className={"drawer" + (drawerOpen ? " open" : "")}
+        role="dialog"
+        aria-label="การแจ้งเตือน"
+        aria-modal="true"
+      >
+        <div className="drawer-header">
+          <div className="drawer-title-group">
+            <Icon name="bell" size={22} style={{ color: "var(--blue-primary)" }} />
+            <div className="drawer-title">การแจ้งเตือน</div>
+            {unreadCount > 0 ? (
+              <span className="drawer-unread-tag">{unreadCount} ใหม่</span>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            className="drawer-close"
+            aria-label="ปิดการแจ้งเตือน"
+            onClick={() => setDrawerOpen(false)}
+          >
+            <Icon name="close" size={19} />
+          </button>
         </div>
-      </> : null}
-      {mobileNavOpen ? <button type="button" className="sh-nav-backdrop" aria-label="ปิดเมนู" onClick={() => setMobileNavOpen(false)} /> : null}
+
+        {/* 3 Tabs: ทั้งหมด, ระบบ, ประกาศ */}
+        <div className="drawer-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={drawerTab === "all"}
+            className={"drawer-tab" + (drawerTab === "all" ? " active" : "")}
+            onClick={() => setDrawerTab("all")}
+          >
+            ทั้งหมด
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={drawerTab === "system"}
+            className={"drawer-tab" + (drawerTab === "system" ? " active" : "")}
+            onClick={() => setDrawerTab("system")}
+          >
+            ระบบ
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={drawerTab === "announcement"}
+            className={"drawer-tab" + (drawerTab === "announcement" ? " active" : "")}
+            onClick={() => setDrawerTab("announcement")}
+          >
+            ประกาศ
+          </button>
+        </div>
+
+        <div className="drawer-actions-bar">
+          <span>รายการล่าสุด</span>
+          {unreadCount > 0 ? (
+            <button
+              type="button"
+              className="drawer-read-all-btn"
+              onClick={() => void markInboxRead()}
+            >
+              ทำเครื่องหมายว่าอ่านแล้วทั้งหมด
+            </button>
+          ) : null}
+        </div>
+
+        <div className="drawer-content">
+          {(() => {
+            const systemItems: readonly InAppNotificationItem[] = inbox?.items ?? [];
+            const annoItems: readonly AnnouncementView[] = announcements;
+
+            if (drawerTab === "system") {
+              if (systemItems.length === 0) {
+                return (
+                  <div className="drawer-empty-state">
+                    <Icon name="bell" size={36} />
+                    <p>ไม่มีการแจ้งเตือนระบบในขณะนี้</p>
+                  </div>
+                );
+              }
+              return systemItems.map((item) => (
+                <div
+                  key={item.id}
+                  className={"notif-card" + (!item.read ? " unread" : "")}
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    router.push("/desktop/inbox");
+                  }}
+                >
+                  <div className="notif-icon-circle system">
+                    <Icon name="check" size={18} />
+                  </div>
+                  <div className="notif-body">
+                    <div className="notif-title">{item.title}</div>
+                    <div className="notif-msg">{item.body}</div>
+                    <span className="notif-time">{thaiAgo(item.createdAt)}</span>
+                  </div>
+                  {!item.read ? <div className="notif-dot" /> : null}
+                </div>
+              ));
+            }
+
+            if (drawerTab === "announcement") {
+              if (annoItems.length === 0) {
+                return (
+                  <div className="drawer-empty-state">
+                    <Icon name="megaphone" size={36} />
+                    <p>ยังไม่มีประกาศในขณะนี้</p>
+                  </div>
+                );
+              }
+              return annoItems.map((anno) => (
+                <div
+                  key={anno.id}
+                  className="notif-card"
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    router.push("/desktop/announcements");
+                  }}
+                >
+                  <div className="notif-icon-circle announcement">
+                    <Icon name="megaphone" size={18} />
+                  </div>
+                  <div className="notif-body">
+                    <div className="notif-title">{anno.title || "ประกาศจากบริษัท"}</div>
+                    <div className="notif-msg">{anno.content}</div>
+                    <span className="notif-time">
+                      {anno.publishedAt ? thaiAgo(anno.publishedAt) : "ล่าสุด"}
+                    </span>
+                  </div>
+                </div>
+              ));
+            }
+
+            // Tab: 'all'
+            const hasAny = systemItems.length > 0 || annoItems.length > 0;
+            if (!hasAny) {
+              return (
+                <div className="drawer-empty-state">
+                  <Icon name="bell" size={36} />
+                  <p>ไม่มีการแจ้งเตือนในหมวดนี้</p>
+                </div>
+              );
+            }
+
+            return (
+              <>
+                {systemItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className={"notif-card" + (!item.read ? " unread" : "")}
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      router.push("/desktop/inbox");
+                    }}
+                  >
+                    <div className="notif-icon-circle system">
+                      <Icon name="check" size={18} />
+                    </div>
+                    <div className="notif-body">
+                      <div className="notif-title">{item.title}</div>
+                      <div className="notif-msg">{item.body}</div>
+                      <span className="notif-time">{thaiAgo(item.createdAt)}</span>
+                    </div>
+                    {!item.read ? <div className="notif-dot" /> : null}
+                  </div>
+                ))}
+                {annoItems.slice(0, 5).map((anno) => (
+                  <div
+                    key={anno.id}
+                    className="notif-card"
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      router.push("/desktop/announcements");
+                    }}
+                  >
+                    <div className="notif-icon-circle announcement">
+                      <Icon name="megaphone" size={18} />
+                    </div>
+                    <div className="notif-body">
+                      <div className="notif-title">{anno.title || "ประกาศจากบริษัท"}</div>
+                      <div className="notif-msg">{anno.content}</div>
+                      <span className="notif-time">
+                        {anno.publishedAt ? thaiAgo(anno.publishedAt) : "ล่าสุด"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </>
+            );
+          })()}
+        </div>
+      </aside>
+
+      {/* ===== 3. Real Profile Card Popup ===== */}
+      <div
+        className={"profile-card-popup" + (profilePopupOpen ? " open" : "")}
+        role="dialog"
+        aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
+      >
+        <div className="profile-head">
+          <div className="profile-avatar-lg">{initials(profile?.fullName)}</div>
+          <div>
+            <div className="profile-title-name">{displayName}</div>
+            <span className="profile-role-tag">{subtitle}</span>
+          </div>
+        </div>
+        <div className="profile-info-grid">
+          <div className="profile-row">
+            <span className="profile-label">รหัสพนักงาน:</span>
+            <span className="profile-value">{profile?.employeeId || "EMP-001"}</span>
+          </div>
+          <div className="profile-row">
+            <span className="profile-label">แผนก:</span>
+            <span className="profile-value">{profile?.department?.name || "ทรัพยากรบุคคล (HR)"}</span>
+          </div>
+          <div className="profile-row">
+            <span className="profile-label">หน่วยงาน:</span>
+            <span className="profile-value">{profile?.agency?.name || "CKACE ACCOUNT"}</span>
+          </div>
+          <div className="profile-row">
+            <span className="profile-label">ชื่อผู้ใช้:</span>
+            <span className="profile-value">{profile?.loginName || "user@ckace.com"}</span>
+          </div>
+          <div className="profile-row">
+            <span className="profile-label">สถานะบัญชี:</span>
+            <span className="profile-value" style={{ color: "var(--green)" }}>
+              ✓ ปกติ (Active)
+            </span>
+          </div>
+        </div>
+        <div className="profile-actions">
+          <Link
+            href="/desktop/profile"
+            className="profile-btn primary"
+            onClick={() => setProfilePopupOpen(false)}
+          >
+            <Icon name="user" size={16} /> ดูโปรไฟล์เต็ม
+          </Link>
+          <button
+            type="button"
+            className="profile-btn danger"
+            disabled={loggingOut}
+            aria-busy={loggingOut}
+            onClick={() => void logout()}
+          >
+            <Icon name="logout" size={16} />
+            {loggingOut ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}
+          </button>
+        </div>
+        {logoutError ? (
+          <p role="alert" className="ck-msg error" style={{ margin: "8px 12px 2px", fontSize: 13 }}>
+            {logoutError}
+          </p>
+        ) : null}
+      </div>
+
+      {/* ===== 4. Apps Popup ===== */}
+      {popover === "apps" ? (
+        <div className="ck-pop" role="dialog" aria-label="แอปพลิเคชัน">
+          <div className="ck-pop-t">แอปพลิเคชัน</div>
+          <AppGrid />
+        </div>
+      ) : null}
+
+      {/* Background scrim for popups */}
+      {profilePopupOpen || popover ? (
+        <button
+          type="button"
+          className="ck-scrim"
+          style={{ background: "transparent", zIndex: 40 }}
+          aria-label="ปิด"
+          onClick={() => {
+            setProfilePopupOpen(false);
+            setPopover(null);
+          }}
+        />
+      ) : null}
+
+      {/* ===== Main Workspace Container ===== */}
       <div className="sh-workspace">
         <header className="ck-top sh-top">
           <button
@@ -534,15 +941,23 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
           >
             <Icon name="menu" size={19} />
           </button>
+
           <div className="sh-top-title">
             <b>{pageTitle}</b>
             <small>CKACE HR <span aria-hidden="true">/</span> {pageTitle}</small>
           </div>
+
           <label className="sh-search" aria-label="ค้นหา">
             <Icon name="search" size={17} />
-            <input type="search" readOnly aria-label="ค้นหาข้อมูล (ยังไม่เปิดใช้งาน)" placeholder={pathname === "/desktop" ? "ค้นหาในระบบ" : "ค้นหาข้อมูล..."} />
+            <input
+              type="search"
+              readOnly
+              aria-label="ค้นหาข้อมูล (ยังไม่เปิดใช้งาน)"
+              placeholder="ค้นหาในระบบ..."
+            />
             <kbd>⌘ K</kbd>
           </label>
+
           <div className="ck-top-r sh-top-actions">
             <button
               type="button"
@@ -553,35 +968,41 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
               title="แอปพลิเคชัน"
               onClick={() => {
                 setMobileNavOpen(false);
+                setProfilePopupOpen(false);
                 setPopover((current) => (current === "apps" ? null : "apps"));
               }}
             >
               <Icon name="apps" size={20} />
             </button>
+
             <button
               type="button"
               className="ck-ibtn"
               aria-haspopup="dialog"
               aria-label="การแจ้งเตือน"
               title="การแจ้งเตือน"
-              aria-expanded={popover === "me"}
+              aria-expanded={drawerOpen}
               onClick={() => {
                 setMobileNavOpen(false);
-                setPopover((current) => (current === "me" ? null : "me"));
+                setProfilePopupOpen(false);
+                setPopover(null);
+                setDrawerOpen(true);
               }}
             >
               <Icon name="bell" size={20} />
-              {(inbox?.unread ?? 0) > 0 ? <span className="ck-badge">{inbox?.unread}</span> : null}
+              {unreadCount > 0 ? <span className="ck-badge">{unreadCount}</span> : null}
             </button>
+
             <button
               type="button"
               className="ck-me-btn"
               aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
               aria-haspopup="dialog"
-              aria-expanded={popover === "me"}
+              aria-expanded={profilePopupOpen}
               onClick={() => {
                 setMobileNavOpen(false);
-                setPopover((current) => (current === "me" ? null : "me"));
+                setPopover(null);
+                setProfilePopupOpen((open) => !open);
               }}
             >
               <span className="ck-av">{initials(profile?.fullName)}</span>
@@ -590,126 +1011,44 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
             </button>
           </div>
         </header>
-      {popover ? (
-        <button type="button" className="ck-scrim" style={{ background: "transparent", zIndex: 40 }} aria-label="ปิด" onClick={() => setPopover(null)} />
-      ) : null}
 
-      {popover === "me" ? (
-        <div
-          className="ck-pop"
-          role="dialog"
-          aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
-        >
-          <div className="ck-me">
-            <span className="ck-av md">{initials(profile?.fullName)}</span>
-            <span>
-              <b>{displayName}</b>
-              <small>{subtitle}</small>
-            </span>
-          </div>
-          <div className="ck-pop-hr" />
-          <div className="ck-pop-t" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span>การแจ้งเตือน{(inbox?.unread ?? 0) > 0 ? ` (${inbox?.unread} ใหม่)` : ""}</span>
-            {(inbox?.unread ?? 0) > 0 ? (
-              <button type="button" className="ck-btn quiet" style={{ padding: "2px 8px", fontSize: 12 }} onClick={() => void markInboxRead()}>
-                อ่านทั้งหมด
-              </button>
-            ) : null}
-          </div>
-          {(inbox?.items ?? []).slice(0, 5).map((item) => (
-            <Link
-              key={item.id}
-              className="ck-pop-link"
-              href="/desktop/inbox"
-              onClick={() => setPopover(null)}
-              style={{ alignItems: "flex-start", fontWeight: item.read ? 400 : 600 }}
-            >
-              <Icon name="bell" size={17} />
-              <span style={{ display: "grid" }}>
-                <span>{item.title}</span>
-                <small style={{ opacity: 0.7, fontWeight: 400 }}>{thaiAgo(item.createdAt)}</small>
-              </span>
-            </Link>
-          ))}
-          {inbox && inbox.items.length === 0 ? (
-            <div className="ck-pop-t" style={{ paddingTop: 0 }}>ยังไม่มีการแจ้งเตือน</div>
-          ) : null}
-          <Link className="ck-pop-link" href="/desktop/inbox" onClick={() => setPopover(null)}>
-            <Icon name="bell" size={17} />
-            กล่องแจ้งเตือนทั้งหมด
-          </Link>
-          {totalPending > 0 ? (
-            <Link className="ck-pop-link" href="/desktop/approvals" onClick={() => setPopover(null)}>
-              <Icon name="check" size={17} />
-              มี {totalPending} คำขอรอคุณอนุมัติ
-            </Link>
-          ) : null}
-          {nav.notifications ? (
-            <Link className="ck-pop-link" href="/desktop/notifications" onClick={() => setPopover(null)}>
-              <Icon name="bell" size={17} />
-              ดูการแจ้งเตือนทั้งหมด
-            </Link>
-          ) : null}
-          {nav.announcements ? (
-            <Link className="ck-pop-link" href="/desktop/announcements" onClick={() => setPopover(null)}>
-              <Icon name="megaphone" size={17} />
-              ประกาศจากบริษัท
-            </Link>
-          ) : null}
-          <div className="ck-pop-hr" />
-          <div className="ck-pop-t">แอปพลิเคชัน</div>
-          <AppGrid />
-          <div className="ck-pop-hr" />
-          {nav.profile ? (
-            <Link className="ck-pop-link" href="/desktop/profile" onClick={() => setPopover(null)}>
-              <Icon name="user" size={17} />
-              โปรไฟล์ของฉัน
-            </Link>
-          ) : null}
-          <button type="button" className="ck-pop-link danger" disabled={loggingOut} aria-busy={loggingOut} onClick={() => void logout()}>
-            <Icon name="logout" size={17} />
-            {loggingOut ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}
-          </button>
-          {logoutError ? (
-            <p role="alert" className="ck-msg error" style={{ margin: "6px 4px 2px", fontSize: 13 }}>
-              {logoutError}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
-
-      {popover === "apps" ? (
-        <div className="ck-pop" role="dialog" aria-label="แอปพลิเคชัน">
-          <div className="ck-pop-t">แอปพลิเคชัน</div>
-          <AppGrid />
-        </div>
-      ) : null}
-
-      <main className="ck-main">
-        {!routeAllowed ? (
-          <div className="ck-state" role="alert" aria-live="assertive">
-            <h1>ไม่มีสิทธิ์ใช้งานหน้านี้</h1>
-            <p>บัญชีนี้ไม่มีสิทธิ์เข้าถึงเมนูดังกล่าว</p>
-            <Link className="ck-btn sky" href="/desktop">
-              กลับหน้าหลัก
-            </Link>
-          </div>
-        ) : REDESIGNED_PATHS.has(pathname) ? (
-          children
-        ) : (
-          <>
-            {(() => {
-              const head = LEGACY_HEADS.find((item) => pathname === item.path || pathname.startsWith(item.path + "/"));
-              return head ? <PageHead tone={head.tone} icon={head.icon} title={head.title} subtitle={head.subtitle} /> : null;
-            })()}
-            <div className="ck-legacy ck-wrap desktop-content main-content task396-content">{children}</div>
-          </>
-        )}
-      </main>
+        <main className="ck-main">
+          {!routeAllowed ? (
+            <div className="ck-state" role="alert" aria-live="assertive">
+              <h1>ไม่มีสิทธิ์ใช้งานหน้านี้</h1>
+              <p>บัญชีนี้ไม่มีสิทธิ์เข้าถึงเมนูดังกล่าว</p>
+              <Link className="ck-btn sky" href="/desktop">
+                กลับหน้าหลัก
+              </Link>
+            </div>
+          ) : REDESIGNED_PATHS.has(pathname) ? (
+            children
+          ) : (
+            <>
+              {(() => {
+                const head = LEGACY_HEADS.find(
+                  (item) => pathname === item.path || pathname.startsWith(item.path + "/"),
+                );
+                return head ? (
+                  <PageHead
+                    tone={head.tone}
+                    icon={head.icon}
+                    title={head.title}
+                    subtitle={head.subtitle}
+                  />
+                ) : null;
+              })()}
+              <div className="ck-legacy ck-wrap desktop-content main-content task396-content">
+                {children}
+              </div>
+            </>
+          )}
+        </main>
       </div>
     </div>
   );
 }
+
 function AppGrid() {
   const apps: readonly { label: string; icon: IconName; color: string; current?: boolean }[] = [
     { label: "HR", icon: "calendar", color: "var(--ck-t-leave)", current: true },

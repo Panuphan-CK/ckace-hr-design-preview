@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>พรีวิวแดชบอร์ด CKACE HR - SmartHR Light Blue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0f6ff;
+      --card-bg: #ffffff;
+      --navy: #103b6e;
+      --navy-dark: #0c2b52;
+      --blue-primary: #1f6fd1;
+      --blue-hover: #165ab0;
+      --blue-soft: #eaf3fe;
+      --blue-gradient: linear-gradient(135deg, #3c8cf3 0%, #1f6fd1 100%);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #dbeafe;
+      --border-soft: #edf4fc;
+      --green: #10b981;
+      --green-soft: #eafaf4;
+      --orange: #f59e0b;
+      --orange-soft: #fef5ea;
+      --purple: #8b5cf6;
+      --purple-soft: #f4f0ff;
+      --red: #ef4444;
+      --red-soft: #feecef;
+      --shadow: 0 4px 18px rgba(31, 111, 209, 0.05);
+      --shadow-hover: 0 8px 24px rgba(31, 111, 209, 0.1);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Prompt', ui-sans-serif, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #ffffff;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 1.25rem 1rem;
+      z-index: 100;
+      transition: width 0.25s ease;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding: 0 0.5rem;
+    }
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--blue-gradient);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 10px rgba(31, 111, 209, 0.3);
+    }
+    .brand-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .collapse-btn {
+      background: transparent;
+      border: 0;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 4px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .collapse-btn:hover { background: var(--blue-soft); color: var(--blue-primary); }
+
+    /* Single-level Navigation Menu (No Sub-menus!) */
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .nav-item:hover {
+      background: var(--blue-soft);
+      color: var(--blue-primary);
+    }
+    .nav-item.active {
+      background: var(--blue-gradient);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 6px 16px rgba(31, 111, 209, 0.28);
+    }
+    .nav-item i {
+      font-size: 1.25rem;
+    }
+    .nav-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.75rem 0.5rem;
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .footer-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--border-soft);
+      border: 0;
+      display: grid;
+      place-items: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.25rem;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .footer-btn:hover {
+      background: var(--blue-soft);
+      color: var(--blue-primary);
+    }
+    .badge-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      min-width: 16px;
+      height: 16px;
+      background: var(--red);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      padding: 0 3px;
+      border: 2px solid #fff;
+    }
+    .avatar-btn {
+      background: #e0f2fe;
+      color: var(--blue-primary);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .status-dot {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 10px;
+      height: 10px;
+      background: var(--green);
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    /* Workspace / Main */
+    .workspace {
+      flex: 1;
+      padding: 1.5rem 2rem 3rem;
+      overflow-y: auto;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* Top Row Grid: Greeting Hero + Date/Clock */
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1fr 390px;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Hero Banner Card */
+    .hero-card {
+      background: linear-gradient(135deg, #e3effd 0%, #f4f8fe 50%, #e8f2fe 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.6rem 2rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 170px;
+      box-shadow: var(--shadow);
+    }
+    .hero-building {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 280px;
+      background: url('brand/hero-building-right.webp') right center no-repeat;
+      background-size: cover;
+      pointer-events: none;
+      mask-image: linear-gradient(to right, transparent, black 30%);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 30%);
+    }
+    .hero-text {
+      position: relative;
+      z-index: 2;
+      max-width: 60%;
+    }
+    .hero-greeting {
+      font-size: 0.95rem;
+      color: var(--blue-primary);
+      font-weight: 500;
+      margin-bottom: 0.35rem;
+    }
+    .hero-name {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.25;
+      margin-bottom: 0.35rem;
+    }
+    .hero-role {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Date & Clock Card */
+    .clock-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.4rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .clock-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 0.85rem;
+    }
+    .clock-date {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .clock-date i {
+      font-size: 1.15rem;
+      color: var(--blue-primary);
+    }
+    .digital-clock {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--navy);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.5px;
+    }
+
+    .attendance-block {
+      padding-top: 0.85rem;
+    }
+    .attendance-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.65rem;
+    }
+    .attendance-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .attendance-title i {
+      color: var(--blue-primary);
+    }
+    .link-detail {
+      font-size: 0.78rem;
+      color: var(--blue-primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .link-detail:hover { text-decoration: underline; }
+
+    .attendance-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .attendance-subcard {
+      background: #f8fafc;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 0.65rem 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .att-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .att-icon.in { background: #dcfce7; color: var(--green); }
+    .att-icon.out { background: #ede9fe; color: var(--purple); }
+    .att-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 2px; }
+    .att-time { font-size: 1.05rem; font-weight: 700; color: var(--navy); line-height: 1.1; }
+    .att-tag {
+      font-size: 0.68rem;
+      color: var(--green);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .att-tag.muted { color: var(--text-muted); }
+
+    /* Section: สิทธิและสถิติประจำปี (5 KPI Cards) */
+    .section-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.6rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.25rem;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.1rem;
+    }
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-title i {
+      color: var(--blue-primary);
+      font-size: 1.25rem;
+    }
+
+    .kpi-5-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+    }
+    .kpi-box {
+      border-radius: 14px;
+      padding: 1rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      border: 1px solid transparent;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-box:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* 5 Specific Card Colors from Reference Image */
+    .kpi-blue { background: #eef6ff; border-color: #dbeafe; }
+    .kpi-green { background: #eefaf4; border-color: #d1fae5; }
+    .kpi-orange { background: #fef5ea; border-color: #fde68a; }
+    .kpi-purple { background: #f5f0ff; border-color: #e9d5ff; }
+    .kpi-red { background: #feecef; border-color: #fecdd3; }
+
+    .kpi-top {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .kpi-icon-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+    .kpi-blue .kpi-icon-circle { background: #dbeafe; color: var(--blue-primary); }
+    .kpi-green .kpi-icon-circle { background: #d1fae5; color: var(--green); }
+    .kpi-orange .kpi-icon-circle { background: #fef3c7; color: var(--orange); }
+    .kpi-purple .kpi-icon-circle { background: #ede9fe; color: var(--purple); }
+    .kpi-red .kpi-icon-circle { background: #ffe4e6; color: var(--red); }
+
+    .kpi-name { font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
+    .kpi-val { font-size: 1.15rem; font-weight: 700; color: var(--navy); margin-top: 2px; }
+    .kpi-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+    .kpi-progress {
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.06);
+      overflow: hidden;
+      margin-top: 0.85rem;
+      position: relative;
+    }
+    .kpi-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .kpi-blue .kpi-bar { background: var(--blue-primary); }
+    .kpi-green .kpi-bar { background: var(--green); }
+    .kpi-orange .kpi-bar { background: var(--orange); }
+    .kpi-purple .kpi-bar { background: var(--purple); }
+    .kpi-red .kpi-bar { background: var(--red); }
+
+    .kpi-pct-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      text-align: center;
+      display: block;
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+    .kpi-blue .kpi-pct-badge { background: #dbeafe; color: var(--blue-primary); }
+    .kpi-green .kpi-pct-badge { background: #d1fae5; color: var(--green); }
+    .kpi-orange .kpi-pct-badge { background: #fef3c7; color: var(--orange); }
+    .kpi-purple .kpi-pct-badge { background: #ede9fe; color: var(--purple); }
+    .kpi-red .kpi-pct-badge { background: #ffe4e6; color: var(--red); }
+
+    /* 2 Columns Section Grid */
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 1fr 410px;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Column: My Request Status (3 Boxes) */
+    .status-boxes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .status-box {
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 1.1rem;
+      background: #fbfdff;
+    }
+    .status-box-head {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 0.85rem;
+    }
+    .status-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .status-circle.blue { background: var(--blue-primary); }
+    .status-circle.green { background: var(--green); }
+    .status-circle.orange { background: var(--orange); }
+
+    .status-box-title { font-size: 0.88rem; font-weight: 600; color: var(--text-main); }
+    .status-box-count { font-size: 1.5rem; font-weight: 700; color: var(--navy); margin-bottom: 0.65rem; }
+    .status-box-count small { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); }
+
+    .status-list {
+      list-style: none;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 0.65rem;
+    }
+    .status-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status-list li span::before {
+      content: "•";
+      color: var(--blue-primary);
+      margin-right: 6px;
+    }
+
+    /* Column: Calendar */
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      margin-bottom: 0.85rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .cal-nav-btn {
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+    .cal-nav-btn:hover { background: var(--blue-soft); color: var(--blue-primary); }
+
+    .cal-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      font-size: 0.82rem;
+    }
+    .cal-table th {
+      padding: 6px 0;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .cal-table td {
+      padding: 6px 0;
+      color: var(--text-main);
+      position: relative;
+    }
+    .cal-day-num {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto;
+      border-radius: 50%;
+      font-weight: 500;
+    }
+    .cal-day-num.today {
+      background: var(--blue-primary);
+      color: #fff;
+      font-weight: 700;
+    }
+    .cal-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      margin: 2px auto 0;
+    }
+    .cal-dot.green { background: var(--green); }
+    .cal-dot.blue { background: var(--blue-primary); }
+    .cal-dot.orange { background: var(--orange); }
+    .cal-dot.red { background: var(--red); }
+
+    .cal-legend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.85rem;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 0.65rem;
+    }
+    .cal-legend-item { display: flex; align-items: center; gap: 4px; }
+    .cal-legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* Bottom Row: Recent Requests Table + Announcements */
+    .table-responsive {
+      overflow-x: auto;
+    }
+    .req-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    .req-table th {
+      text-align: left;
+      padding: 0.65rem 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+    }
+    .req-table td {
+      padding: 0.8rem 0.75rem;
+      border-bottom: 1px solid var(--border-soft);
+      color: var(--text-main);
+    }
+    .req-table tr:hover td {
+      background: #f8fbff;
+    }
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .pill.green { background: #dcfce7; color: #15803d; }
+    .pill.blue { background: #dbeafe; color: #1d4ed8; }
+    .pill.orange { background: #fef3c7; color: #b45309; }
+    .pill.red { background: #fee2e2; color: #b91c1c; }
+
+    .type-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+    .type-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 0.85rem;
+    }
+    .type-icon.leave { background: #dbeafe; color: var(--blue-primary); }
+    .type-icon.ot { background: #ede9fe; color: var(--purple); }
+    .type-icon.time { background: #fef3c7; color: var(--orange); }
+    .type-icon.med { background: #ffe4e6; color: var(--red); }
+
+    .action-arrow {
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    .action-arrow:hover { color: var(--blue-primary); }
+
+    /* Announcements List */
+    .ann-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .ann-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      padding: 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: #fbfdff;
+      transition: background 0.2s;
+    }
+    .ann-item:hover { background: #f0f6ff; }
+    .ann-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+    .ann-icon.p1 { background: var(--purple); }
+    .ann-icon.p2 { background: var(--blue-primary); }
+    .ann-icon.p3 { background: var(--green); }
+    .ann-icon.p4 { background: var(--orange); }
+
+    .ann-body { flex: 1; }
+    .ann-title { font-size: 0.86rem; font-weight: 600; color: var(--navy); line-height: 1.3; }
+    .ann-desc { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .ann-date { font-size: 0.72rem; color: var(--text-muted); flex-shrink: 0; }
+
+    /* Slide-over Drawer for Notifications (Right Side) */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(2px);
+      z-index: 500;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    .drawer-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -420px;
+      bottom: 0;
+      width: 400px;
+      max-width: 90vw;
+      background: #ffffff;
+      box-shadow: -10px 0 35px rgba(0,0,0,0.12);
+      z-index: 501;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .drawer.open {
+      right: 0;
+    }
+
+    .drawer-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .drawer-title { font-size: 1.15rem; font-weight: 700; color: var(--navy); }
+    .drawer-unread-tag {
+      background: var(--blue-primary);
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .drawer-close {
+      background: transparent;
+      border: 0;
+      font-size: 1.3rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 6px;
+      padding: 4px;
+    }
+    .drawer-close:hover { background: var(--border-soft); color: var(--text-main); }
+
+    /* Drawer Tabs: ทั้งหมด, ระบบ, ประกาศ */
+    .drawer-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+    }
+    .drawer-tab {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem 0.5rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .drawer-tab:hover { color: var(--blue-primary); }
+    .drawer-tab.active {
+      color: var(--blue-primary);
+      font-weight: 600;
+      border-bottom-color: var(--blue-primary);
+      background: #ffffff;
+    }
+
+    .drawer-actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.65rem 1.5rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-soft);
+      background: #fcfdfe;
+    }
+    .drawer-read-all-btn {
+      background: transparent;
+      border: 0;
+      color: var(--blue-primary);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.78rem;
+    }
+    .drawer-read-all-btn:hover { text-decoration: underline; }
+
+    .drawer-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .notif-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      padding: 0.9rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .notif-card:hover {
+      background: #f8fbff;
+      border-color: var(--border);
+    }
+    .notif-card.unread {
+      background: #f0f7ff;
+      border-color: #bfdbfe;
+    }
+    .notif-icon-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+    .notif-icon-circle.system { background: #dbeafe; color: var(--blue-primary); }
+    .notif-icon-circle.approved { background: #dcfce7; color: var(--green); }
+    .notif-icon-circle.announcement { background: #fef3c7; color: var(--orange); }
+
+    .notif-body { flex: 1; }
+    .notif-title { font-size: 0.88rem; font-weight: 600; color: var(--navy); }
+    .notif-msg { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+    .notif-time { font-size: 0.72rem; color: #94a3b8; margin-top: 4px; display: block; }
+    .notif-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--blue-primary);
+      border-radius: 50%;
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+
+    /* Profile Modal / Drawer */
+    .profile-card-popup {
+      position: fixed;
+      bottom: 70px;
+      left: 1rem;
+      width: 290px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 12px 35px rgba(16, 45, 89, 0.16);
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      z-index: 600;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.2s ease;
+    }
+    .profile-card-popup.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .profile-head {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 0.85rem;
+    }
+    .profile-avatar-lg {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: var(--blue-primary);
+      display: grid;
+      place-items: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .profile-title-name { font-size: 1rem; font-weight: 700; color: var(--navy); line-height: 1.2; }
+    .profile-role-tag {
+      font-size: 0.72rem;
+      background: var(--blue-soft);
+      color: var(--blue-primary);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 2px;
+    }
+    .profile-info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+    }
+    .profile-label { color: var(--text-muted); }
+    .profile-value { font-weight: 600; color: var(--text-main); }
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 0.85rem;
+    }
+    .profile-btn {
+      padding: 0.6rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .profile-btn.primary { background: var(--blue-soft); color: var(--blue-primary); }
+    .profile-btn.primary:hover { background: #dbeafe; }
+    .profile-btn.danger { background: #fee2e2; color: var(--red); }
+    .profile-btn.danger:hover { background: #fecaca; }
+
+    @media (max-width: 1200px) {
+      .top-grid { grid-template-columns: 1fr; }
+      .two-col-grid { grid-template-columns: 1fr; }
+      .kpi-5-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar: 1 Level Only, NO sub-menus -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-left">
+        <div class="brand-icon">
+          <i class="bx bxs-business"></i>
+        </div>
+        <div>
+          <div class="brand-name">CKACE HR</div>
+          <div class="brand-sub">Human Resources</div>
+        </div>
+      </div>
+      <button class="collapse-btn" title="ย่อเมนู"><i class="bx bx-chevrons-left"></i></button>
+    </div>
+
+    <nav class="nav-list">
+      <a class="nav-item active" href="#dashboard"><i class="bx bx-home-alt-2"></i><span>แดชบอร์ด</span></a>
+      <a class="nav-item" href="#leave"><i class="bx bx-calendar-event"></i><span>คำขอลางาน</span></a>
+      <a class="nav-item" href="#ot"><i class="bx bx-time-five"></i><span>คำขอ OT</span></a>
+      <a class="nav-item" href="#attendance"><i class="bx bx-calendar-check"></i><span>ลงเวลา / แก้ไขเวลา</span></a>
+      <a class="nav-item" href="#medical"><i class="bx bx-heart"></i><span>เบิกค่ารักษา</span></a>
+
+      <div class="nav-divider"></div>
+
+      <a class="nav-item" href="#approvals"><i class="bx bx-file"></i><span>งานอนุมัติ</span></a>
+      <a class="nav-item" href="#reports"><i class="bx bx-bar-chart-alt-2"></i><span>รายงาน</span></a>
+      <a class="nav-item" href="#settings"><i class="bx bx-cog"></i><span>ตั้งค่า</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="footer-btn" id="bellBtn" title="การแจ้งเตือน" onclick="toggleDrawer()">
+        <i class="bx bx-bell"></i>
+        <span class="badge-dot" id="badgeCount">3</span>
+      </button>
+      <button class="footer-btn" title="แอปพลิเคชัน">
+        <i class="bx bx-grid-alt"></i>
+      </button>
+      <button class="footer-btn avatar-btn" id="profileBtn" title="โปรไฟล์" onclick="toggleProfile()">
+        พ
+        <span class="status-dot"></span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Profile Card Popup -->
+  <div class="profile-card-popup" id="profilePopup">
+    <div class="profile-head">
+      <div class="profile-avatar-lg">พ</div>
+      <div>
+        <div class="profile-title-name" id="popName">คุณพนุพันธ์ ใจดี</div>
+        <span class="profile-role-tag" id="popRole">เจ้าหน้าที่ทรัพยากรบุคคล</span>
+      </div>
+    </div>
+    <div class="profile-info-grid">
+      <div class="profile-row">
+        <span class="profile-label">รหัสพนักงาน:</span>
+        <span class="profile-value">EMP-001</span>
+      </div>
+      <div class="profile-row">
+        <span class="profile-label">แผนก:</span>
+        <span class="profile-value">ทรัพยากรบุคคล (HR)</span>
+      </div>
+      <div class="profile-row">
+        <span class="profile-label">ชื่อผู้ใช้:</span>
+        <span class="profile-value">panuphan@ckace.com</span>
+      </div>
+      <div class="profile-row">
+        <span class="profile-label">สถานะบัญชี:</span>
+        <span class="profile-value" style="color:var(--green)">✓ ปกติ (Active)</span>
+      </div>
+    </div>
+    <div class="profile-actions">
+      <a href="#profile" class="profile-btn primary"><i class="bx bx-user"></i> ดูโปรไฟล์เต็ม</a>
+      <button type="button" class="profile-btn danger" onclick="alert('ออกจากระบบเรียบร้อย')"><i class="bx bx-log-out"></i> ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <!-- Notification Drawer (Right Side) -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <i class="bx bx-bell" style="font-size:1.4rem; color:var(--blue-primary)"></i>
+        <div class="drawer-title">การแจ้งเตือน</div>
+        <span class="drawer-unread-tag" id="drawerBadge">3 ใหม่</span>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()"><i class="bx bx-x"></i></button>
+    </div>
+
+    <!-- 3 Tabs: ทั้งหมด, ระบบ, ประกาศ -->
+    <div class="drawer-tabs">
+      <button class="drawer-tab active" onclick="switchTab('all')">ทั้งหมด</button>
+      <button class="drawer-tab" onclick="switchTab('system')">ระบบ</button>
+      <button class="drawer-tab" onclick="switchTab('announcement')">ประกาศ</button>
+    </div>
+
+    <div class="drawer-actions-bar">
+      <span>รายการล่าสุด</span>
+      <button class="drawer-read-all-btn" onclick="markAllRead()">ทำเครื่องหมายว่าอ่านแล้วทั้งหมด</button>
+    </div>
+
+    <div class="drawer-content" id="notifList">
+      <!-- Dynamic Notifications -->
+    </div>
+  </aside>
+
+  <!-- Main Dashboard Workspace -->
+  <main class="workspace">
+
+    <!-- Top Grid: Hero Greeting + Date/Live Clock -->
+    <div class="top-grid">
+      <div class="hero-card">
+        <div class="hero-building"></div>
+        <div class="hero-text">
+          <div class="hero-greeting">สวัสดีครับ</div>
+          <div class="hero-name" id="heroName">คุณพนุพันธ์ ใจดี</div>
+          <div class="hero-role" id="heroRole">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
+        </div>
+      </div>
+
+      <div class="clock-card">
+        <div class="clock-top">
+          <div class="clock-date">
+            <i class="bx bx-calendar"></i>
+            <span id="liveDate">วันพุธที่ 28 ตุลาคม 2569</span>
+          </div>
+          <div class="digital-clock" id="liveClock">10:24:36</div>
+        </div>
+
+        <div class="attendance-block">
+          <div class="attendance-header">
+            <div class="attendance-title"><i class="bx bx-time"></i> ลงเวลาเข้า - ออกงาน</div>
+            <a href="#attendance" class="link-detail">ดูรายละเอียด &rarr;</a>
+          </div>
+          <div class="attendance-grid">
+            <div class="attendance-subcard">
+              <div class="att-icon in"><i class="bx bx-right-arrow-alt"></i></div>
+              <div>
+                <div class="att-label">เวลาเข้า</div>
+                <div class="att-time">08:28</div>
+                <div class="att-tag">✓ ตรงเวลา</div>
+              </div>
+            </div>
+            <div class="attendance-subcard">
+              <div class="att-icon out"><i class="bx bx-left-arrow-alt"></i></div>
+              <div>
+                <div class="att-label">เวลาออก</div>
+                <div class="att-time">--:--</div>
+                <div class="att-tag muted">ยังไม่ลงเวลา</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: สิทธิและสถิติประจำปี (5 KPI Cards) -->
+    <section class="section-container">
+      <div class="section-head">
+        <div class="section-title">
+          <i class="bx bx-time-five"></i>
+          <span>สิทธิและสถิติประจำปี</span>
+        </div>
+        <a href="#leave" class="link-detail">ดูรายละเอียด &rarr;</a>
+      </div>
+
+      <div class="kpi-5-grid">
+        <!-- 1. ลาพักร้อน -->
+        <div class="kpi-box kpi-blue">
+          <div class="kpi-top">
+            <div class="kpi-icon-circle"><i class="bx bx-paper-plane"></i></div>
+            <div>
+              <div class="kpi-name">ลาพักร้อน</div>
+              <div class="kpi-val">8.0 / 10 วัน</div>
+            </div>
+          </div>
+          <div class="kpi-progress"><div class="kpi-bar" style="width: 80%;"></div></div>
+          <div class="kpi-pct-badge">80.0%</div>
+        </div>
+
+        <!-- 2. ลาป่วย -->
+        <div class="kpi-box kpi-green">
+          <div class="kpi-top">
+            <div class="kpi-icon-circle"><i class="bx bx-plus-medical"></i></div>
+            <div>
+              <div class="kpi-name">ลาป่วย</div>
+              <div class="kpi-val">5.0 / 30 วัน</div>
+            </div>
+          </div>
+          <div class="kpi-progress"><div class="kpi-bar" style="width: 16.7%;"></div></div>
+          <div class="kpi-pct-badge">16.7%</div>
+        </div>
+
+        <!-- 3. ลากิจ -->
+        <div class="kpi-box kpi-orange">
+          <div class="kpi-top">
+            <div class="kpi-icon-circle"><i class="bx bx-calendar"></i></div>
+            <div>
+              <div class="kpi-name">ลากิจ</div>
+              <div class="kpi-val">3.0 / 5 วัน</div>
+            </div>
+          </div>
+          <div class="kpi-progress"><div class="kpi-bar" style="width: 60%;"></div></div>
+          <div class="kpi-pct-badge">60.0%</div>
+        </div>
+
+        <!-- 4. OT (เดือนนี้) -->
+        <div class="kpi-box kpi-purple">
+          <div class="kpi-top">
+            <div class="kpi-icon-circle"><i class="bx bx-time"></i></div>
+            <div>
+              <div class="kpi-name">OT (เดือนนี้)</div>
+              <div class="kpi-val">12.5 ชม.</div>
+              <div class="kpi-sub">สะสม 152 ชม.</div>
+            </div>
+          </div>
+          <div class="kpi-progress"><div class="kpi-bar" style="width: 60%;"></div></div>
+          <div class="kpi-pct-badge">60.0%</div>
+        </div>
+
+        <!-- 5. เบิกค่ารักษา -->
+        <div class="kpi-box kpi-red">
+          <div class="kpi-top">
+            <div class="kpi-icon-circle"><i class="bx bx-heart"></i></div>
+            <div>
+              <div class="kpi-name">เบิกค่ารักษา</div>
+              <div class="kpi-val">2,500 บาท</div>
+              <div class="kpi-sub">จากวงเงิน 10,000 บาท</div>
+            </div>
+          </div>
+          <div class="kpi-progress"><div class="kpi-bar" style="width: 25%;"></div></div>
+          <div class="kpi-pct-badge">25.0%</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: 2 Columns: สถานะคำขอของฉัน + ปฏิทินการทำงาน -->
+    <div class="two-col-grid">
+      <!-- Col 1: สถานะคำขอของฉัน -->
+      <section class="section-container" style="margin-bottom:0">
+        <div class="section-head">
+          <div class="section-title">
+            <i class="bx bx-file"></i>
+            <span>สถานะคำขอของฉัน</span>
+          </div>
+          <a href="#requests" class="link-detail">ดูทั้งหมด &rarr;</a>
+        </div>
+
+        <div class="status-boxes">
+          <!-- รอดำเนินการ -->
+          <div class="status-box">
+            <div class="status-box-head">
+              <div class="status-circle blue"><i class="bx bx-time"></i></div>
+              <div class="status-box-title">รอดำเนินการ</div>
+            </div>
+            <div class="status-box-count">2 <small>รายการ</small></div>
+            <ul class="status-list">
+              <li><span>ลาพักร้อน</span><b>1</b></li>
+              <li><span>ขอ OT</span><b>1</b></li>
+            </ul>
+          </div>
+
+          <!-- อนุมัติแล้ว -->
+          <div class="status-box">
+            <div class="status-box-head">
+              <div class="status-circle green"><i class="bx bx-check"></i></div>
+              <div class="status-box-title">อนุมัติแล้ว</div>
+            </div>
+            <div class="status-box-count">5 <small>รายการ</small></div>
+            <ul class="status-list">
+              <li><span>ลาพักร้อน</span><b>3</b></li>
+              <li><span>ขอ OT</span><b>1</b></li>
+              <li><span>เบิกค่ารักษา</span><b>1</b></li>
+            </ul>
+          </div>
+
+          <!-- รออนุมัติ -->
+          <div class="status-box">
+            <div class="status-box-head">
+              <div class="status-circle orange"><i class="bx bx-time-five"></i></div>
+              <div class="status-box-title">รออนุมัติ</div>
+            </div>
+            <div class="status-box-count">1 <small>รายการ</small></div>
+            <ul class="status-list">
+              <li><span>ขอแก้ไขเวลา</span><b>1</b></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Col 2: ปฏิทินการทำงาน -->
+      <section class="section-container" style="margin-bottom:0">
+        <div class="section-head">
+          <div class="section-title">
+            <i class="bx bx-calendar"></i>
+            <span>ปฏิทินการทำงาน</span>
+          </div>
+        </div>
+
+        <div class="cal-nav">
+          <button class="cal-nav-btn">&lt;</button>
+          <span>ตุลาคม 2569</span>
+          <button class="cal-nav-btn">&gt;</button>
+        </div>
+
+        <table class="cal-table">
+          <thead>
+            <tr>
+              <th style="color:var(--red)">อา</th>
+              <th>จ</th>
+              <th>อ</th>
+              <th>พ</th>
+              <th>พฤ</th>
+              <th>ศ</th>
+              <th>ส</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td></td><td></td><td></td><td>1<div class="cal-dot green"></div></td><td>2<div class="cal-dot green"></div></td><td>3<div class="cal-dot green"></div></td><td>4</td>
+            </tr>
+            <tr>
+              <td style="color:var(--red)">5</td><td>6<div class="cal-dot green"></div></td><td>7<div class="cal-dot green"></div></td><td>8<div class="cal-dot green"></div></td><td>9<div class="cal-dot green"></div></td><td>10<div class="cal-dot green"></div></td><td>11</td>
+            </tr>
+            <tr>
+              <td style="color:var(--red)">12</td><td>13<div class="cal-dot red"></div></td><td>14<div class="cal-dot green"></div></td><td>15<div class="cal-dot blue"></div></td><td>16<div class="cal-dot blue"></div></td><td>17<div class="cal-dot green"></div></td><td>18</td>
+            </tr>
+            <tr>
+              <td style="color:var(--red)">19</td><td>20<div class="cal-dot green"></div></td><td>21<div class="cal-dot green"></div></td><td><div class="cal-day-num today">22</div><div class="cal-dot green"></div></td><td>23<div class="cal-dot red"></div></td><td>24<div class="cal-dot orange"></div></td><td>25</td>
+            </tr>
+            <tr>
+              <td style="color:var(--red)">26</td><td>27<div class="cal-dot green"></div></td><td>28<div class="cal-dot green"></div></td><td>29<div class="cal-dot green"></div></td><td>30<div class="cal-dot green"></div></td><td>31<div class="cal-dot green"></div></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="cal-legend">
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--green)"></span><span>วันทำงาน</span></div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--blue-primary)"></span><span>อนุมัติแล้ว</span></div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--orange)"></span><span>รอพิจารณา</span></div>
+          <div class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--red)"></span><span>วันหยุด</span></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Section 4: 2 Columns: คำขอล่าสุด + ประกาศ / ข่าวสาร -->
+    <div class="two-col-grid" style="margin-bottom:0">
+      <!-- Col 1: คำขอล่าสุด Table -->
+      <section class="section-container" style="margin-bottom:0">
+        <div class="section-head">
+          <div class="section-title">
+            <i class="bx bx-file"></i>
+            <span>คำขอล่าสุด</span>
+          </div>
+          <a href="#requests" class="link-detail">ดูทั้งหมด &rarr;</a>
+        </div>
+
+        <div class="table-responsive">
+          <table class="req-table">
+            <thead>
+              <tr>
+                <th>ประเภท</th>
+                <th>วันที่ยื่น</th>
+                <th>ช่วงวันที่</th>
+                <th>จำนวน</th>
+                <th>สถานะ</th>
+                <th>หมายเหตุ</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="type-cell"><span class="type-icon leave"><i class="bx bx-paper-plane"></i></span>ลาพักร้อน</div></td>
+                <td>15/10/2569</td>
+                <td>15/10 - 16/10/2569</td>
+                <td>2 วัน</td>
+                <td><span class="pill green">อนุมัติแล้ว</span></td>
+                <td>ไปเที่ยวกับครอบครัว</td>
+                <td><i class="bx bx-chevron-right action-arrow"></i></td>
+              </tr>
+              <tr>
+                <td><div class="type-cell"><span class="type-icon ot"><i class="bx bx-time"></i></span>ขอ OT</div></td>
+                <td>10/10/2569</td>
+                <td>10/10/2569</td>
+                <td>3 ชม.</td>
+                <td><span class="pill blue">รอดำเนินการ</span></td>
+                <td>งานเร่งด่วน</td>
+                <td><i class="bx bx-chevron-right action-arrow"></i></td>
+              </tr>
+              <tr>
+                <td><div class="type-cell"><span class="type-icon time"><i class="bx bx-calendar-edit"></i></span>ขอแก้ไขเวลา</div></td>
+                <td>08/10/2569</td>
+                <td>08/10/2569</td>
+                <td>-</td>
+                <td><span class="pill orange">รออนุมัติ</span></td>
+                <td>ลืมตอกบัตร</td>
+                <td><i class="bx bx-chevron-right action-arrow"></i></td>
+              </tr>
+              <tr>
+                <td><div class="type-cell"><span class="type-icon med"><i class="bx bx-heart"></i></span>เบิกค่ารักษา</div></td>
+                <td>01/09/2569</td>
+                <td>-</td>
+                <td>1,200 บาท</td>
+                <td><span class="pill green">อนุมัติแล้ว</span></td>
+                <td>ค่ารักษาพยาบาล</td>
+                <td><i class="bx bx-chevron-right action-arrow"></i></td>
+              </tr>
+              <tr>
+                <td><div class="type-cell"><span class="type-icon leave"><i class="bx bx-plus-medical"></i></span>ลาป่วย</div></td>
+                <td>25/09/2569</td>
+                <td>25/09/2569</td>
+                <td>1 วัน</td>
+                <td><span class="pill green">อนุมัติแล้ว</span></td>
+                <td>เอกสารครบถ้วน</td>
+                <td><i class="bx bx-chevron-right action-arrow"></i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Col 2: ประกาศ / ข่าวสาร -->
+      <section class="section-container" style="margin-bottom:0">
+        <div class="section-head">
+          <div class="section-title">
+            <i class="bx bx-megaphone"></i>
+            <span>ประกาศ / ข่าวสาร</span>
+          </div>
+          <a href="#announcements" class="link-detail">ดูทั้งหมด &rarr;</a>
+        </div>
+
+        <div class="ann-list">
+          <div class="ann-item">
+            <div class="ann-icon p1"><i class="bx bx-compass"></i></div>
+            <div class="ann-body">
+              <div class="ann-title">ประกาศวันหยุดพิเศษประจำปี 2569</div>
+              <div class="ann-desc">บริษัทฯ กำหนดวันหยุดพิเศษเพิ่มเติมในวันที่ 23 ตุลาคม 2569</div>
+            </div>
+            <div class="ann-date">10/10/2569</div>
+          </div>
+
+          <div class="ann-item">
+            <div class="ann-icon p2"><i class="bx bx-calendar"></i></div>
+            <div class="ann-body">
+              <div class="ann-title">เปลี่ยนแปลงเวลาทำงาน</div>
+              <div class="ann-desc">ตั้งแต่วันที่ 1 พฤศจิกายน 2569 เป็นต้นไป</div>
+            </div>
+            <div class="ann-date">08/10/2569</div>
+          </div>
+
+          <div class="ann-item">
+            <div class="ann-icon p3"><i class="bx bx-pulse"></i></div>
+            <div class="ann-body">
+              <div class="ann-title">ตรวจสุขภาพประจำปี 2569</div>
+              <div class="ann-desc">แจ้งกำหนดการตรวจสุขภาพประจำปีสำหรับพนักงานทุกท่าน</div>
+            </div>
+            <div class="ann-date">01/10/2569</div>
+          </div>
+
+          <div class="ann-item">
+            <div class="ann-icon p4"><i class="bx bx-file"></i></div>
+            <div class="ann-body">
+              <div class="ann-title">การยื่นเอกสารเบิกค่ารักษา</div>
+              <div class="ann-desc">สามารถยื่นเอกสารผ่านระบบออนไลน์ได้ตั้งแต่วันนี้</div>
+            </div>
+            <div class="ann-date">28/09/2569</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <script>
+    // Live Clock Ticking
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      const clockEl = document.getElementById('liveClock');
+      if (clockEl) clockEl.textContent = `${h}:${m}:${s}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Drawer Logic (Right Side Notification)
+    let currentTab = 'all';
+    const notifications = [
+      { id: 1, type: 'system', title: 'คำขอลาพักร้อนได้รับการอนุมัติแล้ว', body: 'คำขอลาพักร้อนวันที่ 15/10 - 16/10/2569 ได้รับการอนุมัติเรียบร้อย', time: '10 นาทีที่แล้ว', unread: true, icon: 'bx-check-circle', iconType: 'approved' },
+      { id: 2, type: 'system', title: 'อนุมัติการทำงานล่วงเวลา (OT)', body: 'คำขอ OT 3 ชม. ของวันที่ 10/10/2569 อยู่ระหว่างรอดำเนินการ', time: '2 ชั่วโมงที่แล้ว', unread: true, icon: 'bx-time-five', iconType: 'system' },
+      { id: 3, type: 'announcement', title: 'ประกาศวันหยุดพิเศษประจำปี 2569', body: 'บริษัทฯ กำหนดวันหยุดพิเศษเพิ่มเติมในวันที่ 23 ตุลาคม 2569', time: '1 วันที่แล้ว', unread: true, icon: 'bx-megaphone', iconType: 'announcement' },
+      { id: 4, type: 'system', title: 'การเบิกค่ารักษาพยาบาลเสร็จสมบูรณ์', body: 'ยอดเงิน 1,200 บาท ได้รับการอนุมัติเข้าบัญชีแล้ว', time: '3 วันที่แล้ว', unread: false, icon: 'bx-heart', iconType: 'system' },
+      { id: 5, type: 'announcement', title: 'เปลี่ยนแปลงเวลาทำงาน', body: 'ตั้งแต่วันที่ 1 พฤศจิกายน 2569 เป็นต้นไป', time: '5 วันที่แล้ว', unread: false, icon: 'bx-info-circle', iconType: 'announcement' },
+    ];
+
+    function renderNotifications() {
+      const list = document.getElementById('notifList');
+      const filtered = notifications.filter(n => currentTab === 'all' || n.type === currentTab);
+      
+      if (filtered.length === 0) {
+        list.innerHTML = `<div style="text-align:center; padding:3rem 1rem; color:#94a3b8;">
+          <i class="bx bx-bell-off" style="font-size:2.5rem; margin-bottom:0.5rem; display:block;"></i>
+          ไม่มีการแจ้งเตือนในหมวดนี้
+        </div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(n => `
+        <div class="notif-card ${n.unread ? 'unread' : ''}" onclick="markRead(${n.id})">
+          <div class="notif-icon-circle ${n.iconType}">
+            <i class="bx ${n.icon}"></i>
+          </div>
+          <div class="notif-body">
+            <div class="notif-title">${n.title}</div>
+            <div class="notif-msg">${n.body}</div>
+            <span class="notif-time">${n.time}</span>
+          </div>
+          ${n.unread ? '<div class="notif-dot"></div>' : ''}
+        </div>
+      `).join('');
+
+      const unreadCount = notifications.filter(n => n.unread).length;
+      document.getElementById('badgeCount').textContent = unreadCount;
+      document.getElementById('drawerBadge').textContent = `${unreadCount} ใหม่`;
+      document.getElementById('badgeCount').style.display = unreadCount > 0 ? 'grid' : 'none';
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.drawer-tab').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderNotifications();
+    }
+
+    function markRead(id) {
+      const item = notifications.find(n => n.id === id);
+      if (item) item.unread = false;
+      renderNotifications();
+    }
+
+    function markAllRead() {
+      notifications.forEach(n => n.unread = false);
+      renderNotifications();
+    }
+
+    function toggleDrawer() {
+      const drawer = document.getElementById('drawer');
+      const overlay = document.getElementById('drawerOverlay');
+      drawer.classList.toggle('open');
+      overlay.classList.toggle('open');
+      renderNotifications();
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('open');
+    }
+
+    // Profile Popup
+    function toggleProfile() {
+      const popup = document.getElementById('profilePopup');
+      popup.classList.toggle('open');
+    }
+
+    document.addEventListener('click', (e) => {
+      const popup = document.getElementById('profilePopup');
+      const btn = document.getElementById('profileBtn');
+      if (popup.classList.contains('open') && !popup.contains(e.target) && !btn.contains(e.target)) {
+        popup.classList.remove('open');
+      }
+    });
+
+    renderNotifications();
+  </script>
+</body>
+</html>

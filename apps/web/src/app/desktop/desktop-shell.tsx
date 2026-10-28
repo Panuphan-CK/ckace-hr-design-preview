@@ -229,6 +229,8 @@ function isActive(href: string, pathname: string, hash: string): boolean {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
+type ActiveSidebarPopover = "notifications" | "apps" | "profile" | null;
+
 export function DesktopShell({ children }: { readonly children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -240,10 +242,10 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
   const [pendingByKind, setPendingByKind] = useState<Record<string, number>>({});
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  
+  // Unified Sidebar Popover: aligned to the right of Sidebar
+  const [activePopover, setActivePopover] = useState<ActiveSidebarPopover>(null);
   const [drawerTab, setDrawerTab] = useState<"all" | "system" | "announcement">("all");
-  const [profilePopupOpen, setProfilePopupOpen] = useState(false);
-  const [popover, setPopover] = useState<"apps" | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
 
@@ -336,10 +338,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
     };
     loadInbox();
     loadAnnouncements();
-    const timer = window.setInterval(() => {
-      loadInbox();
-      loadAnnouncements();
-    }, 60_000);
+    const timer = window.setInterval(loadInbox, 60_000);
     return () => {
       cancelled = true;
       window.clearInterval(timer);
@@ -366,26 +365,23 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
     };
   }, [navigation?.approvals, navigation?.leaveApprovals, pathname]);
 
-  // Close drawers/popovers on route change
+  // Close popovers on route change
   useEffect(() => {
     setMobileNavOpen(false);
-    setProfilePopupOpen(false);
-    setPopover(null);
+    setActivePopover(null);
   }, [pathname, hash]);
 
   // Close on Escape key
   useEffect(() => {
-    if (!drawerOpen && !profilePopupOpen && !popover) return;
+    if (!activePopover) return;
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setDrawerOpen(false);
-        setProfilePopupOpen(false);
-        setPopover(null);
+        setActivePopover(null);
       }
     };
     window.addEventListener("keydown", close);
     return () => window.removeEventListener("keydown", close);
-  }, [drawerOpen, profilePopupOpen, popover]);
+  }, [activePopover]);
 
   const totalPending = Object.values(pendingByKind).reduce((sum, value) => sum + value, 0);
   const unreadCount = inbox?.unread ?? 0;
@@ -518,8 +514,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
             aria-expanded={!sidebarCollapsed}
             onClick={() => {
               setSidebarCollapsed((value) => !value);
-              setProfilePopupOpen(false);
-              setPopover(null);
+              setActivePopover(null);
             }}
           >
             <Icon name="menu" size={20} />
@@ -565,7 +560,7 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
                 }}
               >
                 <span className="sh-flat-icon" data-tone={item.tone}>
-                  <Icon name={item.icon} size={19} />
+                  <Icon name={item.icon} size={20} />
                 </span>
                 <span className="sh-flat-label">{item.label}</span>
                 {pendingCount > 0 ? (
@@ -580,16 +575,14 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
         <div className="sh-flat-footer" aria-label="เครื่องมือบัญชี">
           <button
             type="button"
-            className="sh-flat-footer-btn"
+            className={"sh-flat-footer-btn" + (activePopover === "notifications" ? " active" : "")}
             id="shBellBtn"
             aria-label="การแจ้งเตือน"
             title="การแจ้งเตือน"
             aria-haspopup="dialog"
-            aria-expanded={drawerOpen}
+            aria-expanded={activePopover === "notifications"}
             onClick={() => {
-              setProfilePopupOpen(false);
-              setPopover(null);
-              setDrawerOpen(true);
+              setActivePopover((curr) => (curr === "notifications" ? null : "notifications"));
             }}
           >
             <Icon name="bell" size={20} />
@@ -598,15 +591,14 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
 
           <button
             type="button"
-            className="sh-flat-footer-btn"
+            className={"sh-flat-footer-btn" + (activePopover === "apps" ? " active" : "")}
+            id="shAppsBtn"
             aria-label="แอปพลิเคชัน"
             title="แอปพลิเคชัน"
             aria-haspopup="dialog"
-            aria-expanded={popover === "apps"}
+            aria-expanded={activePopover === "apps"}
             onClick={() => {
-              setDrawerOpen(false);
-              setProfilePopupOpen(false);
-              setPopover((current) => (current === "apps" ? null : "apps"));
+              setActivePopover((curr) => (curr === "apps" ? null : "apps"));
             }}
           >
             <Icon name="apps" size={20} />
@@ -614,16 +606,14 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
 
           <button
             type="button"
-            className="sh-flat-footer-btn avatar-btn"
+            className={"sh-flat-footer-btn avatar-btn" + (activePopover === "profile" ? " active" : "")}
             id="shProfileBtn"
             aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
             title="โปรไฟล์"
             aria-haspopup="dialog"
-            aria-expanded={profilePopupOpen}
+            aria-expanded={activePopover === "profile"}
             onClick={() => {
-              setDrawerOpen(false);
-              setPopover(null);
-              setProfilePopupOpen((open) => !open);
+              setActivePopover((curr) => (curr === "profile" ? null : "profile"));
             }}
           >
             {initials(profile?.fullName)}
@@ -642,375 +632,353 @@ export function DesktopShell({ children }: { readonly children: ReactNode }) {
         />
       ) : null}
 
-      {/* ===== 2. Right-side Slide-over Notification Drawer ===== */}
-      <div
-        className={"drawer-overlay" + (drawerOpen ? " open" : "")}
-        onClick={() => setDrawerOpen(false)}
-        aria-hidden="true"
-      />
-      <aside
-        className={"drawer" + (drawerOpen ? " open" : "")}
-        role="dialog"
-        aria-label="การแจ้งเตือน"
-        aria-modal="true"
-      >
-        <div className="drawer-header">
-          <div className="drawer-title-group">
-            <Icon name="bell" size={22} style={{ color: "var(--blue-primary)" }} />
-            <div className="drawer-title">การแจ้งเตือน</div>
-            {unreadCount > 0 ? (
-              <span className="drawer-unread-tag">{unreadCount} ใหม่</span>
-            ) : null}
-          </div>
-          <button
-            type="button"
-            className="drawer-close"
-            aria-label="ปิดการแจ้งเตือน"
-            onClick={() => setDrawerOpen(false)}
-          >
-            <Icon name="close" size={19} />
-          </button>
-        </div>
-
-        {/* 3 Tabs: ทั้งหมด, ระบบ, ประกาศ */}
-        <div className="drawer-tabs" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={drawerTab === "all"}
-            className={"drawer-tab" + (drawerTab === "all" ? " active" : "")}
-            onClick={() => setDrawerTab("all")}
-          >
-            ทั้งหมด
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={drawerTab === "system"}
-            className={"drawer-tab" + (drawerTab === "system" ? " active" : "")}
-            onClick={() => setDrawerTab("system")}
-          >
-            ระบบ
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={drawerTab === "announcement"}
-            className={"drawer-tab" + (drawerTab === "announcement" ? " active" : "")}
-            onClick={() => setDrawerTab("announcement")}
-          >
-            ประกาศ
-          </button>
-        </div>
-
-        <div className="drawer-actions-bar">
-          <span>รายการล่าสุด</span>
-          {unreadCount > 0 ? (
-            <button
-              type="button"
-              className="drawer-read-all-btn"
-              onClick={() => void markInboxRead()}
-            >
-              ทำเครื่องหมายว่าอ่านแล้วทั้งหมด
-            </button>
-          ) : null}
-        </div>
-
-        <div className="drawer-content">
-          {(() => {
-            const systemItems: readonly InAppNotificationItem[] = inbox?.items ?? [];
-            const annoItems: readonly AnnouncementView[] = announcements;
-
-            if (drawerTab === "system") {
-              if (systemItems.length === 0) {
-                return (
-                  <div className="drawer-empty-state">
-                    <Icon name="bell" size={36} />
-                    <p>ไม่มีการแจ้งเตือนระบบในขณะนี้</p>
-                  </div>
-                );
-              }
-              return systemItems.map((item) => (
-                <div
-                  key={item.id}
-                  className={"notif-card" + (!item.read ? " unread" : "")}
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    router.push("/desktop/inbox");
-                  }}
-                >
-                  <div className="notif-icon-circle system">
-                    <Icon name="check" size={18} />
-                  </div>
-                  <div className="notif-body">
-                    <div className="notif-title">{item.title}</div>
-                    <div className="notif-msg">{item.body}</div>
-                    <span className="notif-time">{thaiAgo(item.createdAt)}</span>
-                  </div>
-                  {!item.read ? <div className="notif-dot" /> : null}
-                </div>
-              ));
-            }
-
-            if (drawerTab === "announcement") {
-              if (annoItems.length === 0) {
-                return (
-                  <div className="drawer-empty-state">
-                    <Icon name="megaphone" size={36} />
-                    <p>ยังไม่มีประกาศในขณะนี้</p>
-                  </div>
-                );
-              }
-              return annoItems.map((anno) => (
-                <div
-                  key={anno.id}
-                  className="notif-card"
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    router.push("/desktop/announcements");
-                  }}
-                >
-                  <div className="notif-icon-circle announcement">
-                    <Icon name="megaphone" size={18} />
-                  </div>
-                  <div className="notif-body">
-                    <div className="notif-title">{anno.title || "ประกาศจากบริษัท"}</div>
-                    <div className="notif-msg">{anno.content}</div>
-                    <span className="notif-time">
-                      {anno.publishedAt ? thaiAgo(anno.publishedAt) : "ล่าสุด"}
-                    </span>
-                  </div>
-                </div>
-              ));
-            }
-
-            // Tab: 'all'
-            const hasAny = systemItems.length > 0 || annoItems.length > 0;
-            if (!hasAny) {
-              return (
-                <div className="drawer-empty-state">
-                  <Icon name="bell" size={36} />
-                  <p>ไม่มีการแจ้งเตือนในหมวดนี้</p>
-                </div>
-              );
-            }
-
-            return (
-              <>
-                {systemItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className={"notif-card" + (!item.read ? " unread" : "")}
-                    onClick={() => {
-                      setDrawerOpen(false);
-                      router.push("/desktop/inbox");
-                    }}
-                  >
-                    <div className="notif-icon-circle system">
-                      <Icon name="check" size={18} />
-                    </div>
-                    <div className="notif-body">
-                      <div className="notif-title">{item.title}</div>
-                      <div className="notif-msg">{item.body}</div>
-                      <span className="notif-time">{thaiAgo(item.createdAt)}</span>
-                    </div>
-                    {!item.read ? <div className="notif-dot" /> : null}
-                  </div>
-                ))}
-                {annoItems.slice(0, 5).map((anno) => (
-                  <div
-                    key={anno.id}
-                    className="notif-card"
-                    onClick={() => {
-                      setDrawerOpen(false);
-                      router.push("/desktop/announcements");
-                    }}
-                  >
-                    <div className="notif-icon-circle announcement">
-                      <Icon name="megaphone" size={18} />
-                    </div>
-                    <div className="notif-body">
-                      <div className="notif-title">{anno.title || "ประกาศจากบริษัท"}</div>
-                      <div className="notif-msg">{anno.content}</div>
-                      <span className="notif-time">
-                        {anno.publishedAt ? thaiAgo(anno.publishedAt) : "ล่าสุด"}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </>
-            );
-          })()}
-        </div>
-      </aside>
-
-      {/* ===== 3. Real Profile Card Popup ===== */}
-      <div
-        className={"profile-card-popup" + (profilePopupOpen ? " open" : "")}
-        role="dialog"
-        aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
-      >
-        <div className="profile-head">
-          <div className="profile-avatar-lg">{initials(profile?.fullName)}</div>
-          <div>
-            <div className="profile-title-name">{displayName}</div>
-            <span className="profile-role-tag">{subtitle}</span>
-          </div>
-        </div>
-        <div className="profile-info-grid">
-          <div className="profile-row">
-            <span className="profile-label">รหัสพนักงาน:</span>
-            <span className="profile-value">{profile?.employeeId || "EMP-001"}</span>
-          </div>
-          <div className="profile-row">
-            <span className="profile-label">แผนก:</span>
-            <span className="profile-value">{profile?.department?.name || "ทรัพยากรบุคคล (HR)"}</span>
-          </div>
-          <div className="profile-row">
-            <span className="profile-label">หน่วยงาน:</span>
-            <span className="profile-value">{profile?.agency?.name || "CKACE ACCOUNT"}</span>
-          </div>
-          <div className="profile-row">
-            <span className="profile-label">ชื่อผู้ใช้:</span>
-            <span className="profile-value">{profile?.loginName || "user@ckace.com"}</span>
-          </div>
-          <div className="profile-row">
-            <span className="profile-label">สถานะบัญชี:</span>
-            <span className="profile-value" style={{ color: "var(--green)" }}>
-              ✓ ปกติ (Active)
-            </span>
-          </div>
-        </div>
-        <div className="profile-actions">
-          <Link
-            href="/desktop/profile"
-            className="profile-btn primary"
-            onClick={() => setProfilePopupOpen(false)}
-          >
-            <Icon name="user" size={16} /> ดูโปรไฟล์เต็ม
-          </Link>
-          <button
-            type="button"
-            className="profile-btn danger"
-            disabled={loggingOut}
-            aria-busy={loggingOut}
-            onClick={() => void logout()}
-          >
-            <Icon name="logout" size={16} />
-            {loggingOut ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}
-          </button>
-        </div>
-        {logoutError ? (
-          <p role="alert" className="ck-msg error" style={{ margin: "8px 12px 2px", fontSize: 13 }}>
-            {logoutError}
-          </p>
-        ) : null}
-      </div>
-
-      {/* ===== 4. Apps Popup ===== */}
-      {popover === "apps" ? (
-        <div className="ck-pop" role="dialog" aria-label="แอปพลิเคชัน">
-          <div className="ck-pop-t">แอปพลิเคชัน</div>
-          <AppGrid />
-        </div>
-      ) : null}
-
-      {/* Background scrim for popups */}
-      {profilePopupOpen || popover ? (
+      {/* ===== Scrim / Backdrop to dismiss popovers on click outside ===== */}
+      {activePopover ? (
         <button
           type="button"
           className="ck-scrim"
-          style={{ background: "transparent", zIndex: 40 }}
-          aria-label="ปิด"
-          onClick={() => {
-            setProfilePopupOpen(false);
-            setPopover(null);
-          }}
+          style={{ background: "transparent", zIndex: 990 }}
+          aria-label="ปิดกล่องข้อความ"
+          onClick={() => setActivePopover(null)}
         />
+      ) : null}
+
+      {/* ===== POPOVER 1: การแจ้งเตือน (แสดงด้านขวาของ Sidebar ตามบรรทัดไอคอน รูปแบบเหมือนแอปพลิเคชัน) ===== */}
+      {activePopover === "notifications" ? (
+        <div
+          className="sh-side-popover sh-notif-popover"
+          role="dialog"
+          aria-label="การแจ้งเตือน"
+        >
+          <div className="sh-popover-header">
+            <div className="sh-popover-title-row">
+              <span className="sh-popover-icon-box blue">
+                <Icon name="bell" size={20} />
+              </span>
+              <b className="sh-popover-title">การแจ้งเตือน</b>
+              {unreadCount > 0 ? (
+                <span className="sh-popover-badge">{unreadCount} รายการใหม่</span>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              className="sh-popover-close-btn"
+              aria-label="ปิดการแจ้งเตือน"
+              onClick={() => setActivePopover(null)}
+            >
+              <Icon name="close" size={17} />
+            </button>
+          </div>
+
+          {/* 3 Tabs: ทั้งหมด, ระบบ, ประกาศ */}
+          <div className="sh-popover-tabs" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={drawerTab === "all"}
+              className={"sh-popover-tab" + (drawerTab === "all" ? " active" : "")}
+              onClick={() => setDrawerTab("all")}
+            >
+              ทั้งหมด
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={drawerTab === "system"}
+              className={"sh-popover-tab" + (drawerTab === "system" ? " active" : "")}
+              onClick={() => setDrawerTab("system")}
+            >
+              ระบบ
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={drawerTab === "announcement"}
+              className={"sh-popover-tab" + (drawerTab === "announcement" ? " active" : "")}
+              onClick={() => setDrawerTab("announcement")}
+            >
+              ประกาศ
+            </button>
+          </div>
+
+          <div className="sh-popover-subbar">
+            <span>รายการล่าสุด</span>
+            {unreadCount > 0 ? (
+              <button
+                type="button"
+                className="sh-popover-action-btn"
+                onClick={() => void markInboxRead()}
+              >
+                ทำเครื่องหมายว่าอ่านแล้วทั้งหมด
+              </button>
+            ) : null}
+          </div>
+
+          <div className="sh-popover-scroll-body">
+            {(() => {
+              const systemItems: readonly InAppNotificationItem[] = inbox?.items ?? [];
+              const annoItems: readonly AnnouncementView[] = announcements;
+
+              if (drawerTab === "system") {
+                if (systemItems.length === 0) {
+                  return (
+                    <div className="sh-popover-empty">
+                      <Icon name="bell" size={32} />
+                      <p>ไม่มีการแจ้งเตือนระบบในขณะนี้</p>
+                    </div>
+                  );
+                }
+                return systemItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className={"sh-notif-item" + (!item.read ? " unread" : "")}
+                    onClick={() => {
+                      setActivePopover(null);
+                      router.push("/desktop/inbox");
+                    }}
+                  >
+                    <div className="sh-notif-circle blue">
+                      <Icon name="check" size={18} />
+                    </div>
+                    <div className="sh-notif-info">
+                      <div className="sh-notif-head">{item.title}</div>
+                      <div className="sh-notif-text">{item.body}</div>
+                      <div className="sh-notif-time">{thaiAgo(item.createdAt)}</div>
+                    </div>
+                    {!item.read ? <span className="sh-notif-unread-dot" /> : null}
+                  </div>
+                ));
+              }
+
+              if (drawerTab === "announcement") {
+                if (annoItems.length === 0) {
+                  return (
+                    <div className="sh-popover-empty">
+                      <Icon name="megaphone" size={32} />
+                      <p>ยังไม่มีประกาศในขณะนี้</p>
+                    </div>
+                  );
+                }
+                return annoItems.map((anno) => (
+                  <div
+                    key={anno.id}
+                    className="sh-notif-item"
+                    onClick={() => {
+                      setActivePopover(null);
+                      router.push("/desktop/announcements");
+                    }}
+                  >
+                    <div className="sh-notif-circle purple">
+                      <Icon name="megaphone" size={18} />
+                    </div>
+                    <div className="sh-notif-info">
+                      <div className="sh-notif-head">{anno.title || "ประกาศจากบริษัท"}</div>
+                      <div className="sh-notif-text">{anno.content}</div>
+                      <div className="sh-notif-time">
+                        {anno.publishedAt ? thaiAgo(anno.publishedAt) : "ล่าสุด"}
+                      </div>
+                    </div>
+                  </div>
+                ));
+              }
+
+              // Tab: 'all'
+              const hasAny = systemItems.length > 0 || annoItems.length > 0;
+              if (!hasAny) {
+                return (
+                  <div className="sh-popover-empty">
+                    <Icon name="bell" size={32} />
+                    <p>ไม่มีการแจ้งเตือนในหมวดนี้</p>
+                  </div>
+                );
+              }
+
+              return (
+                <>
+                  {systemItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className={"sh-notif-item" + (!item.read ? " unread" : "")}
+                      onClick={() => {
+                        setActivePopover(null);
+                        router.push("/desktop/inbox");
+                      }}
+                    >
+                      <div className="sh-notif-circle blue">
+                        <Icon name="check" size={18} />
+                      </div>
+                      <div className="sh-notif-info">
+                        <div className="sh-notif-head">{item.title}</div>
+                        <div className="sh-notif-text">{item.body}</div>
+                        <div className="sh-notif-time">{thaiAgo(item.createdAt)}</div>
+                      </div>
+                      {!item.read ? <span className="sh-notif-unread-dot" /> : null}
+                    </div>
+                  ))}
+                  {annoItems.slice(0, 5).map((anno) => (
+                    <div
+                      key={anno.id}
+                      className="sh-notif-item"
+                      onClick={() => {
+                        setActivePopover(null);
+                        router.push("/desktop/announcements");
+                      }}
+                    >
+                      <div className="sh-notif-circle purple">
+                        <Icon name="megaphone" size={18} />
+                      </div>
+                      <div className="sh-notif-info">
+                        <div className="sh-notif-head">{anno.title || "ประกาศจากบริษัท"}</div>
+                        <div className="sh-notif-text">{anno.content}</div>
+                        <div className="sh-notif-time">
+                          {anno.publishedAt ? thaiAgo(anno.publishedAt) : "ล่าสุด"}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              );
+            })()}
+          </div>
+
+          <div className="sh-popover-footer">
+            <Link
+              href="/desktop/inbox"
+              className="sh-popover-link-btn"
+              onClick={() => setActivePopover(null)}
+            >
+              <span>ไปยังกล่องแจ้งเตือนทั้งหมด &rarr;</span>
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ===== POPOVER 2: แอปพลิเคชัน (แสดงด้านขวาของ Sidebar ตามบรรทัดไอคอน) ===== */}
+      {activePopover === "apps" ? (
+        <div
+          className="sh-side-popover sh-apps-popover"
+          role="dialog"
+          aria-label="แอปพลิเคชัน"
+        >
+          <div className="sh-popover-header">
+            <div className="sh-popover-title-row">
+              <span className="sh-popover-icon-box gray">
+                <Icon name="apps" size={20} />
+              </span>
+              <b className="sh-popover-title">แอปพลิเคชันและระบบงาน</b>
+            </div>
+            <button
+              type="button"
+              className="sh-popover-close-btn"
+              aria-label="ปิดแอปพลิเคชัน"
+              onClick={() => setActivePopover(null)}
+            >
+              <Icon name="close" size={17} />
+            </button>
+          </div>
+          <div className="sh-popover-scroll-body" style={{ padding: "0.75rem 1rem" }}>
+            <AppGrid />
+          </div>
+        </div>
+      ) : null}
+
+      {/* ===== POPOVER 3: โปรไฟล์ (แสดงด้านขวาของ Sidebar ตามบรรทัดไอคอน รูปแบบเหมือนแอปพลิเคชัน) ===== */}
+      {activePopover === "profile" ? (
+        <div
+          className="sh-side-popover sh-profile-popover"
+          role="dialog"
+          aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
+        >
+          <div className="sh-popover-header">
+            <div className="sh-popover-title-row">
+              <span className="sh-popover-icon-box blue">
+                <Icon name="user" size={20} />
+              </span>
+              <b className="sh-popover-title">ข้อมูลโปรไฟล์</b>
+            </div>
+            <button
+              type="button"
+              className="sh-popover-close-btn"
+              aria-label="ปิดโปรไฟล์"
+              onClick={() => setActivePopover(null)}
+            >
+              <Icon name="close" size={17} />
+            </button>
+          </div>
+
+          <div className="sh-profile-pop-body">
+            <div className="sh-profile-main-head">
+              <div className="sh-profile-avatar-large">{initials(profile?.fullName)}</div>
+              <div className="sh-profile-main-info">
+                <div className="sh-profile-name-text">{displayName}</div>
+                <div className="sh-profile-badge-pill">{subtitle}</div>
+              </div>
+            </div>
+
+            <div className="sh-profile-rows-list">
+              <div className="sh-profile-data-row">
+                <span className="sh-row-label">รหัสพนักงาน:</span>
+                <span className="sh-row-value">{profile?.employeeId || "EMP-001"}</span>
+              </div>
+              <div className="sh-profile-data-row">
+                <span className="sh-row-label">แผนก:</span>
+                <span className="sh-row-value">{profile?.department?.name || "ทรัพยากรบุคคล (HR)"}</span>
+              </div>
+              <div className="sh-profile-data-row">
+                <span className="sh-row-label">หน่วยงาน:</span>
+                <span className="sh-row-value">{profile?.agency?.name || "CKACE ACCOUNT"}</span>
+              </div>
+              <div className="sh-profile-data-row">
+                <span className="sh-row-label">ชื่อผู้ใช้:</span>
+                <span className="sh-row-value">{profile?.loginName || "user@ckace.com"}</span>
+              </div>
+              <div className="sh-profile-data-row">
+                <span className="sh-row-label">สถานะบัญชี:</span>
+                <span className="sh-row-value green">✓ ปกติ (Active)</span>
+              </div>
+            </div>
+
+            <div className="sh-profile-btns-row">
+              <Link
+                href="/desktop/profile"
+                className="sh-pop-btn primary"
+                onClick={() => setActivePopover(null)}
+              >
+                <Icon name="user" size={17} />
+                <span>ดูโปรไฟล์เต็ม</span>
+              </Link>
+              <button
+                type="button"
+                className="sh-pop-btn danger"
+                disabled={loggingOut}
+                aria-busy={loggingOut}
+                onClick={() => void logout()}
+              >
+                <Icon name="logout" size={17} />
+                <span>{loggingOut ? "กำลังออก..." : "ออกจากระบบ"}</span>
+              </button>
+            </div>
+            {logoutError ? (
+              <p role="alert" className="ck-msg error" style={{ margin: "8px 4px 0", fontSize: 13 }}>
+                {logoutError}
+              </p>
+            ) : null}
+          </div>
+        </div>
       ) : null}
 
       {/* ===== Main Workspace Container ===== */}
       <div className="sh-workspace">
-        <header className="ck-top sh-top">
-          <button
-            type="button"
-            className="sh-mobile-toggle"
-            aria-label={mobileNavOpen ? "ปิดเมนูหลัก" : "เปิดเมนูหลัก"}
-            aria-expanded={mobileNavOpen}
-            onClick={() => setMobileNavOpen((open) => !open)}
-          >
-            <Icon name="menu" size={19} />
-          </button>
-
-          <div className="sh-top-title">
-            <b>{pageTitle}</b>
-            <small>CKACE HR <span aria-hidden="true">/</span> {pageTitle}</small>
-          </div>
-
-          <label className="sh-search" aria-label="ค้นหา">
-            <Icon name="search" size={17} />
-            <input
-              type="search"
-              readOnly
-              aria-label="ค้นหาข้อมูล (ยังไม่เปิดใช้งาน)"
-              placeholder="ค้นหาในระบบ..."
-            />
-            <kbd>⌘ K</kbd>
-          </label>
-
-          <div className="ck-top-r sh-top-actions">
-            <button
-              type="button"
-              className="ck-ibtn"
-              aria-haspopup="dialog"
-              aria-expanded={popover === "apps"}
-              aria-label="แอปพลิเคชัน"
-              title="แอปพลิเคชัน"
-              onClick={() => {
-                setMobileNavOpen(false);
-                setProfilePopupOpen(false);
-                setPopover((current) => (current === "apps" ? null : "apps"));
-              }}
-            >
-              <Icon name="apps" size={20} />
-            </button>
-
-            <button
-              type="button"
-              className="ck-ibtn"
-              aria-haspopup="dialog"
-              aria-label="การแจ้งเตือน"
-              title="การแจ้งเตือน"
-              aria-expanded={drawerOpen}
-              onClick={() => {
-                setMobileNavOpen(false);
-                setProfilePopupOpen(false);
-                setPopover(null);
-                setDrawerOpen(true);
-              }}
-            >
-              <Icon name="bell" size={20} />
-              {unreadCount > 0 ? <span className="ck-badge">{unreadCount}</span> : null}
-            </button>
-
-            <button
-              type="button"
-              className="ck-me-btn"
-              aria-label={DESKTOP_NAV_ACCESSIBLE_NAMES.profile}
-              aria-haspopup="dialog"
-              aria-expanded={profilePopupOpen}
-              onClick={() => {
-                setMobileNavOpen(false);
-                setPopover(null);
-                setProfilePopupOpen((open) => !open);
-              }}
-            >
-              <span className="ck-av">{initials(profile?.fullName)}</span>
-              <span className="ck-me-name">{displayName}</span>
-              <Icon name="chevron" size={13} />
-            </button>
-          </div>
-        </header>
+                {/* Mobile toggle button */}
+        <button
+          type="button"
+          className="sh-mobile-toggle"
+          aria-label={mobileNavOpen ? "ปิดเมนูหลัก" : "เปิดเมนูหลัก"}
+          aria-expanded={mobileNavOpen}
+          onClick={() => setMobileNavOpen((open) => !open)}
+        >
+          <Icon name="menu" size={20} />
+        </button>
 
         <main className="ck-main">
           {!routeAllowed ? (
@@ -1063,17 +1031,23 @@ function AppGrid() {
         app.current ? (
           <span key={app.label} className="ck-app-i cur" aria-current="true">
             <span className="ic" style={{ background: app.color }}>
-              <Icon name={app.icon} size={19} />
+              <Icon name={app.icon} size={20} />
             </span>
-            {app.label}
+            <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a", marginTop: "4px" }}>
+              {app.label}
+            </span>
           </span>
         ) : (
           <span key={app.label} className="ck-app-i" aria-disabled="true" title="ยังไม่เปิดใช้งาน">
-            <span className="ic" style={{ background: app.color, opacity: 0.45 }}>
-              <Icon name={app.icon} size={19} />
+            <span className="ic" style={{ background: app.color, opacity: 0.7 }}>
+              <Icon name={app.icon} size={20} />
             </span>
-            {app.label}
-            <small>เร็ว ๆ นี้</small>
+            <span style={{ fontSize: "14px", fontWeight: 600, color: "#1e293b", marginTop: "4px" }}>
+              {app.label}
+            </span>
+            <span style={{ fontSize: "12px", fontWeight: 600, color: "#1e293b", background: "#edf4fc", padding: "1px 6px", borderRadius: "4px" }}>
+              เร็ว ๆ นี้
+            </span>
           </span>
         ),
       )}

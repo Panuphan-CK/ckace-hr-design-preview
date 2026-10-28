@@ -60,3 +60,61 @@ Status: PARTIAL — Owner requested a local-only full-card layout based on the C
 - Owner asked to adapt the local Desktop preview in three areas only: typography, sidebar and card colors.
 - The design-only `owner-dashboard-preview.html` now uses Prompt with Noto Sans Thai fallback; its white sidebar uses blue icons and dark labels, and its KPI/status cards use distinct soft blue, green, orange, violet and rose fills. The app at `localhost:3001` is not the target of this adjustment.
 - Reviewed the owner design preview in Chrome at 1440px. No routes, permissions, data logic or page structure were changed. No tests were run for this visual-only change.
+
+## Current Owner review — fresh dashboard concept
+
+- Rebuilt owner-dashboard-preview.html as a new standalone employee workspace concept at port 4186, superseding its previous visual design.
+- White surfaces, blue primary action, Inter/Noto Sans Thai typography, four summary metrics, action-required panel, request table, leave balances, attendance and upcoming events.
+- All content is synthetic and labelled. Navigation anchors, sidebar toggle and informational dialogs are prototype interactions only. Application source at port 3001 was not edited for this redesign.
+- Browser desktop rendering inspected. Owner review is the next step; no deploy or publication performed.
+
+## Current visual direction — expressive workspace
+
+- Owner rejected the neutral concept. Reworked the preview into an asymmetric composition: large cobalt feature area, adjacent 2-by-2 metrics, weekly date strip, dark navigation, lime accents, lilac and peach surfaces.
+- Desktop rendering visually checked at the local 4186 preview. All figures remain synthetic. Owner visual approval is pending; localhost:3001 application source is untouched.
+
+## Current Owner review — white and pastel HR dashboard
+
+- Applied the eight requested adjustments to the 4186 preview: white canvas, light-blue decorative sidebar, content expansion on collapse, framed tinted section headings, larger typography and five compact HR KPI cards.
+- Desktop expanded and collapsed views inspected. Sidebar reduces from 246px to 76px and the main content fills the released space; main width is no longer capped. Collapsed links retain accessible labels.
+- Owner visual approval remains pending. Only design-preview HTML and this design task note were edited in this round; existing application changes in the worktree were preserved.
+
+## Owner request — leave system settings preview
+
+- Added a separate settings view in the 4186 standalone preview with nine categories: leave cycle, workdays, work/OT hours and employee choices, annual holidays, leave types and tenure-based entitlement, employees, departments, four request approval types, and role/scope access.
+- Values are marked as sample; section navigation, weekday choices, leave carry/forfeit choice, approval-type tabs, and prototype save feedback are local preview interactions only.
+- Application source, routes, permissions, API calls, data, TEST and Production were not changed. Owner visual review is pending.- Work-hour fields display 24-hour `HH:mm` values, and employee lunch options include selectable 30/45/60-minute durations plus a no-lunch choice.
+
+
+## Current task — GAS Desktop parity
+
+- Owner supplied app-leave-GAS as the read-only UI reference and requested all Desktop pages except Login.
+- Began the Local shell styling using GAS background, blue, sidebar spacing and radius. Existing UX work remains in place.
+- Web typecheck passed. Visual check at 1440px revealed the Dashboard hero/spacing still needs structural work; GAS parity is not yet complete. No TEST or Production deployment was made.
+
+- GAS overview first section: changed the title to สรุปการใช้วันลา and displayed the three leave-type cards before other content. This is partial UI work only; the existing Dashboard contains hard-coded fallback values that must be removed or replaced with real data before release.
+- Web typecheck and git diff --check pass. Browser connection was unavailable after the latest edit, so rendered verification of that edit is still pending.
+
+- Rebuilt the GAS leave-summary cards structurally: icon and used value above the leave name, quota and progress. In development syntheticPreview only, labelled sample entitlements are supplied when the API is unavailable; normal runtime uses returned entitlements or an unavailable state. The Local rendered cards were inspected. Remaining Dashboard content and other Desktop pages are not yet GAS parity.
+- Web typecheck passes. Web lint could not run because eslint is not installed in this worktree.
+
+- Owner requested larger leave progress bars with the percentage inside. The Local preview shows the labels centered within 26px bars; web typecheck passed. Remaining GAS parity work is still active.
+
+- Progress labels are italic white with a dark text shadow for readability on the unfilled track. Verified in Local preview; GAS parity work remains active.
+
+- Progress bars now show only the percentage in a colored label, per Owner request; Local rendering and web typecheck passed. For small values the label has a minimum width for legibility.
+
+- Owner requested the percentage aligned to the right edge of the colored progress portion; Local preview and web typecheck passed. Small values retain a readable 40px label.
+
+## Owner review — uniform Desktop overview cards
+
+- Applied one visual system across the Overview leave entitlement, OT, medical, request-status, recent-request, weekly-calendar and company-announcement cards: white rounded panels, thin borders, soft blue shadows, pastel accent bars/icon tiles and consistent framed headings.
+- OT and medical progress bars now match the leave cards: larger tracks with a bold italic white percentage badge positioned at the filled portion's right edge. Medical no longer repeats the used percentage below the bar.
+- Kept all existing navigation destinations, API data bindings and permissions unchanged. Scope is the Overview only; other Desktop pages still need their own GAS parity work.
+- Verification: Web typecheck passed. Targeted diff check for page.tsx and smarthr.css passed. The full worktree check reports existing trailing whitespace in desktop-shell.tsx and the two design-preview HTML files; those were left untouched. No test suite was run.
+- Responsive card behavior: KPI cards move to two columns at tablet width and one column on narrow screens; request/agenda panels stack without changing route behavior.
+## Owner review — Overview shortcuts removed
+
+- Removed all nine card/header/row links from the Dashboard, including leave details, OT/medical actions, request shortcuts, calendar/news links and request-row arrows.
+- Kept the existing Sidebar destinations and role-based menu visibility unchanged.
+- Verification: web typecheck passed; the Local synthetic Overview accessibility tree now contains no content links (navigation links remain in the Sidebar). No test suite was run.

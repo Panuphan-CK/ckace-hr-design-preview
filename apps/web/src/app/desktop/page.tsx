@@ -9,7 +9,6 @@ import type {
   SelfProfileResponse,
   UnifiedRequestKind,
 } from "@ckace/contracts";
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -118,7 +117,14 @@ export default function DesktopDashboardPage() {
         data: {
           session,
           profile,
-          leave,
+          leave: leave ?? (process.env.NODE_ENV === "development" && new URLSearchParams(window.location.search).get("syntheticPreview") === "1" ? {
+            entitlements: [
+              { entitlementId: "sample-annual", leaveTypeId: "sample-annual", leaveTypeKey: "ANNUAL", leaveTypeName: "ลาพักร้อน", quota: 10, used: 4, pending: 0, remaining: 6 },
+              { entitlementId: "sample-sick", leaveTypeId: "sample-sick", leaveTypeKey: "SICK", leaveTypeName: "ลาป่วย", quota: 30, used: 2, pending: 0, remaining: 28 },
+              { entitlementId: "sample-personal", leaveTypeId: "sample-personal", leaveTypeKey: "PERSONAL", leaveTypeName: "ลากิจ", quota: 6, used: 1, pending: 0, remaining: 5 },
+            ],
+            requests: [], holidays: [], workingWeekdays: [1, 2, 3, 4, 5],
+          } : null),
           medical,
           requests,
           team,
@@ -155,31 +161,8 @@ export default function DesktopDashboardPage() {
   const roleName = profile?.roles[0] ?? "พนักงาน";
   const departmentName = profile?.department?.name ?? "ฝ่ายทรัพยากรบุคคล (HR)";
 
-  // Entitlements from leave
-  const vacationEnt = leave?.entitlements.find((e) => e.leaveTypeKey === "VACATION");
-  const vacationUsed = vacationEnt ? vacationEnt.used : 8;
-  const vacationTotal = vacationEnt ? vacationEnt.quota : 10;
-  const vacationRemaining = vacationEnt ? vacationEnt.remaining : Math.max(0, vacationTotal - vacationUsed);
-  const vacationPct = vacationTotal > 0 ? Math.min(100, Math.round((vacationUsed / vacationTotal) * 1000) / 10) : 0;
-
-  // Sick KPI
-  const sickEnt = leave?.entitlements.find((e) => e.leaveTypeKey === "SICK");
-  const sickUsed = sickEnt ? sickEnt.used : 5;
-  const sickTotal = sickEnt ? sickEnt.quota : 30;
-  const sickRemaining = sickEnt ? sickEnt.remaining : Math.max(0, sickTotal - sickUsed);
-  const sickPct = sickTotal > 0 ? Math.min(100, Math.round((sickUsed / sickTotal) * 1000) / 10) : 0;
-
-  // Business / Personal KPI
-  const bizEnt = leave?.entitlements.find((e) => e.leaveTypeKey === "PERSONAL");
-  const bizUsed = bizEnt ? bizEnt.used : 3;
-  const bizTotal = bizEnt ? bizEnt.quota : 5;
-  const bizRemaining = bizEnt ? bizEnt.remaining : Math.max(0, bizTotal - bizUsed);
-  const bizPct = bizTotal > 0 ? Math.min(100, Math.round((bizUsed / bizTotal) * 1000) / 10) : 0;
-
   // OT KPI
   const otHoursMonth = 12.5;
-  const otHoursTotal = 152;
-  const otPct = 60.0;
 
   // Medical KPI
   const medApproved = medical?.entitlement ? medical.entitlement.approved : 2500;
@@ -200,25 +183,28 @@ export default function DesktopDashboardPage() {
 
   return (
     <div className="sh-dashboard-v3">
-      {/* ===== Section 1: Top Hero Greeting & Clock / Attendance ===== */}
-      <div className="top-grid">
-        {/* Hero Card */}
-        <div className="hero-card">
+      {/* ===== ROW 1: Hero Card (ขนาด 3 KPI) + Attendance & Clock (ขนาด 2 KPI) ===== */}
+      <div className="sh-top-hero-row">
+        {/* 1. Hero Card (ขนาด 3 การ์ด KPI - สัดส่วน 3/5) */}
+        <div className="sh-hero-card-col">
           <div className="hero-building" />
           <div className="hero-text">
             <div className="hero-greeting">{greetingText}</div>
-            <div className="hero-name">{fullName}</div>
+            <h1 className="hero-name">{fullName}</h1>
             <div className="hero-role">
               ตำแหน่ง {roleName} · {departmentName}
+            </div>
+            <div className="hero-company">
+              สังกัด บริษัท ซีเคแอนด์เอซ แอคเคาท์ติ้ง จำกัด (สำนักงานใหญ่)
             </div>
           </div>
         </div>
 
-        {/* Live Clock & Attendance Card */}
-        <div className="clock-card">
+        {/* 2. Attendance & Live Clock Card (ขนาด 2 การ์ด KPI - สัดส่วน 2/5) */}
+        <div className="sh-attendance-card-col">
           <div className="clock-top">
             <div className="clock-date">
-              <Icon name="calendar" size={17} />
+              <Icon name="calendar" size={18} />
               <span>{currentDateStr || "วันพุธที่ 28 ตุลาคม 2569"}</span>
             </div>
             <div className="digital-clock">{currentTime || "10:24:36"}</div>
@@ -227,412 +213,198 @@ export default function DesktopDashboardPage() {
           <div className="attendance-block">
             <div className="attendance-header">
               <div className="attendance-title">
-                <Icon name="clock" size={17} />
-                <span>ลงเวลาเข้า - ออกงาน</span>
+                <Icon name="clock" size={18} />
+                <span>การลงเวลาทำงานวันนี้</span>
               </div>
-              <Link href="/desktop/attendance" className="link-detail">
-                ดูรายละเอียด &rarr;
-              </Link>
             </div>
             <div className="attendance-grid">
               <div className="attendance-subcard">
                 <div className="att-icon in">
-                  <Icon name="back" size={18} style={{ transform: "rotate(180deg)" }} />
+                  <Icon name="back" size={20} style={{ transform: "rotate(180deg)" }} />
                 </div>
                 <div>
-                  <div className="att-label">เวลาเข้า</div>
-                  <div className="att-time">08:28</div>
-                  <div className="att-tag">✓ ตรงเวลา</div>
+                  <div className="att-label">เวลาเข้างาน</div>
+                  <div className="att-time">08:28 น.</div>
+                  <div className="att-tag">✓ เข้างานตรงเวลา</div>
                 </div>
               </div>
               <div className="attendance-subcard">
                 <div className="att-icon out">
-                  <Icon name="back" size={18} />
+                  <Icon name="back" size={20} />
                 </div>
                 <div>
-                  <div className="att-label">เวลาออก</div>
-                  <div className="att-time">--:--</div>
-                  <div className="att-tag muted">ยังไม่ลงเวลา</div>
+                  <div className="att-label">เวลาออกงาน</div>
+                  <div className="att-time">--:-- น.</div>
+                  <div className="att-tag muted">กำลังปฏิบัติงาน</div>
                 </div>
               </div>
+            </div>
+            <div className="attendance-shift-note">
+              <span>กะเวลาทำงานปกติ: 08:30 – 17:30 น. (8 ชั่วโมงทำการ)</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ===== Section 2: สิทธิและสถิติประจำปี (5 Colored KPI Cards) ===== */}
-      <section className="section-container">
-        <div className="section-head">
-          <div className="section-title">
-            <Icon name="clock" size={20} />
-            <span>สิทธิและสถิติประจำปี</span>
-          </div>
-          <Link href="/desktop/leave" className="link-detail">
-            ดูรายละเอียด &rarr;
-          </Link>
-        </div>
-
-        <div className="kpi-5-grid">
-          {/* 1. ลาพักร้อน */}
-          <div className="kpi-box kpi-blue">
-            <div className="kpi-top">
-              <div className="kpi-icon-circle">
-                <Icon name="leave" size={20} />
-              </div>
-              <div>
-                <div className="kpi-name">ลาพักร้อน</div>
-                <div className="kpi-val">
-                  {dayLabel(vacationUsed)} / {dayLabel(vacationTotal)} วัน
-                </div>
-                <div className="kpi-sub">เหลือ {dayLabel(vacationRemaining)} วัน</div>
-              </div>
-            </div>
-            <div className="kpi-progress">
-              <div className="kpi-bar" style={{ width: `${vacationPct}%` }} />
-            </div>
-            <div className="kpi-pct-badge">{vacationPct.toFixed(1)}%</div>
-          </div>
-
-          {/* 2. ลาป่วย */}
-          <div className="kpi-box kpi-green">
-            <div className="kpi-top">
-              <div className="kpi-icon-circle">
-                <Icon name="sick" size={20} />
-              </div>
-              <div>
-                <div className="kpi-name">ลาป่วย</div>
-                <div className="kpi-val">
-                  {dayLabel(sickUsed)} / {dayLabel(sickTotal)} วัน
-                </div>
-                <div className="kpi-sub">เหลือ {dayLabel(sickRemaining)} วัน</div>
-              </div>
-            </div>
-            <div className="kpi-progress">
-              <div className="kpi-bar" style={{ width: `${sickPct}%` }} />
-            </div>
-            <div className="kpi-pct-badge">{sickPct.toFixed(1)}%</div>
-          </div>
-
-          {/* 3. ลากิจ */}
-          <div className="kpi-box kpi-orange">
-            <div className="kpi-top">
-              <div className="kpi-icon-circle">
-                <Icon name="biz" size={20} />
-              </div>
-              <div>
-                <div className="kpi-name">ลากิจ</div>
-                <div className="kpi-val">
-                  {dayLabel(bizUsed)} / {dayLabel(bizTotal)} วัน
-                </div>
-                <div className="kpi-sub">เหลือ {dayLabel(bizRemaining)} วัน</div>
-              </div>
-            </div>
-            <div className="kpi-progress">
-              <div className="kpi-bar" style={{ width: `${bizPct}%` }} />
-            </div>
-            <div className="kpi-pct-badge">{bizPct.toFixed(1)}%</div>
-          </div>
-
-          {/* 4. OT (เดือนนี้) */}
-          <div className="kpi-box kpi-purple">
-            <div className="kpi-top">
-              <div className="kpi-icon-circle">
-                <Icon name="ot" size={20} />
-              </div>
-              <div>
-                <div className="kpi-name">OT (เดือนนี้)</div>
-                <div className="kpi-val">{otHoursMonth} ชม.</div>
-                <div className="kpi-sub">สะสม {otHoursTotal} ชม.</div>
-              </div>
-            </div>
-            <div className="kpi-progress">
-              <div className="kpi-bar" style={{ width: `${otPct}%` }} />
-            </div>
-            <div className="kpi-pct-badge">{otPct.toFixed(1)}%</div>
-          </div>
-
-          {/* 5. เบิกค่ารักษา */}
-          <div className="kpi-box kpi-red">
-            <div className="kpi-top">
-              <div className="kpi-icon-circle">
-                <Icon name="med" size={20} />
-              </div>
-              <div>
-                <div className="kpi-name">เบิกค่ารักษา</div>
-                <div className="kpi-val">{baht(medApproved)} บาท</div>
-                <div className="kpi-sub">จากวงเงิน {baht(medTotal)} บาท</div>
-              </div>
-            </div>
-            <div className="kpi-progress">
-              <div className="kpi-bar" style={{ width: `${medPct}%` }} />
-            </div>
-            <div className="kpi-pct-badge">{medPct.toFixed(1)}%</div>
+      <section className="gas-leave-summary" aria-labelledby="gas-leave-title">
+        <div className="gas-leave-heading">
+          <div>
+            <h2 id="gas-leave-title">สรุปการใช้วันลา</h2>
+            <p>ข้อมูลสิทธิการลาของคุณ{process.env.NODE_ENV === "development" && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("syntheticPreview") === "1" ? " · ข้อมูลตัวอย่าง" : ""}</p>
           </div>
         </div>
+        {leave === null ? (
+          <p className="gas-leave-empty">ไม่สามารถแสดงข้อมูลสิทธิวันลาได้</p>
+        ) : leave.entitlements.length === 0 ? (
+          <p className="gas-leave-empty">ยังไม่มีการกำหนดสิทธิวันลาสำหรับผู้ใช้งานนี้</p>
+        ) : (
+          <div className="gas-leave-grid">
+            {leave.entitlements.map((item, index) => {
+              const percent = item.quota > 0 ? Math.min(100, Math.max(0, item.used / item.quota * 100)) : 0;
+              const tone = item.leaveTypeKey === "SICK" ? "sick" : item.leaveTypeKey === "PERSONAL" ? "personal" : index % 3 === 1 ? "sick" : index % 3 === 2 ? "personal" : "annual";
+              const icon: IconName = tone === "sick" ? "med" : tone === "personal" ? "document" : "leave";
+              return (
+                <article className="gas-leave-card" data-tone={tone} key={item.entitlementId}>
+                  <div className="gas-leave-card-top">
+                    <span className="gas-leave-icon"><Icon name={icon} size={22} /></span>
+                    <div className="gas-leave-used"><strong>{dayLabel(item.used)}</strong><span>ใช้ไป</span></div>
+                  </div>
+                  <h3>{item.leaveTypeName}</h3>
+                  <p>สิทธิทั้งหมด {dayLabel(item.quota)} วัน</p>
+                  <div className="gas-leave-progress" role="progressbar" aria-label={`ใช้สิทธิ ${item.leaveTypeName}`} aria-valuenow={Math.round(percent)} aria-valuemin={0} aria-valuemax={100}><span className="gas-leave-progress-fill" style={{ width: `${percent}%` }} /><span className="gas-leave-progress-text" style={{ left: `max(0px, calc(${percent}% - 40px))` }}>{percent.toFixed(0)}%</span></div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </section>
-
-      {/* ===== Section 3: 2 Columns: สถานะคำขอของฉัน + ปฏิทินการทำงาน ===== */}
-      <div className="two-col-grid">
-        {/* Col 1: สถานะคำขอของฉัน */}
-        <section className="section-container" style={{ marginBottom: 0 }}>
-          <div className="section-head">
-            <div className="section-title">
-              <Icon name="document" size={20} />
-              <span>สถานะคำขอของฉัน</span>
-            </div>
-            <Link href="/desktop/requests" className="link-detail">
-              ดูทั้งหมด &rarr;
-            </Link>
-          </div>
-
-          <div className="status-boxes">
-            {/* รอดำเนินการ */}
-            <div className="status-box">
-              <div className="status-box-head">
-                <div className="status-circle blue">
-                  <Icon name="clock" size={17} />
-                </div>
-                <div className="status-box-title">รอดำเนินการ</div>
+      {/* ===== ROW 3: สวัสดิการและการทำงาน (OT, ค่ารักษา, สรุปคำขอ) ===== */}
+      <div className="sh-work-status-row">
+        {/* Card 1: การทำงานล่วงเวลา (OT) */}
+        <div className="sh-work-card ot">
+          <div className="sh-work-card-head">
+            <div className="sh-work-title">
+              <span className="sh-work-icon-circle purple">
+                <Icon name="ot" size={20} />
+              </span>
+              <div>
+                <span className="work-main-title">การทำงานล่วงเวลา (OT)</span>
+                <span className="work-sub-title">สะสมประจำรอบเดือน ต.ค. 2569</span>
               </div>
-              <div className="status-box-count">
-                {pendingCount} <small>รายการ</small>
-              </div>
-              <ul className="status-list">
-                <li>
-                  <span>ลาพักร้อน</span>
-                  <b>1</b>
-                </li>
-                <li>
-                  <span>ขอ OT</span>
-                  <b>1</b>
-                </li>
-              </ul>
-            </div>
-
-            {/* อนุมัติแล้ว */}
-            <div className="status-box">
-              <div className="status-box-head">
-                <div className="status-circle green">
-                  <Icon name="check" size={17} />
-                </div>
-                <div className="status-box-title">อนุมัติแล้ว</div>
-              </div>
-              <div className="status-box-count">
-                {approvedCount} <small>รายการ</small>
-              </div>
-              <ul className="status-list">
-                <li>
-                  <span>ลาพักร้อน</span>
-                  <b>3</b>
-                </li>
-                <li>
-                  <span>ขอ OT</span>
-                  <b>1</b>
-                </li>
-                <li>
-                  <span>เบิกค่ารักษา</span>
-                  <b>1</b>
-                </li>
-              </ul>
-            </div>
-
-            {/* รออนุมัติ / ขอแก้ไข */}
-            <div className="status-box">
-              <div className="status-box-head">
-                <div className="status-circle orange">
-                  <Icon name="time" size={17} />
-                </div>
-                <div className="status-box-title">รออนุมัติ</div>
-              </div>
-              <div className="status-box-count">
-                {reviewCount} <small>รายการ</small>
-              </div>
-              <ul className="status-list">
-                <li>
-                  <span>ขอแก้ไขเวลา</span>
-                  <b>1</b>
-                </li>
-              </ul>
             </div>
           </div>
-        </section>
-
-        {/* Col 2: ปฏิทินการทำงาน */}
-        <section className="section-container" style={{ marginBottom: 0 }}>
-          <div className="section-head">
-            <div className="section-title">
-              <Icon name="calendar" size={20} />
-              <span>ปฏิทินการทำงาน</span>
+          <div className="sh-work-card-body">
+            <div className="sh-work-val-group">
+              <span className="work-val">{otHoursMonth}</span>
+              <span className="work-unit">ชั่วโมงเดือนนี้</span>
             </div>
-            <Link href="/desktop/calendar" className="link-detail">
-              ดูปฏิทินเต็ม &rarr;
-            </Link>
-          </div>
-
-          <div className="cal-nav">
-            <button type="button" className="cal-nav-btn" aria-label="เดือนก่อนหน้า">
-              &lt;
-            </button>
-            <span>ตุลาคม 2569</span>
-            <button type="button" className="cal-nav-btn" aria-label="เดือนถัดไป">
-              &gt;
-            </button>
-          </div>
-
-          <table className="cal-table">
-            <thead>
-              <tr>
-                <th style={{ color: "var(--red)" }}>อา</th>
-                <th>จ</th>
-                <th>อ</th>
-                <th>พ</th>
-                <th>พฤ</th>
-                <th>ศ</th>
-                <th>ส</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td />
-                <td />
-                <td />
-                <td>
-                  1<div className="cal-dot green" />
-                </td>
-                <td>
-                  2<div className="cal-dot green" />
-                </td>
-                <td>
-                  3<div className="cal-dot green" />
-                </td>
-                <td>4</td>
-              </tr>
-              <tr>
-                <td style={{ color: "var(--red)" }}>5</td>
-                <td>
-                  6<div className="cal-dot green" />
-                </td>
-                <td>
-                  7<div className="cal-dot green" />
-                </td>
-                <td>
-                  8<div className="cal-dot green" />
-                </td>
-                <td>
-                  9<div className="cal-dot green" />
-                </td>
-                <td>
-                  10<div className="cal-dot green" />
-                </td>
-                <td>11</td>
-              </tr>
-              <tr>
-                <td style={{ color: "var(--red)" }}>12</td>
-                <td>
-                  13<div className="cal-dot red" />
-                </td>
-                <td>
-                  14<div className="cal-dot green" />
-                </td>
-                <td>
-                  15<div className="cal-dot blue" />
-                </td>
-                <td>
-                  16<div className="cal-dot blue" />
-                </td>
-                <td>
-                  17<div className="cal-dot green" />
-                </td>
-                <td>18</td>
-              </tr>
-              <tr>
-                <td style={{ color: "var(--red)" }}>19</td>
-                <td>
-                  20<div className="cal-dot green" />
-                </td>
-                <td>
-                  21<div className="cal-dot green" />
-                </td>
-                <td>
-                  <div className="cal-day-num today">22</div>
-                  <div className="cal-dot green" />
-                </td>
-                <td>
-                  23<div className="cal-dot red" />
-                </td>
-                <td>
-                  24<div className="cal-dot orange" />
-                </td>
-                <td>25</td>
-              </tr>
-              <tr>
-                <td style={{ color: "var(--red)" }}>26</td>
-                <td>
-                  27<div className="cal-dot green" />
-                </td>
-                <td>
-                  28<div className="cal-dot green" />
-                </td>
-                <td>
-                  29<div className="cal-dot green" />
-                </td>
-                <td>
-                  30<div className="cal-dot green" />
-                </td>
-                <td>
-                  31<div className="cal-dot green" />
-                </td>
-                <td />
-              </tr>
-            </tbody>
-          </table>
-
-          <div className="cal-legend">
-            <div className="cal-legend-item">
-              <span className="cal-legend-dot" style={{ background: "var(--green)" }} />
-              <span>วันทำงาน</span>
+            <div className="sh-work-sub-row">
+              <span className="tag-approved">✓ อนุมัติแล้ว 10.0 ชม.</span>
+              <span className="tag-pending">⏳ รอพิจารณา 2.5 ชม.</span>
             </div>
-            <div className="cal-legend-item">
-              <span className="cal-legend-dot" style={{ background: "var(--blue-primary)" }} />
-              <span>อนุมัติแล้ว</span>
+            <div className="sh-kpi-progress-wrap" role="progressbar" aria-label="สัดส่วน OT ที่แสดง" aria-valuenow={65} aria-valuemin={0} aria-valuemax={100}>
+              <div className="sh-kpi-progress-bar purple" style={{ width: "65%" }} />
+              <span className="sh-kpi-progress-label" style={{ left: "max(0px, calc(65% - 40px))" }}>65%</span>
             </div>
-            <div className="cal-legend-item">
-              <span className="cal-legend-dot" style={{ background: "var(--orange)" }} />
-              <span>รอพิจารณา</span>
-            </div>
-            <div className="cal-legend-item">
-              <span className="cal-legend-dot" style={{ background: "var(--red)" }} />
-              <span>วันหยุด</span>
+            <div className="sh-work-card-foot">
+              <span>อนุมัติแล้ว 80.0%</span>
+              <span className="purple">รอพิจารณา 20.0%</span>
             </div>
           </div>
-        </section>
+        </div>
+
+        {/* Card 2: สวัสดิการค่ารักษาพยาบาล (Medical Benefits) */}
+        <div className="sh-work-card med">
+          <div className="sh-work-card-head">
+            <div className="sh-work-title">
+              <span className="sh-work-icon-circle teal">
+                <Icon name="med" size={20} />
+              </span>
+              <div>
+                <span className="work-main-title">สวัสดิการค่ารักษาพยาบาล</span>
+                <span className="work-sub-title">วงเงินสวัสดิการประจำปี 2569</span>
+              </div>
+            </div>
+          </div>
+          <div className="sh-work-card-body">
+            <div className="sh-work-val-group">
+              <span className="work-val">{baht(medRemaining)}</span>
+              <span className="work-unit">บาทคงเหลือ</span>
+            </div>
+            <div className="sh-work-sub-row">
+              <span>เบิกจ่ายแล้ว {baht(medApproved)} บาท</span>
+              <span>วงเงินปีนี้ {baht(medTotal)} บาท</span>
+            </div>
+            <div className="sh-kpi-progress-wrap" role="progressbar" aria-label="สัดส่วนการใช้วงเงินค่ารักษา" aria-valuenow={Math.round(medPct)} aria-valuemin={0} aria-valuemax={100}>
+              <div className="sh-kpi-progress-bar teal" style={{ width: String(medPct) + "%" }} />
+              <span className="sh-kpi-progress-label" style={{ left: "max(0px, calc(" + medPct + "% - 40px))" }}>{medPct.toFixed(0)}%</span>
+            </div>
+            <div className="sh-work-card-foot">
+              <span>เบิกจ่ายแล้ว</span>
+              <span className="teal">คงเหลือ {((medRemaining / (medTotal || 1)) * 100).toFixed(1)}%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: สรุปสถานะคำขอของฉัน (My Requests Status) */}
+        <div className="sh-work-card req">
+          <div className="sh-work-card-head">
+            <div className="sh-work-title">
+              <span className="sh-work-icon-circle blue">
+                <Icon name="leave" size={20} />
+              </span>
+              <div>
+                <span className="work-main-title">สถานะคำขอของฉัน</span>
+                <span className="work-sub-title">ติดตามสถานะคำขอทุกประเภท</span>
+              </div>
+            </div>
+          </div>
+          <div className="sh-work-card-body">
+            <div className="sh-status-pill-grid">
+              <div className="sh-status-item pending">
+                <span className="status-label">รอพิจารณา</span>
+                <span className="status-num">{pendingCount}</span>
+                <span className="status-sub">รายการ</span>
+              </div>
+              <div className="sh-status-item approved">
+                <span className="status-label">อนุมัติแล้ว</span>
+                <span className="status-num">{approvedCount}</span>
+                <span className="status-sub">รายการ</span>
+              </div>
+              <div className="sh-status-item revision">
+                <span className="status-label">ขอข้อมูลเพิ่ม</span>
+                <span className="status-num">{reviewCount}</span>
+                <span className="status-sub">รายการ</span>
+              </div>
+            </div>
+            <div className="sh-status-foot-note">
+              <span>อัปเดตสถานะแบบเรียลไทม์จากระบบ HR</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* ===== Section 4: 2 Columns: คำขอล่าสุด + ประกาศ / ข่าวสาร ===== */}
-      <div className="two-col-grid" style={{ marginBottom: 0 }}>
-        {/* Col 1: คำขอล่าสุด Table */}
-        <section className="section-container" style={{ marginBottom: 0 }}>
+      {/* ===== ROW 4: ตารางคำขอล่าสุด & ปฏิทินงานสัปดาห์นี้ ===== */}
+      <div className="two-col-grid">
+        {/* Left Col: ตารางคำขอล่าสุด (Recent Requests Table) */}
+        <section className="section-container dashboard-panel dashboard-panel--requests" style={{ marginBottom: 0 }}>
           <div className="section-head">
             <div className="section-title">
               <Icon name="document" size={20} />
-              <span>คำขอล่าสุด</span>
+              <span>คำขอล่าสุดของฉัน</span>
             </div>
-            <Link href="/desktop/requests" className="link-detail">
-              ดูทั้งหมด &rarr;
-            </Link>
           </div>
 
           <div className="table-responsive">
             <table className="req-table">
               <thead>
                 <tr>
-                  <th>ประเภท</th>
+                  <th>ประเภทคำขอ</th>
                   <th>วันที่ยื่น</th>
                   <th>ช่วงวันที่</th>
                   <th>จำนวน</th>
                   <th>สถานะ</th>
                   <th>หมายเหตุ</th>
-                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -675,11 +447,6 @@ export default function DesktopDashboardPage() {
                           </span>
                         </td>
                         <td>{req.summary || "-"}</td>
-                        <td>
-                          <Link href="/desktop/requests">
-                            <Icon name="chevron" size={16} className="action-arrow" />
-                          </Link>
-                        </td>
                       </tr>
                     );
                   })
@@ -701,9 +468,6 @@ export default function DesktopDashboardPage() {
                         <span className="pill green">อนุมัติแล้ว</span>
                       </td>
                       <td>ไปเที่ยวกับครอบครัว</td>
-                      <td>
-                        <Icon name="chevron" size={16} className="action-arrow" />
-                      </td>
                     </tr>
                     <tr>
                       <td>
@@ -711,7 +475,7 @@ export default function DesktopDashboardPage() {
                           <span className="type-icon ot">
                             <Icon name="ot" size={15} />
                           </span>
-                          ขอ OT
+                          ทำงานล่วงเวลา (OT)
                         </div>
                       </td>
                       <td>10/10/2569</td>
@@ -720,30 +484,7 @@ export default function DesktopDashboardPage() {
                       <td>
                         <span className="pill blue">รอดำเนินการ</span>
                       </td>
-                      <td>งานเร่งด่วน</td>
-                      <td>
-                        <Icon name="chevron" size={16} className="action-arrow" />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="type-cell">
-                          <span className="type-icon time">
-                            <Icon name="time" size={15} />
-                          </span>
-                          ขอแก้ไขเวลา
-                        </div>
-                      </td>
-                      <td>08/10/2569</td>
-                      <td>08/10/2569</td>
-                      <td>-</td>
-                      <td>
-                        <span className="pill orange">รออนุมัติ</span>
-                      </td>
-                      <td>ลืมตอกบัตร</td>
-                      <td>
-                        <Icon name="chevron" size={16} className="action-arrow" />
-                      </td>
+                      <td>ปิดงบเร่งด่วนประจำเดือน</td>
                     </tr>
                     <tr>
                       <td>
@@ -751,19 +492,16 @@ export default function DesktopDashboardPage() {
                           <span className="type-icon med">
                             <Icon name="med" size={15} />
                           </span>
-                          เบิกค่ารักษา
+                          เบิกค่ารักษาพยาบาล
                         </div>
                       </td>
-                      <td>01/09/2569</td>
-                      <td>-</td>
+                      <td>08/10/2569</td>
+                      <td>08/10/2569</td>
                       <td>1,200 บาท</td>
                       <td>
                         <span className="pill green">อนุมัติแล้ว</span>
                       </td>
-                      <td>ค่ารักษาพยาบาล</td>
-                      <td>
-                        <Icon name="chevron" size={16} className="action-arrow" />
-                      </td>
+                      <td>ตรวจสุขภาพทั่วไป</td>
                     </tr>
                   </>
                 )}
@@ -772,80 +510,100 @@ export default function DesktopDashboardPage() {
           </div>
         </section>
 
-        {/* Col 2: ประกาศ / ข่าวสาร */}
-        <section className="section-container" style={{ marginBottom: 0 }}>
-          <div className="section-head">
-            <div className="section-title">
-              <Icon name="megaphone" size={20} />
-              <span>ประกาศ / ข่าวสาร</span>
+        {/* Right Col: ปฏิทินงานสัปดาห์นี้ & ข่าวสารประกาศ */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          {/* Card: กำลังจะมาถึง (Upcoming Calendar Events) */}
+          <section className="section-container dashboard-panel dashboard-panel--calendar" style={{ marginBottom: 0 }}>
+            <div className="section-head">
+              <div className="section-title">
+                <Icon name="calendar" size={20} />
+                <span>กำหนดการสัปดาห์นี้</span>
+              </div>
             </div>
-            <Link href="/desktop/announcements" className="link-detail">
-              ดูทั้งหมด &rarr;
-            </Link>
-          </div>
 
-          <div className="ann-list">
-            {announcements.length > 0 ? (
-              announcements.slice(0, 4).map((anno, index) => {
-                const iconClass =
-                  index % 3 === 0 ? "p1" : index % 3 === 1 ? "p2" : "p3";
-                return (
-                  <div key={anno.id} className="ann-item">
-                    <div className={"ann-icon " + iconClass}>
-                      <Icon name="megaphone" size={18} />
-                    </div>
-                    <div className="ann-body">
-                      <div className="ann-title">{anno.title || "ประกาศจากบริษัท"}</div>
-                      <div className="ann-desc">{anno.content}</div>
-                    </div>
-                    <div className="ann-date">
-                      {anno.publishedAt ? thaiDate(anno.publishedAt) : ""}
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <>
-                <div className="ann-item">
-                  <div className="ann-icon p1">
-                    <Icon name="megaphone" size={18} />
-                  </div>
-                  <div className="ann-body">
-                    <div className="ann-title">ประกาศวันหยุดพิเศษประจำปี 2569</div>
-                    <div className="ann-desc">
-                      บริษัทฯ กำหนดวันหยุดพิเศษเพิ่มเติมในวันที่ 23 ตุลาคม 2569
-                    </div>
-                  </div>
-                  <div className="ann-date">10/10/2569</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "0.85rem 1rem", background: "var(--sh-border-soft)", borderRadius: "12px" }}>
+                <div style={{ textAlign: "center", padding: "6px 12px", background: "#ffffff", borderRadius: "10px", border: "1px solid var(--sh-border)" }}>
+                  <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--sh-text-muted)" }}>ต.ค.</div>
+                  <div style={{ fontSize: "18px", fontWeight: 700, color: "var(--sh-text-main)" }}>30</div>
                 </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--sh-text-main)" }}>ลากิจของคุณ (เต็มวัน)</div>
+                  <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--sh-text-muted)" }}>ติดต่อราชการ · รอพิจารณาอนุมัติ</div>
+                </div>
+                <span className="pill orange">รออนุมัติ</span>
+              </div>
 
-                <div className="ann-item">
-                  <div className="ann-icon p2">
-                    <Icon name="calendar" size={18} />
-                  </div>
-                  <div className="ann-body">
-                    <div className="ann-title">เปลี่ยนแปลงเวลาทำงาน</div>
-                    <div className="ann-desc">ตั้งแต่วันที่ 1 พฤศจิกายน 2569 เป็นต้นไป</div>
-                  </div>
-                  <div className="ann-date">08/10/2569</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "0.85rem 1rem", background: "var(--sh-border-soft)", borderRadius: "12px" }}>
+                <div style={{ textAlign: "center", padding: "6px 12px", background: "#ffffff", borderRadius: "10px", border: "1px solid var(--sh-border)" }}>
+                  <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--sh-text-muted)" }}>พ.ย.</div>
+                  <div style={{ fontSize: "18px", fontWeight: 700, color: "var(--sh-text-main)" }}>02</div>
                 </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--sh-text-main)" }}>ลาพักร้อน (2 - 3 พ.ย.)</div>
+                  <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--sh-text-muted)" }}>พักผ่อนประจำปี · รอพิจารณาอนุมัติ</div>
+                </div>
+                <span className="pill blue">รอดำเนินการ</span>
+              </div>
 
-                <div className="ann-item">
-                  <div className="ann-icon p3">
-                    <Icon name="audit" size={18} />
-                  </div>
-                  <div className="ann-body">
-                    <div className="ann-title">ตรวจสุขภาพประจำปี 2569</div>
-                    <div className="ann-desc">
-                      ขอเชิญพนักงานทุกคนเข้ารับการตรวจสุขภาพประจำปี
-                    </div>
-                  </div>
-                  <div className="ann-date">25/09/2569</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "0.85rem 1rem", background: "var(--sh-border-soft)", borderRadius: "12px" }}>
+                <div style={{ textAlign: "center", padding: "6px 12px", background: "#ffffff", borderRadius: "10px", border: "1px solid var(--sh-border)" }}>
+                  <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--sh-text-muted)" }}>พ.ย.</div>
+                  <div style={{ fontSize: "18px", fontWeight: 700, color: "var(--sh-text-main)" }}>06</div>
                 </div>
-              </>
-            )}
-          </div>
-        </section>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--sh-text-main)" }}>ตรวจสุขภาพประจำปี 2569</div>
+                  <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--sh-text-muted)" }}>09:00 - 12:00 น. · อาคารสำนักงานใหญ่</div>
+                </div>
+                <span className="pill green">กิจกรรมบริษัท</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Card: ข่าวสารและประกาศสำคัญ (Announcements) */}
+          <section className="section-container dashboard-panel dashboard-panel--announcements" style={{ marginBottom: 0 }}>
+            <div className="section-head">
+              <div className="section-title">
+                <Icon name="bell" size={20} />
+                <span>ข่าวสารและประกาศจากบริษัท</span>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+              {announcements.length > 0 ? (
+                announcements.slice(0, 2).map((ann) => (
+                  <div key={ann.id} className="ann-card" style={{ padding: "0.85rem 1rem", border: "1px solid var(--sh-border)", borderRadius: "12px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                      <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--sh-blue-primary)" }}>ประกาศฝ่ายบุคคล</span>
+                      <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--sh-text-muted)" }}>{thaiDate(ann.publishedAt)}</span>
+                    </div>
+                    <div style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--sh-text-main)", marginBottom: "3px" }}>{ann.title}</div>
+                    <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--sh-text-body)" }}>{ann.content.slice(0, 90)}...</div>
+                  </div>
+                ))
+              ) : (
+                <>
+                  <div className="ann-card" style={{ padding: "0.85rem 1rem", border: "1px solid var(--sh-border)", borderRadius: "12px", background: "#ffffff" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                      <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--sh-blue-primary)" }}>ประกาศฝ่ายทรัพยากรบุคคล</span>
+                      <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--sh-text-muted)" }}>27 ต.ค. 2569</span>
+                    </div>
+                    <div style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--sh-text-main)", marginBottom: "3px" }}>เตรียมตัวตรวจสุขภาพประจำปี 2569</div>
+                    <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--sh-text-body)" }}>ขอความร่วมมือพนักงานทุกท่านงดน้ำและอาหารหลัง 20:00 น. ก่อนวันตรวจสุขภาพ</div>
+                  </div>
+                  <div className="ann-card" style={{ padding: "0.85rem 1rem", border: "1px solid var(--sh-border)", borderRadius: "12px", background: "#ffffff" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                      <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--sh-orange)" }}>สวัสดิการและผลประโยชน์</span>
+                      <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--sh-text-muted)" }}>25 ต.ค. 2569</span>
+                    </div>
+                    <div style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--sh-text-main)", marginBottom: "3px" }}>คู่มือการเบิกสวัสดิการค่ารักษาพยาบาลฉบับใหม่</div>
+                    <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--sh-text-body)" }}>สามารถส่งใบเสร็จและใบรับรองแพทย์ผ่านระบบได้โดยตรง อนุมัติรวดเร็วใน 3 วันทำการ</div>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );

@@ -1265,6 +1265,91 @@ main#overview {
 .ck-comp-badge.amber { background: #fef3c7; color: #92400e; }
 .ck-comp-badge.gray { background: #f1f5f9; color: #64748b; }
 
+/* Row 2.5: Mini KPI Rail (แถวที่ 2 ใต้พนักงานทั้งหมด: 6 การ์ดเล็ก) */
+.ck-stat-rail-sub {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: -6px;
+  margin-bottom: 0;
+}
+.ck-stat-item-sub {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid var(--c-card-border);
+  border-radius: 13px;
+  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  box-shadow: 0 2px 6px rgba(35, 116, 204, 0.03);
+  transition: all 0.15s ease;
+}
+.ck-stat-item-sub:hover {
+  background: #fbfdff;
+  border-color: #bcd9f5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(35, 116, 204, 0.06);
+}
+.ck-stat-icon-sub {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.ck-stat-icon-sub svg { width: 18px; height: 18px; }
+.ck-stat-icon-sub.blue { background: #eff6ff; color: #1e70bf; }
+.ck-stat-icon-sub.green { background: #ecfdf5; color: #0d8268; }
+.ck-stat-icon-sub.amber { background: #fffbeb; color: #b45309; }
+.ck-stat-icon-sub.purple { background: #f5f3ff; color: #7c3aed; }
+.ck-stat-icon-sub.sky { background: #f0f9ff; color: #0284c7; }
+.ck-stat-icon-sub.emerald { background: #ecfdf5; color: #059669; }
+
+.ck-stat-body-sub {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+}
+.ck-stat-head-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.ck-stat-title-sub {
+  font-size: 12px;
+  font-weight: 700;
+  color: #000000 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ck-stat-val-sub {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.ck-stat-badge-sub {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.ck-stat-badge-sub.blue { background: #eff6ff; color: #1e70bf; }
+.ck-stat-badge-sub.green { background: #ecfdf5; color: #0d8268; }
+.ck-stat-badge-sub.amber { background: #fffbeb; color: #b45309; }
+.ck-stat-badge-sub.purple { background: #f5f3ff; color: #7c3aed; }
+.ck-stat-badge-sub.sky { background: #f0f9ff; color: #0284c7; }
+.ck-stat-badge-sub.emerald { background: #ecfdf5; color: #059669; }
+
 /* Team Overview Big Section (Frame like Calendar) */
 .ck-team-overview-card {
   background: var(--c-card);
@@ -1561,7 +1646,13 @@ main#overview {
   font-size: 10px;
   padding: 2px 7px;
   white-space: nowrap !important;
+  word-break: keep-all !important;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  line-height: 1;
 }
 .ck-appr-user {
   display: flex;
@@ -1617,6 +1708,8 @@ main#overview {
   white-space: nowrap;
   letter-spacing: -0.2px;
   line-height: 1.3;
+  overflow: visible !important;
+  text-overflow: clip !important;
 }
 .ck-appr-dept {
   font-size: 10.5px;
@@ -2521,6 +2614,7 @@ main#overview {
   .ck-row-my-deck { grid-template-columns: 1fr; }
   .ck-row-workflows { grid-template-columns: 1fr; }
   .ck-insight-row { grid-template-columns: 1fr; }
+  .ck-stat-rail-sub { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media(max-width:1050px) {
   .ck-row1, .ck-cal-section { grid-template-columns: 1fr; }
@@ -2528,7 +2622,7 @@ main#overview {
   .ck-act-grid-4 { grid-template-columns: 1fr; }
 }
 @media(max-width:620px) {
-  .ck-deck-4, .ck-news-row, .ck-stat-rail, .ck-team-overview-grid, .ck-row-team-appr, .ck-row-my-deck, .ck-row-workflows { grid-template-columns: 1fr; }
+  .ck-deck-4, .ck-news-row, .ck-stat-rail, .ck-stat-rail-sub, .ck-team-overview-grid, .ck-row-team-appr, .ck-row-my-deck, .ck-row-workflows { grid-template-columns: 1fr; }
   .ck-att-tiles { grid-template-columns: 1fr; }
 }
 
@@ -2988,6 +3082,81 @@ main#overview {
   </div>
 </div>
 
+<!-- Row 2.5: Mini KPI Rail (แถวที่ 2 ต่อลงมาจากพนักงานทั้งหมด: 6 การ์ดสถิติของตนเอง) -->
+<div class="ck-stat-rail-sub">
+  <!-- 1: ลาพักร้อน (ของตนเอง) -->
+  <div class="ck-stat-item-sub">
+    <span class="ck-stat-icon-sub blue"><svg><use href="#calendar"/></svg></span>
+    <div class="ck-stat-body-sub">
+      <div class="ck-stat-head-sub">
+        <span class="ck-stat-title-sub">ลาพักร้อน</span>
+        <span class="ck-stat-badge-sub blue">ใช้ 3/15 วัน</span>
+      </div>
+      <b class="ck-stat-val-sub" style="color:#1e70bf;">เหลือ 12 วัน</b>
+    </div>
+  </div>
+
+  <!-- 2: ลาป่วย (ของตนเอง) -->
+  <div class="ck-stat-item-sub">
+    <span class="ck-stat-icon-sub green"><svg><use href="#heart"/></svg></span>
+    <div class="ck-stat-body-sub">
+      <div class="ck-stat-head-sub">
+        <span class="ck-stat-title-sub">ลาป่วย</span>
+        <span class="ck-stat-badge-sub green">ใช้ 1/5 วัน</span>
+      </div>
+      <b class="ck-stat-val-sub" style="color:#0d8268;">เหลือ 4 วัน</b>
+    </div>
+  </div>
+
+  <!-- 3: ลากิจ (ของตนเอง) -->
+  <div class="ck-stat-item-sub">
+    <span class="ck-stat-icon-sub amber"><svg><use href="#clock"/></svg></span>
+    <div class="ck-stat-body-sub">
+      <div class="ck-stat-head-sub">
+        <span class="ck-stat-title-sub">ลากิจ</span>
+        <span class="ck-stat-badge-sub amber">ใช้ 1/3 วัน</span>
+      </div>
+      <b class="ck-stat-val-sub" style="color:#b45309;">เหลือ 2 วัน</b>
+    </div>
+  </div>
+
+  <!-- 4: ชั่วโมง OT สะสม (ของตนเอง) -->
+  <div class="ck-stat-item-sub">
+    <span class="ck-stat-icon-sub purple"><svg><use href="#clock"/></svg></span>
+    <div class="ck-stat-body-sub">
+      <div class="ck-stat-head-sub">
+        <span class="ck-stat-title-sub">ชั่วโมง OT สะสม</span>
+        <span class="ck-stat-badge-sub purple">สะสมเดือนนี้</span>
+      </div>
+      <b class="ck-stat-val-sub" style="color:#7c3aed;">42.5 ชม.</b>
+    </div>
+  </div>
+
+  <!-- 5: สถิติการลงเวลา (ของตนเอง) -->
+  <div class="ck-stat-item-sub">
+    <span class="ck-stat-icon-sub sky"><svg><use href="#check"/></svg></span>
+    <div class="ck-stat-body-sub">
+      <div class="ck-stat-head-sub">
+        <span class="ck-stat-title-sub">สถิติการลงเวลา</span>
+        <span class="ck-stat-badge-sub sky">ตรงเวลา 95%</span>
+      </div>
+      <b class="ck-stat-val-sub" style="color:#0284c7;">18/19 วัน</b>
+    </div>
+  </div>
+
+  <!-- 6: เบิกค่ารักษา (ของตนเอง) -->
+  <div class="ck-stat-item-sub">
+    <span class="ck-stat-icon-sub emerald"><svg><use href="#file"/></svg></span>
+    <div class="ck-stat-body-sub">
+      <div class="ck-stat-head-sub">
+        <span class="ck-stat-title-sub">เบิกค่ารักษา</span>
+        <span class="ck-stat-badge-sub emerald">เบิกไป 25%</span>
+      </div>
+      <b class="ck-stat-val-sub" style="color:#059669;">เหลือ ฿7,500</b>
+    </div>
+  </div>
+</div>
+
 <!-- Row 3: ภาพรวมการทำงานของทีม & งานอนุมัติ (Req 2: ย้ายมาอยู่บรรทัดเดียวกัน, Req 3: เปลี่ยนเป็น ปี 2569) -->
 <div class="ck-row-team-appr">
 
@@ -3089,7 +3258,7 @@ main#overview {
               <div class="ck-appr-name">คุณสมชาย สายัณห์ <span class="ck-appr-dept">· ฝ่ายบัญชี</span></div>
             </div>
           </div>
-          <span class="ck-badge-tag">File แนบ</span>
+          <span class="ck-badge-tag">File&nbsp;แนบ</span>
         </div>
         <div class="ck-appr-details">
           <div class="ck-appr-detail-line"><strong>LEV-0012</strong> <span class="agenda-sep">|</span> วันที่ลา 3–5 พ.ย. 2569 จำนวน 3 วัน</div>
@@ -3134,7 +3303,7 @@ main#overview {
               <div class="ck-appr-name">คุณพิชัย มงคล <span class="ck-appr-dept">· ฝ่ายขาย</span></div>
             </div>
           </div>
-          <span class="ck-badge-tag">File แนบ</span>
+          <span class="ck-badge-tag">File&nbsp;แนบ</span>
         </div>
         <div class="ck-appr-details">
           <div class="ck-appr-detail-line"><strong>MED-0023</strong> <span class="agenda-sep">|</span> วันที่ 27 ต.ค. 2569 ยอดเบิก ฿1,500</div>
@@ -3157,7 +3326,7 @@ main#overview {
               <div class="ck-appr-name">คุณกมลวรรณ เด่นดวง <span class="ck-appr-dept">· ฝ่ายการตลาด</span></div>
             </div>
           </div>
-          <span class="ck-badge-tag">File แนบ</span>
+          <span class="ck-badge-tag">File&nbsp;แนบ</span>
         </div>
         <div class="ck-appr-details">
           <div class="ck-appr-detail-line"><strong>LEV-0015</strong> <span class="agenda-sep">|</span> วันที่ลา 12 พ.ย. 2569 จำนวน 1 วัน</div>

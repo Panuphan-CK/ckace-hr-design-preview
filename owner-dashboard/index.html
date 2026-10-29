@@ -961,14 +961,33 @@ main#overview {
   color: var(--c-ink);
 }
 .ck-head-title svg { width: 18px; height: 18px; color: var(--c-pri); }
+.ck-head-link {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1e70bf;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  margin: 0 auto;
+}
+.ck-head-link:hover {
+  color: #155799;
+  text-decoration: underline;
+}
 .ck-badge-tag {
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 9px;
+  padding: 2.5px 8px;
   border-radius: 12px;
   background: var(--c-pri-soft);
   color: var(--c-pri);
   border: 1px solid var(--c-pri-line);
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.25;
 }
 
 /* Row 1: Hero (สวัสดีครับ prominent headline) + Attendance */
@@ -1246,6 +1265,464 @@ main#overview {
 .ck-comp-badge.amber { background: #fef3c7; color: #92400e; }
 .ck-comp-badge.gray { background: #f1f5f9; color: #64748b; }
 
+/* Team Overview Big Section (Frame like Calendar) */
+.ck-team-overview-card {
+  background: var(--c-card);
+  border: 1px solid var(--c-card-border);
+  border-radius: var(--c-radius);
+  box-shadow: var(--c-shadow);
+  padding: 20px 22px;
+}
+.ck-team-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.ck-sub-board {
+  background: #fbfdff;
+  border: 1px solid #dbe8f5;
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: space-between;
+  transition: all 0.18s ease;
+}
+.ck-sub-board:hover {
+  background: #ffffff;
+  border-color: #bcd9f5;
+  box-shadow: 0 4px 14px rgba(35, 116, 204, 0.06);
+}
+
+/* Row 3: Combined Team Overview & Approvals Row (งานอนุมัติ ขยายเท่ากับคำขอของฉัน = 1.35fr) */
+.ck-row-team-appr {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1.35fr);
+  gap: 16px;
+  align-items: stretch;
+}
+.ck-row-team-appr > section,
+.ck-row-team-appr > article {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Row 4: My Deck (สถิติการลา [1fr] | สัดส่วนการลา [0.65fr] | คำขอของฉัน [1.35fr]) */
+.ck-row-my-deck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.65fr) minmax(0, 1.35fr);
+  gap: 16px;
+  align-items: stretch;
+}
+.ck-row-my-deck > article {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.ck-act-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  flex: 1;
+}
+.ck-act-grid-4 .ck-act-item {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #f8fbfe;
+  border: 1px solid #e1edf7;
+  border-radius: 11px;
+  transition: all 0.15s ease;
+  height: 100%;
+}
+.ck-act-grid-4 .ck-act-item:hover {
+  background: #ffffff;
+  border-color: #bcd9f5;
+  box-shadow: 0 4px 12px rgba(35, 116, 204, 0.05);
+}
+
+/* Card: สัดส่วนการลา (Donut Chart with Callout Leader Lines & Tooltip) */
+.ck-donut-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 2px 0;
+  flex: 1;
+}
+.ck-donut-chart-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ck-donut-svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  overflow: visible;
+}
+.ck-donut-svg text,
+.ck-donut-svg tspan {
+  font-family: 'Noto Sans Thai', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  stroke: none !important;
+  stroke-width: 0 !important;
+  paint-order: fill;
+  font-style: normal !important;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.ck-donut-callout-text {
+  font-family: 'Noto Sans Thai', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  stroke: none !important;
+  stroke-width: 0 !important;
+  letter-spacing: -0.1px;
+}
+.ck-donut-center-num {
+  font-family: 'Noto Sans Thai', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  fill: #1e70bf !important;
+  stroke: none !important;
+  stroke-width: 0 !important;
+}
+.ck-donut-center-num .ck-donut-num-large {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  fill: #1e70bf !important;
+}
+.ck-donut-center-num .ck-donut-unit {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  fill: #1e70bf !important;
+}
+.ck-donut-center-sub {
+  font-family: 'Noto Sans Thai', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  fill: #1e70bf !important;
+  stroke: none !important;
+  stroke-width: 0 !important;
+}
+.ck-donut-slice {
+  cursor: pointer;
+  transform-origin: 155px 90px;
+  transition: stroke-width 0.2s ease, filter 0.2s ease;
+}
+.ck-donut-slice:hover {
+  stroke-width: 23px !important;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.22));
+}
+.ck-donut-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: #ffffff;
+  border: 1px solid #dce8f5;
+  border-radius: 10px;
+  padding: 8px 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+  z-index: 60;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease;
+  white-space: nowrap !important;
+}
+.ck-donut-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+}
+.ck-tt-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  padding-bottom: 5px;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed #e2e8f0;
+  white-space: nowrap !important;
+}
+.ck-tt-title .ck-tt-dot {
+  width: 7.5px;
+  height: 7.5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ck-tt-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap !important;
+}
+.ck-tt-table td {
+  padding: 2px 0;
+  white-space: nowrap !important;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+.ck-tt-col-name {
+  color: #475569;
+  font-weight: 500;
+  padding-right: 14px;
+  white-space: nowrap !important;
+}
+.ck-tt-col-days {
+  color: #0f172a;
+  font-weight: 700;
+  text-align: right;
+  padding-right: 8px;
+  white-space: nowrap !important;
+}
+.ck-tt-col-pct {
+  color: #64748b;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap !important;
+}
+.ck-donut-legend-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+.ck-donut-leg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+}
+.ck-donut-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.ck-donut-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #edf4fb;
+  width: 100%;
+}
+.ck-donut-footer-text {
+  color: #1e70bf;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Workflows Row: 2 Columns (งานอนุมัติ & คำขอของฉัน) */
+.ck-row-workflows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.ck-appr-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.ck-appr-item {
+  background: #f8fbfe;
+  border: 1px solid #e1edf7;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 7px;
+  transition: all 0.15s ease;
+}
+.ck-appr-item:hover {
+  background: #ffffff;
+  border-color: #bcd9f5;
+  box-shadow: 0 4px 12px rgba(35, 116, 204, 0.05);
+}
+.ck-appr-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.ck-appr-topline .ck-badge-tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+.ck-appr-user {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  flex: 1;
+}
+.ck-appr-avatar {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0284c7;
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #bae6fd;
+}
+.ck-appr-avatar.ot {
+  background: #fef3c7;
+  color: #d97706;
+  border-color: #fde68a;
+}
+.ck-appr-avatar.med {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+.ck-appr-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+.ck-appr-type {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e70bf;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.ck-appr-type.ot { color: #b45309; }
+.ck-appr-type.med { color: #0d8268; }
+.ck-appr-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+}
+.ck-appr-dept {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #64748b;
+}
+.ck-appr-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  width: 100%;
+}
+.ck-appr-actions .ck-btn-appr {
+  flex: 1;
+  justify-content: center;
+  padding: 5px 6px;
+}
+.ck-btn-appr {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 4px 9px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+.ck-btn-appr svg { width: 11px; height: 11px; }
+.ck-btn-appr.approve {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+.ck-btn-appr.approve:hover {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+.ck-btn-appr.reject {
+  background: #ffffff;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+.ck-btn-appr.reject:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+.ck-btn-appr.edit {
+  background: #f0f7ff;
+  color: #1e70bf;
+  border: 1px solid #bfdbfe;
+}
+.ck-btn-appr.edit:hover {
+  background: #1e70bf;
+  color: #ffffff;
+  border-color: #1e70bf;
+}
+.ck-tube-fill.purple {
+  background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.25);
+}
+.ck-tube-text-right.purple {
+  color: #7c3aed !important;
+}
+.val-purple {
+  color: #7c3aed !important;
+}
+.ck-badge-tag.purple {
+  background: #f3e8ff;
+  color: #7c3aed;
+  border-color: #e9d5ff;
+}
+.ck-appr-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-top: 1px dashed #e1edf7;
+  padding-top: 6px;
+}
+.ck-appr-detail-line {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #000000;
+  line-height: 1.4;
+}
+.ck-card-footer-link {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eef5fa;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e70bf;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.ck-card-footer-link:hover {
+  color: #155ba0;
+  text-decoration: underline;
+}
+
 /* Row 3: 4 Main Deck Boards */
 .ck-deck-4 {
   display: grid;
@@ -1402,16 +1879,23 @@ main#overview {
   margin-left: 0;
 }
 
-/* Req 12: Board 4 - สถิติการลาของฉัน */
-.ck-pers-grid { display: grid; gap: 10px; }
+/* Req 12: Board 4 - สถิติการลาของฉัน (ขยายความสูงเต็มกรอบ) */
+.ck-pers-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
 .ck-pers-card {
   background: #f8fbfe;
   border: 1px solid #e1edf7;
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;
+  gap: 7px;
+  flex: 1;
 }
 .ck-pers-top { display: flex; justify-content: space-between; align-items: center; }
 .ck-pers-title-grp {
@@ -1465,21 +1949,22 @@ main#overview {
 .ck-pers-fill.green { background: #0d8268; }
 .ck-pers-fill.amber { background: #b45309; }
 .ck-pers-fill span {
-  font-style: italic !important;
   font-weight: 800;
   color: #ffffff;
   font-size: 10.5px;
   white-space: nowrap;
 }
 .ck-pers-remain {
-  font-style: italic !important;
   font-weight: 800;
-  color: #64748b;
+  color: #1e70bf;
   font-size: 10.5px;
   white-space: nowrap;
   margin-left: auto;
   margin-right: 8px;
 }
+.ck-pers-remain.blue { color: #1e70bf !important; }
+.ck-pers-remain.green { color: #0d8268 !important; }
+.ck-pers-remain.amber { color: #b45309 !important; }
 
 /* Row 4: 3 Cards (สรุปชั่วโมง OT, ลงเวลาวันนี้, ค่ารักษาพยาบาล) */
 .ck-insight-row {
@@ -1567,7 +2052,6 @@ main#overview {
   background: #0d8268;
 }
 .ck-tube-text-left {
-  font-style: italic !important;
   font-weight: 800;
   color: #ffffff;
   font-size: 11.5px;
@@ -1576,7 +2060,6 @@ main#overview {
 .ck-tube-text-right {
   margin-left: auto;
   margin-right: 12px;
-  font-style: italic !important;
   font-weight: 800;
   font-size: 12px;
   white-space: nowrap;
@@ -1930,17 +2413,17 @@ main#overview {
   border-color: #ef4444;
 }
 
-/* Row 6: Announcements - Req 4 & 11 (3 Cards Grid matching Row 4) */
+/* Row 6: Announcements - 4 Cards Grid */
 .ck-news-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 .ck-news-box {
   background: #f8fbfe;
   border: 1px solid #e1edf7;
   border-radius: 14px;
-  padding: 13px 15px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -1958,7 +2441,17 @@ main#overview {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+}
+.news-inline-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #17243c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  flex: 1;
 }
 /* Req 5: Announcement Date back to clean subtle text */
 .ck-news-date {
@@ -2023,14 +2516,19 @@ main#overview {
 @media(max-width:1300px) {
   .ck-deck-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ck-news-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ck-team-overview-grid { grid-template-columns: 1fr; }
+  .ck-row-team-appr { grid-template-columns: 1fr; }
+  .ck-row-my-deck { grid-template-columns: 1fr; }
+  .ck-row-workflows { grid-template-columns: 1fr; }
   .ck-insight-row { grid-template-columns: 1fr; }
 }
 @media(max-width:1050px) {
   .ck-row1, .ck-cal-section { grid-template-columns: 1fr; }
   .ck-stat-rail { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ck-act-grid-4 { grid-template-columns: 1fr; }
 }
 @media(max-width:620px) {
-  .ck-deck-4, .ck-news-row, .ck-stat-rail { grid-template-columns: 1fr; }
+  .ck-deck-4, .ck-news-row, .ck-stat-rail, .ck-team-overview-grid, .ck-row-team-appr, .ck-row-my-deck, .ck-row-workflows { grid-template-columns: 1fr; }
   .ck-att-tiles { grid-template-columns: 1fr; }
 }
 
@@ -2202,7 +2700,7 @@ main#overview {
 <symbol id="bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 10h18c0-3-3-3-3-10M10 21h4"/></symbol>
 <symbol id="menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
 <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-<symbol id="settings-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.8 1l-.3 1.9h-2.8l-.3-1.9a8 8 0 0 1-1.8-1l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.8-1l.3-1.9h2.8l.3 1.9a8 8 0 0 1 1.8 1l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z"/></symbol><symbol id="users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 10v-2a4 4 0 0 0-3-3.87m-3-12a4 4 0 0 1 0 7.75"/></symbol><symbol id="org" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/><path d="M12 8v4m-7 4v-2h14v2"/></symbol><symbol id="workflow" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="19" r="2"/><path d="M8 5h3a3 3 0 0 1 3 3v1m-6 10h3a3 3 0 0 0 3-3v-2"/></symbol><symbol id="chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16v-4m5 4V8m5 8v-7"/></symbol><symbol id="log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol></defs><symbol id="paper-plane" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol></svg>
+<symbol id="settings-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.8 1l-.3 1.9h-2.8l-.3-1.9a8 8 0 0 1-1.8-1l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.8-1l.3-1.9h2.8l.3 1.9a8 8 0 0 1 1.8 1l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z"/></symbol><symbol id="users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 10v-2a4 4 0 0 0-3-3.87m-3-12a4 4 0 0 1 0 7.75"/></symbol><symbol id="org" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/><path d="M12 8v4m-7 4v-2h14v2"/></symbol><symbol id="workflow" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="19" r="2"/><path d="M8 5h3a3 3 0 0 1 3 3v1m-6 10h3a3 3 0 0 0 3-3v-2"/></symbol><symbol id="chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16v-4m5 4V8m5 8v-7"/></symbol><symbol id="log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol><symbol id="edit-pen" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></symbol></defs><symbol id="paper-plane" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol></svg>
 <div class="app" id="app">
 <aside class="sidebar" aria-label="เมนูหลัก">
   <!-- Brand Row with Menu In/Out Toggle Button & CK Logo -->
@@ -2314,7 +2812,7 @@ main#overview {
       </div>
       <div class="pf-grid">
         <div class="pf-item"><small>รหัสพนักงาน</small><b>CK-0842</b></div>
-        <div class="pf-item"><small>ฝ่าย</small><b>ฝ่าย HR · สนง.ใหญ่</b></div>
+        <div class="pf-item"><small>ฝ่าย / หน่วยงาน</small><b>บัญชี / Team A</b></div>
         <div class="pf-item"><small>สถานะ</small><b>พนักงานประจำ</b></div>
         <div class="pf-item"><small>อายุงาน</small><b>4 ปี 4 เดือน</b></div>
       </div>
@@ -2490,126 +2988,197 @@ main#overview {
   </div>
 </div>
 
-<!-- Row 3: 4 Main Deck Boards (Req 2: 92% เพิ่มขนาดฟ้อน, Req 3: 6 คน คำว่า คน เป็นสีดำ, Req 12: สถิติการลาของฉัน) -->
-<div class="ck-deck-4">
+<!-- Row 3: ภาพรวมการทำงานของทีม & งานอนุมัติ (Req 2: ย้ายมาอยู่บรรทัดเดียวกัน, Req 3: เปลี่ยนเป็น ปี 2569) -->
+<div class="ck-row-team-appr">
 
-  <!-- Board 1: สถานะทีม (Req 2: 92% ขยายฟอนต์ใหญ่) -->
-  <article class="ck-board">
-    <div class="ck-head">
-      <div class="ck-head-title"><svg><use href="#chart"/></svg>สถานะทีม</div>
-      <span class="ck-badge-tag">103 คน</span>
+  <!-- กรอบซ้าย: ภาพรวมการทำงานของทีม -->
+  <section class="ck-card ck-team-overview-card" id="team-overview">
+    <div class="ck-head" style="margin-bottom:14px">
+      <div class="ck-head-title"><svg><use href="#users"/></svg>ภาพรวมการทำงานของทีม</div>
+      <span class="ck-badge-tag">ปี 2569</span>
     </div>
-    <div class="ck-score-badge center-badge">ความพร้อมวันนี้ <span class="large-val" style="color:var(--c-pri);font-size:24px;font-weight:800">92%</span></div>
-    <div class="ck-prog-list">
-      <div class="ck-prog-item">
-        <div class="ck-prog-labels"><span>พร้อมทำงาน 86 คน</span><strong>84%</strong></div>
-        <div class="ck-prog-track"><i style="width:84%"></i></div>
-      </div>
-      <div class="ck-prog-item">
-        <div class="ck-prog-labels"><span>ออกปฏิบัติงาน 8 คน</span><strong>8%</strong></div>
-        <div class="ck-prog-track"><i style="width:8%;background:#64748b"></i></div>
-      </div>
-      <div class="ck-prog-item">
-        <div class="ck-prog-labels"><span>ลาวันนี้ 6 คน</span><strong>6%</strong></div>
-        <div class="ck-prog-track"><i style="width:6%;background:#ea580c"></i></div>
-      </div>
-    </div>
-  </article>
+    <div class="ck-team-overview-grid">
 
-  <!-- Board 2: คำขอของฉัน (Req 3: ไอคอนใหญ่ 2 บรรทัด, เบิกล่วงเวลา, ยกเลิกกรอบแดง, ฟอนต์ดำ, เพิ่มการ์ดรออนุมัติ) -->
-  <article class="ck-board">
-    <div class="ck-head">
-      <div class="ck-head-title"><svg><use href="#file"/></svg>คำขอของฉัน</div>
-      <span class="ck-badge-tag">3 รายการ</span>
-    </div>
-    <div class="ck-act-list">
-      <!-- รายการ 1: ลาพักร้อน (อนุมัติ) -->
-      <div class="ck-act-item">
-        <div class="ck-act-topline">
-          <div class="ck-act-titles">
-            <div class="ck-act-title-row">
-              <span class="ck-act-mini-icon leave" title="ลาพักร้อน">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 4.5-2.9 8.3-7 9.6V12h3l-4-5-4 5h3v9.6C8.9 20.3 6 16.5 6 12A10 10 0 0 1 12 2z"/></svg>
-              </span>
-              <strong class="ck-act-main-title">ลาพักร้อน</strong>
-            </div>
-            <div class="ck-act-sub-code">LEV-0001 <span class="agenda-sep">|</span> 7 ต.ค. 2569</div>
+      <!-- กรอบย่อย 1: สถานะทีม (92% ขยายฟอนต์ใหญ่) -->
+      <div class="ck-sub-board">
+        <div class="ck-head">
+          <div class="ck-head-title"><svg><use href="#chart"/></svg>สถานะทีม</div>
+          <span class="ck-badge-tag">103 คน</span>
+        </div>
+        <div class="ck-score-badge center-badge">ความพร้อมวันนี้ <span class="large-val" style="color:var(--c-pri);font-size:24px;font-weight:800">92%</span></div>
+        <div class="ck-prog-list">
+          <div class="ck-prog-item">
+            <div class="ck-prog-labels"><span>พร้อมทำงาน 86 คน</span><strong>84%</strong></div>
+            <div class="ck-prog-track"><i style="width:84%"></i></div>
           </div>
-          <span class="ck-status-tag green">อนุมัติ</span>
-        </div>
-        <div class="ck-act-details">
-          <div class="ck-act-detail-line">วันที่ลา 7–10 ต.ค. 2569 จำนวน 3 วัน</div>
-          <div class="ck-act-detail-line">เหตุผล : เดินทางกับครอบครัว</div>
+          <div class="ck-prog-item">
+            <div class="ck-prog-labels"><span>ออกปฏิบัติงาน 8 คน</span><strong>8%</strong></div>
+            <div class="ck-prog-track"><i style="width:8%;background:#64748b"></i></div>
+          </div>
+          <div class="ck-prog-item">
+            <div class="ck-prog-labels"><span>ลาวันนี้ 6 คน</span><strong>6%</strong></div>
+            <div class="ck-prog-track"><i style="width:6%;background:#ea580c"></i></div>
+          </div>
         </div>
       </div>
 
-      <!-- รายการ 2: เบิกล่วงเวลา (ยกเลิก - กรอบสีแดง) -->
-      <div class="ck-act-item">
-        <div class="ck-act-topline">
-          <div class="ck-act-titles">
-            <div class="ck-act-title-row">
-              <span class="ck-act-mini-icon ot" title="เบิกล่วงเวลา">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-              </span>
-              <strong class="ck-act-main-title">เบิกล่วงเวลา</strong>
-            </div>
-            <div class="ck-act-sub-code">OT-0018 <span class="agenda-sep">|</span> 6 ต.ค. 2569</div>
-          </div>
-          <span class="ck-status-tag red-outline">ยกเลิก</span>
+      <!-- กรอบย่อย 2: สถิติการลา (รออนุมัติ 8, 6 คน คำว่า คน สีดำ) -->
+      <div class="ck-sub-board">
+        <div class="ck-head">
+          <div class="ck-head-title"><svg><use href="#calendar"/></svg>สถิติการลา</div>
+          <span class="ck-badge-tag">รออนุมัติ 8</span>
         </div>
-        <div class="ck-act-details">
-          <div class="ck-act-detail-line">วันที่ทำ OT 8 ต.ค. 2569 จำนวน 2.5 ชม.</div>
-          <div class="ck-act-detail-line">เหตุผล : ปิดงานลูกค้าเร่งด่วน</div>
+        <div class="ck-score-badge center-badge">ลาวันนี้ <span class="large-val" style="color:#ea580c;font-size:24px;font-weight:800">6</span> <span style="color:#000000;font-weight:700">คน</span></div>
+        <div class="ck-prog-list">
+          <div class="ck-prog-item">
+            <div class="ck-prog-labels"><span>ลาพักร้อน 3 คน</span><strong>50%</strong></div>
+            <div class="ck-prog-track"><i style="width:50%;background:#1e70bf;"></i></div>
+          </div>
+          <div class="ck-prog-item">
+            <div class="ck-prog-labels"><span>ลากิจ 2 คน</span><strong>33%</strong></div>
+            <div class="ck-prog-track"><i style="width:33%;background:#b45309;"></i></div>
+          </div>
+          <div class="ck-prog-item">
+            <div class="ck-prog-labels"><span>ลาป่วย 1 คน</span><strong>17%</strong></div>
+            <div class="ck-prog-track"><i style="width:17%;background:#0d8268;"></i></div>
+          </div>
         </div>
       </div>
 
-      <!-- รายการ 3: ลากิจธุระ (รออนุมัติ) -->
-      <div class="ck-act-item">
-        <div class="ck-act-topline">
-          <div class="ck-act-titles">
-            <div class="ck-act-title-row">
-              <span class="ck-act-mini-icon pending" title="ลากิจธุระ">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg>
-              </span>
-              <strong class="ck-act-main-title">ลากิจธุระ</strong>
-            </div>
-            <div class="ck-act-sub-code">LEV-0002 <span class="agenda-sep">|</span> 18 ต.ค. 2569</div>
-          </div>
-          <span class="ck-status-tag amber">รออนุมัติ</span>
+      <!-- กรอบย่อย 3: ลงเวลาวันนี้ -->
+      <div class="ck-sub-board">
+        <div class="ck-head">
+          <div class="ck-head-title"><svg><use href="#check"/></svg>ลงเวลาวันนี้</div>
+          <span class="ck-badge-tag">19 ต.ค. 2569</span>
         </div>
-        <div class="ck-act-details">
-          <div class="ck-act-detail-line">วันที่ลา 24 ต.ค. 2569 จำนวน 1 วัน</div>
-          <div class="ck-act-detail-line">เหตุผล : ติดต่อทำธุรกรรมราชการ</div>
+        <div class="ck-score-badge center-badge aligned-slot">ลงเวลาครบ <span class="large-val" style="color:var(--c-pri);font-size:24px;font-weight:800">98.6%</span></div>
+        
+        <div class="ck-tube-prog">
+          <div class="ck-tube-fill" style="width:83.5%">
+            <span class="ck-tube-text-left">86/103 คน</span>
+          </div>
+          <span class="ck-tube-text-right">83.5%</span>
+        </div>
+
+        <div class="ck-att-box4">
+          <div class="ck-att-sub"><small>ปกติ</small><b>86</b></div>
+          <div class="ck-att-sub"><small>มาสาย</small><b>9</b></div>
+          <div class="ck-att-sub"><small>ออกก่อน</small><b>4</b></div>
+          <div class="ck-att-sub"><small>ไม่ลงเวลา</small><b>4</b></div>
         </div>
       </div>
+
     </div>
-  </article>
+  </section>
 
-  <!-- Board 3: สถิติการลา (Req 2: รออนุมัติ 8) -->
-  <article class="ck-board">
+  <!-- กรอบขวา: งานอนุมัติ (Req 1: มีปุ่ม อนุมัติ, แก้ไข, ปฏิเสธ) -->
+  <article class="ck-card ck-approvals">
     <div class="ck-head">
-      <div class="ck-head-title"><svg><use href="#calendar"/></svg>สถิติการลา</div>
+      <div class="ck-head-title"><svg><use href="#check"/></svg>งานอนุมัติ</div>
+      <a href="#approvals" class="ck-head-link">ดูงานรออนุมัติทั้งหมด (8 รายการ) →</a>
       <span class="ck-badge-tag">รออนุมัติ 8</span>
     </div>
-    <div class="ck-score-badge center-badge">ลาวันนี้ <span class="large-val" style="color:#ea580c;font-size:24px;font-weight:800">6</span> <span style="color:#000000;font-weight:700">คน</span></div>
-    <div class="ck-prog-list">
-      <div class="ck-prog-item">
-        <div class="ck-prog-labels"><span>ลาพักร้อน 3 คน</span><strong>50%</strong></div>
-        <div class="ck-prog-track"><i style="width:50%"></i></div>
+    <div class="ck-appr-list">
+      <!-- รายการ 1: ลาพักร้อน -->
+      <div class="ck-appr-item">
+        <div class="ck-appr-topline">
+          <div class="ck-appr-user">
+            <span class="ck-appr-avatar" title="คุณสมชาย สายัณห์">สช</span>
+            <div class="ck-appr-meta">
+              <div class="ck-appr-type leave">ขอลาพักร้อน</div>
+              <div class="ck-appr-name">คุณสมชาย สายัณห์ <span class="ck-appr-dept">· ฝ่ายบัญชี</span></div>
+            </div>
+          </div>
+          <span class="ck-badge-tag">File แนบ</span>
+        </div>
+        <div class="ck-appr-details">
+          <div class="ck-appr-detail-line"><strong>LEV-0012</strong> <span class="agenda-sep">|</span> วันที่ลา 3–5 พ.ย. 2569 จำนวน 3 วัน</div>
+          <div class="ck-appr-detail-line">เหตุผล : พักผ่อนประจำปีกับครอบครัว</div>
+        </div>
+        <div class="ck-appr-actions">
+          <button type="button" class="ck-btn-appr approve" title="อนุมัติคำขอ"><svg><use href="#check"/></svg> อนุมัติ</button>
+          <button type="button" class="ck-btn-appr edit" title="แก้ไขคำขอ"><svg><use href="#edit-pen"/></svg> แก้ไข</button>
+          <button type="button" class="ck-btn-appr reject" title="ปฏิเสธคำขอ">✕ ปฏิเสธ</button>
+        </div>
       </div>
-      <div class="ck-prog-item">
-        <div class="ck-prog-labels"><span>ลากิจ 2 คน</span><strong>33%</strong></div>
-        <div class="ck-prog-track"><i style="width:33%;background:#64748b"></i></div>
+
+      <!-- รายการ 2: เบิกล่วงเวลา -->
+      <div class="ck-appr-item">
+        <div class="ck-appr-topline">
+          <div class="ck-appr-user">
+            <span class="ck-appr-avatar ot" title="คุณวิภา สุขใจ">วส</span>
+            <div class="ck-appr-meta">
+              <div class="ck-appr-type ot">ขอเบิกล่วงเวลา (OT)</div>
+              <div class="ck-appr-name">คุณวิภา สุขใจ <span class="ck-appr-dept">· ฝ่ายบุคคล</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ck-appr-details">
+          <div class="ck-appr-detail-line"><strong>OT-0045</strong> <span class="agenda-sep">|</span> วันที่ทำ OT 28 ต.ค. 2569 จำนวน 2.5 ชม.</div>
+          <div class="ck-appr-detail-line">เหตุผล : สรุปข้อมูลรายงานภาษีสิ้นเดือน</div>
+        </div>
+        <div class="ck-appr-actions">
+          <button type="button" class="ck-btn-appr approve" title="อนุมัติคำขอ"><svg><use href="#check"/></svg> อนุมัติ</button>
+          <button type="button" class="ck-btn-appr edit" title="แก้ไขคำขอ"><svg><use href="#edit-pen"/></svg> แก้ไข</button>
+          <button type="button" class="ck-btn-appr reject" title="ปฏิเสธคำขอ">✕ ปฏิเสธ</button>
+        </div>
       </div>
-      <div class="ck-prog-item">
-        <div class="ck-prog-labels"><span>ลาป่วย 1 คน</span><strong>17%</strong></div>
-        <div class="ck-prog-track"><i style="width:17%;background:#0d8268"></i></div>
+
+      <!-- รายการ 3: เบิกค่ารักษาพยาบาล -->
+      <div class="ck-appr-item">
+        <div class="ck-appr-topline">
+          <div class="ck-appr-user">
+            <span class="ck-appr-avatar med" title="คุณพิชัย มงคล">พม</span>
+            <div class="ck-appr-meta">
+              <div class="ck-appr-type med">เบิกค่ารักษาพยาบาล</div>
+              <div class="ck-appr-name">คุณพิชัย มงคล <span class="ck-appr-dept">· ฝ่ายขาย</span></div>
+            </div>
+          </div>
+          <span class="ck-badge-tag">File แนบ</span>
+        </div>
+        <div class="ck-appr-details">
+          <div class="ck-appr-detail-line"><strong>MED-0023</strong> <span class="agenda-sep">|</span> วันที่ 27 ต.ค. 2569 ยอดเบิก ฿1,500</div>
+          <div class="ck-appr-detail-line">เหตุผล : ตรวจรักษาโรคทั่วไป รพ.กรุงเทพ</div>
+        </div>
+        <div class="ck-appr-actions">
+          <button type="button" class="ck-btn-appr approve" title="อนุมัติคำขอ"><svg><use href="#check"/></svg> อนุมัติ</button>
+          <button type="button" class="ck-btn-appr edit" title="แก้ไขคำขอ"><svg><use href="#edit-pen"/></svg> แก้ไข</button>
+          <button type="button" class="ck-btn-appr reject" title="ปฏิเสธคำขอ">✕ ปฏิเสธ</button>
+        </div>
+      </div>
+
+      <!-- รายการ 4: ลากิจ -->
+      <div class="ck-appr-item">
+        <div class="ck-appr-topline">
+          <div class="ck-appr-user">
+            <span class="ck-appr-avatar" style="background:#f3e8ff; color:#7c3aed; border-color:#ddd6fe;" title="คุณกมลวรรณ เด่นดวง">กด</span>
+            <div class="ck-appr-meta">
+              <div class="ck-appr-type" style="color:#7c3aed;">ขอลากิจ</div>
+              <div class="ck-appr-name">คุณกมลวรรณ เด่นดวง <span class="ck-appr-dept">· ฝ่ายการตลาด</span></div>
+            </div>
+          </div>
+          <span class="ck-badge-tag">File แนบ</span>
+        </div>
+        <div class="ck-appr-details">
+          <div class="ck-appr-detail-line"><strong>LEV-0015</strong> <span class="agenda-sep">|</span> วันที่ลา 12 พ.ย. 2569 จำนวน 1 วัน</div>
+          <div class="ck-appr-detail-line">เหตุผล : ติดต่อทำนิติกรรมที่ดินราชการ</div>
+        </div>
+        <div class="ck-appr-actions">
+          <button type="button" class="ck-btn-appr approve" title="อนุมัติคำขอ"><svg><use href="#check"/></svg> อนุมัติ</button>
+          <button type="button" class="ck-btn-appr edit" title="แก้ไขคำขอ"><svg><use href="#edit-pen"/></svg> แก้ไข</button>
+          <button type="button" class="ck-btn-appr reject" title="ปฏิเสธคำขอ">✕ ปฏิเสธ</button>
+        </div>
       </div>
     </div>
   </article>
 
-  <!-- Board 4: สถิติการลาของฉัน (Req 2 & 5: ลบตัวเลขบนหลอด, ในหลอดมีข้อความเอียงชิดขวาตามหลอด) -->
-  <article class="ck-board">
+</div>
+
+<!-- Row 4: สถิติการลา, สัดส่วนการลา (กราฟวงกลม) & คำขอของฉัน (เรียงใหม่: สถิติการลา [ซ้าย] | สัดส่วนการลา [กลาง] | คำขอของฉัน [ขวา เพิ่มกว้าง 25%]) -->
+<div class="ck-row-my-deck">
+
+  <!-- 1. การ์ดสถิติการลาของฉัน (ซ้าย) -->
+  <article class="ck-card ck-myleave">
     <div class="ck-head">
       <div class="ck-head-title"><svg><use href="#calendar"/></svg>สถิติการลาของฉัน</div>
       <span class="ck-badge-tag">ปี 2569</span>
@@ -2626,7 +3195,7 @@ main#overview {
         </div>
         <div class="ck-pers-tube">
           <div class="ck-pers-fill" style="width:20%"><span>ใช้ไป 3/15 (20%)</span></div>
-          <span class="ck-pers-remain">คงเหลือ 12 วัน (80%)</span>
+          <span class="ck-pers-remain blue">คงเหลือ 12 วัน (80%)</span>
         </div>
       </div>
 
@@ -2641,7 +3210,7 @@ main#overview {
         </div>
         <div class="ck-pers-tube">
           <div class="ck-pers-fill green" style="width:20%"><span>ใช้ไป 1/5 (20%)</span></div>
-          <span class="ck-pers-remain">คงเหลือ 4 วัน (80%)</span>
+          <span class="ck-pers-remain green">คงเหลือ 4 วัน (80%)</span>
         </div>
       </div>
 
@@ -2656,7 +3225,178 @@ main#overview {
         </div>
         <div class="ck-pers-tube">
           <div class="ck-pers-fill amber" style="width:33%"><span>ใช้ไป 1/3 (33%)</span></div>
-          <span class="ck-pers-remain">คงเหลือ 2 วัน (67%)</span>
+          <span class="ck-pers-remain amber">คงเหลือ 2 วัน (67%)</span>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- 2. การ์ดสัดส่วนการลา (กลาง - กราฟวงกลมขยายใหญ่ พร้อมเส้นชี้ Leader Lines 2 บรรทัดตามแบบ Image 1, ฟอนต์สะอาดตา และ Interactive Tooltip ตามแบบ Image 3) -->
+  <article class="ck-card ck-leave-donut">
+    <div class="ck-head">
+      <div class="ck-head-title"><svg><use href="#chart"/></svg>สัดส่วนการลา</div>
+      <span class="ck-badge-tag">ปี 2569</span>
+    </div>
+    <div class="ck-donut-body">
+      <div class="ck-donut-chart-wrap">
+        <!-- Floating Tooltip Box on Slice Hover (ตามสไตล์ Image 3) -->
+        <div class="ck-donut-tooltip" id="donutTooltip"></div>
+
+        <svg class="ck-donut-svg" viewBox="0 0 310 186">
+          <!-- Background circle track (Radius 58, Stroke 18) -->
+          <circle cx="155" cy="90" r="58" fill="none" stroke="#eef4fa" stroke-width="18" />
+          
+          <!-- Slices (starting 12 o'clock, Circumference = 364.42) -->
+          <g transform="rotate(-90 155 90)">
+            <!-- ลาพักร้อน 60% (218.65 of 364.42) -->
+            <circle class="ck-donut-slice" data-type="vacation" cx="155" cy="90" r="58" fill="none" stroke="#1e70bf" stroke-width="18" stroke-dasharray="218.65 364.42" stroke-dashoffset="0" stroke-linecap="round" />
+            <!-- ลากิจ 20% (72.88 of 364.42) -->
+            <circle class="ck-donut-slice" data-type="personal" cx="155" cy="90" r="58" fill="none" stroke="#b45309" stroke-width="18" stroke-dasharray="72.88 364.42" stroke-dashoffset="-218.65" stroke-linecap="round" />
+            <!-- ลาป่วย 20% (72.88 of 364.42) -->
+            <circle class="ck-donut-slice" data-type="sick" cx="155" cy="90" r="58" fill="none" stroke="#0d8268" stroke-width="18" stroke-dasharray="72.88 364.42" stroke-dashoffset="-291.53" stroke-linecap="round" />
+          </g>
+
+          <!-- Bent Leader Lines (ข้อศอกหักมุม 2 บรรทัดตามต้นแบบ Image 1) -->
+          <!-- 1. ลาพักร้อน (ขวา) -->
+          <polyline points="212,108 228,116 244,116" fill="none" stroke="#1e70bf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="248" y="112" fill="#1e70bf" stroke="none" stroke-width="0" style="font-size:12px; font-weight:700;">ลาพักร้อน</text>
+          <text x="248" y="126" fill="#1e70bf" stroke="none" stroke-width="0" style="font-size:11px; font-weight:600;">3 วัน (60%)</text>
+
+          <!-- 2. ลากิจ (ซ้ายล่าง) -->
+          <polyline points="98,108 82,116 64,116" fill="none" stroke="#b45309" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="60" y="112" text-anchor="end" fill="#b45309" stroke="none" stroke-width="0" style="font-size:12px; font-weight:700;">ลากิจ</text>
+          <text x="60" y="126" text-anchor="end" fill="#b45309" stroke="none" stroke-width="0" style="font-size:11px; font-weight:600;">1 วัน (20%)</text>
+
+          <!-- 3. ลาป่วย (ซ้ายบน) -->
+          <polyline points="114,46 98,34 72,34" fill="none" stroke="#0d8268" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="68" y="30" text-anchor="end" fill="#0d8268" stroke="none" stroke-width="0" style="font-size:12px; font-weight:700;">ลาป่วย</text>
+          <text x="68" y="44" text-anchor="end" fill="#0d8268" stroke="none" stroke-width="0" style="font-size:11px; font-weight:600;">1 วัน (20%)</text>
+
+          <!-- Center text inside donut (ตัวเลขอ่านง่าย คมชัด ไม่มีเส้นขอบกวนใจ) -->
+          <text x="155" y="80" text-anchor="middle" fill="#1e70bf" stroke="none" stroke-width="0">
+            <tspan style="font-size:24px; font-weight:800; fill:#1e70bf;" stroke="none">5</tspan> <tspan style="font-size:13px; font-weight:600; fill:#1e70bf;" stroke="none">วัน</tspan>
+          </text>
+          <text x="155" y="100" text-anchor="middle" fill="#1e70bf" stroke="none" stroke-width="0" style="font-size:12px; font-weight:600;">ใช้ไปแล้ว</text>
+        </svg>
+      </div>
+      
+      <!-- ข้อความ จุดสี ลาพักร้อน , จุดสี ลากิจ , จุดสี ลาป่วย ด้านใต้วงกลม -->
+      <div class="ck-donut-legend-bottom">
+        <span class="ck-donut-leg-badge">
+          <i class="ck-donut-dot" style="background:#1e70bf;"></i> ลาพักร้อน
+        </span>
+        <span class="ck-donut-leg-badge">
+          <i class="ck-donut-dot" style="background:#b45309;"></i> ลากิจ
+        </span>
+        <span class="ck-donut-leg-badge">
+          <i class="ck-donut-dot" style="background:#0d8268;"></i> ลาป่วย
+        </span>
+      </div>
+
+      <!-- สถิติวันลา ย้ายกลับมาไว้ใต้คำว่า ลาพักร้อน ตามคำขอ -->
+      <div class="ck-donut-footer">
+        <span class="ck-donut-footer-text">ใช้ไป 5/23 วัน (21.7%)</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- 3. การ์ดคำขอของฉัน (ขวา - กว้างขึ้น 25% แสดง 4 รายการ 2 บรรทัด) -->
+  <article class="ck-card ck-myreq">
+    <div class="ck-head">
+      <div class="ck-head-title"><svg><use href="#file"/></svg>คำขอของฉัน</div>
+      <a href="#my-requests" class="ck-head-link">สร้างคำขอใหม่ หรือดูประวัติทั้งหมด →</a>
+      <span class="ck-badge-tag">4 รายการ</span>
+    </div>
+    <div class="ck-act-grid-4">
+      <!-- รายการ 1: ลาพักร้อน (อนุมัติ) -->
+      <div class="ck-act-item">
+        <div class="ck-act-topline">
+          <div class="ck-act-titles">
+            <div class="ck-act-title-row">
+              <span class="ck-act-mini-icon leave" title="ลาพักร้อน">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 4.5-2.9 8.3-7 9.6V12h3l-4-5-4 5h3v9.6C8.9 20.3 6 16.5 6 12A10 10 0 0 1 12 2z"/></svg>
+              </span>
+              <div>
+                <strong class="ck-act-main-title">ลาพักร้อน</strong>
+                <div class="ck-act-sub-code">LEV-0001 <span class="agenda-sep">|</span> 7 ต.ค. 2569</div>
+              </div>
+            </div>
+          </div>
+          <span class="ck-status-tag green">อนุมัติ</span>
+        </div>
+        <div class="ck-act-details">
+          <div class="ck-act-detail-line">วันที่ลา 7–10 ต.ค. 2569 (จำนวน 3 วัน)</div>
+          <div class="ck-act-detail-line">เหตุผล : เดินทางกับครอบครัว</div>
+          <div class="ck-act-detail-line">ผู้อนุมัติ : คุณกานดา สุขสมบูรณ์ (ผจก.ฝ่าย)</div>
+        </div>
+      </div>
+
+      <!-- รายการ 2: เบิกล่วงเวลา (ยกเลิก - กรอบสีแดง) -->
+      <div class="ck-act-item">
+        <div class="ck-act-topline">
+          <div class="ck-act-titles">
+            <div class="ck-act-title-row">
+              <span class="ck-act-mini-icon ot" title="เบิกล่วงเวลา">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              </span>
+              <div>
+                <strong class="ck-act-main-title">เบิกล่วงเวลา</strong>
+                <div class="ck-act-sub-code">OT-0018 <span class="agenda-sep">|</span> 6 ต.ค. 2569</div>
+              </div>
+            </div>
+          </div>
+          <span class="ck-status-tag red-outline">ยกเลิก</span>
+        </div>
+        <div class="ck-act-details">
+          <div class="ck-act-detail-line">วันที่ทำ OT 8 ต.ค. 2569 (2.5 ชม.)</div>
+          <div class="ck-act-detail-line">เหตุผล : ปิดงานลูกค้าเร่งด่วน</div>
+          <div class="ck-act-detail-line">ผู้พิจารณา : คุณกานดา สุขสมบูรณ์ (ยกเลิกโดยผู้ขอ)</div>
+        </div>
+      </div>
+
+      <!-- รายการ 3: ลากิจธุระ (รออนุมัติ) -->
+      <div class="ck-act-item">
+        <div class="ck-act-topline">
+          <div class="ck-act-titles">
+            <div class="ck-act-title-row">
+              <span class="ck-act-mini-icon pending" title="ลากิจธุระ">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg>
+              </span>
+              <div>
+                <strong class="ck-act-main-title">ลากิจธุระ</strong>
+                <div class="ck-act-sub-code">LEV-0002 <span class="agenda-sep">|</span> 18 ต.ค. 2569</div>
+              </div>
+            </div>
+          </div>
+          <span class="ck-status-tag amber">รออนุมัติ</span>
+        </div>
+        <div class="ck-act-details">
+          <div class="ck-act-detail-line">วันที่ลา 24 ต.ค. 2569 (1 วัน)</div>
+          <div class="ck-act-detail-line">เหตุผล : ติดต่อทำธุรกรรมราชการ</div>
+          <div class="ck-act-detail-line">ผู้พิจารณา : คุณกานดา สุขสมบูรณ์ (รออนุมัติ)</div>
+        </div>
+      </div>
+
+      <!-- รายการ 4: ลาป่วย (อนุมัติ) -->
+      <div class="ck-act-item">
+        <div class="ck-act-topline">
+          <div class="ck-act-titles">
+            <div class="ck-act-title-row">
+              <span class="ck-act-mini-icon leave" title="ลาป่วย" style="background:#eaf8f4; color:#0d8268; border-color:#bbf0df;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+              </span>
+              <div>
+                <strong class="ck-act-main-title">ลาป่วย</strong>
+                <div class="ck-act-sub-code">LEV-0003 <span class="agenda-sep">|</span> 21 ต.ค. 2569</div>
+              </div>
+            </div>
+          </div>
+          <span class="ck-status-tag green">อนุมัติ</span>
+        </div>
+        <div class="ck-act-details">
+          <div class="ck-act-detail-line">วันที่ลา 21 ต.ค. 2569 (1 วัน)</div>
+          <div class="ck-act-detail-line">เหตุผล : มีอาการไข้หวัดพบแพทย์</div>
+          <div class="ck-act-detail-line">ผู้อนุมัติ : คุณกานดา สุขสมบูรณ์ (ผจก.ฝ่าย)</div>
         </div>
       </div>
     </div>
@@ -2664,10 +3404,34 @@ main#overview {
 
 </div>
 
-<!-- Row 4: 3 Cards (Req 5: OT หลอดตัวเลขเต็มความสูง, Req 6 & 7: ลงเวลาวันนี้ 86/103 คนในหลอด, Req 8-11: ค่ารักษาพยาบาล) -->
+<!-- Row 5: สถิติและสวัสดิการเชิงลึก (Req 1: สลับ สถิติการลงเวลาของฉัน [ซ้าย] กับ สรุปชั่วโมง OT [กลาง]) -->
 <div class="ck-insight-row">
 
-  <!-- 1. สรุปชั่วโมง OT (Req 3: ป้าย สะสม 42.5 ชม.) -->
+  <!-- 1. สถิติการลงเวลาของฉัน (ซ้าย) -->
+  <section class="ck-card">
+    <div class="ck-head">
+      <div class="ck-head-title"><svg><use href="#clock"/></svg>สถิติการลงเวลาของฉัน</div>
+      <span class="ck-badge-tag">ต.ค. 2569</span>
+    </div>
+    <div class="ck-score-badge center-badge">ตรงเวลา <span class="large-val val-purple" style="font-size:24px;font-weight:800">95%</span></div>
+    
+    <!-- หลอด Progress สีม่วงอ่อน พร้อมข้อความสีม่วงอ่อน -->
+    <div class="ck-tube-prog" style="margin: 10px 0 14px;">
+      <div class="ck-tube-fill purple" style="width:94.7%">
+        <span class="ck-tube-text-left">18/19 วัน</span>
+      </div>
+      <span class="ck-tube-text-right purple">152 ชม.</span>
+    </div>
+
+    <div class="ck-att-box4">
+      <div class="ck-att-sub"><small>ตรงเวลา</small><b>18</b></div>
+      <div class="ck-att-sub"><small>มาสาย</small><b>1</b></div>
+      <div class="ck-att-sub"><small>ออกก่อน</small><b>0</b></div>
+      <div class="ck-att-sub"><small>ขาดงาน</small><b>0</b></div>
+    </div>
+  </section>
+
+  <!-- 2. สรุปชั่วโมง OT (กลาง) -->
   <section class="ck-card">
     <div class="ck-head">
       <div class="ck-head-title"><svg><use href="#clock"/></svg>สรุปชั่วโมง OT</div>
@@ -2705,44 +3469,18 @@ main#overview {
     </div>
   </section>
 
-  <!-- 2. ลงเวลาวันนี้ (Req 6 & 7: ลงเวลาครบ 98.6% ชิดกึ่งกลาง, หลอด Progress ใหญ่มี 86/103 คน และ 83.5%) -->
-  <section class="ck-card">
-    <div class="ck-head">
-      <div class="ck-head-title"><svg><use href="#check"/></svg>ลงเวลาวันนี้</div>
-      <span class="ck-badge-tag">19 ต.ค. 2569</span>
-    </div>
-    <div class="ck-score-badge center-badge aligned-slot">ลงเวลาครบ <span class="large-val" style="color:var(--c-pri);font-size:24px;font-weight:800">98.6%</span></div>
-    
-    <!-- Req 6: หลอด Progress ขยายใหญ่ พร้อม 86/103 คน สีขาวตัวเอียงหนา และ 83.5% สีน้ำเงิน -->
-    <div class="ck-tube-prog">
-      <div class="ck-tube-fill" style="width:83.5%">
-        <span class="ck-tube-text-left">86/103 คน</span>
-      </div>
-      <span class="ck-tube-text-right">83.5%</span>
-    </div>
-
-    <div class="ck-att-box4">
-      <div class="ck-att-sub"><small>ปกติ</small><b>86</b></div>
-      <div class="ck-att-sub"><small>มาสาย</small><b>9</b></div>
-      <div class="ck-att-sub"><small>ออกก่อน</small><b>4</b></div>
-      <div class="ck-att-sub"><small>ไม่ลงเวลา</small><b>4</b></div>
-    </div>
-  </section>
-
-  <!-- 3. ค่ารักษาพยาบาล (Req 8-11: ป้ายปี 2569, ฟอนต์ดำ, หลอดใหญ่เบิกไป 25%/คงเหลือ 75%, ฿1,200 กึ่งกลาง, ป้ายอนุมัติแล้ว) -->
+  <!-- 3. สวัสดิการค่ารักษาพยาบาล (ขวา) -->
   <section class="ck-card">
     <div class="ck-head">
       <div class="ck-head-title"><svg><use href="#heart"/></svg>สวัสดิการค่ารักษาพยาบาล</div>
       <span class="ck-badge-tag">ปี 2569</span>
     </div>
-    <!-- Req 9: ปรับเป็นฟอนต์ดำทั้งหมด -->
     <div class="ck-med-box3">
       <div class="ck-med-sub"><small>วงเงินต่อปี</small><strong>฿10,000</strong></div>
       <div class="ck-med-sub"><small>เบิกแล้ว</small><strong>฿2,500</strong></div>
       <div class="ck-med-sub"><small>คงเหลือ</small><strong>฿7,500</strong></div>
     </div>
     
-    <!-- Req 10: หลอด Progress ใหญ่มี เบิกไป 25% และ คงเหลือ 75% -->
     <div class="ck-tube-prog">
       <div class="ck-tube-fill green" style="width:25%">
         <span class="ck-tube-text-left">เบิกไป 25%</span>
@@ -2750,11 +3488,10 @@ main#overview {
       <span class="ck-tube-text-right green">คงเหลือ 75%</span>
     </div>
 
-    <!-- Req 11: รายการล่าสุด ฟอนต์ดำ, ฿1,200 สีเขียวกึ่งกลาง, ป้ายอนุมัติแล้ว -->
     <div class="ck-med-recent">
       <span style="color:#000000;font-weight:600">รายการล่าสุด: ค่าตรวจรักษาทั่วไป</span>
       <b style="color:#0d8268 !important;font-weight:800;font-size:14px;margin:0 auto">฿1,200</b>
-      <span class="ck-att-pill green">อนุมัติแล้ว</span>
+      <span class="ck-status-tag green">อนุมัติแล้ว</span>
     </div>
   </section>
 
@@ -2904,21 +3641,21 @@ main#overview {
   </div>
 </section>
 
-<!-- Row 6: ประกาศบริษัท (Req 1: ลบข้อความที่โผล่นอกกรอบ, Req 2: มี File แนบ, Req 4: จัดกึ่งกลางกรอบ) -->
+<!-- Row 6: ประกาศบริษัท (Req 1: ย้ายหัวข้อไว้บรรทัดเดียวกับวันที่, Req 2: แสดง 4 การ์ด) -->
 <section class="ck-card" id="news-all">
   <div class="ck-head">
     <div class="ck-head-title"><svg><use href="#bell"/></svg>ประกาศบริษัท</div>
-    <span class="ck-badge-tag">3 ประกาศ</span>
+    <span class="ck-badge-tag">4 ประกาศ</span>
   </div>
 
   <div class="ck-news-row">
-    <!-- ข่าว 1: วันหยุด (Req 2: วันที่ซ้ายมือรูปแบบเดียวกับ 19 ต.ค. สลับกับ วันหยุด) -->
+    <!-- ข่าว 1: วันหยุด (ย้ายข้อความ วันหยุดพิเศษประจำเดือน ไปไว้บรรทัดเดียวกับ 23 ต.ค. 2569) -->
     <div class="ck-news-box">
       <div class="ck-news-topline">
         <span class="ck-badge-tag">23 ต.ค. 2569</span>
+        <strong class="news-inline-title">วันหยุดพิเศษประจำเดือน</strong>
         <span class="ck-news-cat-badge red">วันหยุด</span>
       </div>
-      <strong class="news-black-title text-center">วันหยุดพิเศษประจำเดือน</strong>
       <p class="news-black-desc text-center">23 ตุลาคม บริษัทปิดทำการทั้งวัน กรุณาวางแผนงานล่วงหน้า</p>
       <a href="#attach-holiday" class="ck-news-attachment" onclick="return false;" title="ดาวน์โหลดไฟล์แนบ">
         <svg><use href="#file"/></svg>
@@ -2931,10 +3668,10 @@ main#overview {
     <div class="ck-news-box">
       <div class="ck-news-topline">
         <span class="ck-badge-tag">20 ต.ค. 2569</span>
+        <strong class="news-inline-title">อัปเดตสิทธิ์ค่ารักษา</strong>
         <span class="ck-news-cat-badge green">สวัสดิการ</span>
       </div>
-      <strong class="news-black-title text-center">อัปเดตสิทธิ์ค่ารักษาพยาบาล</strong>
-      <p class="news-black-desc text-center">วงเงินปีละ ฿10,000 และเบิกได้สูงสุด ฿1,000 ต่อครั้งผ่านระบบออนไลน์</p>
+      <p class="news-black-desc text-center">วงเงินปีละ ฿10,000 เบิกสูงสุด ฿1,000 ต่อครั้งผ่านระบบออนไลน์</p>
       <a href="#attach-med" class="ck-news-attachment" onclick="return false;" title="ดาวน์โหลดไฟล์แนบ">
         <svg><use href="#file"/></svg>
         <span>ระเบียบการเบิกสวัสดิการ_2569.pdf</span>
@@ -2946,14 +3683,29 @@ main#overview {
     <div class="ck-news-box">
       <div class="ck-news-topline">
         <span class="ck-badge-tag">18 ต.ค. 2569</span>
+        <strong class="news-inline-title">ประชุมทีมประจำเดือน</strong>
         <span class="ck-news-cat-badge yellow">กิจกรรม</span>
       </div>
-      <strong class="news-black-title text-center">ประชุมทีมประจำเดือน</strong>
       <p class="news-black-desc text-center">พบกันวันที่ 30 ตุลาคม เวลา 15:00 น. ห้องประชุมใหญ่ ชั้น 2</p>
       <a href="#attach-agenda" class="ck-news-attachment" onclick="return false;" title="ดาวน์โหลดไฟล์แนบ">
         <svg><use href="#file"/></svg>
         <span>วาระการประชุมประจำเดือน_ตค.pdf</span>
         <small>(420 KB)</small>
+      </a>
+    </div>
+
+    <!-- ข่าว 4: ระบบ/ไอที (เพิ่มการ์ดที่ 4 ให้ครบ 4 การ์ด) -->
+    <div class="ck-news-box">
+      <div class="ck-news-topline">
+        <span class="ck-badge-tag">15 ต.ค. 2569</span>
+        <strong class="news-inline-title">ปรับปรุงระบบเครือข่าย</strong>
+        <span class="ck-news-cat-badge blue">ไอที</span>
+      </div>
+      <p class="news-black-desc text-center">ปิดปรับปรุงระบบชั่วคราว เสาร์ที่ 17 ต.ค. เวลา 22:00-02:00 น.</p>
+      <a href="#attach-sys" class="ck-news-attachment" onclick="return false;" title="ดาวน์โหลดไฟล์แนบ">
+        <svg><use href="#file"/></svg>
+        <span>คู่มือการสำรองข้อมูล_2569.pdf</span>
+        <small>(510 KB)</small>
       </a>
     </div>
   </div>
@@ -3246,6 +3998,71 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     }
     document.addEventListener('click', function() { box.classList.remove('open'); });
   }
+
+  // Donut chart hover tooltip & slice expansion (Locked position & Column layout)
+  (function() {
+    var tooltip = document.getElementById('donutTooltip');
+    var slices = document.querySelectorAll('.ck-donut-slice');
+    if (!tooltip || !slices.length) return;
+
+    var donutData = {
+      vacation: {
+        title: 'ลาพักร้อน (3 วัน · 60%)',
+        color: '#1e70bf',
+        pos: { top: '8px', left: '8px', right: 'auto', bottom: 'auto' },
+        items: [
+          { name: 'คุณภาณุพันธุ์ ใจดี', days: '2 วัน', pct: '(67%)' },
+          { name: 'คุณกัญญา ตัวอย่าง', days: '1 วัน', pct: '(33%)' }
+        ]
+      },
+      personal: {
+        title: 'ลากิจธุระ (1 วัน · 20%)',
+        color: '#b45309',
+        pos: { top: '8px', right: '8px', left: 'auto', bottom: 'auto' },
+        items: [
+          { name: 'คุณภาณุพันธุ์ ใจดี', days: '1 วัน', pct: '(100%)' }
+        ]
+      },
+      sick: {
+        title: 'ลาป่วย (1 วัน · 20%)',
+        color: '#0d8268',
+        pos: { top: '8px', right: '8px', left: 'auto', bottom: 'auto' },
+        items: [
+          { name: 'คุณภาณุพันธุ์ ใจดี', days: '1 วัน', pct: '(100%)' }
+        ]
+      }
+    };
+
+    slices.forEach(function(slice) {
+      slice.addEventListener('mouseenter', function() {
+        var type = slice.getAttribute('data-type');
+        var data = donutData[type];
+        if (!data) return;
+
+        var html = '<div class="ck-tt-title"><span class="ck-tt-dot" style="background:' + data.color + '"></span>' + data.title + '</div>';
+        html += '<table class="ck-tt-table">';
+        data.items.forEach(function(item) {
+          html += '<tr>' +
+            '<td class="ck-tt-col-name">● ' + item.name + '</td>' +
+            '<td class="ck-tt-col-days">' + item.days + '</td>' +
+            '<td class="ck-tt-col-pct">' + item.pct + '</td>' +
+          '</tr>';
+        });
+        html += '</table>';
+
+        tooltip.innerHTML = html;
+        tooltip.style.top = data.pos.top;
+        tooltip.style.left = data.pos.left;
+        tooltip.style.right = data.pos.right;
+        tooltip.style.bottom = data.pos.bottom;
+        tooltip.classList.add('visible');
+      });
+
+      slice.addEventListener('mouseleave', function() {
+        tooltip.classList.remove('visible');
+      });
+    });
+  })();
 })();
 </script>
 </body></html>

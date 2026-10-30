@@ -1,58 +1,37 @@
-# CKACE HR · People Operations Command Center
+# CKACE HR — Official Dashboard Preview (SmartHR Light-Blue)
 
-Status: **Protected current Local review prototype**
-Updated: 2026-10-21
-Operational TEST baseline: **TESTm67 (Owner-confirmed)**
+> **ระบบบริหารงานบุคคลและแดชบอร์ดองค์กร (CKACE HR Enterprise Portal)**  
+> โทนสี: SmartHR Light-Blue Corporate Clean (โทนสีฟ้าพาสเทลร่วมสมัย สะอาด สบายตา คมชัด เป็นมืออาชีพ)  
+> วันที่มีผลบังคับใช้: 30 ตุลาคม 2569 (2026-10-30)
 
-This directory is the current standalone Desktop review prototype. It is prototype-only and does not define production authorization, business rules, API behavior, or deployed TEST state.
+---
 
-## Current direction
+## 🔗 ลิงก์เข้าชมผลงานจริง (Live Preview)
 
-One People Operations system with persistent top tabs:
+- **หน้าหลัก (Root):** [https://panuphan-ck.github.io/ckace-hr-design-preview/](https://panuphan-ck.github.io/ckace-hr-design-preview/)
+- **Owner Dashboard (#overview):** [https://panuphan-ck.github.io/ckace-hr-design-preview/owner-dashboard/#overview](https://panuphan-ck.github.io/ckace-hr-design-preview/owner-dashboard/#overview)
+- **Direct Preview URL:** [https://panuphan-ck.github.io/ckace-hr-design-preview/owner-dashboard-preview.html#overview](https://panuphan-ck.github.io/ckace-hr-design-preview/owner-dashboard-preview.html#overview)
 
-- ภาพรวม
-- ลา
-- OT
-- ลงเวลา
-- ค่ารักษา
-- งานอนุมัติ
-- รายงาน
-- ตั้งค่าระบบ
+---
 
-Time Correction belongs to the Attendance workspace.
+## 📋 เอกสารการล็อกรูปแบบการออกแบบ (Design Standard Lock)
 
-## Visual direction
+ดูรายละเอียดข้อกำหนดมาตรฐาน, Design Tokens, กฎ 2 บทบาท (หัวหน้า vs พนักงาน), และสถาปัตยกรรมเลย์เอาต์ทั้งหมดได้ที่:  
+👉 [**Design.md**](./Design.md)
 
-Current rendered direction is the **Galaxy / People Operations Command Center**:
+---
 
-- compact Dashboard Hero;
-- live Thai date/time;
-- centered core/readiness metric;
-- readable pastel metric ovals;
-- shared elliptical Galaxy tracks;
-- light blue/white canvas and dark navy chrome;
-- teal/purple/amber/green accents;
-- Thai-first hierarchy and short action-first copy;
-- responsive and reduced-motion behavior.
+## 📂 โครงสร้างไฟล์ในคลังนี้ (Repository Structure)
 
-Older cloud, Aurora Glass Garden, editorial neo-brutalist and parity-driven directions are historical experiments where they conflict with the current rendered prototype.
-
-## Overview Hero layout editor
-
-Desktop review supports named metric selection, dragging, keyboard fine movement, visible drag handles, browser-local save, and reset to the CSS layout.
-
-The editor is review tooling only.
-
-## Files
-
-- `index.html` — static review shell
-- `style.css` — current prototype visual system
-- `prototype.js` — fictional/in-memory route/content/interactions
-- `hero-layout-editor.js` — Desktop Hero layout review tooling
-- `flow-function-inventory.md` — usability/function reference inventory
-
-## TESTm67 relationship
-
-TESTm67 is the current deployed TEST baseline according to the Owner. This prototype may be newer than TESTm67 and must not be assumed to be deployed.
-
-For current authority use the repository root continuity plus `docs/CURRENT_STATE_TESTM67_20261021.md`.
+```text
+├── index.html                           # หน้าหลักแดชบอร์ดเวอร์ชันล่าสุด
+├── owner-dashboard-preview.html         # ไฟล์แดชบอร์ดสำหรับเรียกตรง
+├── ckace-accounting-logo.png            # โลโก้ทางการ CK.%ACE ACCOUNTING
+├── Design.md                            # ข้อกำหนดการออกแบบมาตรฐานที่ล็อกไว้
+├── README.md                            # เอกสารแนะนำและทางเข้าสู่ระบบ
+└── owner-dashboard/
+    ├── index.html                       # Entry point สำหรับเส้นทาง /owner-dashboard/
+    ├── owner-dashboard-preview.html     # ไฟล์สำรอง
+    ├── ckace-accounting-logo.png        # โลโก้สำหรับโฟลเดอร์ owner-dashboard
+    └── DESIGN.md                        # เอกสารมาตรฐานสำรอง
+```

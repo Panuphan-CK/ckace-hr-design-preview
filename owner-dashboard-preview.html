@@ -981,8 +981,11 @@ main#overview {
   font-size: 15px;
   font-weight: 700;
   color: var(--c-ink);
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
 }
-.ck-head-title svg { width: 18px; height: 18px; color: var(--c-pri); }
+.ck-head-title svg { width: 18px; height: 18px; color: var(--c-pri); flex-shrink: 0; }
 .ck-head-link {
   font-size: 11.5px;
   font-weight: 600;
@@ -1015,7 +1018,7 @@ main#overview {
 /* Row 1: Hero (สวัสดีครับ prominent headline) + Attendance */
 .ck-row1 {
   display: grid;
-  grid-template-columns: 1.52fr 1fr;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: 16px;
   align-items: stretch;
 }
@@ -1072,25 +1075,30 @@ main#overview {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 16px 18px;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .ck-att-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 12px;
+  min-width: 0;
 }
 .ck-att-datebar {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
-  border-radius: 12px;
+  padding: 6px 10px;
+  border-radius: 11px;
   border: 1px solid;
   transition: all 0.2s ease;
   font-variant-numeric: tabular-nums;
+  overflow: hidden;
 }
 .ck-att-datebar.wednesday {
   background: #f0fdf4;
@@ -1098,36 +1106,40 @@ main#overview {
   color: #15803d;
 }
 .ck-att-full-text {
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 700;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Year Filter Button */
 .ck-year-filter-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 13px;
+  gap: 5px;
+  padding: 6px 10px;
   background: #ffffff;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 12px;
-  font-size: 12.5px;
+  border: 1.5px solid #bcd9f5;
+  border-radius: 10px;
+  font-size: 12px;
   font-weight: 700;
-  color: var(--c-ink);
+  color: #1e70bf;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 4px rgba(35, 116, 204, 0.08);
   white-space: nowrap;
   transition: all 0.15s ease;
   flex-shrink: 0;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 .ck-year-filter-btn:hover {
-  background: #f8fafc;
-  border-color: var(--c-pri);
-  color: var(--c-pri);
+  background: #f0f7ff;
+  border-color: #1e70bf;
+  box-shadow: 0 3px 8px rgba(35, 116, 204, 0.12);
 }
-.ck-year-filter-btn svg { width: 14px; height: 14px; color: var(--c-pri); }
+.ck-year-filter-btn svg { width: 14px; height: 14px; color: #1e70bf; flex-shrink: 0; }
 
 .ck-att-tiles {
   display: grid;
@@ -1298,7 +1310,7 @@ main#overview {
 .ck-stat-rail-sub {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
   margin-top: -6px;
   margin-bottom: 0;
 }
@@ -1306,13 +1318,15 @@ main#overview {
   position: relative;
   background: #ffffff;
   border: 1px solid var(--c-card-border);
-  border-radius: 13px;
-  padding: 12px 11px;
+  border-radius: 12px;
+  padding: 10px 8px;
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
   box-shadow: 0 2px 6px rgba(35, 116, 204, 0.03);
   transition: all 0.15s ease;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .ck-stat-item-sub:hover {
   background: #ffffff !important;
@@ -1321,14 +1335,14 @@ main#overview {
   box-shadow: 0 6px 14px rgba(35, 116, 204, 0.06);
 }
 .ck-stat-icon-sub {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
 }
-.ck-stat-icon-sub svg { width: 17px; height: 17px; }
+.ck-stat-icon-sub svg { width: 16px; height: 16px; }
 .ck-stat-icon-sub.blue { background: #eff6ff; color: #1e70bf; }
 .ck-stat-icon-sub.green { background: #ecfdf5; color: #0d8268; }
 .ck-stat-icon-sub.amber { background: #fffbeb; color: #b45309; }
@@ -1347,29 +1361,33 @@ main#overview {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 4px;
+  gap: 3px;
+  min-width: 0;
 }
 .ck-stat-title-sub {
   font-size: 11.5px;
   font-weight: 700;
   color: #000000 !important;
   white-space: nowrap;
+  flex-shrink: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .ck-stat-val-sub {
-  font-size: 15.5px;
+  font-size: 15px;
   font-weight: 800;
   line-height: 1.25;
   white-space: nowrap;
 }
 .ck-stat-badge-sub {
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
-  padding: 2px 5px;
-  border-radius: 6px;
+  padding: 1.5px 4.5px;
+  border-radius: 5px;
   white-space: nowrap;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
   line-height: 1.2;
 }
 .ck-stat-badge-sub.blue { background: #eff6ff; color: #1e70bf; }
@@ -1379,7 +1397,7 @@ main#overview {
 .ck-stat-badge-sub.sky { background: #f0f9ff; color: #0284c7; }
 .ck-stat-badge-sub.emerald { background: #ecfdf5; color: #059669; }
 
-/* Team Overview Big Section (Frame like Calendar) */
+/* Team Overview Big Section (Frame like Calendar - ขนาดเดิมตาม github.io) */
 .ck-team-overview-card {
   background: var(--c-card);
   border: 1px solid var(--c-card-border);
@@ -1408,8 +1426,26 @@ main#overview {
   border-color: #bcd9f5;
   box-shadow: 0 4px 14px rgba(35, 116, 204, 0.06);
 }
+.ck-sub-board .ck-head-title {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
+}
+.ck-sub-board .ck-head-title span {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
+}
+.ck-sub-board .ck-score-label,
+.ck-score-badge .ck-score-label {
+  color: #000000 !important;
+  font-weight: 700;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
+}
 
-/* Row 3: Combined Team Overview & Approvals Row (งานอนุมัติ ขยายเท่ากับคำขอของฉัน = 1.35fr) */
+/* Row 3: Combined Team Overview & Approvals Row (ทีม 1.65fr ตรงกับขอบ สถิติการลา+สัดส่วนการลา 1.65fr + งานอนุมัติ 1.35fr ตรงกับ คำขอของฉัน 1.35fr) */
 .ck-row-team-appr {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(0, 1.35fr);
@@ -1648,6 +1684,7 @@ main#overview {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  flex: 1;
 }
 .ck-appr-item {
   background: #f8fbfe;
@@ -1659,6 +1696,8 @@ main#overview {
   justify-content: space-between;
   gap: 7px;
   transition: all 0.15s ease;
+  box-sizing: border-box;
+  height: 100%;
 }
 .ck-appr-item:hover {
   background: #ffffff !important;
@@ -1862,16 +1901,19 @@ main#overview {
   gap: 14px;
 }
 .ck-score-badge {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--c-ink);
   background: #f8fbfe;
   border: 1px solid #e1edf7;
-  padding: 8px 12px;
+  padding: 8px 10px;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  box-sizing: border-box;
 }
 .ck-score-badge span { color: var(--c-pri); font-weight: 800; }
 
@@ -1880,13 +1922,16 @@ main#overview {
   display: flex;
   justify-content: center !important;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   text-align: center;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
 }
 .ck-score-badge.center-badge span.large-val {
-  font-size: 24px !important;
+  font-size: 22px !important;
   font-weight: 800 !important;
   line-height: 1;
+  white-space: nowrap !important;
 }
 
 .ck-prog-list { display: grid; gap: 10px; }
@@ -2162,19 +2207,19 @@ main#overview {
   display: flex;
   align-items: center;
   margin-top: 0;
+  box-sizing: border-box;
 }
 .ck-tube-fill {
   height: 100%;
   background: var(--c-pri);
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding-right: 12px;
-  padding-left: 8px;
+  justify-content: flex-start;
+  padding-left: 10px;
+  padding-right: 8px;
   border-radius: 14px;
   transition: width 0.3s ease;
   box-sizing: border-box;
-  min-width: 92px;
 }
 .ck-tube-fill.green {
   background: #0d8268;
@@ -2182,16 +2227,18 @@ main#overview {
 .ck-tube-text-left {
   font-weight: 800;
   color: #ffffff;
-  font-size: 11.5px;
+  font-size: 11px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .ck-tube-text-right {
   margin-left: auto;
-  margin-right: 12px;
+  margin-right: 10px;
   font-weight: 800;
-  font-size: 12px;
+  font-size: 11px;
   white-space: nowrap;
   color: var(--c-pri);
+  flex-shrink: 0;
 }
 .ck-tube-text-right.green {
   color: #0d8268;
@@ -2236,6 +2283,8 @@ main#overview {
   display: flex;
   justify-content: center !important;
   align-items: center;
+  gap: 8px;
+  white-space: nowrap !important;
 }
 .ck-med-box3 {
   display: grid;
@@ -2698,34 +2747,39 @@ main#overview {
 .ov-filter {
   position: relative;
   display: inline-block;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .ck-year-filter-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
+  gap: 5px;
+  padding: 6px 10px;
   background: #ffffff;
   border: 1.5px solid #bcd9f5;
-  border-radius: 12px;
-  font-size: 13px;
+  border-radius: 10px;
+  font-size: 12px;
   font-weight: 700;
   color: #1e70bf;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(35, 116, 204, 0.08);
+  box-shadow: 0 1px 4px rgba(35, 116, 204, 0.08);
   white-space: nowrap;
   transition: all 0.15s ease;
   flex-shrink: 0;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 .ck-year-filter-btn:hover {
   background: #f0f7ff;
   border-color: #1e70bf;
-  box-shadow: 0 4px 12px rgba(35, 116, 204, 0.15);
+  box-shadow: 0 3px 8px rgba(35, 116, 204, 0.12);
 }
 .ck-year-filter-btn svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   color: #1e70bf;
+  flex-shrink: 0;
 }
 .ck-year-filter-btn svg.arrow-down {
   width: 10px;
@@ -3033,13 +3087,45 @@ main#overview {
   font-weight: 800;
 }
 .ov-cal-day.active {
-  background: #1e70bf;
-  border-color: #1e70bf;
+  background: #1e70bf !important;
+  border-color: #1e70bf !important;
   color: #ffffff !important;
   font-weight: 700;
 }
+.ov-cal-day.range-start {
+  background: #1e70bf !important;
+  border-color: #1e70bf !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 6px 0 0 6px !important;
+}
+.ov-cal-day.range-end {
+  background: #1e70bf !important;
+  border-color: #1e70bf !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 0 6px 6px 0 !important;
+}
+.ov-cal-day.range-start.range-end {
+  border-radius: 6px !important;
+}
+.ov-cal-day.in-range,
+.ov-cal-day.range-hover {
+  background: #e0f2fe !important;
+  border-color: #bae6fd !important;
+  color: #0369a1 !important;
+  border-radius: 0 !important;
+  font-weight: 700;
+}
 
-/* Scope Subwrap & Select (Req 1.2) */
+/* Scope Subwrap & Select (Req 1.2 & Req 2: แสดงต่อเมื่อเลือกมุมมองหัวหน้า) */
+.ov-scope-fg {
+  transition: all 0.2s ease;
+}
+body.role-employee #ov-scope-fg,
+body.role-employee .ov-scope-fg {
+  display: none !important;
+}
 .ov-scope-field {
   animation: filterFadeIn 0.15s ease-out;
 }
@@ -4571,8 +4657,8 @@ main, .page-view, .settings-page {
       <label for="ck-role-select" class="ck-role-label">มุมมองบทบาท:</label>
       <div class="ck-role-select-wrap">
         <select id="ck-role-select" class="ck-role-select" aria-label="สลับมุมมองบทบาท">
-          <option value="manager" selected>👔 หัวหน้า (Manager / Owner)</option>
-          <option value="employee">👤 พนักงาน (Employee)</option>
+          <option value="employee" selected>👤 พนักงาน (Employee)</option>
+          <option value="manager">👔 หัวหน้า (Manager / Owner)</option>
         </select>
         <svg class="ck-role-select-arrow" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
       </div>
@@ -4608,7 +4694,7 @@ main, .page-view, .settings-page {
       <div class="ov-filter">
         <button class="ck-year-filter-btn" id="ov-filter-btn" type="button" title="คลิกเพื่อกรองช่วงเวลาและขอบเขตข้อมูล">
           <svg><use href="#calendar"/></svg>
-          <span id="ov-filter-label">ปี 2569 · ภาพรวม</span>
+          <span id="ov-filter-label">ปี 2569</span>
           <svg class="arrow-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="ov-filter-box" id="ov-filter-box">
@@ -4639,7 +4725,7 @@ main, .page-view, .settings-page {
               </span>
             </div>
 
-            <!-- Custom Period Expandable Box (Image 1 & Image 2) -->
+            <!-- Custom Period Expandable Box (Image 1 & Image 2 - รูปแบบ 2569) -->
             <div class="ov-custom-period-box" id="ov-custom-period-box" style="display: none;">
               <div class="ov-custom-period-title">กำหนดช่วงเวลา</div>
               
@@ -4666,11 +4752,11 @@ main, .page-view, .settings-page {
 
               <!-- Sub-card Container for Month Grid or Calendar Grid -->
               <div class="ov-picker-card">
-                <!-- Panel 1: เลือกเดือน (Image 1: media_1794372815493_2569de95.png) -->
+                <!-- Panel 1: เลือกเดือน (Image 1: < 2569 >) -->
                 <div class="ov-month-picker-panel" id="ov-month-picker-panel">
                   <div class="ov-picker-nav">
                     <button type="button" class="ov-nav-btn prev" id="ov-month-prev" title="ปีก่อนหน้า">‹</button>
-                    <span class="ov-nav-title" id="ov-month-year-label">2026</span>
+                    <span class="ov-nav-title" id="ov-month-year-label">2569</span>
                     <button type="button" class="ov-nav-btn next" id="ov-month-next" title="ปีถัดไป">›</button>
                   </div>
                   <div class="ov-months-grid">
@@ -4689,26 +4775,26 @@ main, .page-view, .settings-page {
                   </div>
                 </div>
 
-                <!-- Panel 2: กำหนดช่วงวันที่ (Image 2: media_1794372839177_fec58603.png) -->
+                <!-- Panel 2: กำหนดช่วงวันที่ (Image 2: < พฤศจิกายน 2569 >) -->
                 <div class="ov-date-picker-panel" id="ov-date-picker-panel" style="display: none;">
                   <div class="ov-picker-nav">
                     <button type="button" class="ov-nav-btn prev" id="ov-date-prev" title="เดือนก่อนหน้า">‹</button>
-                    <span class="ov-nav-title" id="ov-date-month-label">November 2026</span>
+                    <span class="ov-nav-title" id="ov-date-month-label">พฤศจิกายน 2569</span>
                     <button type="button" class="ov-nav-btn next" id="ov-date-next" title="เดือนถัดไป">›</button>
                   </div>
                   <div class="ov-calendar-weekdays">
-                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    <span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span><span>อา.</span>
                   </div>
                   <div class="ov-calendar-days-grid" id="ov-calendar-days-grid">
-                    <!-- Days generated dynamically by JS with selected 11 -->
+                    <!-- Days generated dynamically by JS with date range selection -->
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 3. ขอบเขตข้อมูล (Req 1.2: ขอบเขตข้อมูล สำหรับระดับหัวหน้า: ภาพรวม, แผนก, พนักงาน) -->
-          <div class="ov-fg">
+          <!-- 3. ขอบเขตข้อมูล (Req 1.2 & Req 2: แสดงต่อเมื่อเลือกมุมมองหัวหน้า) -->
+          <div class="ov-fg ov-scope-fg" id="ov-scope-fg">
             <div class="ov-fg-t">ขอบเขตข้อมูล (ระดับหัวหน้า)</div>
             <div class="ov-fopts" data-g="scope-type" id="ov-scope-opts">
               <span class="ov-fopt active" data-scope="all">ภาพรวม</span>
@@ -4944,10 +5030,10 @@ main, .page-view, .settings-page {
       <!-- กรอบย่อย 1: สถานะทีม (92% ขยายฟอนต์ใหญ่) -->
       <div class="ck-sub-board">
         <div class="ck-head">
-          <div class="ck-head-title"><svg><use href="#chart"/></svg>สถานะทีม</div>
+          <div class="ck-head-title"><svg><use href="#chart"/></svg><span>สถานะทีม</span></div>
           <span class="ck-badge-tag">103 คน</span>
         </div>
-        <div class="ck-score-badge center-badge">ความพร้อมวันนี้ <span class="large-val" style="color:var(--c-pri);font-size:24px;font-weight:800">92%</span></div>
+        <div class="ck-score-badge center-badge aligned-slot"><span class="ck-score-label" style="color:#000000 !important;font-weight:700;">ความพร้อมวันนี้</span> <span class="large-val" style="color:var(--c-pri);font-size:24px;font-weight:800">92%</span></div>
         <div class="ck-prog-list">
           <div class="ck-prog-item">
             <div class="ck-prog-labels"><span>พร้อมทำงาน 86 คน</span><strong>84%</strong></div>
@@ -4967,10 +5053,10 @@ main, .page-view, .settings-page {
       <!-- กรอบย่อย 2: สถิติการลา (รออนุมัติ 8, 6 คน คำว่า คน สีดำ) -->
       <div class="ck-sub-board">
         <div class="ck-head">
-          <div class="ck-head-title"><svg><use href="#calendar"/></svg>สถิติการลา</div>
+          <div class="ck-head-title"><svg><use href="#calendar"/></svg><span>สถิติการลา</span></div>
           <span class="ck-badge-tag">รออนุมัติ 8</span>
         </div>
-        <div class="ck-score-badge center-badge">ลาวันนี้ <span class="large-val" style="color:#ea580c;font-size:24px;font-weight:800">6</span> <span style="color:#000000;font-weight:700">คน</span></div>
+        <div class="ck-score-badge center-badge aligned-slot"><span class="ck-score-label" style="color:#000000 !important;font-weight:700;">ลาวันนี้</span> <span class="large-val" style="color:#ea580c;font-size:24px;font-weight:800">6</span> <span style="color:#000000;font-weight:700">คน</span></div>
         <div class="ck-prog-list">
           <div class="ck-prog-item">
             <div class="ck-prog-labels"><span>ลาพักร้อน 3 คน</span><strong>50%</strong></div>
@@ -4990,10 +5076,10 @@ main, .page-view, .settings-page {
       <!-- กรอบย่อย 3: ลงเวลาวันนี้ -->
       <div class="ck-sub-board">
         <div class="ck-head">
-          <div class="ck-head-title"><svg><use href="#check"/></svg>ลงเวลาวันนี้</div>
-          <span class="ck-badge-tag">19 ต.ค. 2569</span>
+          <div class="ck-head-title"><svg><use href="#check"/></svg><span>ลงเวลาวันนี้</span></div>
+          <span class="ck-badge-tag">19 ต.ค. 69</span>
         </div>
-        <div class="ck-score-badge center-badge aligned-slot">ลงเวลาครบ <span class="large-val" style="color:var(--c-pri);font-size:24px;font-weight:800">98.6%</span></div>
+        <div class="ck-score-badge center-badge aligned-slot"><span class="ck-score-label" style="color:#000000 !important;font-weight:700;">ลงเวลาครบ</span> <span class="large-val" style="color:var(--c-pri);font-size:24px;font-weight:800">98.6%</span></div>
         
         <div class="ck-tube-prog">
           <div class="ck-tube-fill" style="width:83.5%">
@@ -5034,7 +5120,7 @@ main, .page-view, .settings-page {
           <span class="ck-badge-tag">File&nbsp;แนบ</span>
         </div>
         <div class="ck-appr-details">
-          <div class="ck-appr-detail-line"><strong>LEV-0012</strong> <span class="agenda-sep">|</span> วันที่ลา 3–5 พ.ย. 2569 จำนวน 3 วัน</div>
+          <div class="ck-appr-detail-line"><strong>LEV-0012</strong> <span class="agenda-sep">|</span> 3–5 พ.ย. 2569 จำนวน 3 วัน</div>
           <div class="ck-appr-detail-line">เหตุผล : พักผ่อนประจำปีกับครอบครัว</div>
         </div>
         <div class="ck-appr-actions">
@@ -5056,7 +5142,7 @@ main, .page-view, .settings-page {
           </div>
         </div>
         <div class="ck-appr-details">
-          <div class="ck-appr-detail-line"><strong>OT-0045</strong> <span class="agenda-sep">|</span> วันที่ทำ OT 28 ต.ค. 2569 จำนวน 2.5 ชม.</div>
+          <div class="ck-appr-detail-line"><strong>OT-0045</strong> <span class="agenda-sep">|</span> 28 ต.ค. 2569 จำนวน 2.5 ชม.</div>
           <div class="ck-appr-detail-line">เหตุผล : สรุปข้อมูลรายงานภาษีสิ้นเดือน</div>
         </div>
         <div class="ck-appr-actions">
@@ -5079,7 +5165,7 @@ main, .page-view, .settings-page {
           <span class="ck-badge-tag">File&nbsp;แนบ</span>
         </div>
         <div class="ck-appr-details">
-          <div class="ck-appr-detail-line"><strong>MED-0023</strong> <span class="agenda-sep">|</span> วันที่ 27 ต.ค. 2569 ยอดเบิก ฿1,500</div>
+          <div class="ck-appr-detail-line"><strong>MED-0023</strong> <span class="agenda-sep">|</span> 27 ต.ค. 2569 ยอดเบิก ฿1,500</div>
           <div class="ck-appr-detail-line">เหตุผล : ตรวจรักษาโรคทั่วไป รพ.กรุงเทพ</div>
         </div>
         <div class="ck-appr-actions">
@@ -5093,7 +5179,7 @@ main, .page-view, .settings-page {
       <div class="ck-appr-item">
         <div class="ck-appr-topline">
           <div class="ck-appr-user">
-            <span class="ck-appr-avatar" style="background:#f3e8ff; color:#7c3aed; border-color:#ddd6fe;" title="คุณกมลวรรณ เด่นดวง">กด</span>
+            <span class="ck-appr-avatar" style="background:#f3e8ff; color:#7c3aed; border-color:#ddd6fe;" title="คุณกมลวรรณ เด่นดวง">กล</span>
             <div class="ck-appr-meta">
               <div class="ck-appr-type" style="color:#7c3aed;">ขอลากิจ</div>
               <div class="ck-appr-name">คุณกมลวรรณ เด่นดวง <span class="ck-appr-dept">· ฝ่ายการตลาด</span></div>
@@ -5102,7 +5188,7 @@ main, .page-view, .settings-page {
           <span class="ck-badge-tag">File&nbsp;แนบ</span>
         </div>
         <div class="ck-appr-details">
-          <div class="ck-appr-detail-line"><strong>LEV-0015</strong> <span class="agenda-sep">|</span> วันที่ลา 12 พ.ย. 2569 จำนวน 1 วัน</div>
+          <div class="ck-appr-detail-line"><strong>LEV-0015</strong> <span class="agenda-sep">|</span> 12 พ.ย. 2569 จำนวน 1 วัน</div>
           <div class="ck-appr-detail-line">เหตุผล : ติดต่อทำนิติกรรมที่ดินราชการ</div>
         </div>
         <div class="ck-appr-actions">
@@ -6106,12 +6192,12 @@ main, .page-view, .settings-page {
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle in" style="background:#7c3aed;transform:none;"><svg><use href="#clock"/></svg></span>
-              <span class="ck-att-label">โควตา OT คงเหลือเดือนนี้</span>
+              <span class="ck-att-label">ชั่วโมง OT สะสมเดือนนี้</span>
             </div>
-            <span class="ck-att-pill green">ใช้ไป 42.5 ชม.</span>
+            <span class="ck-att-pill green">อนุมัติแล้ว 8 รายการ</span>
           </div>
           <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#7c3aed !important;">5.5 / 48.0 ชม.</strong>
+            <strong class="ck-att-time" style="color:#7c3aed !important;">42.5 ชม.</strong>
           </div>
         </div>
 
@@ -6137,10 +6223,10 @@ main, .page-view, .settings-page {
       <span class="ck-stat-icon-sub purple"><svg><use href="#clock"/></svg></span>
       <div class="ck-stat-body-sub">
         <div class="ck-stat-head-sub">
-          <span class="ck-stat-title-sub">โควตา OT คงเหลือ</span>
-          <span class="ck-stat-badge-sub purple">เหลือ 5.5 ชม.</span>
+          <span class="ck-stat-title-sub">ชั่วโมง OT สะสม</span>
+          <span class="ck-stat-badge-sub purple">เดือนนี้</span>
         </div>
-        <b class="ck-stat-val-sub" style="color:#7c3aed;">5.5 ชม.</b>
+        <b class="ck-stat-val-sub" style="color:#7c3aed;">42.5 ชม.</b>
       </div>
     </div>
 
@@ -6231,25 +6317,25 @@ main, .page-view, .settings-page {
         <!-- กล่องคำนวณเพดานชั่วโมง OT สด พร้อมแจ้งเตือนทันทีเมื่อเกินโควตา -->
         <div class="ck-quota-live-box" id="ot-quota-live-box">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <strong style="font-size:13px;font-weight:800;">สรุปโควตา OT เดือนนี้ (เพดาน 48.0 ชม.)</strong>
+            <strong style="font-size:13px;font-weight:800;">สรุปชั่วโมง OT เดือนนี้</strong>
             <span class="pg-badge pg-badge-info" id="ot-selected-slot-label">18:00 – 21:00 น.</span>
           </div>
           <div class="ck-quota-metrics">
             <div class="ck-quota-metric-item">
-              <span>โควตาคงเหลือ</span>
-              <strong style="color:#1e70bf;">5.5 ชม.</strong>
+              <span>สะสมเดือนนี้</span>
+              <strong style="color:#1e70bf;">42.5 ชม.</strong>
             </div>
             <div class="ck-quota-metric-item">
               <span>ขอครั้งนี้</span>
-              <strong style="color:#7c3aed;" id="ot-live-req">- 3.0 ชม.</strong>
+              <strong style="color:#7c3aed;" id="ot-live-req">+ 3.0 ชม.</strong>
             </div>
             <div class="ck-quota-metric-item">
-              <span>คงเหลือสุทธิ</span>
-              <strong style="color:#0d8268;" id="ot-live-remain">2.5 ชม.</strong>
+              <span>สะสมรวมสุทธิ</span>
+              <strong style="color:#0d8268;" id="ot-live-remain">45.5 ชม.</strong>
             </div>
           </div>
           <div class="ck-quota-alert-msg" id="ot-live-alert">
-            ✓ จำนวนชั่วโมง OT อยู่ในเกณฑ์ที่กำหนด (สะสมรวม 45.5 / 48.0 ชม.)
+            ✓ จำนวนชั่วโมง OT อยู่ในเกณฑ์ที่กำหนด (บันทึกรวม 45.5 ชม.)
           </div>
         </div>
 
@@ -7726,7 +7812,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           } else {
             if (monthPanel) monthPanel.style.display = 'none';
             if (datePanel) datePanel.style.display = 'block';
-            renderCalendarDays(selectedDateMonth, selectedDateYear);
+            renderCalendarDays(selectedDateMonth, selectedDateYearBE);
           }
           pickerMenu.style.display = 'none';
           if (pickerTypeWrap) pickerTypeWrap.classList.remove('open');
@@ -7734,8 +7820,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       });
     }
 
-    // Month Picker Logic (Image 1: < 2026 > with 12 months grid)
-    var selectedMonthYear = 2026;
+    // Month Picker Logic (Image 1: < 2569 > with 12 months grid - รูปแบบ 2569)
+    var selectedMonthYearBE = 2569;
     var selectedMonthIndex = 10; // 1-12, default October (ต.ค.)
     var monthYearLabel = document.getElementById('ov-month-year-label');
     var monthPrevBtn = document.getElementById('ov-month-prev');
@@ -7745,18 +7831,18 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     if (monthPrevBtn && monthNextBtn && monthYearLabel) {
       monthPrevBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        selectedMonthYear--;
-        monthYearLabel.textContent = selectedMonthYear;
+        selectedMonthYearBE--;
+        monthYearLabel.textContent = selectedMonthYearBE;
       });
       monthNextBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        selectedMonthYear++;
-        monthYearLabel.textContent = selectedMonthYear;
+        selectedMonthYearBE++;
+        monthYearLabel.textContent = selectedMonthYearBE;
       });
     }
 
     var monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-    var fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var thaiFullMonthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
 
     monthButtons.forEach(function(btn) {
       btn.addEventListener('click', function(e) {
@@ -7764,55 +7850,115 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         monthButtons.forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
         selectedMonthIndex = parseInt(btn.getAttribute('data-m'), 10);
+        if (currentTypeText) {
+          currentTypeText.textContent = monthNames[selectedMonthIndex - 1] + ' ' + selectedMonthYearBE;
+        }
       });
     });
 
-    // Date Picker Logic (Image 2: < November 2026 > Mon-Sun with days grid)
-    var selectedDateYear = 2026;
+    // Date Range Picker Logic (Req 3: เลือกช่วงวันที่ได้ & Req 4: รูปแบบ 2569)
+    var selectedDateYearBE = 2569;
     var selectedDateMonth = 11; // 1-12, default November
-    var selectedDayNum = 11; // default 11 as shown in image 2
+    var rangeStart = 11;
+    var rangeEnd = null;
+    var isSelectingRange = false;
     var dateMonthLabel = document.getElementById('ov-date-month-label');
     var datePrevBtn = document.getElementById('ov-date-prev');
     var dateNextBtn = document.getElementById('ov-date-next');
     var daysGrid = document.getElementById('ov-calendar-days-grid');
 
-    function renderCalendarDays(m, y) {
+    function updateDaySelectionUI() {
+      if (!daysGrid) return;
+      var dayBtns = daysGrid.querySelectorAll('.ov-cal-day');
+      dayBtns.forEach(function(btn) {
+        if (btn.classList.contains('empty')) return;
+        var day = parseInt(btn.getAttribute('data-day'), 10);
+        btn.classList.remove('active', 'range-start', 'range-end', 'in-range', 'range-hover');
+        if (rangeStart !== null && rangeEnd !== null) {
+          if (day === rangeStart) {
+            btn.classList.add('active', 'range-start');
+          } else if (day === rangeEnd) {
+            btn.classList.add('active', 'range-end');
+          } else if (day > rangeStart && day < rangeEnd) {
+            btn.classList.add('in-range');
+          }
+        } else if (rangeStart !== null) {
+          if (day === rangeStart) {
+            btn.classList.add('active', 'range-start', 'range-end');
+          }
+        }
+      });
+    }
+
+    function renderCalendarDays(m, yBE) {
       if (!daysGrid) return;
       daysGrid.innerHTML = '';
       if (dateMonthLabel) {
-        dateMonthLabel.textContent = fullMonthNames[m - 1] + ' ' + y;
+        dateMonthLabel.textContent = thaiFullMonthNames[m - 1] + ' ' + yBE;
       }
-      var firstDay = new Date(y, m - 1, 1).getDay();
+      var gregYear = yBE - 543;
+      var firstDay = new Date(gregYear, m - 1, 1).getDay();
       var emptySlots = (firstDay + 6) % 7; // Convert to Mon=0 ... Sun=6
       for (var i = 0; i < emptySlots; i++) {
         var emptyBtn = document.createElement('span');
         emptyBtn.className = 'ov-cal-day empty';
         daysGrid.appendChild(emptyBtn);
       }
-      var daysInMonth = new Date(y, m, 0).getDate();
+      var daysInMonth = new Date(gregYear, m, 0).getDate();
       for (var d = 1; d <= daysInMonth; d++) {
         var dayBtn = document.createElement('button');
         dayBtn.type = 'button';
         dayBtn.className = 'ov-cal-day';
         dayBtn.textContent = d;
-        if (d === 11 && m === 11 && y === 2026) {
+        dayBtn.setAttribute('data-day', d);
+        if (d === 11 && m === 11 && yBE === 2569) {
           dayBtn.classList.add('today');
-        }
-        if (d === selectedDayNum) {
-          dayBtn.classList.add('active');
         }
         (function(day) {
           dayBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            selectedDayNum = day;
-            daysGrid.querySelectorAll('.ov-cal-day').forEach(function(b) { b.classList.remove('active'); });
-            this.classList.add('active');
+            if (isSelectingRange && rangeStart !== null) {
+              if (day < rangeStart) {
+                rangeEnd = rangeStart;
+                rangeStart = day;
+              } else {
+                rangeEnd = day;
+              }
+              isSelectingRange = false;
+              if (currentTypeText) {
+                currentTypeText.textContent = rangeStart + '–' + rangeEnd + ' ' + monthNames[m - 1] + ' ' + yBE;
+              }
+            } else {
+              rangeStart = day;
+              rangeEnd = null;
+              isSelectingRange = true;
+              if (currentTypeText) {
+                currentTypeText.textContent = rangeStart + ' ' + monthNames[m - 1] + ' ' + yBE;
+              }
+            }
+            updateDaySelectionUI();
+          });
+          dayBtn.addEventListener('mouseenter', function() {
+            if (isSelectingRange && rangeStart !== null) {
+              var min = Math.min(rangeStart, day);
+              var max = Math.max(rangeStart, day);
+              daysGrid.querySelectorAll('.ov-cal-day').forEach(function(b) {
+                if (b.classList.contains('empty')) return;
+                var curr = parseInt(b.getAttribute('data-day'), 10);
+                if (curr >= min && curr <= max) {
+                  b.classList.add('range-hover');
+                } else {
+                  b.classList.remove('range-hover');
+                }
+              });
+            }
           });
         })(d);
         daysGrid.appendChild(dayBtn);
       }
+      updateDaySelectionUI();
     }
-    renderCalendarDays(selectedDateMonth, selectedDateYear);
+    renderCalendarDays(selectedDateMonth, selectedDateYearBE);
 
     if (datePrevBtn && dateNextBtn) {
       datePrevBtn.addEventListener('click', function(e) {
@@ -7820,22 +7966,28 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         selectedDateMonth--;
         if (selectedDateMonth < 1) {
           selectedDateMonth = 12;
-          selectedDateYear--;
+          selectedDateYearBE--;
         }
-        renderCalendarDays(selectedDateMonth, selectedDateYear);
+        rangeStart = null;
+        rangeEnd = null;
+        isSelectingRange = false;
+        renderCalendarDays(selectedDateMonth, selectedDateYearBE);
       });
       dateNextBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         selectedDateMonth++;
         if (selectedDateMonth > 12) {
           selectedDateMonth = 1;
-          selectedDateYear++;
+          selectedDateYearBE++;
         }
-        renderCalendarDays(selectedDateMonth, selectedDateYear);
+        rangeStart = null;
+        rangeEnd = null;
+        isSelectingRange = false;
+        renderCalendarDays(selectedDateMonth, selectedDateYearBE);
       });
     }
 
-    // 2. Scope Options Handling (Req 1.2: ขอบเขตข้อมูล ระดับหัวหน้า)
+    // 2. Scope Options Handling (Req 1.2 & Req 2: ขอบเขตข้อมูล ระดับหัวหน้า)
     var scopeOpts = document.getElementById('ov-scope-opts');
     var deptField = document.getElementById('ov-scope-dept-field');
     var empField = document.getElementById('ov-scope-emp-field');
@@ -7941,9 +8093,16 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           periodLabel = 'เดือนก่อน';
         } else if (periodVal === 'custom') {
           if (currentPickerMode === 'month') {
-            periodLabel = monthNames[selectedMonthIndex - 1] + ' ' + (selectedMonthYear + 543);
+            periodLabel = monthNames[selectedMonthIndex - 1] + ' ' + selectedMonthYearBE;
           } else {
-            periodLabel = selectedDayNum + ' ' + monthNames[selectedDateMonth - 1] + ' ' + (selectedDateYear + 543);
+            var mName = monthNames[selectedDateMonth - 1];
+            if (rangeStart !== null && rangeEnd !== null && rangeStart !== rangeEnd) {
+              periodLabel = rangeStart + '–' + rangeEnd + ' ' + mName + ' ' + selectedDateYearBE;
+            } else if (rangeStart !== null) {
+              periodLabel = rangeStart + ' ' + mName + ' ' + selectedDateYearBE;
+            } else {
+              periodLabel = mName + ' ' + selectedDateYearBE;
+            }
           }
         }
 
@@ -7959,12 +8118,9 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           scopeText = empOptText.split('(')[0].trim();
         }
 
+        // Req 1: แสดงเฉพาะ ปี หรือ ช่วงเวลา พอ ไม่ต้องมีขอบเขตข้อมูลต่อท้าย
         if (lbl) {
-          if (currentScopeMode === 'all') {
-            lbl.textContent = (periodVal === 'all' ? yearText : periodLabel) + ' · ภาพรวม';
-          } else {
-            lbl.textContent = (periodVal === 'all' ? yearText : periodLabel) + ' · ' + scopeText;
-          }
+          lbl.textContent = (periodVal === 'all' ? yearText : periodLabel);
         }
 
         updateDashboardKPIs(scopeKey);
@@ -7995,7 +8151,12 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         if (deptSelect) deptSelect.selectedIndex = 0;
         if (empSelect) empSelect.selectedIndex = 0;
 
-        if (lbl) lbl.textContent = 'ปี 2569 · ภาพรวม';
+        rangeStart = 11;
+        rangeEnd = null;
+        isSelectingRange = false;
+        renderCalendarDays(selectedDateMonth, selectedDateYearBE);
+
+        if (lbl) lbl.textContent = 'ปี 2569';
         updateDashboardKPIs('all');
 
         box.classList.remove('open');
@@ -8098,14 +8259,14 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     var urlParams = new URLSearchParams(window.location.search);
     var savedRole = urlParams.get('role') || (function() {
       try { return localStorage.getItem('ckace_preview_role'); } catch(e) { return null; }
-    })() || 'manager';
+    })() || 'employee';
 
-    if (savedRole === 'employee') {
-      select.value = 'employee';
-      applyRole('employee');
-    } else {
+    if (savedRole === 'manager') {
       select.value = 'manager';
       applyRole('manager');
+    } else {
+      select.value = 'employee';
+      applyRole('employee');
     }
 
     select.addEventListener('change', function() {
@@ -8449,28 +8610,17 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       var subBtn = document.getElementById('ot-submit-btn');
 
       if (lbl) lbl.textContent = label;
-      if (reqEl) reqEl.textContent = '- ' + hrs.toFixed(1) + ' ชม.';
-      if (netRemain < 0) {
-        if (box) box.classList.add('over-limit');
-        if (remEl) {
-          remEl.textContent = 'เกินเพดาน ' + Math.abs(netRemain).toFixed(1) + ' ชม.!';
-          remEl.style.color = '#dc2626';
-        }
-        if (alertEl) {
-          alertEl.textContent = '⚠️ แจ้งเตือนทันที: ชั่วโมง OT ที่เลือก (' + hrs.toFixed(1) + ' ชม.) เกินโควตาคงเหลือของเดือนนี้ (5.5 ชม.)!';
-        }
-        if (subBtn) subBtn.disabled = true;
-      } else {
-        if (box) box.classList.remove('over-limit');
-        if (remEl) {
-          remEl.textContent = netRemain.toFixed(1) + ' ชม.';
-          remEl.style.color = '#0d8268';
-        }
-        if (alertEl) {
-          alertEl.textContent = '✓ จำนวนชั่วโมง OT อยู่ในเกณฑ์ที่กำหนด (สะสมรวม ' + (42.5 + hrs).toFixed(1) + ' / 48.0 ชม.)';
-        }
-        if (subBtn) subBtn.disabled = false;
+      if (reqEl) reqEl.textContent = '+ ' + hrs.toFixed(1) + ' ชม.';
+      var totalAccum = 42.5 + hrs;
+      if (box) box.classList.remove('over-limit');
+      if (remEl) {
+        remEl.textContent = totalAccum.toFixed(1) + ' ชม.';
+        remEl.style.color = '#0d8268';
       }
+      if (alertEl) {
+        alertEl.textContent = '✓ จำนวนชั่วโมง OT อยู่ในเกณฑ์ที่กำหนด (สะสมรวม ' + totalAccum.toFixed(1) + ' ชม.)';
+      }
+      if (subBtn) subBtn.disabled = false;
     };
 
     // Benefit Live Budget Deduction & Over-limit Alert
@@ -8672,7 +8822,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
             '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
             '<div class="ck-insp-item"><strong>วันที่และเวลาทำ OT:</strong> ' + otDates[idx] + '</div>' +
             '<div class="ck-insp-item"><strong>จำนวนชั่วโมงสุทธิ:</strong> ' + otHrs[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>สถานะโควตา OT:</strong> เพดาน 48.0 ชม. (ใช้ไป 42.5 ชม. เหลือ 5.5 ชม.)</div>' +
+            '<div class="ck-insp-item"><strong>สรุปชั่วโมง OT:</strong> สะสมเดือนนี้ 42.5 ชม. (รวมรายการนี้ 45.5 ชม.)</div>' +
             '<div class="ck-insp-item"><strong>ช่องทางจ่ายเงิน:</strong> โอนพร้อมเงินเดือนเข้าบัญชี SCB</div>' +
             '<div class="ck-insp-item ck-insp-full"><strong>ภารกิจและรายละเอียดงาน:</strong> ' + otReasons[idx] + '</div>';
         } else if (prefix === 'att') {

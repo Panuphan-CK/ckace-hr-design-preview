@@ -1217,11 +1217,25 @@ main#overview {
   display: block;
   font-size: 22px;
   font-weight: 800;
-  color: #000000 !important;
+  color: inherit;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   letter-spacing: -0.3px;
+}
+.ck-leave-kpi-val {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  letter-spacing: -0.2px;
+  display: block;
+  width: 100%;
+}
+@media (max-width: 1366px) {
+  .ck-leave-kpi-val {
+    font-size: 17px;
+  }
 }
 
 /* Row 2: Top Stat Rail (5 KPI Cards with % Comparison Badges Level-Aligned) */
@@ -4013,13 +4027,14 @@ main, .page-view, .settings-page {
 
 /* Auto 3-Level Approval Chain inside Forms */
 .ck-auto-chain-box {
-  background: #f8fbff;
-  border: 1.5px solid #cbe0f5;
-  border-radius: 12px;
-  padding: 12px 14px;
+  background: #ffffff !important;
+  border: 1.5px solid #d4e5f5;
+  border-radius: 14px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  box-shadow: 0 1px 3px rgba(35, 116, 204, 0.04);
 }
 .ck-auto-chain-head {
   display: flex;
@@ -4028,9 +4043,9 @@ main, .page-view, .settings-page {
   gap: 8px;
 }
 .ck-auto-chain-head strong {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 800;
-  color: #000000 !important;
+  color: #0f172a !important;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -4038,17 +4053,25 @@ main, .page-view, .settings-page {
 .ck-chain-steps-3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 .ck-chain-node {
-  background: #ffffff;
-  border: 1px solid #d0e2f5;
-  border-radius: 10px;
-  padding: 9px 10px;
+  background: #f0f7fe !important;
+  border: 1px solid #cbe0f5;
+  border-radius: 12px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 3px;
   position: relative;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+.ck-chain-node:hover {
+  background: #ffffff !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 4px 14px rgba(35, 116, 204, 0.1) !important;
+  transform: translateY(-2px);
 }
 .ck-chain-step-badge {
   font-size: 10.5px;
@@ -4165,14 +4188,14 @@ main, .page-view, .settings-page {
 }
 .ck-modal-card {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
   width: 100%;
-  max-width: 640px;
-  max-height: 88vh;
+  max-width: 880px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
   animation: ckScaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 }
@@ -4498,14 +4521,235 @@ main, .page-view, .settings-page {
 
 @media (max-width: 980px) {
   .ck-stat-rail-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ck-leave-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .ck-leave-form-cols { grid-template-columns: minmax(0, 1fr) !important; }
   .pg-2col-layout { grid-template-columns: minmax(0, 1fr); }
   .appr-grid { grid-template-columns: minmax(0, 1fr); }
   .ck-chain-steps-3 { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 620px) {
   .ck-stat-rail-4 { grid-template-columns: minmax(0, 1fr); }
-  .pg-form-row2, .pg-form-row3, .ck-click-grid-2, .ck-click-grid-4 { grid-template-columns: minmax(0, 1fr); }
+  .ck-leave-stat-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .pg-form-row2, .pg-form-row3, .ck-click-grid-2, .ck-click-grid-3, .ck-click-grid-4 { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ========================================================
+   Subpage Specific Styles: Leave (#leave) Enhancements
+   ======================================================== */
+.ck-modal-hover-card {
+  transition: all 0.16s ease;
+  cursor: pointer;
+}
+.ck-modal-hover-card:hover {
+  background: #ffffff !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 4px 12px rgba(35, 116, 204, 0.1) !important;
+  transform: translateY(-1px);
+}
+.ck-leave-stat-grid .pers-icon {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 11px !important;
+  flex-shrink: 0 !important;
+}
+.ck-leave-stat-grid .pers-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+.ck-click-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.ck-leave-form-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.ck-table-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ck-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: #f1f5f9;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+.ck-action-btn:hover {
+  transform: translateY(-1px);
+}
+.ck-action-btn.view {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e70bf;
+}
+.ck-action-btn.view:hover {
+  background: #1e70bf;
+  color: #ffffff;
+}
+.ck-action-btn.edit {
+  background: #fefce8;
+  border-color: #fef08a;
+  color: #ca8a04;
+}
+.ck-action-btn.edit:hover {
+  background: #ca8a04;
+  color: #ffffff;
+}
+.ck-action-btn.cancel {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+.ck-action-btn.cancel:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+.pg-filter-pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+.pg-filter-pill:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+.pg-filter-pill.active {
+  background: #1e70bf;
+  border-color: #1e70bf;
+  color: #ffffff;
+}
+
+/* Calendar popup styling per user reference (media_1794409603877_043d3cee.png) */
+.ck-date-popover.ck-leave-range-popover {
+  width: 320px !important;
+  padding: 16px 18px !important;
+  border-radius: 16px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 16px 36px rgba(15, 43, 72, 0.16) !important;
+  background: #ffffff !important;
+}
+.ck-pop-nav-btn {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1e293b;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  padding: 0;
+}
+.ck-pop-nav-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+.ck-pop-cal-dow-ref {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  padding: 8px 0;
+}
+.ck-pop-cal-grid-ref {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.ck-pop-day-ref {
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #1e293b;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.12s ease;
+  font-family: inherit;
+  padding: 0;
+}
+.ck-pop-day-ref:hover {
+  background: #f1f5f9;
+}
+.ck-pop-day-ref.holiday {
+  color: #94a3b8 !important;
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+.ck-pop-day-ref.selected,
+.ck-pop-day-ref.range-start,
+.ck-pop-day-ref.range-end {
+  background: #1e70bf !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border-radius: 8px !important;
+}
+.ck-pop-day-ref.in-range {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  border-radius: 0 !important;
+  font-weight: 700 !important;
+}
+.ck-pop-day-ref.range-hover {
+  background: #f0f9ff !important;
+  color: #0284c7 !important;
+  border-radius: 0 !important;
+}
+
+/* Leave Hero & Table Centering Enhancements */
+#leave .ck-hero-greet {
+  color: #0b3b68 !important;
+}
+#leave .ck-hero-name {
+  color: #2d4356 !important;
+}
+#leave .ck-hero-role {
+  color: #1e70bf !important;
+}
+#leave-history-table th,
+#leave-history-table td {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+#leave-history-table .ck-table-actions {
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+}
+#leave-history-table td:last-child {
+  white-space: nowrap !important;
+  min-width: 118px !important;
+}
+
 
 </style>
 </head><body>
@@ -4846,7 +5090,7 @@ main, .page-view, .settings-page {
 
     <!-- Req 1: ไอคอนและข้อความ "ลงเวลาเข้า - ออกงาน" ลบออกแล้ว -->
 
-    <!-- Req 2 & 4: Time In / Time Out Tiles (ฟอนต์สีดำ, แสดงวินาที 08:28:30 น. และ --:--:-- น., ป้ายสถานะย้ายไปมุมขวา) -->
+    <!-- Req: Time In / Time Out Tiles (08:28:30 น. สีเขียว จัดกึ่งกลาง, --:--:-- น. สีเทา จัดกึ่งกลาง, คลิกเพื่อจำลองลงเวลาออกได้) -->
     <div class="ck-att-tiles">
       <div class="ck-att-tile">
         <div class="ck-att-topline">
@@ -4856,21 +5100,21 @@ main, .page-view, .settings-page {
           </div>
           <span class="ck-att-pill green">✓ ตรงเวลา</span>
         </div>
-        <div class="ck-att-bottomline">
-          <strong class="ck-att-time">08:28:30 น.</strong>
+        <div class="ck-att-bottomline" style="text-align:center;">
+          <strong class="ck-att-time" style="color:#16a34a !important;text-align:center;">08:28:30 น.</strong>
         </div>
       </div>
 
-      <div class="ck-att-tile">
+      <div class="ck-att-tile" id="dash-checkout-tile" style="cursor:pointer;" title="คลิกเพื่อลงเวลาออก" onclick="window.performDashboardCheckOut && window.performDashboardCheckOut();">
         <div class="ck-att-topline">
           <div class="ck-att-head-left">
             <span class="ck-att-circle out"><svg><use href="#clock"/></svg></span>
             <span class="ck-att-label">เวลาออก</span>
           </div>
-          <span class="ck-att-pill gray">ยังไม่ลงเวลา</span>
+          <span class="ck-att-pill gray" id="dash-checkout-pill">ยังไม่ลงเวลา</span>
         </div>
-        <div class="ck-att-bottomline">
-          <strong class="ck-att-time">--:--:-- น.</strong>
+        <div class="ck-att-bottomline" style="text-align:center;">
+          <strong class="ck-att-time" id="dash-checkout-time" style="color:#94a3b8 !important;text-align:center;">--:--:-- น.</strong>
         </div>
       </div>
     </div>
@@ -4945,7 +5189,7 @@ main, .page-view, .settings-page {
 <div class="ck-stat-rail-sub">
   <!-- 1: ลาพักร้อน (ของตนเอง) -->
   <div class="ck-stat-item-sub">
-    <span class="ck-stat-icon-sub blue"><svg><use href="#calendar"/></svg></span>
+    <span class="ck-stat-icon-sub blue"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
     <div class="ck-stat-body-sub">
       <div class="ck-stat-head-sub">
         <span class="ck-stat-title-sub">ลาพักร้อน</span>
@@ -4957,7 +5201,7 @@ main, .page-view, .settings-page {
 
   <!-- 2: ลาป่วย (ของตนเอง) -->
   <div class="ck-stat-item-sub">
-    <span class="ck-stat-icon-sub green"><svg><use href="#heart"/></svg></span>
+    <span class="ck-stat-icon-sub green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
     <div class="ck-stat-body-sub">
       <div class="ck-stat-head-sub">
         <span class="ck-stat-title-sub">ลาป่วย</span>
@@ -4969,7 +5213,7 @@ main, .page-view, .settings-page {
 
   <!-- 3: ลากิจ (ของตนเอง) -->
   <div class="ck-stat-item-sub">
-    <span class="ck-stat-icon-sub amber"><svg><use href="#clock"/></svg></span>
+    <span class="ck-stat-icon-sub amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg></span>
     <div class="ck-stat-body-sub">
       <div class="ck-stat-head-sub">
         <span class="ck-stat-title-sub">ลากิจ</span>
@@ -5216,7 +5460,7 @@ main, .page-view, .settings-page {
       <div class="ck-pers-card">
         <div class="ck-pers-top">
           <div class="ck-pers-title-grp">
-            <span class="pers-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 1 10 10c0 4.5-2.9 8.3-7 9.6V12h3l-4-5-4 5h3v9.6C8.9 20.3 6 16.5 6 12A10 10 0 0 1 12 2z"/></svg></span>
+            <span class="pers-icon" style="background:#e0f2fe;color:#0284c7;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
             <b>ลาพักร้อน</b>
           </div>
           <small class="ck-badge-tag">สิทธิ์ 15 วัน</small>
@@ -5231,7 +5475,7 @@ main, .page-view, .settings-page {
       <div class="ck-pers-card">
         <div class="ck-pers-top">
           <div class="ck-pers-title-grp">
-            <span class="pers-icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></span>
+            <span class="pers-icon" style="background:#dcfce7;color:#16a34a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
             <b>ลาป่วย</b>
           </div>
           <small class="ck-badge-tag">สิทธิ์ 5 วัน</small>
@@ -5246,7 +5490,7 @@ main, .page-view, .settings-page {
       <div class="ck-pers-card">
         <div class="ck-pers-top">
           <div class="ck-pers-title-grp">
-            <span class="pers-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg></span>
+            <span class="pers-icon" style="background:#fef3c7;color:#d97706;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg></span>
             <b>ลากิจ</b>
           </div>
           <small class="ck-badge-tag">สิทธิ์ 3 วัน</small>
@@ -5342,7 +5586,7 @@ main, .page-view, .settings-page {
           <div class="ck-act-titles">
             <div class="ck-act-title-row">
               <span class="ck-act-mini-icon leave" title="ลาพักร้อน">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 4.5-2.9 8.3-7 9.6V12h3l-4-5-4 5h3v9.6C8.9 20.3 6 16.5 6 12A10 10 0 0 1 12 2z"/></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
               </span>
               <div>
                 <strong class="ck-act-main-title">ลาพักร้อน</strong>
@@ -5851,316 +6095,533 @@ main, .page-view, .settings-page {
      PAGE 2: ขอลางาน (#leave)
      ========================================== -->
 <main id="leave" class="page-view" hidden>
-  <!-- Row 1: 2-Card Hero Layout (เหมือนหน้าแดชบอร์ด ไม่มีปุ่มแดชบอร์ด/ยื่นคำขอข้างใน) -->
+  <!-- Row 1: 2-Card Hero Layout (เหมือนหน้าแดชบอร์ด 3 บรรทัด + วันเดือนปีปัจจุบัน และกรอบปี 2569) -->
   <div class="ck-row1">
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet">ระบบบริหารการลางาน</h1>
-        <div class="ck-hero-name">คุณภาณุพันธุ์ ใจดี · เจ้าหน้าที่ทรัพยากรบุคคล</div>
-        <div class="ck-hero-role">รอบสิทธิ์ประจำปี 01/01/2569 – 31/12/2569 · วันลาพักร้อนไม่มีการสะสมยกไปปีถัดไป</div>
+        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">ระบบลางาน</h1>
+        <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
+        <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
     </section>
 
     <section class="ck-card ck-att">
+      <!-- Topbar: วันเดือนปีปัจจุบันแบบเดียวกับแดชบอร์ด และกรอบปีปัจจุบันสีฟ้า (ไม่มีชุดกรองข้อมูล) -->
       <div class="ck-att-topbar">
-        <div class="ck-att-datebar wednesday" style="background:#eff6ff;border-color:#bfdbfe;color:#0b3b68;">
-          <span class="ck-att-full-text">สถานะสิทธิ์วันลาและคำขอล่าสุดของคุณ (ปี พ.ศ. 2569)</span>
+        <div class="ck-att-datebar wednesday" id="ck-leave-date-banner">
+          <span class="ck-att-full-text" id="ck-leave-date-live">วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.</span>
+        </div>
+        <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
+          <svg><use href="#calendar"/></svg>
+          <span>ปี 2569</span>
         </div>
       </div>
+
+      <!-- Hero Tiles: แก้ไขข้อความซ้อนกัน แสดงใช้วันลาสะสม และสถานะคำขอลา -->
       <div class="ck-att-tiles">
+        <!-- Tile 1: วันลาสะสม (ใช้ไปเท่าไหร่ กี่ %) จัดกึ่งกลาง -->
         <div class="ck-att-tile">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle in" style="transform:none;"><svg><use href="#calendar"/></svg></span>
-              <span class="ck-att-label">สิทธิ์วันลาคงเหลือรวม</span>
+              <span class="ck-att-label">วันลาสะสม</span>
             </div>
-            <span class="ck-att-pill green">✓ พร้อมใช้สิทธิ์</span>
+            <span class="ck-att-pill green">21.74%</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#1e70bf !important;">18.0 / 23 วัน</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#1e70bf !important;text-align:center;">5.00 / 23.00 วัน</strong>
           </div>
         </div>
 
+        <!-- Tile 2: คำขอลา (อนุมัติแล้ว 75% จัดกึ่งกลาง) -->
         <div class="ck-att-tile">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle out" style="background:#f59e0b;"><svg><use href="#workflow"/></svg></span>
-              <span class="ck-att-label">คำขอล่าสุด LEV-2569-004</span>
+              <span class="ck-att-label">คำขอลา</span>
             </div>
-            <span class="ck-att-pill" style="background:#fef3c7;color:#92400e;">รออนุมัติ (ขั้น 2/3)</span>
+            <span class="ck-att-pill" style="background:#fef3c7;color:#92400e;">3/4 รายการ</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time">05/11/2569</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#0d8268 !important;text-align:center;">อนุมัติแล้ว 75%</strong>
           </div>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบฟอนต์และสีเหมือนหน้าแดชบอร์ด 100%) -->
-  <div class="ck-stat-rail-4">
-    <div class="ck-stat-item-sub">
-      <span class="ck-stat-icon-sub blue"><svg><use href="#calendar"/></svg></span>
-      <div class="ck-stat-body-sub">
-        <div class="ck-stat-head-sub">
-          <span class="ck-stat-title-sub">ลาพักร้อน</span>
-          <span class="ck-stat-badge-sub blue">ใช้ 3/15 วัน</span>
+  <!-- Row 2: 4 KPI Cards (ขยายขนาดให้ใหญ่ขึ้น ตัวอักษรใหญ่ขึ้น มีบรรทัด ใช้ไป... คงเหลือ... และหลอดแสดง % ไม่มีทศนิยม) -->
+  <div class="ck-leave-stat-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
+    <!-- Card 1: ลาพักร้อน -->
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
+          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
+          <b>ลาพักร้อน</b>
         </div>
-        <b class="ck-stat-val-sub" style="color:#1e70bf;" id="kpi-remain-annual">เหลือ 12 วัน</b>
+        <small class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ 15.00 วัน</small>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
+        <strong class="ck-leave-kpi-val" style="color:#1e70bf;">ใช้ 3.00 วัน / เหลือ 12.00 วัน</strong>
+      </div>
+      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
+        <div class="ck-pers-fill" style="width:20%;height:100%;background:#1e70bf;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 20%</span></div>
+        <span class="ck-pers-remain blue" id="kpi-remain-annual" style="font-weight:800;color:#1e70bf;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 80%</span>
       </div>
     </div>
 
-    <div class="ck-stat-item-sub">
-      <span class="ck-stat-icon-sub green"><svg><use href="#heart"/></svg></span>
-      <div class="ck-stat-body-sub">
-        <div class="ck-stat-head-sub">
-          <span class="ck-stat-title-sub">ลาป่วย</span>
-          <span class="ck-stat-badge-sub green">ใช้ 1/5 วัน</span>
+    <!-- Card 2: ลาป่วย -->
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
+          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#dcfce7;color:#16a34a;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
+          <b>ลาป่วย</b>
         </div>
-        <b class="ck-stat-val-sub" style="color:#0d8268;" id="kpi-remain-sick">เหลือ 4 วัน</b>
+        <small class="ck-badge-tag" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ 5.00 วัน</small>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
+        <strong class="ck-leave-kpi-val" style="color:#0d8268;">ใช้ 1.00 วัน / เหลือ 4.00 วัน</strong>
+      </div>
+      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
+        <div class="ck-pers-fill green" style="width:20%;height:100%;background:#0d8268;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 20%</span></div>
+        <span class="ck-pers-remain green" id="kpi-remain-sick" style="font-weight:800;color:#0d8268;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 80%</span>
       </div>
     </div>
 
-    <div class="ck-stat-item-sub">
-      <span class="ck-stat-icon-sub amber"><svg><use href="#clock"/></svg></span>
-      <div class="ck-stat-body-sub">
-        <div class="ck-stat-head-sub">
-          <span class="ck-stat-title-sub">ลากิจ</span>
-          <span class="ck-stat-badge-sub amber">ใช้ 1/3 วัน</span>
+    <!-- Card 3: ลากิจ -->
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
+          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#fef3c7;color:#d97706;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg></span>
+          <b>ลากิจ</b>
         </div>
-        <b class="ck-stat-val-sub" style="color:#b45309;" id="kpi-remain-personal">เหลือ 2 วัน</b>
+        <small class="ck-badge-tag" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ 3.00 วัน</small>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
+        <strong class="ck-leave-kpi-val" style="color:#b45309;">ใช้ 1.00 วัน / เหลือ 2.00 วัน</strong>
+      </div>
+      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
+        <div class="ck-pers-fill amber" style="width:33.33%;height:100%;background:#b45309;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 33%</span></div>
+        <span class="ck-pers-remain amber" id="kpi-remain-personal" style="font-weight:800;color:#b45309;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 67%</span>
       </div>
     </div>
 
-    <div class="ck-stat-item-sub">
-      <span class="ck-stat-icon-sub purple"><svg><use href="#check"/></svg></span>
-      <div class="ck-stat-body-sub">
-        <div class="ck-stat-head-sub">
-          <span class="ck-stat-title-sub">ลารายชั่วโมง</span>
-          <span class="ck-stat-badge-sub purple">8 ชม. = 1 วัน</span>
+    <!-- Card 4: ลารายชั่วโมง -->
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
+          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <b>ลารายชั่วโมง</b>
         </div>
-        <b class="ck-stat-val-sub" style="color:#7c3aed;">ใช้ไป 2.0 ชม.</b>
+        <small class="ck-badge-tag" style="background:#faf5ff;color:#6b21a8;border:1px solid #e9d5ff;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">8.00 ชม. = 1.00 วัน</small>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
+        <strong class="ck-leave-kpi-val" style="color:#7c3aed;">ใช้ 2.00 ชม. / เหลือ 6.00 ชม.</strong>
+      </div>
+      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
+        <div class="ck-pers-fill purple" style="width:25%;height:100%;background:#7c3aed;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 25%</span></div>
+        <span class="ck-pers-remain purple" style="font-weight:800;color:#7c3aed;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 75%</span>
       </div>
     </div>
   </div>
 
-  <!-- Row 3: 2-Column Form (Left) & Clickable History + Detailed 3-Step Approval Inspector (Right) -->
-  <div class="pg-2col-layout">
-    <!-- Left: Interactive Leave Request Form -->
-    <div class="pg-card">
-      <div class="pg-card-header">
-        <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8m-8 4h5"/></svg> ยื่นคำขอลางาน</h3>
-      </div>
-
-      <form class="pg-form" id="ck-leave-form" onsubmit="event.preventDefault(); window.submitLeavePreview && window.submitLeavePreview();">
-        <!-- คลิกเลือกประเภทการลา -->
-        <div class="pg-form-group">
-          <label class="pg-form-label"><span>ประเภทการลา <span class="req">*</span></span></label>
-          <div class="ck-click-grid-2" id="leave-type-cards">
-            <button type="button" class="ck-click-card active" data-leave-type="annual" data-leave-name="ลาพักร้อน" data-quota="12" onclick="window.selectLeaveType && window.selectLeaveType(this)">
-              <div class="ck-click-card-top">
-                <strong>ลาพักร้อน</strong>
-                <span class="quota-pill">เหลือ 12.0 วัน</span>
-              </div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">สิทธิ์ 15 วัน/ปี</span>
-            </button>
-
-            <button type="button" class="ck-click-card" data-leave-type="sick" data-leave-name="ลาป่วย" data-quota="4" onclick="window.selectLeaveType && window.selectLeaveType(this)">
-              <div class="ck-click-card-top">
-                <strong>ลาป่วย</strong>
-                <span class="quota-pill">เหลือ 4.0 วัน</span>
-              </div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">สิทธิ์ 5 วัน/ปี</span>
-            </button>
-
-            <button type="button" class="ck-click-card" data-leave-type="personal" data-leave-name="ลากิจ" data-quota="2" onclick="window.selectLeaveType && window.selectLeaveType(this)">
-              <div class="ck-click-card-top">
-                <strong>ลากิจ</strong>
-                <span class="quota-pill">เหลือ 2.0 วัน</span>
-              </div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">สิทธิ์ 3 วัน/ปี</span>
-            </button>
-
-            <button type="button" class="ck-click-card" data-leave-type="unpaid" data-leave-name="ลาไม่รับค่าจ้าง" data-quota="30" onclick="window.selectLeaveType && window.selectLeaveType(this)">
-              <div class="ck-click-card-top">
-                <strong>ลาไม่รับค่าจ้าง</strong>
-                <span class="quota-pill">ตามจริง</span>
-              </div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">เมื่อใช้สิทธิ์ปกติครบ</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- รูปแบบการลา -->
-        <div class="pg-form-group">
-          <label class="pg-form-label"><span>รูปแบบการลา <span class="req">*</span></span></label>
-          <div class="pg-radio-group" id="leave-format-group">
-            <button type="button" class="pg-radio-btn active" data-format="full" data-factor="1" onclick="window.selectLeaveFormat && window.selectLeaveFormat(this)">เต็มวัน</button>
-            <button type="button" class="pg-radio-btn" data-format="half-am" data-factor="0.5" onclick="window.selectLeaveFormat && window.selectLeaveFormat(this)">ครึ่งวันเช้า</button>
-            <button type="button" class="pg-radio-btn" data-format="half-pm" data-factor="0.5" onclick="window.selectLeaveFormat && window.selectLeaveFormat(this)">ครึ่งวันบ่าย</button>
-            <button type="button" class="pg-radio-btn" data-format="hourly" data-factor="0.25" onclick="window.selectLeaveFormat && window.selectLeaveFormat(this)">รายชั่วโมง</button>
-          </div>
-
-          <!-- ตัวเลือกจำนวนชั่วโมงและช่วงเวลา (แสดงเมื่อคลิก "รายชั่วโมง") -->
-          <div id="leave-hourly-panel" style="display:none;margin-top:8px;padding:12px;background:#f0f7ff;border:1.5px solid #93c5fd;border-radius:10px;">
-            <div style="font-size:12.5px;font-weight:700;margin-bottom:6px;color:#1e40af;">จำนวนชั่วโมงที่ลา (8 ชม. = 1 วัน):</div>
-            <div class="pg-radio-group" id="leave-hour-count-group" style="margin-bottom:8px;">
-              <button type="button" class="pg-radio-btn" data-hours="1" data-days="0.125" onclick="window.selectLeaveHours && window.selectLeaveHours(this)">1 ชม.</button>
-              <button type="button" class="pg-radio-btn active" data-hours="2" data-days="0.25" onclick="window.selectLeaveHours && window.selectLeaveHours(this)">2 ชม.</button>
-              <button type="button" class="pg-radio-btn" data-hours="3" data-days="0.375" onclick="window.selectLeaveHours && window.selectLeaveHours(this)">3 ชม.</button>
-              <button type="button" class="pg-radio-btn" data-hours="4" data-days="0.5" onclick="window.selectLeaveHours && window.selectLeaveHours(this)">4 ชม.</button>
-            </div>
-            <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:#1e40af;">ช่วงเวลาที่ลา:</div>
-            <div class="pg-radio-group">
-              <button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">08:30 – 10:30 น.</button>
-              <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">10:30 – 12:00 น.</button>
-              <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">13:00 – 15:00 น.</button>
-              <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">15:30 – 17:30 น.</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- กรอบวันที่ DD/MM/YYYY -->
-        <div class="pg-form-row2">
-          <div class="pg-form-group">
-            <label class="pg-form-label"><span>วันที่เริ่มต้น <span class="req">*</span></span></label>
-            <div class="ck-date-box-wrap">
-              <button type="button" class="ck-date-box" id="leave-start-box" data-date-target="leave-start" onclick="window.openPopupCal && window.openPopupCal(this, 'leave-start')">
-                <span id="leave-start-val">05/11/2569</span>
-                <svg><use href="#calendar"/></svg>
-              </button>
-              <div class="ck-date-popover" id="pop-leave-start"></div>
-            </div>
-          </div>
-
-          <div class="pg-form-group">
-            <label class="pg-form-label"><span>วันที่สิ้นสุด <span class="req">*</span></span></label>
-            <div class="ck-date-box-wrap">
-              <button type="button" class="ck-date-box" id="leave-end-box" data-date-target="leave-end" onclick="window.openPopupCal && window.openPopupCal(this, 'leave-end')">
-                <span id="leave-end-val">06/11/2569</span>
-                <svg><use href="#calendar"/></svg>
-              </button>
-              <div class="ck-date-popover" id="pop-leave-end"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- กล่องคำนวณสิทธิ์วันลาคงเหลือแบบเรียลไทม์ -->
-        <div class="ck-quota-live-box" id="leave-quota-live-box">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <strong style="font-size:13px;font-weight:800;">สรุปสิทธิ์วันลา (<span id="live-leave-type-label">ลาพักร้อน</span>)</strong>
-            <span class="pg-badge pg-badge-info" id="live-leave-range-badge">05/11/2569 – 06/11/2569</span>
-          </div>
-          <div class="ck-quota-metrics">
-            <div class="ck-quota-metric-item">
-              <span>สิทธิ์ปัจจุบัน</span>
-              <strong style="color:#1e70bf;" id="live-quota-before">12.0 วัน</strong>
-            </div>
-            <div class="ck-quota-metric-item">
-              <span>เลือกครั้งนี้</span>
-              <strong style="color:#b45309;" id="live-quota-used">- 2.0 วัน</strong>
-            </div>
-            <div class="ck-quota-metric-item">
-              <span>คงเหลือสุทธิ</span>
-              <strong style="color:#0d8268;" id="live-quota-after">10.0 วัน</strong>
-            </div>
-          </div>
-          <div class="ck-quota-alert-msg" id="live-quota-alert">
-            ✓ สิทธิ์การลาเพียงพอ: คงเหลือหลังลา 10.0 วัน
-          </div>
-        </div>
-
-        <!-- เหตุผลการลา -->
-        <div class="pg-form-group">
-          <label class="pg-form-label" for="leave-reason"><span>เหตุผลการลา <span class="req">*</span></span></label>
-          <textarea id="leave-reason" class="pg-form-control" rows="2" placeholder="ระบุเหตุผลการลา..." required>เดินทางไปพักผ่อนประจำปีกับครอบครัวที่จังหวัดเชียงใหม่</textarea>
-        </div>
-
-        <!-- สายการอนุมัติอัตโนมัติ 3 ระดับ -->
-        <div class="ck-auto-chain-box">
-          <div class="ck-auto-chain-head">
-            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ (3 ระดับ)</strong>
-          </div>
-          <div class="ck-chain-steps-3">
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับ 1 · หัวหน้างาน</span>
-              <strong>คุณสมศักดิ์ มั่นคง</strong>
-              <span>ผจก.ฝ่ายทรัพยากรบุคคล</span>
-            </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับ 2 · ฝ่ายบุคคล</span>
-              <strong>คุณศิริพร วงศ์สวัสดิ์</strong>
-              <span>ผอ.ฝ่ายทรัพยากรบุคคล</span>
-            </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับ 3 · ผู้บริหารสูงสุด</span>
-              <strong>คุณจักรกฤษณ์ เอซ</strong>
-              <span>กรรมการผู้จัดการ (MD)</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- เอกสารแนบ -->
-        <div class="pg-form-group">
-          <label class="pg-form-label"><span>เอกสารแนบ</span></label>
-          <div class="pg-upload-box" onclick="alert('เลือกไฟล์เอกสารแนบประกอบการลา (จำลอง)');">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <div class="pg-upload-text">อัปโหลดเอกสารแนบ (PDF, JPG, PNG)</div>
-            <div class="pg-upload-sub">ลาป่วย 3 วันขึ้นไป แนบใบรับรองแพทย์</div>
-          </div>
-        </div>
-
-        <div style="margin-top:6px;">
-          <button type="submit" class="pg-btn pg-btn-primary" id="leave-submit-btn" style="width:100%;"><svg><use href="#paper-plane"/></svg> ส่งคำขอลางาน</button>
-        </div>
-      </form>
+  <!-- Row 3: ยื่นคำขอลางาน (ปรับเป็นแนวนอนยาว แบ่งเป็น 2 คอลัมน์ ซ้าย-ขวา) -->
+  <div class="pg-card" style="margin-bottom:16px;">
+    <div class="pg-card-header">
+      <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8m-8 4h5"/></svg> ยื่นคำขอลางาน</h3>
     </div>
 
-    <!-- Right: Leave History Table (Compact 4 Columns, Zero Horizontal Scroll) -->
-    <div class="pg-card">
-      <div class="pg-card-header">
-        <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ประวัติคำขอลางาน</h3>
-      </div>
+    <form class="pg-form" id="ck-leave-form" onsubmit="event.preventDefault(); window.submitLeavePreview && window.submitLeavePreview();">
+      <div class="ck-leave-form-cols">
+        <!-- ฝั่งซ้าย: ประเภทการลา *, รูปแบบการลา *, วันที่เริ่มต้น * วันที่สิ้นสุด *, เหตุผลการลา *, เอกสารแนบ -->
+        <div class="ck-leave-col-left" style="display:flex;flex-direction:column;gap:14px;">
+          <!-- 1. ประเภทการลา (3 การ์ดในบรรทัดเดียวกัน จัดกึ่งกลาง พร้อมไอคอน) -->
+          <div class="pg-form-group">
+            <label class="pg-form-label"><span>ประเภทการลา <span class="req">*</span></span></label>
+            <div class="ck-click-grid-3" id="leave-type-cards">
+              <button type="button" class="ck-click-card active" data-leave-type="annual" data-leave-name="ลาพักร้อน" data-quota="12" onclick="window.selectLeaveType && window.selectLeaveType(this)" style="padding:14px 10px;">
+                <div class="ck-click-card-top" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;text-align:center;">
+                  <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:#e0f2fe;color:#0284c7;border-radius:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
+                  <strong style="font-size:14px;color:#0f172a;">ลาพักร้อน</strong>
+                  <span class="quota-pill" id="leave-type-pill-annual">เหลือ 12.00 วัน</span>
+                </div>
+              </button>
 
-      <div class="pg-table-responsive">
-        <table class="pg-table" id="leave-history-table">
-          <thead>
-            <tr>
-              <th style="width:24%;">รหัสคำขอ</th>
-              <th style="width:26%;">ประเภท / รูปแบบ</th>
-              <th style="width:26%;">วันที่ลา</th>
-              <th style="width:24%;">สถานะสายอนุมัติ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="ck-clickable-row" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-004')">
-              <td><strong>LEV-2569-004</strong><br><small>30/10/2569</small></td>
-              <td><strong>ลาพักร้อน</strong><br><small>เต็มวัน · 2 วัน</small></td>
-              <td>05/11/2569 – 06/11/2569</td>
-              <td><span class="pg-badge pg-badge-warning">⏳ รออนุมัติ (ขั้น 2/3)</span></td>
-            </tr>
-            <tr class="ck-clickable-row" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-003')">
-              <td><strong>LEV-2569-003</strong><br><small>20/10/2569</small></td>
-              <td><strong>ลากิจ</strong><br><small>รายชั่วโมง · 2 ชม.</small></td>
-              <td>22/10/2569 (13:00–15:00)</td>
-              <td><span class="pg-badge pg-badge-success">✓ อนุมัติครบ (3/3)</span></td>
-            </tr>
-            <tr class="ck-clickable-row" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-002')">
-              <td><strong>LEV-2569-002</strong><br><small>15/10/2569</small></td>
-              <td><strong>ลาป่วย</strong><br><small>เต็มวัน · 1 วัน</small></td>
-              <td>15/10/2569</td>
-              <td><span class="pg-badge pg-badge-success">✓ อนุมัติครบ (3/3)</span></td>
-            </tr>
-            <tr class="ck-clickable-row" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-001')">
-              <td><strong>LEV-2569-001</strong><br><small>25/09/2569</small></td>
-              <td><strong>ลาพักร้อน</strong><br><small>เต็มวัน · 2 วัน</small></td>
-              <td>29/09/2569 – 30/09/2569</td>
-              <td><span class="pg-badge pg-badge-danger">✕ ไม่อนุมัติ (ขั้น 2/3)</span></td>
-            </tr>
-          </tbody>
-        </table>
+              <button type="button" class="ck-click-card" data-leave-type="sick" data-leave-name="ลาป่วย" data-quota="4" onclick="window.selectLeaveType && window.selectLeaveType(this)" style="padding:14px 10px;">
+                <div class="ck-click-card-top" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;text-align:center;">
+                  <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:#dcfce7;color:#16a34a;border-radius:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
+                  <strong style="font-size:14px;color:#0f172a;">ลาป่วย</strong>
+                  <span class="quota-pill" id="leave-type-pill-sick">เหลือ 4.00 วัน</span>
+                </div>
+              </button>
+
+              <button type="button" class="ck-click-card" data-leave-type="personal" data-leave-name="ลากิจ" data-quota="2" onclick="window.selectLeaveType && window.selectLeaveType(this)" style="padding:14px 10px;">
+                <div class="ck-click-card-top" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;text-align:center;">
+                  <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:#fef3c7;color:#d97706;border-radius:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg></span>
+                  <strong style="font-size:14px;color:#0f172a;">ลากิจ</strong>
+                  <span class="quota-pill" id="leave-type-pill-personal">เหลือ 2.00 วัน</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. รูปแบบการลา (มีไอคอนหน้าข้อความ ลบ 0.50 วัน และ ชม. ออก) -->
+          <div class="pg-form-group">
+            <label class="pg-form-label"><span>รูปแบบการลา <span class="req">*</span></span></label>
+            <div class="pg-radio-group" id="leave-format-group">
+              <button type="button" class="pg-radio-btn active" data-format="full" data-factor="1" onclick="window.selectLeaveFormat && window.selectLeaveFormat(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:text-bottom;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>เต็มวัน
+              </button>
+              <button type="button" class="pg-radio-btn" data-format="half-am" data-factor="0.5" onclick="window.selectLeaveFormat && window.selectLeaveFormat(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:text-bottom;"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 9 9h-9z"/></svg>ครึ่งวันเช้า
+              </button>
+              <button type="button" class="pg-radio-btn" data-format="half-pm" data-factor="0.5" onclick="window.selectLeaveFormat && window.selectLeaveFormat(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:text-bottom;"><circle cx="12" cy="12" r="9"/><path d="M12 12h9a9 9 0 0 1-9 9z"/></svg>ครึ่งวันบ่าย
+              </button>
+              <button type="button" class="pg-radio-btn" data-format="hourly" data-factor="0.25" onclick="window.selectLeaveFormat && window.selectLeaveFormat(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:text-bottom;"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg>รายชั่วโมง
+              </button>
+            </div>
+
+            <!-- ตัวเลือกจำนวนเวลาที่ลา (30 นาที, 1 ชั่วโมง, 2 ชั่วโมง และกรอบระบุเองแสดงต่อจาก 2 ชั่วโมงเลย) -->
+            <div id="leave-hourly-panel" style="display:none;margin-top:10px;padding:12px 14px;background:#f0f7ff;border:1.5px solid #93c5fd;border-radius:10px;">
+              <div style="font-size:12.5px;font-weight:700;margin-bottom:8px;color:#1e40af;">จำนวนเวลาที่ลา (8 ชม. = 1 วัน):</div>
+              <div class="pg-radio-group" id="leave-minute-preset-group" style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;">
+                <button type="button" class="pg-radio-btn" data-minutes="30" onclick="window.selectLeavePresetMinutes && window.selectLeavePresetMinutes(30, this)">30 นาที</button>
+                <button type="button" class="pg-radio-btn" data-minutes="60" onclick="window.selectLeavePresetMinutes && window.selectLeavePresetMinutes(60, this)">1 ชั่วโมง</button>
+                <button type="button" class="pg-radio-btn active" data-minutes="120" onclick="window.selectLeavePresetMinutes && window.selectLeavePresetMinutes(120, this)">2 ชั่วโมง</button>
+                <div class="ck-custom-minutes-inline" style="display:inline-flex;align-items:center;gap:6px;margin-left:4px;">
+                  <span style="font-size:12.5px;font-weight:700;color:#1e40af;">ระบุเอง:</span>
+                  <input type="number" id="leave-custom-minutes" class="pg-form-control" style="width:85px;height:34px;padding:4px 8px;font-size:13px;font-weight:700;border:1.5px solid #93c5fd;border-radius:8px;text-align:center;" placeholder="นาที" min="15" max="480" step="15" oninput="window.onCustomMinutesInput && window.onCustomMinutesInput(this.value)">
+                  <span style="font-size:12px;font-weight:700;color:#475569;">นาที</span>
+                  <span id="leave-custom-calc-badge" class="pg-badge" style="background:#e0f2fe;color:#0284c7;font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:6px;margin-left:4px;">= 2.00 ชม. (0.25 วัน)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. วันที่เริ่มต้น และ วันที่สิ้นสุด (ปฏิทินเลือกช่วงเวลาแบบแดชบอร์ด) -->
+          <div class="pg-form-row2" id="leave-dates-row">
+            <div class="pg-form-group">
+              <label class="pg-form-label"><span>วันที่เริ่มต้น <span class="req">*</span></span></label>
+              <div class="ck-date-box-wrap">
+                <button type="button" class="ck-date-box" id="leave-start-box" data-date-target="leave-start" onclick="window.openPopupCal && window.openPopupCal(this, 'leave-start')">
+                  <span id="leave-start-val">05/11/2569</span>
+                  <svg><use href="#calendar"/></svg>
+                </button>
+                <div class="ck-date-popover ck-leave-range-popover" id="pop-leave-start"></div>
+              </div>
+            </div>
+
+            <div class="pg-form-group" id="leave-end-group">
+              <label class="pg-form-label"><span>วันที่สิ้นสุด <span class="req">*</span></span></label>
+              <div class="ck-date-box-wrap">
+                <button type="button" class="ck-date-box" id="leave-end-box" data-date-target="leave-end" onclick="window.openPopupCal && window.openPopupCal(this, 'leave-end')">
+                  <span id="leave-end-val">06/11/2569</span>
+                  <svg><use href="#calendar"/></svg>
+                </button>
+                <div class="ck-date-popover ck-leave-range-popover" id="pop-leave-end"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. เหตุผลการลา -->
+          <div class="pg-form-group">
+            <label class="pg-form-label" for="leave-reason"><span>เหตุผลการลา <span class="req">*</span></span></label>
+            <textarea id="leave-reason" class="pg-form-control" rows="3" placeholder="ระบุเหตุผลการลา..." required>เดินทางไปพักผ่อนประจำปีกับครอบครัวที่จังหวัดเชียงใหม่</textarea>
+          </div>
+
+          <!-- 5. เอกสารแนบ (ย้ายมาไว้ใต้เหตุผลการลา) -->
+          <div class="pg-form-group">
+            <label class="pg-form-label"><span>เอกสารแนบ</span></label>
+            <div class="pg-upload-box" onclick="alert('เลือกไฟล์เอกสารแนบประกอบการลา (จำลอง)');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <div class="pg-upload-text">อัปโหลดเอกสารแนบ (PDF, JPG, PNG)</div>
+              <div class="pg-upload-sub">ลาป่วย 3 วันขึ้นไป แนบใบรับรองแพทย์</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ฝั่งขวา: สายการอนุมัติ, สรุปสิทธิ์วันลา, ปุ่มยื่นคำขอ, กฎเกณฑ์การลา -->
+        <div class="ck-leave-col-right" style="display:flex;flex-direction:column;gap:14px;">
+          <!-- 1. สายการอนุมัติ (Req 16, 17, 18) -->
+          <div class="ck-auto-chain-box">
+            <div class="ck-auto-chain-head">
+              <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ</strong>
+            </div>
+            <div class="ck-chain-steps-3">
+              <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">สม</div>
+                  <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 1</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                  <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณสมศักดิ์ มั่นคง</strong>
+                  <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผจก.ฝ่ายทรัพยากรบุคคล</span>
+                </div>
+              </div>
+              <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#b45309;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">ศว</div>
+                  <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 2</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                  <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณศิริพร วงศ์สวัสดิ์</strong>
+                  <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผอ.ฝ่ายทรัพยากรบุคคล</span>
+                </div>
+              </div>
+              <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:#f3e8ff;color:#7c3aed;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">จอ</div>
+                  <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 3</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                  <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณจักรกฤษณ์ เอซ</strong>
+                  <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">กรรมการผู้จัดการ (MD)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. กล่องสรุปสิทธิ์วันลา (Dynamic Day Colors & Realtime Quota) -->
+          <div class="ck-quota-live-box" id="leave-quota-live-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+              <strong style="font-size:13px;font-weight:800;">สรุปสิทธิ์วันลา (<span id="live-leave-type-label">ลาพักร้อน</span>)</strong>
+              <span class="pg-badge" id="live-leave-range-badge" style="background:#ffffff;border:1.5px solid #bfdbfe;padding:4px 10px;border-radius:8px;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <span style="color:#ea580c;font-weight:800;">พฤหัส</span> , <span style="color:#0284c7;font-weight:800;">ศุกร์</span> <span style="color:#1e293b;font-weight:800;">ที่ 5-6 พฤศจิกายน 2569</span>
+              </span>
+            </div>
+            <div class="ck-quota-metrics">
+              <div class="ck-quota-metric-item">
+                <span>สิทธิ์ปัจจุบัน</span>
+                <strong style="color:#1e70bf;" id="live-quota-before">12.00 วัน</strong>
+              </div>
+              <div class="ck-quota-metric-item">
+                <span>เลือกครั้งนี้</span>
+                <strong style="color:#b45309;" id="live-quota-used">- 2.00 วัน</strong>
+              </div>
+              <div class="ck-quota-metric-item">
+                <span>คงเหลือสุทธิ</span>
+                <strong style="color:#0d8268;" id="live-quota-after">10.00 วัน</strong>
+              </div>
+            </div>
+            <div class="ck-quota-alert-msg" id="live-quota-alert">
+              ✓ สิทธิ์การลาเพียงพอ: หลังยื่นคำขอนี้ คุณจะเหลือสิทธิ์ลาพักร้อน 10.00 วัน
+            </div>
+          </div>
+
+          <!-- 3. ปุ่มยื่นคำขอ -->
+          <div style="margin-top:2px;">
+            <button type="submit" class="pg-btn pg-btn-primary" id="leave-submit-btn" style="width:100%;height:44px;font-size:14px;font-weight:700;"><svg><use href="#paper-plane"/></svg> ยื่นคำขอลางาน</button>
+          </div>
+
+          <!-- 4. กฎเกณฑ์การลาของบริษัท (Req 20) -->
+          <div class="ck-leave-rules-box" style="margin-top:2px;padding:12px 14px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;font-size:12px;color:#475569;line-height:1.6;">
+            <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#1e293b;margin-bottom:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span>ระเบียบและกฎเกณฑ์การลางานของบริษัท</span>
+            </div>
+            <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px;">
+              <li><b>ลาพักร้อน:</b> ต้องยื่นคำขอล่วงหน้าอย่างน้อย 3 วันทำการ</li>
+              <li><b>ลากิจ:</b> ต้องยื่นคำขอล่วงหน้าอย่างน้อย 1 วันทำการ เว้นแต่กรณีฉุกเฉิน</li>
+              <li><b>ลาป่วย:</b> กรณีลาติดต่อกันตั้งแต่ 3 วันทำการขึ้นไป ต้องแนบใบรับรองแพทย์แผนปัจจุบัน</li>
+              <li><b>ลารายชั่วโมง:</b> คำนวณตามจริง 8 ชั่วโมงการทำงานเทียบเท่า 1 วันทำการ</li>
+            </ul>
+          </div>
+        </div>
       </div>
+    </form>
+  </div>
+
+  <!-- Row 4: ประวัติคำขอลางาน (ย้ายมาอยู่ด้านล่าง เป็นกรอบแนวนอนยาวเต็มจอ 10 คอลัมน์) -->
+  <div class="pg-card" id="leave-history-card">
+    <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ประวัติคำขอลางาน</h3>
+      <!-- Filter Tabs -->
+      <div class="ck-history-filters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button type="button" class="pg-filter-pill active" data-filter="all" onclick="window.filterLeaveHistory && window.filterLeaveHistory('all', this)">ทั้งหมด (4)</button>
+        <button type="button" class="pg-filter-pill" data-filter="pending" onclick="window.filterLeaveHistory && window.filterLeaveHistory('pending', this)">⏳ รออนุมัติ (1)</button>
+        <button type="button" class="pg-filter-pill" data-filter="approved" onclick="window.filterLeaveHistory && window.filterLeaveHistory('approved', this)">✓ อนุมัติแล้ว (2)</button>
+        <button type="button" class="pg-filter-pill" data-filter="rejected" onclick="window.filterLeaveHistory && window.filterLeaveHistory('rejected', this)">✕ ไม่อนุมัติ (1)</button>
+      </div>
+    </div>
+
+    <div class="pg-table-responsive" style="overflow-x:auto;">
+      <table class="pg-table" id="leave-history-table" style="min-width:920px;text-align:center;">
+        <thead>
+          <tr>
+            <th style="width:12%;text-align:center;">รหัสคำขอ</th>
+            <th style="width:15%;text-align:center;">พนักงาน</th>
+            <th style="width:10%;text-align:center;">ประเภท</th>
+            <th style="width:14%;text-align:center;">วันที่เริ่ม - สิ้นสุด</th>
+            <th style="width:9%;text-align:center;">จำนวนวัน</th>
+            <th style="width:17%;text-align:center;">เหตุผล</th>
+            <th style="width:11%;text-align:center;">สถานะ</th>
+            <th style="width:12%;min-width:118px;text-align:center;">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row 1 -->
+          <tr class="leave-row-item" data-status="pending" data-id="LEV-2569-004">
+            <td style="text-align:center;">
+              <strong>LEV-2569-004</strong>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">30/10/2569</div>
+            </td>
+            <td style="text-align:center;">
+              <div>คุณภาณุพันธุ์ ใจดี</div>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge pg-badge-info" style="font-size:11px;">ลาพักร้อน</span>
+            </td>
+            <td style="text-align:center;line-height:1.4;">
+              <div>05/11/2569 –</div>
+              <div>06/11/2569</div>
+            </td>
+            <td style="text-align:center;font-weight:700;color:#1e70bf;">2.00 วัน</td>
+            <td style="text-align:center;">
+              <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">พักผ่อนประจำปีกับครอบครัว จ.เชียงใหม่</div>
+            </td>
+            <td style="text-align:center;" class="leave-status-cell">
+              <span class="pg-badge pg-badge-warning" style="display:inline-flex;flex-direction:column;align-items:center;line-height:1.3;padding:4px 10px;">
+                <span>⏳ รออนุมัติ</span>
+                <small style="font-size:11px;font-weight:700;">(2/3)</small>
+              </span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;min-width:118px;">
+              <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-004')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอลางาน" onclick="window.editLeaveRequest && window.editLeaveRequest('LEV-2569-004')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอลางาน" onclick="window.cancelLeaveRequest && window.cancelLeaveRequest('LEV-2569-004')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 2 -->
+          <tr class="leave-row-item" data-status="approved" data-id="LEV-2569-003">
+            <td style="text-align:center;">
+              <strong>LEV-2569-003</strong>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">20/10/2569</div>
+            </td>
+            <td style="text-align:center;">
+              <div>คุณภาณุพันธุ์ ใจดี</div>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge pg-badge-warning" style="background:#fef3c7;color:#92400e;font-size:11px;">ลากิจ</span>
+            </td>
+            <td style="text-align:center;line-height:1.4;">
+              <div>22/10/2569</div>
+              <small style="color:#64748b;">(13:00–15:00 น.)</small>
+            </td>
+            <td style="text-align:center;font-weight:700;color:#b45309;">0.25 วัน<br><small style="font-weight:500;color:#64748b;">(2.00 ชม.)</small></td>
+            <td style="text-align:center;">
+              <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ติดต่อ สนง.ที่ดินเขตบางรัก</div>
+            </td>
+            <td style="text-align:center;" class="leave-status-cell">
+              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;min-width:118px;">
+              <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-003')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอลางาน" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอลางาน" onclick="window.cancelLeaveRequest && window.cancelLeaveRequest('LEV-2569-003')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 3 -->
+          <tr class="leave-row-item" data-status="approved" data-id="LEV-2569-002">
+            <td style="text-align:center;">
+              <strong>LEV-2569-002</strong>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">15/10/2569</div>
+            </td>
+            <td style="text-align:center;">
+              <div>คุณภาณุพันธุ์ ใจดี</div>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge pg-badge-success" style="font-size:11px;">ลาป่วย</span>
+            </td>
+            <td style="text-align:center;">15/10/2569</td>
+            <td style="text-align:center;font-weight:700;color:#0d8268;">1.00 วัน</td>
+            <td style="text-align:center;">
+              <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ไข้หวัดใหญ่ (มีใบรับรองแพทย์)</div>
+            </td>
+            <td style="text-align:center;" class="leave-status-cell">
+              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;min-width:118px;">
+              <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-002')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอลางาน" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอลางาน" onclick="window.cancelLeaveRequest && window.cancelLeaveRequest('LEV-2569-002')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 4 -->
+          <tr class="leave-row-item" data-status="rejected" data-id="LEV-2569-001">
+            <td style="text-align:center;">
+              <strong>LEV-2569-001</strong>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">25/09/2569</div>
+            </td>
+            <td style="text-align:center;">
+              <div>คุณภาณุพันธุ์ ใจดี</div>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge pg-badge-info" style="font-size:11px;">ลาพักร้อน</span>
+            </td>
+            <td style="text-align:center;line-height:1.4;">
+              <div>29/09/2569 –</div>
+              <div>30/09/2569</div>
+            </td>
+            <td style="text-align:center;font-weight:700;color:#64748b;">2.00 วัน<br><small>(คืนสิทธิ์แล้ว)</small></td>
+            <td style="text-align:center;">
+              <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ลาพักผ่อนสิ้นไตรมาส 3</div>
+            </td>
+            <td style="text-align:center;" class="leave-status-cell">
+              <span class="pg-badge pg-badge-danger" style="display:inline-flex;flex-direction:column;align-items:center;line-height:1.3;padding:4px 10px;">
+                <span>✕ ไม่อนุมัติ</span>
+                <small style="font-size:11px;font-weight:700;">(2/3)</small>
+              </span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;min-width:118px;">
+              <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-001')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอลางาน" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้สิ้นสุดขั้นตอนแล้ว ไม่สามารถแก้ไขได้');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอลางาน" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ไม่อนุมัติและคืนสิทธิ์เรียบร้อยแล้ว');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </main>
@@ -7378,7 +7839,7 @@ main, .page-view, .settings-page {
   <!-- Row 2: 4 KPI Cards (รูปแบบฟอนต์และสีเหมือนหน้าแดชบอร์ด 100%) -->
   <div class="ck-stat-rail-4">
     <div class="ck-stat-item-sub">
-      <span class="ck-stat-icon-sub blue"><svg><use href="#calendar"/></svg></span>
+      <span class="ck-stat-icon-sub blue"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
       <div class="ck-stat-body-sub">
         <div class="ck-stat-head-sub">
           <span class="ck-stat-title-sub">ลาพักร้อน</span>
@@ -7509,32 +7970,20 @@ main, .page-view, .settings-page {
   </div>
 </main>
 
-<!-- Centered Floating Modal Dialog for Request Details & 3-Level Approval Chain -->
+<!-- Centered Floating Modal Dialog for Request Details & 3-Level Approval Chain (ดีไซน์ประยุกต์ใหม่ตามตัวอย่าง: 2 คอลัมน์, สรุปการลาประจำปี 3 การ์ด, ไฟล์แนบ, ขั้นตอนการอนุมัติ Stepper, ตารางรายละเอียดการอนุมัติ) -->
 <div id="ck-detail-modal" class="ck-modal-backdrop" style="display:none;" onclick="if(event.target===this)window.closeDetailModal()">
   <div class="ck-modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-detail-title">
-    <div class="ck-modal-head">
-      <div class="ck-modal-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        <span id="modal-detail-title">รายละเอียดคำขอ</span>
+    <div class="ck-modal-head" style="padding:18px 24px;border-bottom:1px solid #f1f5f9;background:#ffffff;display:flex;justify-content:space-between;align-items:center;">
+      <div class="ck-modal-title" style="font-size:20px;font-weight:800;color:#1e293b;letter-spacing:-0.3px;">
+        <span id="modal-detail-title">รายละเอียดคำขอลา</span>
       </div>
-      <button type="button" class="ck-modal-close-btn" onclick="window.closeDetailModal()" title="ปิดหน้าต่าง">✕</button>
+      <button type="button" class="ck-modal-close-btn" onclick="window.closeDetailModal()" title="ปิดหน้าต่าง" style="width:32px;height:32px;border-radius:50%;background:#f8fafc;border:1px solid #e2e8f0;display:grid;place-items:center;color:#64748b;font-size:16px;cursor:pointer;">✕</button>
     </div>
-    <div class="ck-modal-body">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-        <span id="modal-detail-badge" class="pg-badge pg-badge-info">สถานะ</span>
-        <span id="modal-detail-id" style="font-size:13px;font-weight:700;color:#64748b;">รหัสคำขอ</span>
-      </div>
-      <div class="ck-inspector-grid" id="modal-detail-grid"></div>
-      <div>
-        <div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:10px;display:flex;align-items:center;gap:7px;">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg>
-          <span>สายการอนุมัติ 3 ระดับ และเหตุผลของผู้อนุมัติ:</span>
-        </div>
-        <div class="ck-timeline-3" id="modal-detail-timeline"></div>
-      </div>
+    <div class="ck-modal-body" id="modal-detail-body-container" style="padding:16px 22px;overflow:hidden;">
+      <!-- Dynamic Content Rendered by JavaScript -->
     </div>
-    <div class="ck-modal-footer">
-      <button type="button" class="pg-btn pg-btn-outline" onclick="window.closeDetailModal()">ปิดหน้าต่าง</button>
+    <div class="ck-modal-footer" style="padding:14px 24px;background:#ffffff;border-top:1px solid #f1f5f9;display:flex;justify-content:flex-end;">
+      <button type="button" class="pg-btn pg-btn-outline" style="border-radius:10px;padding:8px 22px;font-weight:700;" onclick="window.closeDetailModal()">ปิดหน้าต่าง</button>
     </div>
   </div>
 </div>
@@ -7719,6 +8168,19 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       // Req 3: วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.
       textEl.textContent = conf.name + 'ที่ ' + dayOfMonth + ' ' + month + ' ' + year + ' เวลา ' + hours + ':' + minutes + ':' + seconds + ' น.';
     }
+
+    // Leave Subpage Header Date Sync (Req 2)
+    var leaveBanner = document.getElementById('ck-leave-date-banner');
+    var leaveTextEl = document.getElementById('ck-leave-date-live');
+    if (leaveBanner && conf) {
+      leaveBanner.style.background = conf.bg;
+      leaveBanner.style.borderColor = conf.border;
+      leaveBanner.style.color = conf.color;
+    }
+    if (leaveTextEl) {
+      leaveTextEl.textContent = conf.name + 'ที่ ' + dayOfMonth + ' ' + month + ' ' + year + ' เวลา ' + hours + ':' + minutes + ':' + seconds + ' น.';
+    }
+
     var punchEl = document.getElementById('punch-live-clock');
     if (punchEl) {
       punchEl.textContent = hours + ':' + minutes + ':' + seconds + ' น.';
@@ -8294,13 +8756,29 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       return n < 10 ? '0' + n : '' + n;
     }
 
+    // Thai day color & naming helper (Req 9)
+    function getThaiDayInfo(day) {
+      // Month 11 (Nov 2026), BE 2569 (ตัด 'วัน' ออก แสดงชื่อวันสั้นตามที่กำหนด)
+      var dow = new Date(2026, 10, day).getDay();
+      var thaiDays = [
+        { name: 'อาทิตย์', short: 'อาทิตย์', color: '#dc2626' },
+        { name: 'จันทร์',   short: 'จันทร์',   color: '#ca8a04' },
+        { name: 'อังคาร',  short: 'อังคาร',  color: '#db2777' },
+        { name: 'พุธ',     short: 'พุธ',     color: '#16a34a' },
+        { name: 'พฤหัส',   short: 'พฤหัส',   color: '#ea580c' },
+        { name: 'ศุกร์',   short: 'ศุกร์',   color: '#0284c7' },
+        { name: 'เสาร์',   short: 'เสาร์',   color: '#9333ea' }
+      ];
+      return thaiDays[dow] || thaiDays[0];
+    }
+
     function countWorkingDays(s, e) {
       if (e < s) e = s;
       var count = 0;
       for (var d = s; d <= e; d++) {
-        // Nov 2569 (2026): Nov 1 is Sunday -> dow: (d % 7) where 1=Sun, 7=Sat
+        // Nov 2569 (2026): Nov 1 is Sunday -> dow: (d % 7) where 1=Sun, 0=Sat, d=25 is annual company holiday
         var dow = d % 7;
-        if (dow !== 0 && dow !== 1) {
+        if (dow !== 0 && dow !== 1 && d !== 25) {
           count++;
         }
       }
@@ -8342,22 +8820,63 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       if (hourlyPanel) {
         hourlyPanel.style.display = (leaveState.format === 'hourly') ? 'block' : 'none';
       }
+
+      var endBox = document.getElementById('leave-end-box');
       if (leaveState.format !== 'full') {
         leaveState.endDay = leaveState.startDay;
         syncLeaveDateBoxes();
+        if (endBox) {
+          endBox.style.opacity = '0.5';
+          endBox.style.pointerEvents = 'none';
+        }
+      } else {
+        if (endBox) {
+          endBox.style.opacity = '1';
+          endBox.style.pointerEvents = 'auto';
+        }
       }
       window.updateLeaveLiveQuota();
     };
 
-    window.selectLeaveHours = function(btn) {
-      if (!btn) return;
-      var grp = document.getElementById('leave-hour-count-group');
+    window.selectLeavePresetMinutes = function(mins, btn) {
+      var grp = document.getElementById('leave-minute-preset-group');
       if (grp) {
         grp.querySelectorAll('.pg-radio-btn').forEach(function(b) { b.classList.remove('active'); });
       }
-      btn.classList.add('active');
-      leaveState.hourlyHours = parseInt(btn.getAttribute('data-hours') || '2', 10);
-      leaveState.hourlyDays = parseFloat(btn.getAttribute('data-days') || '0.25');
+      if (btn) btn.classList.add('active');
+      var customInput = document.getElementById('leave-custom-minutes');
+      if (customInput) customInput.value = '';
+
+      var hours = mins / 60.0;
+      var days = hours / 8.0;
+      leaveState.hourlyHours = hours;
+      leaveState.hourlyDays = days;
+
+      var badge = document.getElementById('leave-custom-calc-badge');
+      if (badge) {
+        badge.textContent = '= ' + hours.toFixed(2) + ' ชม. (' + days.toFixed(2) + ' วัน)';
+      }
+      window.updateLeaveLiveQuota();
+    };
+
+    window.onCustomMinutesInput = function(val) {
+      var mins = parseInt(val, 10);
+      var grp = document.getElementById('leave-minute-preset-group');
+      if (grp) {
+        grp.querySelectorAll('.pg-radio-btn').forEach(function(b) { b.classList.remove('active'); });
+      }
+      if (isNaN(mins) || mins <= 0) {
+        mins = 0;
+      }
+      var hours = mins / 60.0;
+      var days = hours / 8.0;
+      leaveState.hourlyHours = hours;
+      leaveState.hourlyDays = days;
+
+      var badge = document.getElementById('leave-custom-calc-badge');
+      if (badge) {
+        badge.textContent = '= ' + hours.toFixed(2) + ' ชม. (' + days.toFixed(2) + ' วัน)';
+      }
       window.updateLeaveLiveQuota();
     };
 
@@ -8382,15 +8901,37 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       var submitBtn = document.getElementById('leave-submit-btn');
 
       if (lblType) lblType.textContent = leaveState.typeName;
-      var sVal = pad2(leaveState.startDay) + '/' + leaveState.monthStr;
-      var eVal = pad2(leaveState.endDay) + '/' + leaveState.monthStr;
-      if (badgeRange) badgeRange.textContent = sVal + ' – ' + eVal;
-      if (elBefore) elBefore.textContent = leaveState.quota.toFixed(1) + ' วัน';
+
+      // Req: Dynamic Day Colors in Leave Range Badge (ตัด วัน ออก และแสดงทุกวันในช่วงที่ลา เช่น พุธ , พฤหัส , ศุกร์)
+      if (badgeRange) {
+        var daysList = [];
+        for (var d = leaveState.startDay; d <= leaveState.endDay; d++) {
+          var dow = new Date(2026, 10, d).getDay();
+          if (dow !== 0 && dow !== 6) { // นับเฉพาะวันทำงาน
+            var dInfo = getThaiDayInfo(d);
+            daysList.push('<span style="color:' + dInfo.color + ';font-weight:800;">' + dInfo.short + '</span>');
+          }
+        }
+        if (daysList.length === 0) {
+          var singleInfo = getThaiDayInfo(leaveState.startDay);
+          daysList.push('<span style="color:' + singleInfo.color + ';font-weight:800;">' + singleInfo.short + '</span>');
+        }
+
+        var daysStr = daysList.join(' , ');
+        var dateRangeStr = (leaveState.startDay === leaveState.endDay)
+          ? ('ที่ ' + leaveState.startDay + ' พฤศจิกายน 2569')
+          : ('ที่ ' + leaveState.startDay + '-' + leaveState.endDay + ' พฤศจิกายน 2569');
+
+        badgeRange.innerHTML = daysStr + ' <span style="color:#1e293b;font-weight:800;">' + dateRangeStr + '</span>';
+      }
+
+      // Req 5: All Day Counts Formatted to 2 Decimals (.toFixed(2))
+      if (elBefore) elBefore.textContent = leaveState.quota.toFixed(2) + ' วัน';
 
       if (leaveState.format === 'hourly') {
-        if (elUsed) elUsed.textContent = '- ' + usedDays + ' วัน (' + leaveState.hourlyHours + ' ชม.)';
+        if (elUsed) elUsed.textContent = '- ' + usedDays.toFixed(2) + ' วัน (' + leaveState.hourlyHours.toFixed(2) + ' ชม.)';
       } else {
-        if (elUsed) elUsed.textContent = '- ' + usedDays.toFixed(1) + ' วัน';
+        if (elUsed) elUsed.textContent = '- ' + usedDays.toFixed(2) + ' วัน';
       }
 
       if (remain < 0) {
@@ -8400,24 +8941,205 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           elAfter.style.color = '#dc2626';
         }
         if (elAlert) {
-          elAlert.textContent = '⚠️ แจ้งเตือนทันที: จำนวนวันลาที่เลือก (' + usedDays + ' วัน) เกินสิทธิ์คงเหลือที่มีอยู่ (' + leaveState.quota.toFixed(1) + ' วัน)! กรุณาลดจำนวนวันลาหรือเปลี่ยนประเภทการลา';
+          elAlert.textContent = '⚠️ แจ้งเตือนทันที: จำนวนวันลาที่เลือก (' + usedDays.toFixed(2) + ' วัน) เกินสิทธิ์คงเหลือที่มีอยู่ (' + leaveState.quota.toFixed(2) + ' วัน)! กรุณาลดจำนวนวันลาหรือเปลี่ยนประเภทการลา';
         }
         if (submitBtn) submitBtn.disabled = true;
       } else {
         if (box) box.classList.remove('over-limit');
         if (elAfter) {
-          elAfter.textContent = remain.toFixed(2).replace(/\.00$/, '.0') + ' วัน';
+          elAfter.textContent = remain.toFixed(2) + ' วัน';
           elAfter.style.color = '#0d8268';
         }
         if (elAlert) {
-          elAlert.textContent = '✓ สิทธิ์การลาเพียงพอ: หลังยื่นคำขอนี้ คุณจะเหลือสิทธิ์' + leaveState.typeName + ' ' + remain.toFixed(2).replace(/\.00$/, '.0') + ' วัน';
+          elAlert.textContent = '✓ สิทธิ์การลาเพียงพอ: หลังยื่นคำขอนี้ คุณจะเหลือสิทธิ์' + leaveState.typeName + ' ' + remain.toFixed(2) + ' วัน';
         }
         if (submitBtn) submitBtn.disabled = false;
       }
     };
 
     window.submitLeavePreview = function() {
-      alert('ส่งคำขอลางาน (' + leaveState.typeName + ') เข้าสู่สายการอนุมัติอัตโนมัติ 3 ระดับเรียบร้อยแล้ว');
+      alert('ส่งคำขอลางาน (' + leaveState.typeName + ') เข้าสู่สายการอนุมัติเรียบร้อยแล้ว');
+    };
+
+    // Req 10 & 15: Reference-Matched Calendar (media_1794409603877_043d3cee.png) + Holiday Support + Smooth Date Range Picking
+    var leaveCalRangePicking = false;
+    var leaveCalRangeStart = null;
+
+    function renderLeaveCalPopup(pop, key) {
+      if (!pop) return;
+      var isFullDay = (leaveState.format === 'full');
+      var monthLabel = 'พฤศจิกายน 2569';
+      var maxDays = 30;
+      var emptySlots = 6; // Mon-Sat empty since Nov 1, 2026 is Sunday
+
+      var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+        '<button type="button" class="ck-pop-nav-btn" onclick="event.stopPropagation();" title="เดือนก่อนหน้า">&lt;</button>' +
+        '<span style="font-weight:800;font-size:15px;color:#1e293b;">' + monthLabel + '</span>' +
+        '<button type="button" class="ck-pop-nav-btn" onclick="event.stopPropagation();" title="เดือนถัดไป">&gt;</button>' +
+        '</div>' +
+        '<div class="ck-pop-cal-dow-ref">' +
+        '<span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span style="color:#94a3b8;">ส.</span><span style="color:#94a3b8;">อา.</span>' +
+        '</div>' +
+        '<div class="ck-pop-cal-grid-ref" id="leave-popup-cal-grid-' + key + '">';
+
+      for (var i = 0; i < emptySlots; i++) {
+        html += '<span class="ck-pop-day-ref empty" style="visibility:hidden;"></span>';
+      }
+
+      for (var d = 1; d <= maxDays; d++) {
+        var classes = ['ck-pop-day-ref'];
+        var dow = d % 7; // 1=Sun, 0=Sat
+        var isHoliday = (dow === 0 || dow === 1 || d === 25);
+        if (isHoliday) classes.push('holiday');
+
+        if (isFullDay) {
+          if (leaveCalRangePicking && leaveCalRangeStart !== null) {
+            if (d === leaveCalRangeStart) classes.push('selected', 'range-start');
+          } else {
+            if (d === leaveState.startDay && d === leaveState.endDay) {
+              classes.push('selected', 'range-start', 'range-end');
+            } else if (d === leaveState.startDay) {
+              classes.push('selected', 'range-start');
+            } else if (d === leaveState.endDay) {
+              classes.push('selected', 'range-end');
+            } else if (d > leaveState.startDay && d < leaveState.endDay) {
+              classes.push('in-range');
+            }
+          }
+        } else {
+          if (d === leaveState.startDay) {
+            classes.push('selected', 'range-start', 'range-end');
+          }
+        }
+
+        var holidayTitle = isHoliday ? (d === 25 ? 'วันหยุดประจำปีบริษัท' : 'วันหยุดสัปดาห์') : '';
+        html += '<button type="button" class="' + classes.join(' ') + '" data-day="' + d + '" title="' + holidayTitle + '" onclick="window.onLeaveCalDayClick(\'' + key + '\', ' + d + ')">' + d + '</button>';
+      }
+
+      html += '</div>';
+
+      if (isFullDay) {
+        html += '<div style="margin-top:12px;padding-top:8px;border-top:1px solid #f1f5f9;">' +
+          '<div style="font-size:11.5px;font-weight:700;color:#1e70bf;text-align:center;margin-bottom:6px;">' +
+          (leaveCalRangePicking ? '👉 คลิกเลือก "วันสิ้นสุด"' : '👉 คลิกเพื่อเลือกช่วงวันเริ่มต้น - สิ้นสุด') +
+          '</div>' +
+          '<div style="display:flex;justify-content:center;gap:4px;flex-wrap:wrap;">' +
+          '<button type="button" class="pg-filter-pill" style="padding:2px 8px;font-size:11px;" onclick="window.pickLeaveRangePreset(5, 5, \'' + key + '\')">1 วัน (5 พ.ย.)</button>' +
+          '<button type="button" class="pg-filter-pill" style="padding:2px 8px;font-size:11px;" onclick="window.pickLeaveRangePreset(5, 6, \'' + key + '\')">2 วัน (5-6 พ.ย.)</button>' +
+          '<button type="button" class="pg-filter-pill" style="padding:2px 8px;font-size:11px;" onclick="window.pickLeaveRangePreset(5, 7, \'' + key + '\')">3 วัน (5-7 พ.ย.)</button>' +
+          '</div>' +
+          '</div>';
+      } else {
+        html += '<div style="margin-top:8px;font-size:11.5px;font-weight:600;color:#64748b;text-align:center;">' +
+          '(คลิกเลือกวันที่ต้องการลา 1 วัน)' +
+          '</div>';
+      }
+
+      pop.innerHTML = html;
+
+      // Add hover events for interactive range preview in full day mode
+      if (isFullDay) {
+        var grid = pop.querySelector('#leave-popup-cal-grid-' + key);
+        if (grid) {
+          grid.querySelectorAll('.ck-pop-day-ref').forEach(function(btn) {
+            if (btn.classList.contains('empty')) return;
+            var dayNum = parseInt(btn.getAttribute('data-day'), 10);
+            btn.addEventListener('mouseenter', function() {
+              if (leaveCalRangePicking && leaveCalRangeStart !== null) {
+                var min = Math.min(leaveCalRangeStart, dayNum);
+                var max = Math.max(leaveCalRangeStart, dayNum);
+                grid.querySelectorAll('.ck-pop-day-ref').forEach(function(b) {
+                  if (b.classList.contains('empty')) return;
+                  var curr = parseInt(b.getAttribute('data-day'), 10);
+                  if (curr >= min && curr <= max) {
+                    b.classList.add('range-hover');
+                  } else {
+                    b.classList.remove('range-hover');
+                  }
+                });
+              }
+            });
+          });
+        }
+      }
+    }
+
+    window.onLeaveCalDayClick = function(key, day) {
+      var pop = document.getElementById('pop-' + key);
+      if (leaveState.format === 'full') {
+        if (key === 'leave-end' && !leaveCalRangePicking) {
+          if (day >= leaveState.startDay) {
+            leaveState.endDay = day;
+            syncLeaveDateBoxes();
+            window.updateLeaveLiveQuota();
+            if (pop) renderLeaveCalPopup(pop, key);
+            setTimeout(function() {
+              if (pop) pop.classList.remove('open');
+              var box = document.getElementById(key + '-box');
+              if (box) box.classList.remove('active');
+            }, 250);
+            return;
+          }
+        }
+
+        if (!leaveCalRangePicking) {
+          leaveCalRangePicking = true;
+          leaveCalRangeStart = day;
+          leaveState.startDay = day;
+          leaveState.endDay = day;
+          syncLeaveDateBoxes();
+          window.updateLeaveLiveQuota();
+          if (pop) renderLeaveCalPopup(pop, key);
+        } else {
+          leaveCalRangePicking = false;
+          if (day < leaveCalRangeStart) {
+            leaveState.startDay = day;
+            leaveState.endDay = leaveCalRangeStart;
+          } else {
+            leaveState.startDay = leaveCalRangeStart;
+            leaveState.endDay = day;
+          }
+          leaveCalRangeStart = null;
+          syncLeaveDateBoxes();
+          window.updateLeaveLiveQuota();
+          if (pop) {
+            renderLeaveCalPopup(pop, key);
+            setTimeout(function() {
+              pop.classList.remove('open');
+              var box = document.getElementById(key + '-box');
+              if (box) box.classList.remove('active');
+            }, 250);
+          }
+        }
+      } else {
+        leaveState.startDay = day;
+        leaveState.endDay = day;
+        syncLeaveDateBoxes();
+        window.updateLeaveLiveQuota();
+        if (pop) {
+          pop.classList.remove('open');
+          var box = document.getElementById(key + '-box');
+          if (box) box.classList.remove('active');
+        }
+      }
+    };
+
+    window.pickLeaveRangePreset = function(s, e, key) {
+      leaveCalRangePicking = false;
+      leaveCalRangeStart = null;
+      leaveState.startDay = s;
+      leaveState.endDay = e;
+      syncLeaveDateBoxes();
+      window.updateLeaveLiveQuota();
+      var pop = document.getElementById('pop-' + key);
+      if (pop) {
+        renderLeaveCalPopup(pop, key);
+        setTimeout(function() {
+          pop.classList.remove('open');
+          var box = document.getElementById(key + '-box');
+          if (box) box.classList.remove('active');
+        }, 250);
+      }
     };
 
     // Instant DD/MM/YYYY Popup Calendar for any .ck-date-box
@@ -8428,12 +9150,25 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       var isOpen = pop.classList.contains('open');
       document.querySelectorAll('.ck-date-popover.open').forEach(function(p) { p.classList.remove('open'); });
       document.querySelectorAll('.ck-date-box.active').forEach(function(b) { b.classList.remove('active'); });
-      if (isOpen) return;
+      if (isOpen) {
+        leaveCalRangePicking = false;
+        leaveCalRangeStart = null;
+        return;
+      }
 
       btnEl.classList.add('active');
-      var monthLabel = (key === 'leave-start' || key === 'leave-end') ? 'พฤศจิกายน 2569' : 'ตุลาคม 2569';
-      var mSuffix = (key === 'leave-start' || key === 'leave-end') ? '11/2569' : '10/2569';
-      var maxDays = (key === 'leave-start' || key === 'leave-end') ? 30 : 31;
+
+      if (key === 'leave-start' || key === 'leave-end') {
+        leaveCalRangePicking = false;
+        leaveCalRangeStart = null;
+        renderLeaveCalPopup(pop, key);
+        pop.classList.add('open');
+        return;
+      }
+
+      var monthLabel = 'ตุลาคม 2569';
+      var mSuffix = '10/2569';
+      var maxDays = 31;
 
       var html = '<div class="ck-pop-cal-head">' +
         '<span>ปฏิทินเลือกวันที่ (' + monthLabel + ')</span>' +
@@ -8475,119 +9210,365 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
 
     document.addEventListener('click', function(e) {
       if (!e.target.closest('.ck-date-box-wrap')) {
+        leaveCalRangePicking = false;
+        leaveCalRangeStart = null;
         document.querySelectorAll('.ck-date-popover.open').forEach(function(p) { p.classList.remove('open'); });
         document.querySelectorAll('.ck-date-box.active').forEach(function(b) { b.classList.remove('active'); });
       }
     });
 
-    // Leave History Row Inspector Data (3-Step Approval Chain + Detailed Reasons)
+    // Req 6: Leave History Filter Function
+    window.filterLeaveHistory = function(status, btn) {
+      if (btn) {
+        var p = btn.parentElement;
+        if (p) p.querySelectorAll('.pg-filter-pill').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+      }
+      var rows = document.querySelectorAll('#leave-history-table tbody .leave-row-item');
+      rows.forEach(function(r) {
+        if (status === 'all' || r.getAttribute('data-status') === status) {
+          r.style.display = '';
+        } else {
+          r.style.display = 'none';
+        }
+      });
+    };
+
+    // Req 6: Leave Row Actions (Edit & Cancel)
+    window.editLeaveRequest = function(id) {
+      if (id === 'LEV-2569-004') {
+        var reasonEl = document.getElementById('leave-reason');
+        if (reasonEl) reasonEl.value = 'เดินทางไปพักผ่อนประจำปีกับครอบครัวที่จังหวัดเชียงใหม่ (ฉบับแก้ไข)';
+        var submitBtn = document.getElementById('leave-submit-btn');
+        if (submitBtn) submitBtn.innerHTML = '<svg><use href="#paper-plane"/></svg> บันทึกการแก้ไขคำขอ (' + id + ')';
+        var formCard = document.getElementById('ck-leave-form');
+        if (formCard) formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alert('โหลดข้อมูลคำขอ ' + id + ' เข้าสู่แบบฟอร์มเพื่อแก้ไขเรียบร้อยแล้ว');
+      } else {
+        alert('คำขอ ' + id + ' ไม่สามารถแก้ไขได้เนื่องจากผ่านการอนุมัติหรือสิ้นสุดกระบวนการแล้ว');
+      }
+    };
+
+    window.cancelLeaveRequest = function(id) {
+      if (confirm('คุณต้องการยกเลิกคำขอลางานรหัส ' + id + ' ใช่หรือไม่?')) {
+        var row = document.querySelector('.leave-row-item[data-id="' + id + '"]');
+        if (row) {
+          var statusCell = row.querySelector('.leave-status-cell') || row.children[6];
+          if (statusCell) {
+            statusCell.innerHTML = '<span class="pg-badge pg-badge-gray" style="background:#f1f5f9;color:#64748b;">ยกเลิกคำขอแล้ว</span>';
+          }
+          row.setAttribute('data-status', 'cancelled');
+          alert('ยกเลิกคำขอลางาน ' + id + ' สำเร็จ ระบบคืนสิทธิ์วันลาให้เรียบร้อยแล้ว');
+        }
+      }
+    };
+
+    /* ========================================================
+     Detailed Leave Request Inspection & Visual Approval Flow
+     (ดีไซน์กระชับหน้าเดียว ซ้าย-ขวา ไม่มีกรอบเลื่อนลง: ซ้าย=ข้อมูลคำขอและเอกสาร, ขวา=Stepper และการ์ดผู้อนุมัติ 3 ระดับ)
+     ======================================================== */
     var leaveRowDetails = {
       'LEV-2569-004': {
-        title: 'รายละเอียดคำขอลางาน: LEV-2569-004 (ลาพักร้อน · เต็มวัน)',
-        badgeClass: 'pg-badge pg-badge-warning',
-        badgeText: '⏳ กำลังรอพิจารณา ขั้นที่ 2 จาก 3',
-        submitted: '30/10/2569 เวลา 09:15 น.',
-        dates: '05/11/2569 – 06/11/2569',
-        amount: '2.0 วันทำการ (16 ชั่วโมง)',
-        quotaAfter: 'คงเหลือ 10.0 / 15.0 วัน',
-        attach: 'ไม่มีเอกสารแนบ (ลาพักร้อนปกติ)',
-        reason: 'เดินทางพักผ่อนประจำปีกับครอบครัวที่จังหวัดเชียงใหม่ เคลียร์งานด่วนประจำสัปดาห์เรียบร้อยแล้ว',
+        code: 'LEV-2569-004',
+        reqDate: '30/10/2569',
+        title: 'รายละเอียดคำขอลา',
+        desc: 'ลาพักร้อน',
+        typeName: 'ลาพักร้อน',
+        applicant: 'คุณภาณุพันธุ์ ใจดี',
+        dept: 'ฝ่ายทรัพยากรบุคคล',
+        start: '05/11/2569',
+        end: '06/11/2569',
+        days: '2.00 วัน (เต็มวัน)',
+        status: 'pending',
+        statusText: 'รออนุมัติ',
+        attach: null,
+        reason: 'เดินทางไปพักผ่อนประจำปีกับครอบครัวที่จังหวัดเชียงใหม่ เคลียร์งานด่วนประจำสัปดาห์เรียบร้อยแล้ว',
         steps: [
-          { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล · หัวหน้างานโดยตรง)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 30/10/2569 11:20 น.', reason: 'อนุมัติ เห็นควรตามสิทธิ์ ตรวจสอบตารางงานในทีมช่วงวันที่ 05/11/2569 – 06/11/2569 แล้วไม่กระทบงานหลัก' },
-          { state: 'current', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล · ฝ่ายบุคคล)', badgeClass: 'pg-badge pg-badge-warning', badge: '⏳ กำลังรออนุมัติ (อยู่ที่ขั้นตอนนี้)', reason: 'อยู่ระหว่างการตรวจสอบโควตาวันลาและอนุมัติขั้นที่ 2' },
-          { state: 'waiting', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ · ผู้บริหารสูงสุด)', badgeClass: 'pg-badge pg-badge-gray', badge: 'รอดำเนินการต่อจากระดับที่ 2', reason: 'รอการส่งต่อจากผู้อนุมัติระดับที่ 2' }
+          { no: 1, role: 'หัวหน้างาน', name: 'คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', assignDate: '30/10/2569', apprDate: '30/10/2569 11:20 น.', status: 'approved', statusText: 'อนุมัติ', comment: 'อนุมัติ เห็นควรตามสิทธิ์ ไม่กระทบงานหลัก' },
+          { no: 2, role: 'ฝ่ายบุคคล', name: 'คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', assignDate: '30/10/2569', apprDate: '-', status: 'pending', statusText: 'รออนุมัติ', comment: 'อยู่ระหว่างการตรวจสอบโควตาวันลาและอนุมัติขั้นที่ 2' },
+          { no: 3, role: 'ผู้บริหารสูงสุด', name: 'คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', assignDate: '30/10/2569', apprDate: '-', status: 'waiting', statusText: 'รอดำเนินการ', comment: 'รอการส่งต่อจากผู้อนุมัติระดับที่ 2' }
         ]
       },
       'LEV-2569-003': {
-        title: 'รายละเอียดคำขอลางาน: LEV-2569-003 (ลากิจ · รายชั่วโมง 2 ชม.)',
-        badgeClass: 'pg-badge pg-badge-success',
-        badgeText: '✓ อนุมัติครบทั้ง 3 ระดับ',
-        submitted: '20/10/2569 เวลา 08:40 น.',
-        dates: '22/10/2569 (เวลา 13:00 – 15:00 น.)',
-        amount: '0.25 วันทำการ (รายชั่วโมง 2.0 ชม.)',
-        quotaAfter: 'คงเหลือ 2.0 / 3.0 วัน',
+        code: 'LEV-2569-003',
+        reqDate: '20/10/2569',
+        title: 'รายละเอียดคำขอลา',
+        desc: 'ลากิจ',
+        typeName: 'ลากิจ',
+        applicant: 'คุณภาณุพันธุ์ ใจดี',
+        dept: 'ฝ่ายทรัพยากรบุคคล',
+        start: '22/10/2569',
+        end: '22/10/2569',
+        days: '0.25 วัน (รายชั่วโมง 2.00 ชม.)',
+        status: 'approved',
+        statusText: 'อนุมัติ',
         attach: 'ใบนัดหมายสำนักงานที่ดินเขตบางรัก.pdf',
         reason: 'ติดต่อทำธุรกรรมที่สำนักงานที่ดินเขตบางรัก ช่วงบ่าย 2 ชั่วโมง (13:00 – 15:00 น.)',
         steps: [
-          { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล · หัวหน้างานโดยตรง)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 20/10/2569 09:30 น.', reason: 'อนุมัติ ลารายชั่วโมงช่วงบ่าย 2 ชม. สามารถกลับมาปฏิบัติงานต่อได้ตามปกติ' },
-          { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล · ฝ่ายบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 20/10/2569 11:05 น.', reason: 'อนุมัติ ตรวจสอบสิทธิ์ลากิจรายชั่วโมงและเอกสารนัดหมายราชการครบถ้วน' },
-          { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ · ผู้บริหารสูงสุด)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 20/10/2569 14:15 น.', reason: 'อนุมัติขั้นสุดท้าย บันทึกตัดสิทธิ์ลากิจ 0.25 วัน (2 ชั่วโมง) ในระบบ' }
+          { no: 1, role: 'หัวหน้างาน', name: 'คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', assignDate: '20/10/2569', apprDate: '20/10/2569 09:30 น.', status: 'approved', statusText: 'อนุมัติ', comment: 'อนุมัติ ลารายชั่วโมงช่วงบ่าย 2 ชม. สามารถกลับมาปฏิบัติงานต่อได้ตามปกติ' },
+          { no: 2, role: 'ฝ่ายบุคคล', name: 'คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', assignDate: '20/10/2569', apprDate: '20/10/2569 11:05 น.', status: 'approved', statusText: 'อนุมัติ', comment: 'อนุมัติ ตรวจสอบสิทธิ์ลากิจรายชั่วโมงและเอกสารนัดหมายราชการครบถ้วน' },
+          { no: 3, role: 'ผู้บริหารสูงสุด', name: 'คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', assignDate: '20/10/2569', apprDate: '20/10/2569 14:15 น.', status: 'approved', statusText: 'อนุมัติ', comment: 'อนุมัติขั้นสุดท้าย บันทึกตัดสิทธิ์ลากิจ 0.25 วัน (2 ชั่วโมง) ในระบบเรียบร้อย' }
         ]
       },
       'LEV-2569-002': {
-        title: 'รายละเอียดคำขอลางาน: LEV-2569-002 (ลาป่วย · เต็มวัน)',
-        badgeClass: 'pg-badge pg-badge-success',
-        badgeText: '✓ อนุมัติครบทั้ง 3 ระดับ',
-        submitted: '15/10/2569 เวลา 08:05 น.',
-        dates: '15/10/2569 – 15/10/2569',
-        amount: '1.0 วันทำการ (8 ชั่วโมง)',
-        quotaAfter: 'คงเหลือ 4.0 / 6.0 วัน',
+        code: 'LEV-2569-002',
+        reqDate: '15/10/2569',
+        title: 'รายละเอียดคำขอลา',
+        desc: 'ลาป่วย',
+        typeName: 'ลาป่วย',
+        applicant: 'คุณภาณุพันธุ์ ใจดี',
+        dept: 'ฝ่ายทรัพยากรบุคคล',
+        start: '15/10/2569',
+        end: '15/10/2569',
+        days: '1.00 วัน (เต็มวัน)',
+        status: 'approved',
+        statusText: 'อนุมัติ',
         attach: 'ใบรับรองแพทย์_คลินิกเวชกรรมสีลม.jpg',
         reason: 'มีอาการไข้หวัดใหญ่และปวดศีรษะ แพทย์ให้หยุดพักรักษาตัว 1 วัน',
         steps: [
-          { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล · หัวหน้างานโดยตรง)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 15/10/2569 08:30 น.', reason: 'อนุมัติ รับทราบการแจ้งลาป่วยช่วงเช้า ขอให้หายไวๆ' },
-          { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล · ฝ่ายบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 16/10/2569 09:20 น.', reason: 'อนุมัติ ตรวจสอบใบรับรองแพทย์จากคลินิกเวชกรรมสีลมถูกต้องครบถ้วน' },
-          { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ · ผู้บริหารสูงสุด)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 16/10/2569 11:00 น.', reason: 'อนุมัติตามระเบียบการลาป่วยของบริษัท' }
+          { no: 1, role: 'หัวหน้างาน', name: 'คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', assignDate: '15/10/2569', apprDate: '15/10/2569 08:30 น.', status: 'approved', statusText: 'อนุมัติ', comment: 'อนุมัติ รับทราบการแจ้งลาป่วยช่วงเช้า ขอให้หายไวๆ' },
+          { no: 2, role: 'ฝ่ายบุคคล', name: 'คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', assignDate: '15/10/2569', apprDate: '16/10/2569 09:20 น.', status: 'approved', statusText: 'อนุมัติ', comment: 'อนุมัติ ตรวจสอบใบรับรองแพทย์จากคลินิกเวชกรรมสีลมถูกต้องครบถ้วน' },
+          { no: 3, role: 'ผู้บริหารสูงสุด', name: 'คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', assignDate: '15/10/2569', apprDate: '16/10/2569 11:00 น.', status: 'approved', statusText: 'อนุมัติ', comment: 'อนุมัติตามระเบียบการลาป่วยของบริษัท' }
         ]
       },
       'LEV-2569-001': {
-        title: 'รายละเอียดคำขอลางาน: LEV-2569-001 (ลาพักร้อน · เต็มวัน)',
-        badgeClass: 'pg-badge pg-badge-danger',
-        badgeText: '✕ ไม่อนุมัติ (ปฏิเสธในระดับที่ 2/3)',
-        submitted: '25/09/2569 เวลา 10:00 น.',
-        dates: '29/09/2569 – 30/09/2569',
-        amount: '2.0 วันทำการ (คืนสิทธิ์กลับเข้าโควตาแล้ว)',
-        quotaAfter: 'คืนสิทธิ์เต็มจำนวน (ไม่ถูกหักวันลา)',
-        attach: 'ไม่มีเอกสารแนบ',
+        code: 'LEV-2569-001',
+        reqDate: '25/09/2569',
+        title: 'รายละเอียดคำขอลา',
+        desc: 'ลาพักร้อน',
+        typeName: 'ลาพักร้อน',
+        applicant: 'คุณภาณุพันธุ์ ใจดี',
+        dept: 'ฝ่ายทรัพยากรบุคคล',
+        start: '29/09/2569',
+        end: '30/09/2569',
+        days: '2.00 วัน (เต็มวัน)',
+        status: 'rejected',
+        statusText: 'ไม่อนุมัติ',
+        attach: null,
         reason: 'ขอลาพักผ่อนช่วงสิ้นไตรมาสที่ 3',
         steps: [
-          { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล · หัวหน้างานโดยตรง)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 25/09/2569 13:10 น.', reason: 'อนุมัติเบื้องต้น ส่งต่อให้ผู้อำนวยการฝ่ายพิจารณาตารางปิดงบไตรมาส' },
-          { state: 'rejected', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล · ฝ่ายบุคคล)', badgeClass: 'pg-badge pg-badge-danger', badge: '✕ ไม่อนุมัติ · 26/09/2569 09:45 น.', reason: 'ไม่อนุมัติ เนื่องจากวันที่ 29/09/2569 – 30/09/2569 เป็นวันตรวจประเมินปิดงบไตรมาส 3 ขอให้เลื่อนวันลาเป็นเดือนพฤศจิกายนแทน' },
-          { state: 'waiting', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ · ผู้บริหารสูงสุด)', badgeClass: 'pg-badge pg-badge-gray', badge: 'สิ้นสุดกระบวนการที่ระดับ 2', reason: 'คำขอถูกปฏิเสธในระดับที่ 2 ระบบคืนสิทธิ์วันลาพักร้อน 2.0 วันให้อัตโนมัติ' }
+          { no: 1, role: 'หัวหน้างาน', name: 'คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', assignDate: '25/09/2569', apprDate: '25/09/2569 11:00 น.', status: 'approved', statusText: 'อนุมัติ', comment: 'เห็นควรตามสิทธิ์' },
+          { no: 2, role: 'ฝ่ายบุคคล', name: 'คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', assignDate: '25/09/2569', apprDate: '26/09/2569 14:00 น.', status: 'rejected', statusText: 'ไม่อนุมัติ', comment: 'เนื่องจากเป็นช่วงปิดงบการเงินไตรมาส 3 งานเร่งด่วน ขอให้เลื่อนวันลา' },
+          { no: 3, role: 'ผู้บริหารสูงสุด', name: 'คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', assignDate: '25/09/2569', apprDate: '-', status: 'canceled', statusText: 'ยกเลิก', comment: 'ยุติขั้นตอนการอนุมัติตามผลระดับที่ 2 (คืนสิทธิ์วันลา 2 วันเรียบร้อย)' }
         ]
       }
     };
 
     window.openDetailModal = function(type, code) {
       var modal = document.getElementById('ck-detail-modal');
-      if (!modal) return;
+      var container = document.getElementById('modal-detail-body-container');
+      if (!modal || !container) return;
+
       var data = leaveRowDetails[code];
       if (!data) return;
 
-      var titleEl = document.getElementById('modal-detail-title');
-      var badgeEl = document.getElementById('modal-detail-badge');
-      var idEl = document.getElementById('modal-detail-id');
-      var gridEl = document.getElementById('modal-detail-grid');
-      var tlEl = document.getElementById('modal-detail-timeline');
-
-      if (titleEl) titleEl.textContent = data.title;
-      if (badgeEl) {
-        badgeEl.className = data.badgeClass;
-        badgeEl.textContent = data.badgeText;
-      }
-      if (idEl) idEl.textContent = 'รหัสคำขอ: ' + code;
-
-      if (gridEl) {
-        gridEl.innerHTML =
-          '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
-          '<div class="ck-insp-item"><strong>วันที่ยื่นคำขอ:</strong> ' + data.submitted + '</div>' +
-          '<div class="ck-insp-item"><strong>ช่วงวันที่ลา:</strong> ' + data.dates + '</div>' +
-          '<div class="ck-insp-item"><strong>จำนวนวัน/ชั่วโมง:</strong> ' + data.amount + '</div>' +
-          '<div class="ck-insp-item"><strong>สิทธิ์คงเหลือหลังลา:</strong> ' + data.quotaAfter + '</div>' +
-          '<div class="ck-insp-item"><strong>เอกสารแนบ:</strong> ' + data.attach + '</div>' +
-          '<div class="ck-insp-item ck-insp-full"><strong>เหตุผลความจำเป็นในการลา:</strong> ' + data.reason + '</div>';
+      // Status badge styling
+      var statusBadgeStyle = 'background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
+      var statusIcon = '⏳';
+      if (data.status === 'approved') {
+        statusBadgeStyle = 'background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
+        statusIcon = '✓';
+      } else if (data.status === 'rejected') {
+        statusBadgeStyle = 'background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
+        statusIcon = '✕';
       }
 
-      if (tlEl) {
-        var html = '';
-        data.steps.forEach(function(st) {
-          html += '<div class="ck-tl-step ' + st.state + '">' +
-            '<div class="ck-tl-top"><span class="ck-tl-who">' + st.who + '</span><span class="' + st.badgeClass + '">' + st.badge + '</span></div>' +
-            '<div class="ck-tl-reason"><strong>ความเห็นผู้อนุมัติ:</strong> ' + st.reason + '</div>' +
-            '</div>';
-        });
-        tlEl.innerHTML = html;
+      // Leave Type Icon & Accent Color
+      var typeIconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>';
+      var typeColor = '#1e70bf';
+      var typeBg = '#e0f2fe';
+
+      if (data.typeName === 'ลาป่วย') {
+        typeIconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg>';
+        typeColor = '#16a34a';
+        typeBg = '#dcfce7';
+      } else if (data.typeName === 'ลากิจ') {
+        typeIconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg>';
+        typeColor = '#d97706';
+        typeBg = '#fef3c7';
       }
+
+      // Clean days & separate leave format (รูปแบบการลา แยกออกมา ไม่ต่อท้ายในจำนวนวันลา)
+      var daysClean = data.days.replace(/\s*\([^)]*\)/, '').trim();
+      var formatMatch = data.days.match(/\(([^)]+)\)/);
+      var formatText = formatMatch ? formatMatch[1] : (data.formatText || 'เต็มวัน');
+
+      // ช่วงวันที่ลา: กรณีครึ่งวัน และชั่วโมง ให้แสดงช่วงวันที่ลาเป็นวันเดียว
+      var isSingleDay = (data.start === data.end) ||
+        (formatText && (formatText.includes('ครึ่ง') || formatText.includes('ชั่วโมง') || formatText.includes('ชม.'))) ||
+        (data.days && (data.days.includes('ครึ่ง') || data.days.includes('ชั่วโมง') || data.days.includes('ชม.')));
+      var dateRangeDisplay = isSingleDay ? data.start : (data.start + ' – ' + data.end);
+
+      // Attachments section (Single-line compact style, hoverable to white)
+      var attachHtml = '';
+      if (!data.attach || data.attach.includes('ไม่มี')) {
+        attachHtml = '<div class="ck-modal-hover-card" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;font-size:12px;color:#64748b;">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>' +
+          '<span>ไม่มีเอกสารแนบสำหรับคำขอนี้</span>' +
+        '</div>';
+      } else {
+        attachHtml = '<div class="ck-modal-hover-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:#f0f7fe;border:1.5px solid #bfdbfe;border-radius:10px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;min-width:0;">' +
+            '<span style="color:#1e70bf;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>' +
+            '<span style="font-size:12px;font-weight:700;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + data.attach + '</span>' +
+          '</div>' +
+          '<button type="button" class="pg-btn pg-btn-primary" style="padding:3px 10px;font-size:11px;border-radius:6px;flex-shrink:0;" onclick="alert(\'เปิดดูไฟล์: ' + data.attach + '\')">เปิดไฟล์</button>' +
+        '</div>';
+      }
+
+      // Stepper circles & track (Compact horizontal)
+      var stepNodesHtml = '';
+      data.steps.forEach(function(st) {
+        var circleBg = '#f59e0b';
+        var circleShadow = 'box-shadow:0 2px 5px rgba(245,158,11,0.3);';
+        if (st.status === 'approved') {
+          circleBg = '#10b981';
+          circleShadow = 'box-shadow:0 2px 5px rgba(16,185,129,0.3);';
+        } else if (st.status === 'rejected') {
+          circleBg = '#ef4444';
+          circleShadow = 'box-shadow:0 2px 5px rgba(239,68,68,0.3);';
+        } else if (st.status === 'waiting' || st.status === 'canceled') {
+          circleBg = '#cbd5e1';
+          circleShadow = 'none;';
+        }
+
+        stepNodesHtml += '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;z-index:2;">' +
+          '<div style="width:28px;height:28px;border-radius:50%;background:' + circleBg + ';color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;' + circleShadow + '">' + st.no + '</div>' +
+          '<div style="font-size:11px;font-weight:700;color:#475569;text-align:center;white-space:nowrap;">' + st.role + '</div>' +
+        '</div>';
+      });
+
+      // 3 Compact Approval Reviewer Cards for Right Column (เม้าส์ชี้แล้วเป็นพื้นหลังสีขาว .ck-modal-hover-card)
+      var stepCardsHtml = '';
+      data.steps.forEach(function(st) {
+        var badgeStyle = 'background:#fef3c7;color:#b45309;';
+        if (st.status === 'approved') badgeStyle = 'background:#dcfce7;color:#15803d;';
+        else if (st.status === 'rejected') badgeStyle = 'background:#fee2e2;color:#dc2626;';
+        else if (st.status === 'waiting' || st.status === 'canceled') badgeStyle = 'background:#f1f5f9;color:#64748b;';
+
+        var cardBorder = '#cbe0f5';
+        var cardBg = '#f0f7fe';
+        if (st.status === 'pending') {
+          cardBorder = '#fed7aa';
+          cardBg = '#fff9f0';
+        } else if (st.status === 'approved') {
+          cardBorder = '#bbf7d0';
+          cardBg = '#f0fdf4';
+        }
+
+        stepCardsHtml += '<div class="ck-modal-hover-card" style="background:' + cardBg + ';border:1px solid ' + cardBorder + ';border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:4px;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
+            '<div style="display:flex;align-items:center;gap:7px;min-width:0;">' +
+              '<span style="width:20px;height:20px;border-radius:50%;background:#e2e8f0;color:#334155;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + st.no + '</span>' +
+              '<div style="min-width:0;">' +
+                '<strong style="font-size:12.5px;color:#0f172a;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + st.name + '</strong>' +
+              '</div>' +
+            '</div>' +
+            '<span style="' + badgeStyle + 'padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;flex-shrink:0;">' + st.statusText + '</span>' +
+          '</div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#64748b;padding-left:27px;">' +
+            '<span>มอบหมาย: ' + st.assignDate + '</span>' +
+            '<span>อนุมัติ: ' + st.apprDate + '</span>' +
+          '</div>' +
+          '<div style="font-size:11.5px;color:#334155;padding-left:27px;line-height:1.35;background:rgba(255,255,255,0.75);border-radius:6px;padding:4px 8px;margin-top:2px;border:1px solid rgba(0,0,0,0.04);">' +
+            '<span style="color:#64748b;font-weight:600;">ความเห็น: </span>' + (st.comment || '-') +
+          '</div>' +
+        '</div>';
+      });
+
+      // 2-Column Side-by-Side Compact Single-Page Layout (No Vertical Scrollbar!)
+      container.innerHTML =
+        '<div style="display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1.18fr);gap:18px;align-items:stretch;">' +
+          '<!-- LEFT COLUMN: ข้อมูลคำขอและการลา -->' +
+          '<div style="display:flex;flex-direction:column;gap:11px;background:#f8fbfe;border:1px solid #dbeafe;border-radius:14px;padding:14px 16px;">' +
+            '<!-- User & Status Header -->' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid #e2e8f0;">' +
+              '<div style="display:flex;align-items:center;gap:10px;">' +
+                '<div style="width:40px;height:40px;border-radius:50%;background:#e0f2fe;color:#1e70bf;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;border:2px solid #bfdbfe;flex-shrink:0;">' +
+                  'ภด' +
+                '</div>' +
+                '<div>' +
+                  '<div style="font-size:14px;font-weight:800;color:#0f172a;line-height:1.2;">' + data.applicant + '</div>' +
+                  '<div style="font-size:11.5px;color:#64748b;margin-top:2px;">' + data.dept + '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<span style="' + statusBadgeStyle + '">' + statusIcon + ' ' + data.statusText + '</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<!-- แถบด้านบนประเภทการลา: รหัสคำขอ และ วันที่ยื่นคำขอ (ไม่มีกรอบสีขาว) -->' +
+            '<div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px 14px;padding:0 2px;">' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">รหัสคำขอ</span>' +
+                '<strong style="color:#1e70bf;font-size:13.5px;font-weight:800;display:block;margin-top:2px;">' + data.code + '</strong>' +
+              '</div>' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">วันที่ยื่นคำขอ</span>' +
+                '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + (data.reqDate || '30/10/2569') + '</strong>' +
+              '</div>' +
+            '</div>' +
+
+            '<!-- Leave Details Grid: ประเภทการลา, รูปแบบการลา, ช่วงวันที่ลา, จำนวนวันลา -->' +
+            '<div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:9px 14px;font-size:12.5px;padding:0 2px;">' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">ประเภทการลา</span>' +
+                '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;">' +
+                  '<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:' + typeBg + ';color:' + typeColor + ';">' + typeIconSvg + '</span>' +
+                  '<strong style="color:#0f172a;font-size:13px;">' + data.typeName + '</strong>' +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">รูปแบบการลา</span>' +
+                '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + formatText + '</strong>' +
+              '</div>' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">ช่วงวันที่ลา</span>' +
+                '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + dateRangeDisplay + '</strong>' +
+              '</div>' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">จำนวนวันลา</span>' +
+                '<strong style="color:#1e70bf;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + daysClean + '</strong>' +
+              '</div>' +
+            '</div>' +
+
+            '<!-- Reason Box (ชี้แล้วเป็นพื้นหลังขาว) -->' +
+            '<div class="ck-modal-hover-card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;">' +
+              '<div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:3px;">เหตุผลการขอลา:</div>' +
+              '<div style="font-size:12px;color:#1e293b;line-height:1.4;">' + data.reason + '</div>' +
+            '</div>' +
+
+            '<!-- Attachment Section (ชี้แล้วเป็นพื้นหลังขาว) -->' +
+            '<div>' +
+              '<div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:5px;">เอกสารแนบประกอบการพิจารณา:</div>' +
+              attachHtml +
+            '</div>' +
+          '</div>' +
+
+          '<!-- RIGHT COLUMN: สายการอนุมัติ 3 ระดับ -->' +
+          '<div style="display:flex;flex-direction:column;gap:10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">' +
+              '<div style="display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:800;color:#0f172a;">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2.2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg>' +
+                '<span>สายการอนุมัติ</span>' +
+              '</div>' +
+              '<span style="font-size:11px;font-weight:700;color:#1e70bf;background:#eff6ff;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;">3 ระดับ</span>' +
+            '</div>' +
+
+            '<!-- Horizontal Stepper -->' +
+            '<div style="position:relative;margin:4px 10px 8px;padding:0 15px;">' +
+              '<div style="position:absolute;top:14px;left:35px;right:35px;height:2px;background:#e2e8f0;z-index:1;"></div>' +
+              '<div style="display:flex;justify-content:space-between;position:relative;z-index:2;">' +
+                stepNodesHtml +
+              '</div>' +
+            '</div>' +
+
+            '<!-- 3 Approval Cards (ชี้แล้วเป็นพื้นหลังสีขาว .ck-modal-hover-card) -->' +
+            '<div style="display:flex;flex-direction:column;gap:7px;">' +
+              stepCardsHtml +
+            '</div>' +
+          '</div>' +
+        '</div>';
 
       modal.style.display = 'flex';
     };
@@ -8787,89 +9768,92 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
 
     window.openGenericModal = function(prefix, idx) {
       var modal = document.getElementById('ck-detail-modal');
-      if (!modal) return;
+      var container = document.getElementById('modal-detail-body-container');
+      if (!modal || !container) return;
       var list = genericRowData[prefix];
       if (!list || !list[idx]) return;
       var item = list[idx];
 
       var titleEl = document.getElementById('modal-detail-title');
-      var badgeEl = document.getElementById('modal-detail-badge');
-      var idEl = document.getElementById('modal-detail-id');
-      var gridEl = document.getElementById('modal-detail-grid');
-      var tlEl = document.getElementById('modal-detail-timeline');
-
       if (titleEl) titleEl.textContent = item.title;
-      if (badgeEl) {
-        badgeEl.className = item.badgeClass;
-        badgeEl.textContent = item.badgeText;
-      }
+
       var catLabel = prefix === 'ot' ? 'เบิก OT ล่วงเวลา' : prefix === 'att' ? 'แก้ไขเวลาทำงาน' : 'เบิกสวัสดิการ';
-      if (idEl) idEl.textContent = 'หมวดหมู่: ' + catLabel;
 
-      if (gridEl) {
-        var dHtml = '';
-        if (prefix === 'ot') {
-          var otCodes = ['OT-2569-019', 'OT-2569-018', 'OT-2569-017'];
-          var otDates = ['29/10/2569 (18:00 – 21:00 น.)', '25/10/2569 (09:00 – 16:00 น.)', '19/10/2569 (18:00 – 22:00 น.)'];
-          var otHrs = ['3.0 ชม. (อัตรา 1.5 เท่า)', '6.0 ชม. (อัตรา 1.0 เท่า)', '4.0 ชม. (อัตรา 1.5 เท่า)'];
-          var otReasons = [
-            'ปิดงบเดือนและกระทบยอดเงินเดือนพนักงานประจำงวดตุลาคม 2569',
-            'จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาสที่ 3',
-            'ขอทำ OT ตรวจสอบเอกสารทั่วไปหลังเวลางานปกติ'
-          ];
-          dHtml =
-            '<div class="ck-insp-item"><strong>รหัสคำขอ:</strong> ' + otCodes[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
-            '<div class="ck-insp-item"><strong>วันที่และเวลาทำ OT:</strong> ' + otDates[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>จำนวนชั่วโมงสุทธิ:</strong> ' + otHrs[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>สรุปชั่วโมง OT:</strong> สะสมเดือนนี้ 42.5 ชม. (รวมรายการนี้ 45.5 ชม.)</div>' +
-            '<div class="ck-insp-item"><strong>ช่องทางจ่ายเงิน:</strong> โอนพร้อมเงินเดือนเข้าบัญชี SCB</div>' +
-            '<div class="ck-insp-item ck-insp-full"><strong>ภารกิจและรายละเอียดงาน:</strong> ' + otReasons[idx] + '</div>';
-        } else if (prefix === 'att') {
-          var attCodes = ['TC-2569-008', 'TC-2569-009', 'TC-2569-005'];
-          var attDates = ['28/10/2569', '24/10/2569', '14/10/2569'];
-          var attTimes = ['08:30 – 17:35 น. (8.0 ชม.)', '08:30 – 17:30 น. (8.0 ชม.)', '08:44 – 17:45 น. (สาย 14 นาที)'];
-          var attReasons = [
-            'ยื่นเอกสารสำนักงานประกันสังคมพื้นที่ 3 ช่วงเช้า และเข้าสำนักงานเวลา 08:30 น. (มีใบรับเอกสารแนบ)',
-            'ลืมสแกนออกงานเนื่องจากรีบไปส่งเอกสารด่วนให้ลูกค้าช่วงเย็น (มีบันทึกรปภ.และกล้องวงจรปิด)',
-            'ขอแก้ไขเวลาเข้างานเนื่องจากการจราจรติดขัดหน้าอาคารสำนักงาน'
-          ];
-          dHtml =
-            '<div class="ck-insp-item"><strong>รหัสคำขอ:</strong> ' + attCodes[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
-            '<div class="ck-insp-item"><strong>วันที่ปฏิบัติงาน:</strong> ' + attDates[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>เวลาที่บันทึกแก้ไข:</strong> ' + attTimes[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>หลักฐานประกอบ:</strong> เอกสารราชการ / เอกสารลูกค้า</div>' +
-            '<div class="ck-insp-item"><strong>ผลกระทบสถิติ:</strong> ปรับเป็นเข้างานตรงเวลาตามเกณฑ์ SLA</div>' +
-            '<div class="ck-insp-item ck-insp-full"><strong>เหตุผลและคำชี้แจง:</strong> ' + attReasons[idx] + '</div>';
-        } else if (prefix === 'ben') {
-          var benCodes = ['MED-2569-003', 'MED-2569-002', 'MED-2569-001'];
-          var benDates = ['28/10/2569', '10/09/2569', '16/05/2569'];
-          var benAmts = ['฿1,200', '฿900', '฿1,300'];
-          var benTypes = ['ค่ารักษาพยาบาล OPD (ตรวจรักษาไข้หวัด)', 'ค่าทันตกรรม Dental (ขูดหินปูน)', 'ค่ารักษาพยาบาล OPD (ภูมิแพ้)'];
-          var benClinics = ['คลินิกเวชกรรมสีลม', 'คลินิกทันตกรรมสยาม', 'โรงพยาบาลวิภาวดี'];
-          dHtml =
-            '<div class="ck-insp-item"><strong>รหัสคำขอ:</strong> ' + benCodes[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
-            '<div class="ck-insp-item"><strong>วันที่เข้ารับการรักษา:</strong> ' + benDates[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>สถานพยาบาล:</strong> ' + benClinics[idx] + '</div>' +
-            '<div class="ck-insp-item"><strong>ยอดเบิกจ่าย:</strong> <strong style="color:#059669;">' + benAmts[idx] + '</strong></div>' +
-            '<div class="ck-insp-item"><strong>วงเงินคงเหลือหลังเบิก:</strong> เหลือ ฿7,500 / ฿10,000 ต่อปี</div>' +
-            '<div class="ck-insp-item ck-insp-full"><strong>ประเภทสวัสดิการและอาการ:</strong> ' + benTypes[idx] + ' (แนบใบเสร็จรับเงินและใบรับรองแพทย์ตัวจริงครบถ้วน)</div>';
-        }
-        gridEl.innerHTML = dHtml;
+      var dHtml = '';
+      if (prefix === 'ot') {
+        var otCodes = ['OT-2569-019', 'OT-2569-018', 'OT-2569-017'];
+        var otDates = ['29/10/2569 (18:00 – 21:00 น.)', '25/10/2569 (09:00 – 16:00 น.)', '19/10/2569 (18:00 – 22:00 น.)'];
+        var otHrs = ['3.0 ชม. (อัตรา 1.5 เท่า)', '6.0 ชม. (อัตรา 1.0 เท่า)', '4.0 ชม. (อัตรา 1.5 เท่า)'];
+        var otReasons = [
+          'ปิดงบเดือนและกระทบยอดเงินเดือนพนักงานประจำงวดตุลาคม 2569',
+          'จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาสที่ 3',
+          'ขอทำ OT ตรวจสอบเอกสารทั่วไปหลังเวลางานปกติ'
+        ];
+        dHtml =
+          '<div class="ck-insp-item"><strong>รหัสคำขอ:</strong> ' + otCodes[idx] + '</div>' +
+          '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
+          '<div class="ck-insp-item"><strong>วันที่และเวลาทำ OT:</strong> ' + otDates[idx] + '</div>' +
+          '<div class="ck-insp-item"><strong>จำนวนชั่วโมงสุทธิ:</strong> ' + otHrs[idx] + '</div>' +
+          '<div class="ck-insp-item"><strong>สรุปชั่วโมง OT:</strong> สะสมเดือนนี้ 42.5 ชม. (รวมรายการนี้ 45.5 ชม.)</div>' +
+          '<div class="ck-insp-item"><strong>ช่องทางจ่ายเงิน:</strong> โอนพร้อมเงินเดือนเข้าบัญชี SCB</div>' +
+          '<div class="ck-insp-item ck-insp-full"><strong>ภารกิจและรายละเอียดงาน:</strong> ' + otReasons[idx] + '</div>';
+      } else if (prefix === 'att') {
+        var attCodes = ['TC-2569-008', 'TC-2569-009', 'TC-2569-005'];
+        var attDates = ['28/10/2569', '24/10/2569', '14/10/2569'];
+        var attTimes = ['08:30 – 17:35 น. (8.0 ชม.)', '08:30 – 17:30 น. (8.0 ชม.)', '08:44 – 17:45 น. (สาย 14 นาที)'];
+        var attReasons = [
+          'ยื่นเอกสารสำนักงานประกันสังคมพื้นที่ 3 ช่วงเช้า และเข้าสำนักงานเวลา 08:30 น. (มีใบรับรอง)',
+          'ลืมสแกนบัตรออกช่วงเย็น เนื่องจากติดประชุมด่วนกับทีมผู้บริหารจนถึง 17:30 น.',
+          'ระบบสแกนนิ้วขัดข้องชั่วคราว จึงบันทึกล่าช้า 14 นาที'
+        ];
+        dHtml =
+          '<div class="ck-insp-item"><strong>รหัสคำขอ:</strong> ' + attCodes[idx] + '</div>' +
+          '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
+          '<div class="ck-insp-item"><strong>วันที่บันทึกเวลา:</strong> ' + attDates[idx] + '</div>' +
+          '<div class="ck-insp-item"><strong>เวลาที่ระบุ:</strong> ' + attTimes[idx] + '</div>' +
+          '<div class="ck-insp-item"><strong>ผลการตรวจสอบ:</strong> ตรวจสอบกล้องวงจรปิดและ Log Wi-Fi Office เรียบร้อย</div>' +
+          '<div class="ck-insp-item"><strong>สายการอนุมัติ:</strong> ผจก.ฝ่ายทรัพยากรบุคคล → ผอ.ฝ่ายทรัพยากรบุคคล</div>' +
+          '<div class="ck-insp-item ck-insp-full"><strong>เหตุผลคำชี้แจง:</strong> ' + attReasons[idx] + '</div>';
+      } else {
+        var benCodes = ['MED-2569-007', 'MED-2569-006', 'MED-2569-004'];
+        var benAmounts = ['฿1,200 (คลินิกทั่วไป)', '฿1,800 (โรงพยาบาลกรุงเทพ)', '฿500 (ใบเสร็จร้านขายยา)'];
+        var benQuotas = ['คงเหลือ ฿8,800 / ฿10,000', 'คงเหลือ ฿7,000 / ฿10,000', 'คงเหลือ ฿8,300 / ฿10,000'];
+        var benReasons = [
+          'ตรวจรักษาโรคหวัดและภูมิแพ้ คลินิกเวชกรรมสีลม แนบใบรับรองแพทย์และใบเสร็จตัวจริง',
+          'ตรวจเช็กสุขภาพช่องปากและขูดหินปูนประจำปี คลินิกทันตกรรมสยาม',
+          'ซื้อยาตามแพทย์สั่งจากร้านขายยาหน้าปากซอยสีลม'
+        ];
+        dHtml =
+          '<div class="ck-insp-item"><strong>รหัสคำขอ:</strong> ' + benCodes[idx] + '</div>' +
+          '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
+          '<div class="ck-insp-item"><strong>ยอดเงินที่ขอเบิก:</strong> <strong style="color:#059669;">' + benAmounts[idx] + '</strong></div>' +
+          '<div class="ck-insp-item"><strong>สิทธิ์คงเหลือปีนี้:</strong> ' + benQuotas[idx] + '</div>' +
+          '<div class="ck-insp-item"><strong>เอกสารประกอบ:</strong> ใบเสร็จรับเงิน + ใบรับรองแพทย์</div>' +
+          '<div class="ck-insp-item"><strong>ช่องทางเบิกจ่าย:</strong> โอนเข้าบัญชีเงินเดือน SCB</div>' +
+          '<div class="ck-insp-item ck-insp-full"><strong>รายละเอียดการรักษา:</strong> ' + benReasons[idx] + '</div>';
       }
 
-      if (tlEl) {
-        var html = '';
-        item.steps.forEach(function(st) {
-          html += '<div class="ck-tl-step ' + st.state + '">' +
-            '<div class="ck-tl-top"><span class="ck-tl-who">' + st.who + '</span><span class="' + st.badgeClass + '">' + st.badge + '</span></div>' +
-            '<div class="ck-tl-reason"><strong>ความเห็นผู้อนุมัติ:</strong> ' + st.reason + '</div>' +
-            '</div>';
-        });
-        tlEl.innerHTML = html;
-      }
+      var tlHtml = '';
+      item.steps.forEach(function(st) {
+        tlHtml += '<div class="ck-tl-step ' + st.state + '">' +
+          '<div class="ck-tl-top"><span class="ck-tl-who">' + st.who + '</span><span class="' + st.badgeClass + '">' + st.badge + '</span></div>' +
+          '<div class="ck-tl-reason"><strong>ความเห็นผู้อนุมัติ:</strong> ' + st.reason + '</div>' +
+          '</div>';
+      });
+
+      container.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;">' +
+          '<span class="' + item.badgeClass + '">' + item.badgeText + '</span>' +
+          '<span style="font-size:13px;font-weight:700;color:#64748b;">หมวดหมู่: ' + catLabel + '</span>' +
+        '</div>' +
+        '<div class="ck-inspector-grid" style="margin-bottom:18px;">' + dHtml + '</div>' +
+        '<div>' +
+          '<div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:10px;display:flex;align-items:center;gap:7px;">' +
+            '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg>' +
+            '<span>สายการอนุมัติ 3 ระดับ และเหตุผลของผู้อนุมัติ:</span>' +
+          '</div>' +
+          '<div class="ck-timeline-3">' + tlHtml + '</div>' +
+        '</div>';
 
       modal.style.display = 'flex';
     };

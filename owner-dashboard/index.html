@@ -6636,9 +6636,9 @@ main, .page-view, .settings-page {
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet">ระบบเบิกทำงานล่วงเวลา (OT)</h1>
-        <div class="ck-hero-name">คุณภาณุพันธุ์ ใจดี · เจ้าหน้าที่ทรัพยากรบุคคล</div>
-        <div class="ck-hero-role">รอบคำนวณค่าล่วงเวลา ตุลาคม 2569 · เกณฑ์มาตรฐานไม่เกิน 48.0 ชม./เดือน</div>
+        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">ระบบเบิกทำงานล่วงเวลา (OT)</h1>
+        <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
+        <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
     </section>
 
@@ -6646,6 +6646,10 @@ main, .page-view, .settings-page {
       <div class="ck-att-topbar">
         <div class="ck-att-datebar wednesday" style="background:#f5f3ff;border-color:#ddd6fe;color:#5b21b6;">
           <span class="ck-att-full-text">สรุปชั่วโมง OT สะสมและประมาณการค่าตอบแทนเดือนตุลาคม 2569</span>
+        </div>
+        <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
+          <svg><use href="#calendar"/></svg>
+          <span>ปี 2569</span>
         </div>
       </div>
       <div class="ck-att-tiles">
@@ -6808,23 +6812,38 @@ main, .page-view, .settings-page {
         <!-- สายการอนุมัติอัตโนมัติ 3 ระดับ -->
         <div class="ck-auto-chain-box">
           <div class="ck-auto-chain-head">
-            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ OT (3 ระดับ)</strong>
+            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ</strong>
           </div>
           <div class="ck-chain-steps-3">
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 1 · หัวหน้างาน</span>
-              <strong>คุณสมศักดิ์ มั่นคง</strong>
-              <span>ผจก.ฝ่ายทรัพยากรบุคคล</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">สม</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 1</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณสมศักดิ์ มั่นคง</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผจก.ฝ่ายทรัพยากรบุคคล</span>
+              </div>
             </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 2 · ฝ่ายบุคคล</span>
-              <strong>คุณศิริพร วงศ์สวัสดิ์</strong>
-              <span>ผอ.ฝ่ายทรัพยากรบุคคล</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#b45309;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">ศว</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 2</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณศิริพร วงศ์สวัสดิ์</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผอ.ฝ่ายทรัพยากรบุคคล</span>
+              </div>
             </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 3 · ผู้บริหารสูงสุด</span>
-              <strong>คุณจักรกฤษณ์ เอซ</strong>
-              <span>กรรมการผู้จัดการ (MD)</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#f3e8ff;color:#7c3aed;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">จอ</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 3</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณจักรกฤษณ์ เอซ</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">กรรมการผู้จัดการ (MD)</span>
+              </div>
             </div>
           </div>
         </div>
@@ -6842,33 +6861,130 @@ main, .page-view, .settings-page {
       </div>
 
       <div class="pg-table-responsive">
-        <table class="pg-table" id="ot-history-table">
+        <table class="pg-table" id="ot-history-table" style="min-width:920px;text-align:center;">
           <thead>
             <tr>
-              <th style="width:24%;">รหัสคำขอ</th>
-              <th style="width:26%;">วันที่</th>
-              <th style="width:26%;">ช่วงเวลา / ชม.</th>
-              <th style="width:24%;">สถานะสายอนุมัติ</th>
+              <th style="width:13%;text-align:center;">รหัสคำขอ</th>
+              <th style="width:15%;text-align:center;">พนักงาน</th>
+              <th style="width:11%;text-align:center;">ประเภทอัตรา</th>
+              <th style="width:15%;text-align:center;">วันที่ปฏิบัติงาน</th>
+              <th style="width:11%;text-align:center;">ชั่วโมง OT</th>
+              <th style="width:17%;text-align:center;">ภารกิจ / เหตุผล</th>
+              <th style="width:10%;text-align:center;">สถานะ</th>
+              <th style="width:8%;text-align:center;">จัดการ</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="ck-clickable-row" onclick="window.openGenericModal && window.openGenericModal('ot', 0)">
-              <td><strong>OT-2569-019</strong><br><small>1.5 เท่า</small></td>
-              <td>29/10/2569</td>
-              <td>18:00–21:00<br><small><strong>3.0 ชม.</strong></small></td>
-              <td><span class="pg-badge pg-badge-warning">⏳ รออนุมัติ (ขั้น 2/3)</span></td>
+            <tr class="ot-row-item" data-status="pending" data-id="OT-2569-019">
+              <td style="text-align:center;">
+                <strong>OT-2569-019</strong>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">29/10/2569</div>
+              </td>
+              <td style="text-align:center;">
+                <div>คุณภาณุพันธุ์ ใจดี</div>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#f5f3ff;color:#7c3aed;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">1.5 เท่า</span>
+              </td>
+              <td style="text-align:center;line-height:1.4;">
+                <div>29/10/2569</div>
+                <small style="color:#64748b;">(18:00 – 21:00 น.)</small>
+              </td>
+              <td style="text-align:center;font-weight:700;color:#7c3aed;">3.00 ชม.</td>
+              <td style="text-align:center;">
+                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ปิดงบเดือนและกระทบยอดเงินเดือนตุลาคม 2569</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge pg-badge-warning" style="padding:4px 10px;">รออนุมัติ (2/3)</span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;min-width:118px;">
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ot', 0)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ OT" onclick="alert('แก้ไขคำขอ OT: OT-2569-019');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ OT" onclick="alert('ยกเลิกคำขอ OT: OT-2569-019');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </td>
             </tr>
-            <tr class="ck-clickable-row" onclick="window.openGenericModal && window.openGenericModal('ot', 1)">
-              <td><strong>OT-2569-018</strong><br><small>1.0 เท่า</small></td>
-              <td>25/10/2569</td>
-              <td>09:00–16:00<br><small><strong>6.0 ชม.</strong></small></td>
-              <td><span class="pg-badge pg-badge-success">✓ อนุมัติครบ (3/3)</span></td>
+            <tr class="ot-row-item" data-status="approved" data-id="OT-2569-018">
+              <td style="text-align:center;">
+                <strong>OT-2569-018</strong>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">25/10/2569</div>
+              </td>
+              <td style="text-align:center;">
+                <div>คุณภาณุพันธุ์ ใจดี</div>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#eff6ff;color:#1e70bf;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">1.0 เท่า</span>
+              </td>
+              <td style="text-align:center;line-height:1.4;">
+                <div>25/10/2569</div>
+                <small style="color:#64748b;">(09:00 – 16:00 น.)</small>
+              </td>
+              <td style="text-align:center;font-weight:700;color:#7c3aed;">6.00 ชม.</td>
+              <td style="text-align:center;">
+                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาส 3</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;min-width:118px;">
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ot', 1)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ OT" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ OT" onclick="alert('ยกเลิกคำขอ OT: OT-2569-018');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </td>
             </tr>
-            <tr class="ck-clickable-row" onclick="window.openGenericModal && window.openGenericModal('ot', 2)">
-              <td><strong>OT-2569-017</strong><br><small>1.5 เท่า</small></td>
-              <td>19/10/2569</td>
-              <td>18:00–22:00<br><small><strong>4.0 ชม.</strong></small></td>
-              <td><span class="pg-badge pg-badge-danger">✕ ไม่อนุมัติ (ขั้น 1/3)</span></td>
+            <tr class="ot-row-item" data-status="rejected" data-id="OT-2569-017">
+              <td style="text-align:center;">
+                <strong>OT-2569-017</strong>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">19/10/2569</div>
+              </td>
+              <td style="text-align:center;">
+                <div>คุณภาณุพันธุ์ ใจดี</div>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#f5f3ff;color:#7c3aed;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">1.5 เท่า</span>
+              </td>
+              <td style="text-align:center;line-height:1.4;">
+                <div>19/10/2569</div>
+                <small style="color:#64748b;">(18:00 – 22:00 น.)</small>
+              </td>
+              <td style="text-align:center;font-weight:700;color:#7c3aed;">4.00 ชม.</td>
+              <td style="text-align:center;">
+                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ตรวจสอบเอกสารทั่วไปหลังเวลางานปกติ</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge pg-badge-danger" style="padding:4px 10px;">✕ ไม่อนุมัติ (1/3)</span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;min-width:118px;">
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ot', 2)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ OT" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ไม่ได้รับการอนุมัติ');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ OT" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ถูกปฏิเสธแล้ว');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -6887,9 +7003,9 @@ main, .page-view, .settings-page {
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet">ระบบลงเวลาและบันทึกเวลาทำงาน</h1>
-        <div class="ck-hero-name">คุณภาณุพันธุ์ ใจดี · เจ้าหน้าที่ทรัพยากรบุคคล</div>
-        <div class="ck-hero-role">พิกัด: สำนักงานใหญ่ CK.ACE ACCOUNTING · ยืนยัน Wi-Fi Office &amp; GPS เรียบร้อย</div>
+        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">ระบบลงเวลาและบันทึกเวลาทำงาน</h1>
+        <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
+        <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
     </section>
 
@@ -6897,6 +7013,10 @@ main, .page-view, .settings-page {
       <div class="ck-att-topbar">
         <div class="ck-att-datebar wednesday" style="background:#f0fdf4;border-color:#bbf7d0;color:#15803d;">
           <span class="ck-att-full-text">เวลาปัจจุบัน: <span id="punch-live-clock">08:28:30 น.</span> · วันทำงานปกติ (08:30 – 17:30 น.)</span>
+        </div>
+        <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
+          <svg><use href="#calendar"/></svg>
+          <span>ปี 2569</span>
         </div>
       </div>
       <div class="ck-att-tiles">
@@ -7035,23 +7155,38 @@ main, .page-view, .settings-page {
         <!-- สายการอนุมัติอัตโนมัติ 3 ระดับ -->
         <div class="ck-auto-chain-box">
           <div class="ck-auto-chain-head">
-            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ (3 ระดับ)</strong>
+            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ</strong>
           </div>
           <div class="ck-chain-steps-3">
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 1 · หัวหน้างาน</span>
-              <strong>คุณสมศักดิ์ มั่นคง</strong>
-              <span>ผจก.ฝ่ายทรัพยากรบุคคล</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">สม</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 1</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณสมศักดิ์ มั่นคง</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผจก.ฝ่ายทรัพยากรบุคคล</span>
+              </div>
             </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 2 · ฝ่ายบุคคล</span>
-              <strong>คุณศิริพร วงศ์สวัสดิ์</strong>
-              <span>ผอ.ฝ่ายทรัพยากรบุคคล</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#b45309;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">ศว</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 2</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณศิริพร วงศ์สวัสดิ์</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผอ.ฝ่ายทรัพยากรบุคคล</span>
+              </div>
             </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 3 · ผู้บริหารสูงสุด</span>
-              <strong>คุณจักรกฤษณ์ เอซ</strong>
-              <span>กรรมการผู้จัดการ (MD)</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#f3e8ff;color:#7c3aed;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">จอ</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 3</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณจักรกฤษณ์ เอซ</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">กรรมการผู้จัดการ (MD)</span>
+              </div>
             </div>
           </div>
         </div>
@@ -7069,33 +7204,130 @@ main, .page-view, .settings-page {
       </div>
 
       <div class="pg-table-responsive">
-        <table class="pg-table" id="attendance-history-table">
+        <table class="pg-table" id="attendance-history-table" style="min-width:920px;text-align:center;">
           <thead>
             <tr>
-              <th style="width:25%;">วันที่</th>
-              <th style="width:25%;">รหัสคำขอ</th>
-              <th style="width:25%;">เวลาเข้า – ออก</th>
-              <th style="width:25%;">สถานะสายอนุมัติ</th>
+              <th style="width:13%;text-align:center;">รหัสคำขอ</th>
+              <th style="width:15%;text-align:center;">พนักงาน</th>
+              <th style="width:12%;text-align:center;">ประเภทคำขอ</th>
+              <th style="width:14%;text-align:center;">วันที่ขอแก้ไข</th>
+              <th style="width:13%;text-align:center;">เวลาเข้า – ออก</th>
+              <th style="width:15%;text-align:center;">เหตุผลคำชี้แจง</th>
+              <th style="width:10%;text-align:center;">สถานะ</th>
+              <th style="width:8%;text-align:center;">จัดการ</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="ck-clickable-row" onclick="window.openGenericModal && window.openGenericModal('att', 0)">
-              <td><strong>28/10/2569</strong><br><small>8.0 ชม.</small></td>
-              <td><strong>TC-2569-008</strong><br><small>แก้เวลาเข้า</small></td>
-              <td>08:30 – 17:35 น.</td>
-              <td><span class="pg-badge pg-badge-success">✓ อนุมัติแก้เวลา (3/3)</span></td>
+            <tr class="att-row-item" data-status="approved" data-id="TC-2569-008">
+              <td style="text-align:center;">
+                <strong>TC-2569-008</strong>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">28/10/2569</div>
+              </td>
+              <td style="text-align:center;">
+                <div>คุณภาณุพันธุ์ ใจดี</div>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#e0f2fe;color:#0284c7;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">แก้เวลาเข้า</span>
+              </td>
+              <td style="text-align:center;">28/10/2569</td>
+              <td style="text-align:center;line-height:1.4;">
+                <div>08:30 – 17:35 น.</div>
+                <small style="color:#64748b;">(8.0 ชม.)</small>
+              </td>
+              <td style="text-align:center;">
+                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ยื่นเอกสารประกันสังคมพื้นที่ 3 ช่วงเช้า</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;min-width:118px;">
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('att', 0)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: TC-2569-008');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </td>
             </tr>
-            <tr class="ck-clickable-row" onclick="window.openGenericModal && window.openGenericModal('att', 1)">
-              <td><strong>24/10/2569</strong><br><small>8.0 ชม.</small></td>
-              <td><strong>TC-2569-009</strong><br><small>แก้เวลาออก</small></td>
-              <td>08:30 – 17:30 น.</td>
-              <td><span class="pg-badge pg-badge-warning">⏳ รออนุมัติ (ขั้น 2/3)</span></td>
+            <tr class="att-row-item" data-status="pending" data-id="TC-2569-009">
+              <td style="text-align:center;">
+                <strong>TC-2569-009</strong>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">24/10/2569</div>
+              </td>
+              <td style="text-align:center;">
+                <div>คุณภาณุพันธุ์ ใจดี</div>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#e0f2fe;color:#0284c7;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">แก้เวลาออก</span>
+              </td>
+              <td style="text-align:center;">24/10/2569</td>
+              <td style="text-align:center;line-height:1.4;">
+                <div>08:30 – 17:30 น.</div>
+                <small style="color:#64748b;">(8.0 ชม.)</small>
+              </td>
+              <td style="text-align:center;">
+                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ลืมสแกนบัตรออกเนื่องจากติดประชุมด่วน</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge pg-badge-warning" style="padding:4px 10px;">รออนุมัติ (2/3)</span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;min-width:118px;">
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('att', 1)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" onclick="alert('แก้ไขคำขอ: TC-2569-009');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: TC-2569-009');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </td>
             </tr>
-            <tr class="ck-clickable-row" onclick="window.openGenericModal && window.openGenericModal('att', 2)">
-              <td><strong>14/10/2569</strong><br><small>8.0 ชม.</small></td>
-              <td><strong>TC-2569-005</strong><br><small>มาสาย 14 นาที</small></td>
-              <td>08:44 – 17:45 น.</td>
-              <td><span class="pg-badge pg-badge-danger">✕ ไม่อนุมัติ (ขั้น 2/3)</span></td>
+            <tr class="att-row-item" data-status="rejected" data-id="TC-2569-005">
+              <td style="text-align:center;">
+                <strong>TC-2569-005</strong>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">14/10/2569</div>
+              </td>
+              <td style="text-align:center;">
+                <div>คุณภาณุพันธุ์ ใจดี</div>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#fee2e2;color:#dc2626;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">รับรองเวลาสาย</span>
+              </td>
+              <td style="text-align:center;">14/10/2569</td>
+              <td style="text-align:center;line-height:1.4;">
+                <div>08:44 – 17:45 น.</div>
+                <small style="color:#64748b;">(สาย 14 นาที)</small>
+              </td>
+              <td style="text-align:center;">
+                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ระบบสแกนนิ้วขัดข้องชั่วคราว</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge pg-badge-danger" style="padding:4px 10px;">✕ ไม่อนุมัติ (2/3)</span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;min-width:118px;">
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('att', 2)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ไม่ได้รับการอนุมัติ');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ถูกปฏิเสธแล้ว');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -7114,9 +7346,9 @@ main, .page-view, .settings-page {
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet">สวัสดิการและค่ารักษาพยาบาล</h1>
-        <div class="ck-hero-name">คุณภาณุพันธุ์ ใจดี · เจ้าหน้าที่ทรัพยากรบุคคล</div>
-        <div class="ck-hero-role">วงเงินค่ารักษาพยาบาลประจำปี พ.ศ. 2569 · โอนเงินคืนเข้าบัญชี SCB อัตโนมัติ</div>
+        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">สวัสดิการและค่ารักษาพยาบาล</h1>
+        <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
+        <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
     </section>
 
@@ -7124,6 +7356,10 @@ main, .page-view, .settings-page {
       <div class="ck-att-topbar">
         <div class="ck-att-datebar wednesday" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46;">
           <span class="ck-att-full-text">สรุปวงเงินสวัสดิการค่ารักษาพยาบาลและทันตกรรมคงเหลือ (ปี 2569)</span>
+        </div>
+        <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
+          <svg><use href="#calendar"/></svg>
+          <span>ปี 2569</span>
         </div>
       </div>
       <div class="ck-att-tiles">
@@ -7283,23 +7519,38 @@ main, .page-view, .settings-page {
         <!-- สายการอนุมัติอัตโนมัติ 3 ระดับ -->
         <div class="ck-auto-chain-box">
           <div class="ck-auto-chain-head">
-            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ (3 ระดับ)</strong>
+            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ</strong>
           </div>
           <div class="ck-chain-steps-3">
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 1 · หัวหน้างาน</span>
-              <strong>คุณสมศักดิ์ มั่นคง</strong>
-              <span>ผจก.ฝ่ายทรัพยากรบุคคล</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">สม</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 1</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณสมศักดิ์ มั่นคง</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผจก.ฝ่ายทรัพยากรบุคคล</span>
+              </div>
             </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 2 · ฝ่ายบุคคล</span>
-              <strong>คุณศิริพร วงศ์สวัสดิ์</strong>
-              <span>ผอ.ฝ่ายทรัพยากรบุคคล</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#b45309;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">ศว</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 2</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณศิริพร วงศ์สวัสดิ์</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผอ.ฝ่ายทรัพยากรบุคคล</span>
+              </div>
             </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 3 · ผู้บริหารสูงสุด</span>
-              <strong>คุณจักรกฤษณ์ เอซ</strong>
-              <span>กรรมการผู้จัดการ (MD)</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#f3e8ff;color:#7c3aed;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">จอ</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 3</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณจักรกฤษณ์ เอซ</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">กรรมการผู้จัดการ (MD)</span>
+              </div>
             </div>
           </div>
         </div>
@@ -7326,33 +7577,121 @@ main, .page-view, .settings-page {
       </div>
 
       <div class="pg-table-responsive">
-        <table class="pg-table" id="benefits-history-table">
+        <table class="pg-table" id="benefits-history-table" style="min-width:920px;text-align:center;">
           <thead>
             <tr>
-              <th style="width:25%;">รหัสคำขอ</th>
-              <th style="width:27%;">วันที่รักษา</th>
-              <th style="width:24%;">ยอดเบิกจ่าย</th>
-              <th style="width:24%;">สถานะสายอนุมัติ</th>
+              <th style="width:13%;text-align:center;">รหัสคำขอ</th>
+              <th style="width:15%;text-align:center;">พนักงาน</th>
+              <th style="width:15%;text-align:center;">ประเภทสวัสดิการ</th>
+              <th style="width:13%;text-align:center;">วันที่รักษา/ตรวจ</th>
+              <th style="width:12%;text-align:center;">ยอดเบิกจ่าย</th>
+              <th style="width:14%;text-align:center;">รายละเอียด / คลินิก</th>
+              <th style="width:10%;text-align:center;">สถานะ</th>
+              <th style="width:8%;text-align:center;">จัดการ</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="ck-clickable-row" onclick="window.openGenericModal && window.openGenericModal('ben', 0)">
-              <td><strong>MED-2569-003</strong><br><small>OPD</small></td>
-              <td>28/10/2569</td>
-              <td><strong style="color:#059669;">฿1,200</strong></td>
-              <td><span class="pg-badge pg-badge-success">✓ อนุมัติครบ (3/3)</span></td>
+            <tr class="ben-row-item" data-status="approved" data-id="MED-2569-003">
+              <td style="text-align:center;">
+                <strong>MED-2569-003</strong>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">28/10/2569</div>
+              </td>
+              <td style="text-align:center;">
+                <div>คุณภาณุพันธุ์ ใจดี</div>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล (OPD)</span>
+              </td>
+              <td style="text-align:center;">28/10/2569</td>
+              <td style="text-align:center;font-weight:700;color:#059669;">฿1,200</td>
+              <td style="text-align:center;">
+                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ตรวจรักษาโรคหวัด คลินิกเวชกรรมสีลม</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;min-width:118px;">
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 0)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-003');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </td>
             </tr>
-            <tr class="ck-clickable-row" onclick="window.openGenericModal && window.openGenericModal('ben', 1)">
-              <td><strong>MED-2569-002</strong><br><small>ทันตกรรม</small></td>
-              <td>10/09/2569</td>
-              <td><strong style="color:#059669;">฿900</strong></td>
-              <td><span class="pg-badge pg-badge-success">✓ โอนเงินแล้ว (3/3)</span></td>
+            <tr class="ben-row-item" data-status="approved" data-id="MED-2569-002">
+              <td style="text-align:center;">
+                <strong>MED-2569-002</strong>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">10/09/2569</div>
+              </td>
+              <td style="text-align:center;">
+                <div>คุณภาณุพันธุ์ ใจดี</div>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#eff6ff;color:#1e70bf;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ทันตกรรม (Dental)</span>
+              </td>
+              <td style="text-align:center;">10/09/2569</td>
+              <td style="text-align:center;font-weight:700;color:#059669;">฿900</td>
+              <td style="text-align:center;">
+                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ตรวจเช็กสุขภาพช่องปากและขูดหินปูน</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;min-width:118px;">
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 1)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-002');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </td>
             </tr>
-            <tr class="ck-clickable-row" onclick="window.openGenericModal && window.openGenericModal('ben', 2)">
-              <td><strong>MED-2569-001</strong><br><small>OPD</small></td>
-              <td>16/05/2569</td>
-              <td><strong style="color:#059669;">฿1,300</strong></td>
-              <td><span class="pg-badge pg-badge-success">✓ โอนเงินแล้ว (3/3)</span></td>
+            <tr class="ben-row-item" data-status="approved" data-id="MED-2569-001">
+              <td style="text-align:center;">
+                <strong>MED-2569-001</strong>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">16/05/2569</div>
+              </td>
+              <td style="text-align:center;">
+                <div>คุณภาณุพันธุ์ ใจดี</div>
+                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล (OPD)</span>
+              </td>
+              <td style="text-align:center;">16/05/2569</td>
+              <td style="text-align:center;font-weight:700;color:#059669;">฿1,300</td>
+              <td style="text-align:center;">
+                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ตรวจสุขภาพและซื้อยาตามแพทย์สั่ง</div>
+              </td>
+              <td style="text-align:center;">
+                <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;min-width:118px;">
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 2)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-001');">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -7371,9 +7710,9 @@ main, .page-view, .settings-page {
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet">ศูนย์รวมงานอนุมัติ 3 ระดับ</h1>
-        <div class="ck-hero-name">คุณภาณุพันธุ์ ใจดี · มุมมองผู้บังคับบัญชาและผู้ตรวจสอบ</div>
-        <div class="ck-hero-role">พิจารณาคำขอลางาน, OT, แก้ไขเวลา และเบิกสวัสดิการ พร้อมบันทึกเหตุผลการอนุมัติ</div>
+        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">ศูนย์รวมงานอนุมัติ 3 ระดับ</h1>
+        <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
+        <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
     </section>
 
@@ -7381,6 +7720,10 @@ main, .page-view, .settings-page {
       <div class="ck-att-topbar">
         <div class="ck-att-datebar wednesday" style="background:#fffbeb;border-color:#fde68a;color:#92400e;">
           <span class="ck-att-full-text">สถานะรายการรออนุมัติในสายงานของคุณ (ประจำวันที่ 30/10/2569)</span>
+        </div>
+        <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
+          <svg><use href="#calendar"/></svg>
+          <span>ปี 2569</span>
         </div>
       </div>
       <div class="ck-att-tiles">
@@ -7588,9 +7931,9 @@ main, .page-view, .settings-page {
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet">รายงานและสถิติทรัพยากรบุคคล</h1>
-        <div class="ck-hero-name">สรุปข้อมูลเวลาทำงาน การลา OT และสวัสดิการทั้งองค์กร</div>
-        <div class="ck-hero-role">งวดประจำเดือนตุลาคม 2569 (01/10/2569 – 31/10/2569) · พร้อมส่งออกระบบเงินเดือน (Payroll)</div>
+        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">รายงานและสถิติทรัพยากรบุคคล</h1>
+        <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
+        <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
     </section>
 
@@ -7598,6 +7941,10 @@ main, .page-view, .settings-page {
       <div class="ck-att-topbar">
         <div class="ck-att-datebar wednesday" style="background:#eff6ff;border-color:#bfdbfe;color:#0b3b68;">
           <span class="ck-att-full-text">ความพร้อมของข้อมูลสำหรับประมวลผลเงินเดือนงวด 31/10/2569</span>
+        </div>
+        <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
+          <svg><use href="#calendar"/></svg>
+          <span>ปี 2569</span>
         </div>
       </div>
       <div class="ck-att-tiles">
@@ -7794,9 +8141,9 @@ main, .page-view, .settings-page {
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet">ทะเบียนประวัติและข้อมูลส่วนตัว</h1>
-        <div class="ck-hero-name">คุณภาณุพันธุ์ ใจดี · รหัสพนักงาน CK-2024-0089</div>
-        <div class="ck-hero-role">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล · สังกัดฝ่ายทรัพยากรบุคคลและบริหาร</div>
+        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">ทะเบียนประวัติและข้อมูลส่วนตัว</h1>
+        <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
+        <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
     </section>
 
@@ -7804,6 +8151,10 @@ main, .page-view, .settings-page {
       <div class="ck-att-topbar">
         <div class="ck-att-datebar wednesday" style="background:#eff6ff;border-color:#bfdbfe;color:#0b3b68;">
           <span class="ck-att-full-text">ข้อมูลสถานะการจ้างงานและบัญชีรับเงินเดือนอัตโนมัติ</span>
+        </div>
+        <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
+          <svg><use href="#calendar"/></svg>
+          <span>ปี 2569</span>
         </div>
       </div>
       <div class="ck-att-tiles">
@@ -7944,24 +8295,39 @@ main, .page-view, .settings-page {
 
         <div class="ck-auto-chain-box">
           <div class="ck-auto-chain-head">
-            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติประจำตัว (3 ระดับ)</strong>
+            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติประจำตัว</strong>
             <span class="pg-badge pg-badge-success">ผูกตามโครงสร้างองค์กร</span>
           </div>
           <div class="ck-chain-steps-3">
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 1 · หัวหน้างาน</span>
-              <strong>คุณสมศักดิ์ มั่นคง</strong>
-              <span>ผจก.ฝ่ายทรัพยากรบุคคล</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">สม</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 1</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณสมศักดิ์ มั่นคง</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผจก.ฝ่ายทรัพยากรบุคคล</span>
+              </div>
             </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 2 · ฝ่ายบุคคล</span>
-              <strong>คุณศิริพร วงศ์สวัสดิ์</strong>
-              <span>ผอ.ฝ่ายทรัพยากรบุคคล</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#b45309;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">ศว</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 2</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณศิริพร วงศ์สวัสดิ์</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผอ.ฝ่ายทรัพยากรบุคคล</span>
+              </div>
             </div>
-            <div class="ck-chain-node">
-              <span class="ck-chain-step-badge">ระดับที่ 3 · ผู้บริหารสูงสุด</span>
-              <strong>คุณจักรกฤษณ์ เอซ</strong>
-              <span>กรรมการผู้จัดการ (MD)</span>
+            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#f3e8ff;color:#7c3aed;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">จอ</div>
+                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 3</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณจักรกฤษณ์ เอซ</strong>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">กรรมการผู้จัดการ (MD)</span>
+              </div>
             </div>
           </div>
         </div>
@@ -9357,6 +9723,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     window.openDetailModal = function(type, code) {
       var modal = document.getElementById('ck-detail-modal');
       var container = document.getElementById('modal-detail-body-container');
+      var titleEl = document.getElementById('modal-detail-title');
+      if (titleEl) titleEl.textContent = 'รายละเอียดคำขอลา';
       if (!modal || !container) return;
 
       var data = leaveRowDetails[code];
@@ -9766,93 +10134,312 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       ]
     };
 
-    window.openGenericModal = function(prefix, idx) {
+        window.openGenericModal = function(prefix, idx) {
       var modal = document.getElementById('ck-detail-modal');
       var container = document.getElementById('modal-detail-body-container');
+      var titleEl = document.getElementById('modal-detail-title');
       if (!modal || !container) return;
+
       var list = genericRowData[prefix];
       if (!list || !list[idx]) return;
       var item = list[idx];
 
-      var titleEl = document.getElementById('modal-detail-title');
-      if (titleEl) titleEl.textContent = item.title;
+      // Page Title
+      var modalTitle = 'รายละเอียดคำขอ';
+      if (prefix === 'ot') modalTitle = 'รายละเอียดคำขอทำงานล่วงเวลา (OT)';
+      else if (prefix === 'att') modalTitle = 'รายละเอียดคำขอแก้ไขเวลาทำงาน';
+      else if (prefix === 'ben') modalTitle = 'รายละเอียดคำขอเบิกสวัสดิการ';
+      if (titleEl) titleEl.textContent = modalTitle;
 
-      var catLabel = prefix === 'ot' ? 'เบิก OT ล่วงเวลา' : prefix === 'att' ? 'แก้ไขเวลาทำงาน' : 'เบิกสวัสดิการ';
+      // Determine overall status
+      var statusClass = 'approved';
+      var statusBadgeStyle = 'background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
+      var statusIcon = '✓';
+      var statusText = item.badgeText;
 
-      var dHtml = '';
+      if (item.badgeText.includes('รออนุมัติ') || item.badgeText.includes('กำลังรอ')) {
+        statusClass = 'pending';
+        statusBadgeStyle = 'background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
+        statusIcon = '⏳';
+      } else if (item.badgeText.includes('ไม่ได้รับ') || item.badgeText.includes('ไม่อนุมัติ')) {
+        statusClass = 'rejected';
+        statusBadgeStyle = 'background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
+        statusIcon = '✕';
+      }
+
+      // Metadata per prefix
+      var reqCode = '';
+      var reqDate = '';
+      var gridField1Label = '';
+      var gridField1Val = '';
+      var gridField2Label = '';
+      var gridField2Val = '';
+      var gridField3Label = '';
+      var gridField3Val = '';
+      var gridField4Label = '';
+      var gridField4Val = '';
+      var reasonTitle = 'เหตุผลความจำเป็น:';
+      var reasonText = '';
+      var attachText = '';
+
       if (prefix === 'ot') {
         var otCodes = ['OT-2569-019', 'OT-2569-018', 'OT-2569-017'];
+        var otReqDates = ['29/10/2569', '25/10/2569', '19/10/2569'];
         var otDates = ['29/10/2569 (18:00 – 21:00 น.)', '25/10/2569 (09:00 – 16:00 น.)', '19/10/2569 (18:00 – 22:00 น.)'];
-        var otHrs = ['3.0 ชม. (อัตรา 1.5 เท่า)', '6.0 ชม. (อัตรา 1.0 เท่า)', '4.0 ชม. (อัตรา 1.5 เท่า)'];
+        var otRates = ['อัตรา 1.5 เท่า', 'อัตรา 1.0 เท่า (วันหยุด)', 'อัตรา 1.5 เท่า'];
+        var otHrs = ['3.0 ชม.', '6.0 ชม.', '4.0 ชม.'];
         var otReasons = [
           'ปิดงบเดือนและกระทบยอดเงินเดือนพนักงานประจำงวดตุลาคม 2569',
-          'จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาสที่ 3',
+          'จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาสที่ 3 ตามกำหนด',
           'ขอทำ OT ตรวจสอบเอกสารทั่วไปหลังเวลางานปกติ'
         ];
-        dHtml =
-          '<div class="ck-insp-item"><strong>รหัสคำขอ:</strong> ' + otCodes[idx] + '</div>' +
-          '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
-          '<div class="ck-insp-item"><strong>วันที่และเวลาทำ OT:</strong> ' + otDates[idx] + '</div>' +
-          '<div class="ck-insp-item"><strong>จำนวนชั่วโมงสุทธิ:</strong> ' + otHrs[idx] + '</div>' +
-          '<div class="ck-insp-item"><strong>สรุปชั่วโมง OT:</strong> สะสมเดือนนี้ 42.5 ชม. (รวมรายการนี้ 45.5 ชม.)</div>' +
-          '<div class="ck-insp-item"><strong>ช่องทางจ่ายเงิน:</strong> โอนพร้อมเงินเดือนเข้าบัญชี SCB</div>' +
-          '<div class="ck-insp-item ck-insp-full"><strong>ภารกิจและรายละเอียดงาน:</strong> ' + otReasons[idx] + '</div>';
+        var otAttaches = ['อนุมัติแผนงานปิดงบ.pdf', 'กำหนดการส่งมอบงานAudit.pdf', 'ไม่มีเอกสารแนบสำหรับคำขอนี้'];
+
+        reqCode = otCodes[idx] || ('OT-2569-0' + (19 - idx));
+        reqDate = otReqDates[idx] || '28/10/2569';
+        gridField1Label = 'ประเภทการขอ';
+        gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#f5f3ff;color:#7c3aed;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><strong style="color:#0f172a;font-size:13px;">ทำงานล่วงเวลา (OT)</strong></div>';
+        gridField2Label = 'อัตราค่าตอบแทน';
+        gridField2Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + otRates[idx] + '</strong>';
+        gridField3Label = 'ช่วงเวลาที่ทำ OT';
+        gridField3Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + otDates[idx] + '</strong>';
+        gridField4Label = 'จำนวนชั่วโมง';
+        gridField4Val = '<strong style="color:#7c3aed;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + otHrs[idx] + '</strong>';
+        reasonTitle = 'ภารกิจและรายละเอียดงาน:';
+        reasonText = otReasons[idx];
+        attachText = otAttaches[idx];
       } else if (prefix === 'att') {
         var attCodes = ['TC-2569-008', 'TC-2569-009', 'TC-2569-005'];
+        var attReqDates = ['28/10/2569', '24/10/2569', '14/10/2569'];
+        var attTypes = ['ปฏิบัติงานนอกสถานที่', 'ลืมสแกนบัตร / นิ้ว', 'บันทึกเวลาล่าช้า'];
         var attDates = ['28/10/2569', '24/10/2569', '14/10/2569'];
-        var attTimes = ['08:30 – 17:35 น. (8.0 ชม.)', '08:30 – 17:30 น. (8.0 ชม.)', '08:44 – 17:45 น. (สาย 14 นาที)'];
+        var attTimes = ['08:30 – 17:35 น.', '08:30 – 17:30 น.', '08:44 – 17:45 น. (สาย 14 นาที)'];
+        var attNetHrs = ['8.0 ชม. (ปกติ)', '8.0 ชม. (ปกติ)', '8.0 ชม. (บันทึกล่าช้า)'];
         var attReasons = [
           'ยื่นเอกสารสำนักงานประกันสังคมพื้นที่ 3 ช่วงเช้า และเข้าสำนักงานเวลา 08:30 น. (มีใบรับรอง)',
           'ลืมสแกนบัตรออกช่วงเย็น เนื่องจากติดประชุมด่วนกับทีมผู้บริหารจนถึง 17:30 น.',
           'ระบบสแกนนิ้วขัดข้องชั่วคราว จึงบันทึกล่าช้า 14 นาที'
         ];
-        dHtml =
-          '<div class="ck-insp-item"><strong>รหัสคำขอ:</strong> ' + attCodes[idx] + '</div>' +
-          '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
-          '<div class="ck-insp-item"><strong>วันที่บันทึกเวลา:</strong> ' + attDates[idx] + '</div>' +
-          '<div class="ck-insp-item"><strong>เวลาที่ระบุ:</strong> ' + attTimes[idx] + '</div>' +
-          '<div class="ck-insp-item"><strong>ผลการตรวจสอบ:</strong> ตรวจสอบกล้องวงจรปิดและ Log Wi-Fi Office เรียบร้อย</div>' +
-          '<div class="ck-insp-item"><strong>สายการอนุมัติ:</strong> ผจก.ฝ่ายทรัพยากรบุคคล → ผอ.ฝ่ายทรัพยากรบุคคล</div>' +
-          '<div class="ck-insp-item ck-insp-full"><strong>เหตุผลคำชี้แจง:</strong> ' + attReasons[idx] + '</div>';
+        var attAttaches = ['ใบติดต่อประกันสังคม_สปส.pdf', 'บันทึกประชุมฝ่ายบริหาร_24ตค.pdf', 'ไม่มีเอกสารแนบสำหรับคำขอนี้'];
+
+        reqCode = attCodes[idx] || ('TC-2569-00' + (8 - idx));
+        reqDate = attReqDates[idx] || '28/10/2569';
+        gridField1Label = 'ประเภทคำขอ';
+        gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#f0fdf4;color:#15803d;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><strong style="color:#0f172a;font-size:13px;">' + attTypes[idx] + '</strong></div>';
+        gridField2Label = 'วันที่บันทึกเวลา';
+        gridField2Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + attDates[idx] + '</strong>';
+        gridField3Label = 'เวลาที่ขอปรับปรุง';
+        gridField3Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + attTimes[idx] + '</strong>';
+        gridField4Label = 'ชั่วโมงสุทธิ';
+        gridField4Val = '<strong style="color:#15803d;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + attNetHrs[idx] + '</strong>';
+        reasonTitle = 'เหตุผลและคำชี้แจง:';
+        reasonText = attReasons[idx];
+        attachText = attAttaches[idx];
       } else {
-        var benCodes = ['MED-2569-007', 'MED-2569-006', 'MED-2569-004'];
-        var benAmounts = ['฿1,200 (คลินิกทั่วไป)', '฿1,800 (โรงพยาบาลกรุงเทพ)', '฿500 (ใบเสร็จร้านขายยา)'];
+        // Benefits
+        var benCodes = ['MED-2569-003', 'MED-2569-002', 'MED-2569-001'];
+        var benReqDates = ['28/10/2569', '10/09/2569', '16/05/2569'];
+        var benTypes = ['ค่ารักษาพยาบาล (OPD)', 'ทันตกรรม (Dental)', 'ค่ารักษาพยาบาล (OPD)'];
+        var benAmounts = ['฿1,200', '฿900', '฿1,300'];
         var benQuotas = ['คงเหลือ ฿8,800 / ฿10,000', 'คงเหลือ ฿7,000 / ฿10,000', 'คงเหลือ ฿8,300 / ฿10,000'];
+        var benChannels = ['โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB'];
         var benReasons = [
-          'ตรวจรักษาโรคหวัดและภูมิแพ้ คลินิกเวชกรรมสีลม แนบใบรับรองแพทย์และใบเสร็จตัวจริง',
+          'ตรวจรักษาโรคหวัดและภูมิแพ้ คลินิกเวชกรรมสีลม แนบใบเสร็จตัวจริงและใบรับรองแพทย์',
           'ตรวจเช็กสุขภาพช่องปากและขูดหินปูนประจำปี คลินิกทันตกรรมสยาม',
-          'ซื้อยาตามแพทย์สั่งจากร้านขายยาหน้าปากซอยสีลม'
+          'ตรวจรักษาอาการอาหารเป็นพิษ รพ.วิภาวดี เอกสารใบเสร็จครบถ้วน'
         ];
-        dHtml =
-          '<div class="ck-insp-item"><strong>รหัสคำขอ:</strong> ' + benCodes[idx] + '</div>' +
-          '<div class="ck-insp-item"><strong>ผู้ยื่นคำขอ:</strong> คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</div>' +
-          '<div class="ck-insp-item"><strong>ยอดเงินที่ขอเบิก:</strong> <strong style="color:#059669;">' + benAmounts[idx] + '</strong></div>' +
-          '<div class="ck-insp-item"><strong>สิทธิ์คงเหลือปีนี้:</strong> ' + benQuotas[idx] + '</div>' +
-          '<div class="ck-insp-item"><strong>เอกสารประกอบ:</strong> ใบเสร็จรับเงิน + ใบรับรองแพทย์</div>' +
-          '<div class="ck-insp-item"><strong>ช่องทางเบิกจ่าย:</strong> โอนเข้าบัญชีเงินเดือน SCB</div>' +
-          '<div class="ck-insp-item ck-insp-full"><strong>รายละเอียดการรักษา:</strong> ' + benReasons[idx] + '</div>';
+        var benAttaches = ['ใบเสร็จ_คลินิกเวชกรรมสีลม.pdf', 'ใบเสร็จ_คลินิกทันตกรรมสยาม.pdf', 'ใบรับรองแพทย์_รพ.วิภาวดี.pdf'];
+
+        reqCode = benCodes[idx] || ('MED-2569-00' + (3 - idx));
+        reqDate = benReqDates[idx] || '28/10/2569';
+        gridField1Label = 'ประเภทสวัสดิการ';
+        gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#ecfdf5;color:#059669;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span><strong style="color:#0f172a;font-size:13px;">' + benTypes[idx] + '</strong></div>';
+        gridField2Label = 'สิทธิ์คงเหลือปีนี้';
+        gridField2Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + benQuotas[idx] + '</strong>';
+        gridField3Label = 'ช่องทางเบิกจ่าย';
+        gridField3Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + benChannels[idx] + '</strong>';
+        gridField4Label = 'ยอดเงินที่ขอเบิก';
+        gridField4Val = '<strong style="color:#059669;font-size:15px;font-weight:800;display:block;margin-top:2px;">' + benAmounts[idx] + '</strong>';
+        reasonTitle = 'รายละเอียดการรักษา / ค่าใช้จ่าย:';
+        reasonText = benReasons[idx];
+        attachText = benAttaches[idx];
       }
 
-      var tlHtml = '';
-      item.steps.forEach(function(st) {
-        tlHtml += '<div class="ck-tl-step ' + st.state + '">' +
-          '<div class="ck-tl-top"><span class="ck-tl-who">' + st.who + '</span><span class="' + st.badgeClass + '">' + st.badge + '</span></div>' +
-          '<div class="ck-tl-reason"><strong>ความเห็นผู้อนุมัติ:</strong> ' + st.reason + '</div>' +
-          '</div>';
+      // Attachments Box (Single-line compact style, hoverable to white)
+      var attachHtml = '';
+      if (!attachText || attachText.includes('ไม่มี')) {
+        attachHtml = '<div class="ck-modal-hover-card" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;font-size:12px;color:#64748b;">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>' +
+          '<span>ไม่มีเอกสารแนบสำหรับคำขอนี้</span>' +
+        '</div>';
+      } else {
+        attachHtml = '<div class="ck-modal-hover-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:#f0f7fe;border:1.5px solid #bfdbfe;border-radius:10px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;min-width:0;">' +
+            '<span style="color:#1e70bf;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>' +
+            '<span style="font-size:12px;font-weight:700;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + attachText + '</span>' +
+          '</div>' +
+          '<button type="button" class="pg-btn pg-btn-primary" style="padding:3px 10px;font-size:11px;border-radius:6px;flex-shrink:0;" onclick="alert(\'เปิดดูไฟล์: ' + attachText + '\')">เปิดไฟล์</button>' +
+        '</div>';
+      }
+
+      // 3 Horizontal Stepper Nodes
+      var stepRoles = ['หัวหน้างานโดยตรง', 'ผอ.ฝ่ายทรัพยากรบุคคล', 'กรรมการผู้จัดการ'];
+      var stepNodesHtml = '';
+      item.steps.forEach(function(st, sIdx) {
+        var circleBg = '#cbd5e1';
+        var circleShadow = 'none;';
+        if (st.state === 'done') {
+          circleBg = '#10b981';
+          circleShadow = 'box-shadow:0 2px 5px rgba(16,185,129,0.3);';
+        } else if (st.state === 'current') {
+          circleBg = '#f59e0b';
+          circleShadow = 'box-shadow:0 2px 5px rgba(245,158,11,0.3);';
+        } else if (st.state === 'rejected') {
+          circleBg = '#ef4444';
+          circleShadow = 'box-shadow:0 2px 5px rgba(239,68,68,0.3);';
+        }
+
+        stepNodesHtml += '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;z-index:2;">' +
+          '<div style="width:28px;height:28px;border-radius:50%;background:' + circleBg + ';color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;' + circleShadow + '">' + (sIdx + 1) + '</div>' +
+          '<div style="font-size:11px;font-weight:700;color:#475569;text-align:center;white-space:nowrap;">' + (stepRoles[sIdx] || ('ระดับที่ ' + (sIdx + 1))) + '</div>' +
+        '</div>';
       });
 
-      container.innerHTML =
-        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;">' +
-          '<span class="' + item.badgeClass + '">' + item.badgeText + '</span>' +
-          '<span style="font-size:13px;font-weight:700;color:#64748b;">หมวดหมู่: ' + catLabel + '</span>' +
-        '</div>' +
-        '<div class="ck-inspector-grid" style="margin-bottom:18px;">' + dHtml + '</div>' +
-        '<div>' +
-          '<div style="font-size:13.5px;font-weight:800;color:#0f172a;margin-bottom:10px;display:flex;align-items:center;gap:7px;">' +
-            '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg>' +
-            '<span>สายการอนุมัติ 3 ระดับ และเหตุผลของผู้อนุมัติ:</span>' +
+      // 3 Compact Approval Reviewer Cards for Right Column (ชี้แล้วพื้นหลังเป็นสีขาว .ck-modal-hover-card)
+      var stepCardsHtml = '';
+      item.steps.forEach(function(st, sIdx) {
+        var badgeStyle = 'background:#f1f5f9;color:#64748b;';
+        var cardBorder = '#cbe0f5';
+        var cardBg = '#f0f7fe';
+
+        if (st.state === 'done') {
+          badgeStyle = 'background:#dcfce7;color:#15803d;';
+          cardBorder = '#bbf7d0';
+          cardBg = '#f0fdf4';
+        } else if (st.state === 'current') {
+          badgeStyle = 'background:#fef3c7;color:#b45309;';
+          cardBorder = '#fed7aa';
+          cardBg = '#fff9f0';
+        } else if (st.state === 'rejected') {
+          badgeStyle = 'background:#fee2e2;color:#dc2626;';
+          cardBorder = '#fecaca';
+          cardBg = '#fef2f2';
+        }
+
+        // Parse dates or info from st.badge
+        var badgeTextClean = st.badge.replace(/s*·.*$/, '').trim();
+        var dateMatch = st.badge.match(/·s*(.+)$/);
+        var dateStr = dateMatch ? dateMatch[1] : '-';
+
+        stepCardsHtml += '<div class="ck-modal-hover-card" style="background:' + cardBg + ';border:1px solid ' + cardBorder + ';border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:4px;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
+            '<div style="display:flex;align-items:center;gap:7px;min-width:0;">' +
+              '<span style="width:20px;height:20px;border-radius:50%;background:#e2e8f0;color:#334155;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + (sIdx + 1) + '</span>' +
+              '<div style="min-width:0;">' +
+                '<strong style="font-size:12.5px;color:#0f172a;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + st.who + '</strong>' +
+              '</div>' +
+            '</div>' +
+            '<span style="' + badgeStyle + 'padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;flex-shrink:0;">' + badgeTextClean + '</span>' +
           '</div>' +
-          '<div class="ck-timeline-3">' + tlHtml + '</div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#64748b;padding-left:27px;">' +
+            '<span>ลำดับที่ ' + (sIdx + 1) + '</span>' +
+            '<span>เวลา: ' + dateStr + '</span>' +
+          '</div>' +
+          '<div style="font-size:11.5px;color:#334155;padding-left:27px;line-height:1.35;background:rgba(255,255,255,0.75);border-radius:6px;padding:4px 8px;margin-top:2px;border:1px solid rgba(0,0,0,0.04);">' +
+            '<span style="color:#64748b;font-weight:600;">ความเห็น: </span>' + (st.reason || '-') +
+          '</div>' +
+        '</div>';
+      });
+
+      // 2-Column Side-by-Side Compact Single-Page Layout (No Vertical Scrollbar!)
+      container.innerHTML =
+        '<div style="display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1.18fr);gap:18px;align-items:stretch;">' +
+          '<!-- LEFT COLUMN: ข้อมูลคำขอ -->' +
+          '<div style="display:flex;flex-direction:column;gap:11px;background:#f8fbfe;border:1px solid #dbeafe;border-radius:14px;padding:14px 16px;">' +
+            '<!-- User & Status Header -->' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid #e2e8f0;">' +
+              '<div style="display:flex;align-items:center;gap:10px;">' +
+                '<div style="width:40px;height:40px;border-radius:50%;background:#e0f2fe;color:#1e70bf;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;border:2px solid #bfdbfe;flex-shrink:0;">' +
+                  'ภด' +
+                '</div>' +
+                '<div>' +
+                  '<div style="font-size:14px;font-weight:800;color:#0f172a;line-height:1.2;">คุณภาณุพันธุ์ ใจดี</div>' +
+                  '<div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>' +
+                '</div>' +
+              '</div>' +
+              '<div>' +
+                '<span style="' + statusBadgeStyle + '">' + statusIcon + ' ' + statusText + '</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<!-- แถบด้านบน: รหัสคำขอ และ วันที่ยื่นคำขอ (ไม่มีกรอบสีขาว) -->' +
+            '<div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px 14px;padding:0 2px;">' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">รหัสคำขอ</span>' +
+                '<strong style="color:#1e70bf;font-size:13.5px;font-weight:800;display:block;margin-top:2px;">' + reqCode + '</strong>' +
+              '</div>' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">วันที่ยื่นคำขอ</span>' +
+                '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + reqDate + '</strong>' +
+              '</div>' +
+            '</div>' +
+
+            '<!-- Details Grid 4 ช่อง -->' +
+            '<div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:9px 14px;font-size:12.5px;padding:0 2px;">' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">' + gridField1Label + '</span>' +
+                gridField1Val +
+              '</div>' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">' + gridField2Label + '</span>' +
+                gridField2Val +
+              '</div>' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">' + gridField3Label + '</span>' +
+                gridField3Val +
+              '</div>' +
+              '<div>' +
+                '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">' + gridField4Label + '</span>' +
+                gridField4Val +
+              '</div>' +
+            '</div>' +
+
+            '<!-- Reason Box (ชี้แล้วเป็นพื้นหลังขาว) -->' +
+            '<div class="ck-modal-hover-card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;">' +
+              '<div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:3px;">' + reasonTitle + '</div>' +
+              '<div style="font-size:12px;color:#1e293b;line-height:1.4;">' + reasonText + '</div>' +
+            '</div>' +
+
+            '<!-- Attachment Section (ชี้แล้วเป็นพื้นหลังขาว) -->' +
+            '<div>' +
+              '<div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:5px;">เอกสารแนบประกอบการพิจารณา:</div>' +
+              attachHtml +
+            '</div>' +
+          '</div>' +
+
+          '<!-- RIGHT COLUMN: สายการอนุมัติ 3 ระดับ -->' +
+          '<div style="display:flex;flex-direction:column;gap:10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">' +
+              '<div style="display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:800;color:#0f172a;">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2.2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg>' +
+                '<span>สายการอนุมัติ</span>' +
+              '</div>' +
+              '<span style="font-size:11px;font-weight:700;color:#1e70bf;background:#eff6ff;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;">3 ระดับ</span>' +
+            '</div>' +
+
+            '<!-- Horizontal Stepper -->' +
+            '<div style="position:relative;margin:4px 10px 8px;padding:0 15px;">' +
+              '<div style="position:absolute;top:14px;left:35px;right:35px;height:2px;background:#e2e8f0;z-index:1;"></div>' +
+              '<div style="display:flex;justify-content:space-between;position:relative;z-index:2;">' +
+                stepNodesHtml +
+              '</div>' +
+            '</div>' +
+
+            '<!-- 3 Approval Cards (ชี้แล้วเป็นพื้นหลังสีขาว .ck-modal-hover-card) -->' +
+            '<div style="display:flex;flex-direction:column;gap:7px;">' +
+              stepCardsHtml +
+            '</div>' +
+          '</div>' +
         '</div>';
 
       modal.style.display = 'flex';

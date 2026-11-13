@@ -7326,14 +7326,14 @@ main, .page-view, .settings-page {
           <div class="pg-form-group" style="margin-bottom:0;">
             <label class="pg-form-label"><span>เวลาเดิมในระบบ (เข้า – ออก)</span></label>
             <div id="att-orig-time-bar" style="display:flex;align-items:center;gap:6px;width:100%;min-height:42px;height:42px;box-sizing:border-box;padding:3px 6px;background:#ffffff;border:1px solid #cbd5e1;border-radius:10px;">
-              <span id="att-orig-in-lbl" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px 2px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:800;color:#d97706;">09:14:22</span>
+              <span id="att-orig-in-lbl" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px 2px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;font-size:12px;font-weight:800;color:#16a34a;">09:14:22</span>
               <span style="color:#64748b;font-weight:700;">–</span>
-              <span id="att-orig-out-lbl" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px 2px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:800;color:#1e70bf;">17:35:08</span>
+              <span id="att-orig-out-lbl" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px 2px;background:#fef2f2;border:1px solid #fecaca;border-radius:7px;font-size:12px;font-weight:800;color:#dc2626;">17:35:08</span>
             </div>
           </div>
 
           <div class="pg-form-group" style="margin-bottom:0;">
-            <label class="pg-form-label" for="att-in-time"><span>เวลาที่ขอแก้ (เข้า – ออก)</span></label>
+            <label class="pg-form-label" for="att-in-time"><span>เวลาที่ขอแก้ (เข้า – ออก) <span class="req">*</span></span></label>
             <div style="display:flex;align-items:center;gap:6px;width:100%;min-height:42px;height:42px;box-sizing:border-box;padding:3px 6px;background:#ffffff;border:1px solid #bfdbfe;border-radius:10px;">
               <input type="text" id="att-in-time" class="pg-form-control" value="09:00:00" maxlength="8" placeholder="09:00:00" style="flex:1;min-width:0;text-align:center;font-weight:800;font-size:12px;padding:5px 2px;min-height:32px;height:32px;border:1px solid #e2e8f0;border-radius:7px;" oninput="window.onAttTimeInput && window.onAttTimeInput(this)" onblur="window.onAttTimeBlur && window.onAttTimeBlur(this)" />
               <span style="color:#64748b;font-weight:700;">–</span>
@@ -7489,14 +7489,15 @@ main, .page-view, .settings-page {
         <table class="pg-table" id="attendance-history-table" style="width:100%;text-align:center;">
           <thead>
             <tr>
-              <th style="width:12%;text-align:center;">รหัสคำขอ</th>
-              <th style="width:14%;text-align:center;">พนักงาน</th>
-              <th style="width:12%;text-align:center;">ประเภทคำขอ</th>
-              <th style="width:13%;text-align:center;">วันที่ขอแก้ไข</th>
-              <th style="width:13%;text-align:center;">เวลาเข้า – ออก</th>
-              <th style="width:13%;text-align:center;">เหตุผลคำชี้แจง</th>
-              <th style="width:10%;text-align:center;">สถานะ</th>
-              <th style="width:13%;text-align:center;">จัดการ</th>
+              <th style="width:10%;text-align:center;">รหัสคำขอ</th>
+              <th style="width:13%;text-align:center;">พนักงาน</th>
+              <th style="width:10%;text-align:center;">ประเภทคำขอ</th>
+              <th style="width:9%;text-align:center;">วันที่ขอแก้ไข</th>
+              <th style="width:12%;text-align:center;">เวลาเดิม (เข้า – ออก)</th>
+              <th style="width:13%;text-align:center;">เวลาที่ขอแก้ (เข้า – ออก)</th>
+              <th style="width:12%;text-align:center;">เหตุผลคำชี้แจง</th>
+              <th style="width:9%;text-align:center;">สถานะ</th>
+              <th style="width:12%;text-align:center;">จัดการ</th>
             </tr>
           </thead>
           <tbody>
@@ -7510,11 +7511,15 @@ main, .page-view, .settings-page {
                 <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
               </td>
               <td style="text-align:center;">
-                <span class="pg-badge" style="background:#e0f2fe;color:#0284c7;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">แก้เวลาเข้า</span>
+                <span class="pg-badge" style="background:#e0f2fe;color:#0284c7;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">แก้ไขเวลาเข้า</span>
               </td>
               <td style="text-align:center;">28/10/2569</td>
+              <td style="text-align:center;line-height:1.4;font-size:12px;">
+                <div><span style="color:#16a34a;font-weight:700;">--:--:--</span> – <span style="color:#dc2626;font-weight:700;">17:35:12</span></div>
+                <small style="color:#64748b;">(ยังไม่ลงเวลาเข้า)</small>
+              </td>
               <td style="text-align:center;line-height:1.4;">
-                <div>09:00:00 – 17:35:12 น.</div>
+                <div><strong style="color:#1e70bf;">09:00:00</strong> – 17:35:12 น.</div>
                 <small style="color:#64748b;">(7.5 ชม.)</small>
               </td>
               <td style="text-align:center;">
@@ -7550,11 +7555,15 @@ main, .page-view, .settings-page {
                 <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
               </td>
               <td style="text-align:center;">
-                <span class="pg-badge" style="background:#e0f2fe;color:#0284c7;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">แก้เวลาออก</span>
+                <span class="pg-badge" style="background:#e0f2fe;color:#0284c7;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">แก้ไขเวลาออก</span>
               </td>
               <td style="text-align:center;">24/10/2569</td>
+              <td style="text-align:center;line-height:1.4;font-size:12px;">
+                <div><span style="color:#16a34a;font-weight:700;">09:00:00</span> – <span style="color:#dc2626;font-weight:700;">--:--:--</span></div>
+                <small style="color:#64748b;">(ยังไม่ลงเวลาออก)</small>
+              </td>
               <td style="text-align:center;line-height:1.4;">
-                <div>09:00:00 – 17:30:00 น.</div>
+                <div>09:00:00 – <strong style="color:#1e70bf;">17:30:00</strong> น.</div>
                 <small style="color:#64748b;">(7.5 ชม.)</small>
               </td>
               <td style="text-align:center;">
@@ -7593,12 +7602,16 @@ main, .page-view, .settings-page {
                 <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
               </td>
               <td style="text-align:center;">
-                <span class="pg-badge" style="background:#fee2e2;color:#dc2626;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">รับรองเวลาสาย</span>
+                <span class="pg-badge" style="background:#f3e8ff;color:#7c3aed;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ทั้งเวลาเข้าและออก</span>
               </td>
               <td style="text-align:center;">14/10/2569</td>
-              <td style="text-align:center;line-height:1.4;">
-                <div>09:14:22 – 17:45:05 น.</div>
+              <td style="text-align:center;line-height:1.4;font-size:12px;">
+                <div><span style="color:#16a34a;font-weight:700;">09:14:22</span> – <span style="color:#dc2626;font-weight:700;">17:45:05</span></div>
                 <small style="color:#64748b;">(สาย 14 นาที)</small>
+              </td>
+              <td style="text-align:center;line-height:1.4;">
+                <div><strong style="color:#1e70bf;">09:00:00 – 17:30:00</strong> น.</div>
+                <small style="color:#64748b;">(7.5 ชม.)</small>
               </td>
               <td style="text-align:center;">
                 <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ระบบสแกนนิ้วขัดข้องชั่วคราว</div>
@@ -11287,30 +11300,41 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       } else if (prefix === 'att') {
         var attCodes = ['TC-2569-008', 'TC-2569-009', 'TC-2569-005'];
         var attReqDates = ['28/10/2569', '24/10/2569', '14/10/2569'];
-        var attTypes = ['ปฏิบัติงานนอกสถานที่', 'ลืมสแกนลงเวลา', 'ระบบสแกนขัดข้อง'];
+        var attTypes = ['แก้ไขเวลาเข้า', 'แก้ไขเวลาออก', 'ทั้งเวลาเข้าและออก'];
+        var attCauseReasons = ['ปฏิบัติงานนอกสถานที่', 'ลืมสแกนลงเวลา', 'ระบบสแกนขัดข้อง'];
         var attDates = ['28/10/2569', '24/10/2569', '14/10/2569'];
-        var attOrigTimes = ['เข้า --:--:-- น.', 'ออก --:--:-- น.', 'เข้า 09:14:22 น.'];
-        var attTimes = ['09:00:00 – 17:35:12 น.', '09:00:00 – 17:30:00 น.', '09:14:22 – 17:45:05 น. (สาย 14 นาที)'];
-        var attNetHrs = ['7.5 ชม. (ปกติ)', '7.5 ชม. (ปกติ)', '7.5 ชม. (บันทึกล่าช้า)'];
+        var attOrigTimes = [
+          '<span style="color:#16a34a;">เข้า --:--:-- น.</span>',
+          '<span style="color:#dc2626;">ออก --:--:-- น.</span>',
+          '<span style="color:#16a34a;">09:14:22</span> – <span style="color:#dc2626;">17:45:05</span> น.'
+        ];
+        var attTimes = [
+          'เข้า 09:00:00 น.',
+          'ออก 17:30:00 น.',
+          '09:00:00 – 17:30:00 น.'
+        ];
+        var attNetHrs = ['7.5 ชม. (ปกติ)', '7.5 ชม. (ปกติ)', '7.5 ชม. (ปกติ)'];
         var attReasons = [
           'ยื่นเอกสารสำนักงานประกันสังคมพื้นที่ 3 ช่วงเช้า และเข้าสำนักงานเวลา 09:00:00 น. (มีใบรับรอง)',
           'ลืมสแกนบัตรออกช่วงเย็น เนื่องจากติดประชุมด่วนกับทีมผู้บริหารจนถึง 17:30:00 น.',
-          'ระบบสแกนนิ้วขัดข้องชั่วคราว จึงบันทึกล่าช้า 14 นาที'
+          'ระบบสแกนนิ้วขัดข้องชั่วคราว จึงขอปรับปรุงเวลาเข้าและออกเป็น 09:00:00 – 17:30:00 น.'
         ];
         var attAttaches = ['ใบติดต่อประกันสังคม_สปส.pdf', 'บันทึกประชุมฝ่ายบริหาร_24ตค.pdf', 'ไม่มีเอกสารแนบสำหรับคำขอนี้'];
 
         reqCode = attCodes[idx] || ('TC-2569-00' + (8 - idx));
         reqDate = attReqDates[idx] || '28/10/2569';
         gridField1Label = 'ประเภทคำขอ';
-        gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#f0fdf4;color:#15803d;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><strong style="color:#0f172a;font-size:13px;">' + attTypes[idx] + '</strong></div>';
-        gridField2Label = 'วันที่บันทึกเวลา';
-        gridField2Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + attDates[idx] + '</strong>';
-        gridField3Label = 'เวลาเดิมในระบบ';
-        gridField3Val = '<strong style="color:#d97706;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + attOrigTimes[idx] + '</strong>';
-        gridField4Label = 'เวลาที่ขอปรับปรุง';
-        gridField4Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + attTimes[idx] + '</strong>';
-        gridField5Label = 'ชั่วโมงสุทธิ';
-        gridField5Val = '<strong style="color:#15803d;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + attNetHrs[idx] + '</strong>';
+        gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#eff6ff;color:#1e70bf;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><strong style="color:#0f172a;font-size:13px;">' + attTypes[idx] + '</strong></div>';
+        gridField2Label = 'สาเหตุการแก้ไขเวลา *';
+        gridField2Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + attCauseReasons[idx] + '</strong>';
+        gridField3Label = 'วันที่บันทึกเวลา';
+        gridField3Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + attDates[idx] + '</strong>';
+        gridField4Label = 'เวลาเดิมในระบบ';
+        gridField4Val = '<strong style="font-size:13px;font-weight:800;display:block;margin-top:2px;">' + attOrigTimes[idx] + '</strong>';
+        gridField5Label = 'เวลาที่ขอปรับปรุง';
+        gridField5Val = '<strong style="color:#1e70bf;font-size:13px;font-weight:800;display:block;margin-top:2px;">' + attTimes[idx] + '</strong>';
+        gridField6Label = 'ชั่วโมงสุทธิ';
+        gridField6Val = '<strong style="color:#15803d;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + attNetHrs[idx] + '</strong>';
         reasonTitle = 'เหตุผลและคำชี้แจง:';
         reasonText = attReasons[idx];
         attachText = attAttaches[idx];

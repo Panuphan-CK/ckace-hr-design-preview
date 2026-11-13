@@ -7189,83 +7189,95 @@ main, .page-view, .settings-page {
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (แบบที่ 2: Hero Number + Footer Bar ประจำเดือน & สะสม) -->
+  <!-- Row 2: 4 KPI Cards (แบบที่ 3: Vertical Divider Pair กะทัดรัด ประจำเดือน | สะสม) -->
   <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
     <!-- 1. เข้างานตรงเวลา -->
-    <div class="ck-pers-card" style="padding:15px 17px 12px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #10b981;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+    <div class="ck-pers-card" style="padding:13px 16px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #10b981;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:9px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#dcfce7;color:#16a34a;border-radius:10px;flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
-          <b style="font-size:14px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">เข้างานตรงเวลา</b>
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#dcfce7;color:#16a34a;border-radius:9px;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
+          <b style="font-size:13.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">เข้างานตรงเวลา</b>
         </div>
-        <span style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:2px 8px;border-radius:7px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">94.7%</span>
+        <span style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">94.7%</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
-        <strong style="font-size:25px;font-weight:800;color:#0d8268;letter-spacing:-0.4px;line-height:1.1;">18 วัน</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">จาก 19 วันทำงาน</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:10px;">
+          <div style="font-size:10.5px;font-weight:600;color:#64748b;">ประจำเดือน</div>
+          <strong style="font-size:20px;font-weight:800;color:#0d8268;line-height:1.15;">18 วัน</strong>
+        </div>
+        <div style="padding-left:12px;">
+          <div style="font-size:10.5px;font-weight:600;color:#64748b;">สะสม</div>
+          <strong style="font-size:20px;font-weight:800;color:#0f172a;line-height:1.15;">198 วัน</strong>
+        </div>
       </div>
-      <div style="padding:7px 10px;background:#ffffff;border:1px solid #dcfce7;border-radius:9px;display:flex;justify-content:space-between;align-items:center;font-size:11.5px;">
-        <span style="color:#64748b;font-weight:600;">สะสมทั้งปี 2569</span>
-        <strong style="color:#0f172a;font-weight:800;">198 วัน</strong>
-      </div>
+      <div style="font-size:11px;font-weight:600;color:#64748b;border-top:1px dashed #e2e8f0;padding-top:6px;">จาก 19 วันทำงานในเดือนนี้</div>
     </div>
 
     <!-- 2. มาสาย / ออกก่อน / ไม่ลงเวลา -->
-    <div class="ck-pers-card" style="padding:15px 17px 12px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #f59e0b;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+    <div class="ck-pers-card" style="padding:13px 16px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #f59e0b;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:9px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#fef3c7;color:#d97706;border-radius:10px;flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#fef3c7;color:#d97706;border-radius:9px;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
           <b style="font-size:13.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="มาสาย / ออกก่อน / ไม่ลงเวลา">มาสาย / ออกก่อน / ไม่ลงเวลา</b>
         </div>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
-        <strong style="font-size:25px;font-weight:800;color:#b45309;letter-spacing:-0.4px;line-height:1.1;">1 ครั้ง</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">สายรวม 14 นาที</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:10px;">
+          <div style="font-size:10.5px;font-weight:600;color:#64748b;">ประจำเดือน</div>
+          <strong style="font-size:20px;font-weight:800;color:#b45309;line-height:1.15;">1 ครั้ง</strong>
+        </div>
+        <div style="padding-left:12px;">
+          <div style="font-size:10.5px;font-weight:600;color:#64748b;">สะสม</div>
+          <strong style="font-size:20px;font-weight:800;color:#0f172a;line-height:1.15;">6 ครั้ง</strong>
+        </div>
       </div>
-      <div style="padding:7px 10px;background:#ffffff;border:1px solid #fde68a;border-radius:9px;display:flex;justify-content:space-between;align-items:center;font-size:11.5px;">
-        <span style="color:#64748b;font-weight:600;">สะสมทั้งปี 2569</span>
-        <strong style="color:#0f172a;font-weight:800;">6 ครั้ง</strong>
-      </div>
+      <div style="font-size:11px;font-weight:600;color:#64748b;border-top:1px dashed #e2e8f0;padding-top:6px;">เดือนนี้สายรวม 14 นาที</div>
     </div>
 
     <!-- 3. คำขอแก้ไขเวลา -->
-    <div class="ck-pers-card" style="padding:15px 17px 12px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+    <div class="ck-pers-card" style="padding:13px 16px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:9px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#e0f2fe;color:#0284c7;border-radius:10px;flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#workflow"/></svg></span>
-          <b style="font-size:14px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">คำขอแก้ไขเวลา</b>
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#e0f2fe;color:#0284c7;border-radius:9px;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#workflow"/></svg></span>
+          <b style="font-size:13.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">คำขอแก้ไขเวลา</b>
         </div>
-        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:7px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">รออนุมัติ 1</span>
+        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">รออนุมัติ 1</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
-        <strong style="font-size:25px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">3 ครั้ง</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ประจำเดือน ต.ค.</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:10px;">
+          <div style="font-size:10.5px;font-weight:600;color:#64748b;">ประจำเดือน</div>
+          <strong style="font-size:20px;font-weight:800;color:#1e70bf;line-height:1.15;">3 ครั้ง</strong>
+        </div>
+        <div style="padding-left:12px;">
+          <div style="font-size:10.5px;font-weight:600;color:#64748b;">สะสม</div>
+          <strong style="font-size:20px;font-weight:800;color:#0f172a;line-height:1.15;">12 ครั้ง</strong>
+        </div>
       </div>
-      <div style="padding:7px 10px;background:#ffffff;border:1px solid #bfdbfe;border-radius:9px;display:flex;justify-content:space-between;align-items:center;font-size:11.5px;">
-        <span style="color:#64748b;font-weight:600;">สะสมทั้งปี 2569</span>
-        <strong style="color:#0f172a;font-weight:800;">12 ครั้ง</strong>
-      </div>
+      <div style="font-size:11px;font-weight:600;color:#64748b;border-top:1px dashed #e2e8f0;padding-top:6px;">อนุมัติ 1 · รออนุมัติ 1 · ไม่อนุมัติ 1</div>
     </div>
 
     <!-- 4. ชั่วโมงทำงาน -->
-    <div class="ck-pers-card" style="padding:15px 17px 12px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+    <div class="ck-pers-card" style="padding:13px 16px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:9px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#e0f2fe;color:#0284c7;border-radius:10px;flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#calendar"/></svg></span>
-          <b style="font-size:14px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ชั่วโมงทำงาน</b>
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#e0f2fe;color:#0284c7;border-radius:9px;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#calendar"/></svg></span>
+          <b style="font-size:13.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ชั่วโมงทำงาน</b>
         </div>
-        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:2px 8px;border-radius:7px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">ทั้งปี 1,920 ชม.</span>
+        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">ทั้งปี 1,920 ชม.</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
-        <strong style="font-size:25px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">152.0 ชม.</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">เฉลี่ย 8.0 ชม./วัน</span>
-      </div>
-      <div style="padding:6px 10px;background:#ffffff;border:1px solid #bae6fd;border-radius:9px;display:flex;flex-direction:column;gap:4px;font-size:11.5px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="color:#64748b;font-weight:600;">สะสม / ทั้งปี</span>
-          <strong style="color:#0284c7;font-weight:800;">1,584 / 1,920 ชม. (82.5%)</strong>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:10px;">
+          <div style="font-size:10.5px;font-weight:600;color:#64748b;">เดือนนี้</div>
+          <strong style="font-size:19px;font-weight:800;color:#0284c7;line-height:1.15;">152.0 ชม.</strong>
         </div>
-        <div style="width:100%;height:4px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+        <div style="padding-left:12px;">
+          <div style="font-size:10.5px;font-weight:600;color:#64748b;">สะสม</div>
+          <strong style="font-size:19px;font-weight:800;color:#0f172a;line-height:1.15;">1,584 ชม.</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#0284c7;white-space:nowrap;">82.5% ของทั้งปี</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
           <div style="width:82.5%;height:100%;background:#0284c7;border-radius:99px;"></div>
         </div>
       </div>

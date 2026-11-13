@@ -7316,22 +7316,35 @@ main, .page-view, .settings-page {
             <label class="pg-form-label"><span>วันที่ขอแก้ไขเวลา <span class="req">*</span></span></label>
             <div class="ck-date-box-wrap">
               <button type="button" class="ck-date-box" id="att-date-box" data-date-target="att-date" onclick="window.openPopupCal && window.openPopupCal(this, 'att-date')">
-                <span id="att-date-val">28/10/2569</span>
+                <span id="att-date-val">05/11/2569</span>
                 <svg><use href="#calendar"/></svg>
               </button>
-              <div class="ck-date-popover" id="pop-att-date"></div>
+              <div class="ck-date-popover ck-leave-range-popover" id="pop-att-date"></div>
             </div>
           </div>
 
           <div class="pg-form-group" style="margin-bottom:0;">
             <label class="pg-form-label" for="att-in-time"><span>เวลาเข้าที่ขอแก้</span></label>
-            <input type="text" id="att-in-time" class="pg-form-control" value="08:30" maxlength="5" placeholder="08:30" style="text-align:center;font-weight:700;min-height:42px;" oninput="window.onAttTimeInput && window.onAttTimeInput(this)" onblur="window.onAttTimeBlur && window.onAttTimeBlur(this)" />
+            <input type="text" id="att-in-time" class="pg-form-control" value="09:00:00" maxlength="8" placeholder="09:00:00" style="text-align:center;font-weight:700;min-height:42px;" oninput="window.onAttTimeInput && window.onAttTimeInput(this)" onblur="window.onAttTimeBlur && window.onAttTimeBlur(this)" />
           </div>
 
           <div class="pg-form-group" style="margin-bottom:0;">
             <label class="pg-form-label" for="att-out-time"><span>เวลาออกที่ขอแก้</span></label>
-            <input type="text" id="att-out-time" class="pg-form-control" value="17:30" maxlength="5" placeholder="17:30" disabled style="text-align:center;font-weight:700;min-height:42px;background:#f1f5f9;color:#94a3b8;" oninput="window.onAttTimeInput && window.onAttTimeInput(this)" onblur="window.onAttTimeBlur && window.onAttTimeBlur(this)" />
+            <input type="text" id="att-out-time" class="pg-form-control" value="17:30:00" maxlength="8" placeholder="17:30:00" disabled style="text-align:center;font-weight:700;min-height:42px;background:#f1f5f9;color:#94a3b8;" oninput="window.onAttTimeInput && window.onAttTimeInput(this)" onblur="window.onAttTimeBlur && window.onAttTimeBlur(this)" />
           </div>
+        </div>
+
+        <!-- แสดงเวลาเดิมที่ลงระบบไว้ของวันที่เลือก -->
+        <div id="att-orig-time-bar" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;font-size:12px;">
+          <span style="font-weight:700;color:#475569;display:inline-flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>เวลาเดิมที่ลงระบบไว้ (<span id="att-orig-date-lbl">05/11/2569</span>)</span>
+          </span>
+          <span style="font-weight:700;color:#0f172a;display:inline-flex;align-items:center;gap:10px;">
+            <span>เข้า: <strong id="att-orig-in-lbl" style="color:#d97706;">09:14:22 น.</strong></span>
+            <span style="color:#cbd5e1;">|</span>
+            <span>ออก: <strong id="att-orig-out-lbl" style="color:#1e70bf;">17:35:08 น.</strong></span>
+          </span>
         </div>
 
         <div class="pg-form-group" style="margin-bottom:0;">
@@ -7345,29 +7358,25 @@ main, .page-view, .settings-page {
 
         <div class="pg-form-group" style="margin-bottom:0;">
           <label class="pg-form-label"><span>สาเหตุการแก้ไขเวลา <span class="req">*</span></span></label>
-          <div class="ck-click-grid-2" id="att-reason-cards">
-            <button type="button" class="ck-click-card active" onclick="window.selectAttReasonCard && window.selectAttReasonCard('ปฏิบัติงานนอกสถานที่', this)">
-              <div class="ck-click-card-top"><strong>ปฏิบัติงานนอกสถานที่</strong><span class="quota-pill">พบลูกค้า/ราชการ</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">ติดต่องานช่วงเช้า</span>
+          <div id="att-reason-cards" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">
+            <button type="button" class="ck-click-card active" style="align-items:center;justify-content:center;text-align:center;min-height:48px;padding:10px 8px;" onclick="window.selectAttReasonCard && window.selectAttReasonCard('ลืมสแกนลงเวลา', this)">
+              <strong style="font-size:12.5px;line-height:1.3;">ลืมสแกนลงเวลา</strong>
             </button>
-            <button type="button" class="ck-click-card" onclick="window.selectAttReasonCard && window.selectAttReasonCard('ลืมสแกนลงเวลา', this)">
-              <div class="ck-click-card-top"><strong>ลืมสแกนลงเวลา</strong><span class="quota-pill">เข้างานตามปกติ</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">ปฏิบัติงานตามปกติ</span>
+            <button type="button" class="ck-click-card" style="align-items:center;justify-content:center;text-align:center;min-height:48px;padding:10px 8px;" onclick="window.selectAttReasonCard && window.selectAttReasonCard('ปฏิบัติงานนอกสถานที่', this)">
+              <strong style="font-size:12.5px;line-height:1.3;">ปฏิบัติงานนอกสถานที่</strong>
             </button>
-            <button type="button" class="ck-click-card" onclick="window.selectAttReasonCard && window.selectAttReasonCard('ระบบสแกนขัดข้อง', this)">
-              <div class="ck-click-card-top"><strong>ระบบสแกนขัดข้อง</strong><span class="quota-pill">อุปกรณ์</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">สัญญาณเครือข่ายขัดข้อง</span>
+            <button type="button" class="ck-click-card" style="align-items:center;justify-content:center;text-align:center;min-height:48px;padding:10px 8px;" onclick="window.selectAttReasonCard && window.selectAttReasonCard('ระบบสแกนขัดข้อง', this)">
+              <strong style="font-size:12.5px;line-height:1.3;">ระบบสแกนขัดข้อง</strong>
             </button>
-            <button type="button" class="ck-click-card" onclick="window.selectAttReasonCard && window.selectAttReasonCard('เหตุสุดวิสัยการจราจร', this)">
-              <div class="ck-click-card-top"><strong>เหตุสุดวิสัยการจราจร</strong><span class="quota-pill">แนบหลักฐาน</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">รถไฟฟ้า/เส้นทางหลักขัดข้อง</span>
+            <button type="button" class="ck-click-card" style="align-items:center;justify-content:center;text-align:center;min-height:48px;padding:10px 8px;" onclick="window.selectAttReasonCard && window.selectAttReasonCard('เหตุสุดวิสัย', this)">
+              <strong style="font-size:12.5px;line-height:1.3;">เหตุสุดวิสัย</strong>
             </button>
           </div>
         </div>
 
         <div class="pg-form-group" style="flex:1;display:flex;flex-direction:column;margin-bottom:0;">
           <label class="pg-form-label" for="time-corr-detail"><span>เหตุผลและคำชี้แจง <span class="req">*</span></span></label>
-          <textarea id="time-corr-detail" class="pg-form-control" rows="2" style="flex:1;min-height:76px;" required>เดินทางไปยื่นเอกสารประกันสังคมที่สำนักงานประกันสังคมพื้นที่ 3 ช่วงเช้า และเข้าสำนักงานเวลา 08:30 น.</textarea>
+          <textarea id="time-corr-detail" class="pg-form-control" rows="2" style="flex:1;min-height:76px;" required>เดินทางไปยื่นเอกสารประกันสังคมที่สำนักงานประกันสังคมพื้นที่ 3 ช่วงเช้า และเข้าสำนักงานเวลา 09:00:00 น.</textarea>
         </div>
 
         <div class="pg-form-group" style="margin-bottom:0;">
@@ -7424,24 +7433,24 @@ main, .page-view, .settings-page {
         <div class="ck-quota-live-box" style="background:#f8fbfe;border:1px solid #dbeafe;border-radius:12px;padding:12px 14px;">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
             <strong style="font-size:13px;color:#0f172a;">สรุปคำขอแก้ไขเวลา</strong>
-            <span id="att-summary-date-badge" style="font-size:12px;font-weight:700;color:#0f172a;background:#ffffff;border:1px solid #bfdbfe;padding:4px 10px;border-radius:8px;white-space:nowrap;">พุธ ที่ 28 ตุลาคม 2569 · <span style="color:#1e70bf;">08:30 น.</span></span>
+            <span id="att-summary-date-badge" style="font-size:12px;font-weight:700;color:#0f172a;background:#ffffff;border:1px solid #bfdbfe;padding:4px 10px;border-radius:8px;white-space:nowrap;"><span style="color:#1e70bf;font-weight:800;">พฤหัส</span> ที่ 5 พฤศจิกายน 2569 · <span style="color:#1e70bf;">09:00:00 น.</span></span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center;">
             <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 6px;">
-              <div style="font-size:11px;color:#64748b;font-weight:600;">ประเภทการแก้ไข</div>
-              <strong id="att-sum-mode" style="font-size:13.5px;font-weight:800;color:#1e70bf;">แก้ไขเวลาเข้า</strong>
+              <div style="font-size:11px;color:#64748b;font-weight:600;">เวลาเดิมในระบบ</div>
+              <strong id="att-sum-orig" style="font-size:13px;font-weight:800;color:#d97706;">09:14:22 น.</strong>
             </div>
             <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 6px;">
               <div style="font-size:11px;color:#64748b;font-weight:600;">เวลาที่ขอปรับปรุง</div>
-              <strong id="att-sum-time" style="font-size:13.5px;font-weight:800;color:#7c3aed;">08:30 น.</strong>
+              <strong id="att-sum-time" style="font-size:13px;font-weight:800;color:#7c3aed;">09:00:00 น.</strong>
             </div>
             <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 6px;">
               <div style="font-size:11px;color:#64748b;font-weight:600;">ชั่วโมงทำงานสุทธิ</div>
-              <strong id="att-sum-hrs" style="font-size:13.5px;font-weight:800;color:#0d8268;">8.0 ชม.</strong>
+              <strong id="att-sum-hrs" style="font-size:13px;font-weight:800;color:#0d8268;">7.5 ชม.</strong>
             </div>
           </div>
           <div id="att-sum-green-line" style="margin-top:8px;padding:6px 10px;background:#dcfce7;color:#15803d;border-radius:8px;font-size:12px;font-weight:700;">
-            ✓ แก้ไขเวลาเข้างานเป็น 08:30 น. · สาเหตุ: ปฏิบัติงานนอกสถานที่
+            ✓ แก้ไขเวลาเข้า: เดิม 09:14:22 น. → 09:00:00 น. · สาเหตุ: ลืมสแกนลงเวลา
           </div>
         </div>
 
@@ -7453,12 +7462,11 @@ main, .page-view, .settings-page {
         <div class="ck-leave-rules-box" style="margin-top:2px;padding:12px 14px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;font-size:12px;color:#475569;line-height:1.6;">
           <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#1e293b;margin-bottom:6px;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>เกณฑ์การปรับปรุงเวลาทำงาน (เวลาปกติ 08:30 – 17:30 น.)</span>
+            <span>เกณฑ์การปรับปรุงเวลาทำงาน (เวลาปกติ 09:00 – 17:30 น.)</span>
           </div>
           <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px;">
             <li><b>ความถูกต้องของข้อมูล:</b> ระบุวันที่และช่วงเวลาที่ต้องการปรับปรุงให้ตรงกับบันทึกการปฏิบัติงานจริง</li>
             <li><b>หลักฐานประกอบ:</b> กรณีปฏิบัติงานนอกสถานที่หรือระบบขัดข้อง โปรดแนบเอกสารหรือระบุรายละเอียดให้ชัดเจน</li>
-            <li><b>การยื่นขอแก้ไขเวลา:</b> คำขอแก้ไขเวลาจะเข้าสู่สายการอนุมัติ 3 ระดับตามโครงสร้างบริษัท</li>
           </ul>
         </div>
         </div>
@@ -7507,8 +7515,8 @@ main, .page-view, .settings-page {
               </td>
               <td style="text-align:center;">28/10/2569</td>
               <td style="text-align:center;line-height:1.4;">
-                <div>08:30 – 17:35 น.</div>
-                <small style="color:#64748b;">(8.0 ชม.)</small>
+                <div>09:00:00 – 17:35:12 น.</div>
+                <small style="color:#64748b;">(7.5 ชม.)</small>
               </td>
               <td style="text-align:center;">
                 <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ยื่นเอกสารประกันสังคมพื้นที่ 3 ช่วงเช้า</div>
@@ -7547,8 +7555,8 @@ main, .page-view, .settings-page {
               </td>
               <td style="text-align:center;">24/10/2569</td>
               <td style="text-align:center;line-height:1.4;">
-                <div>08:30 – 17:30 น.</div>
-                <small style="color:#64748b;">(8.0 ชม.)</small>
+                <div>09:00:00 – 17:30:00 น.</div>
+                <small style="color:#64748b;">(7.5 ชม.)</small>
               </td>
               <td style="text-align:center;">
                 <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ลืมสแกนบัตรออกเนื่องจากติดประชุมด่วน</div>
@@ -7590,7 +7598,7 @@ main, .page-view, .settings-page {
               </td>
               <td style="text-align:center;">14/10/2569</td>
               <td style="text-align:center;line-height:1.4;">
-                <div>08:44 – 17:45 น.</div>
+                <div>09:14:22 – 17:45:05 น.</div>
                 <small style="color:#64748b;">(สาย 14 นาที)</small>
               </td>
               <td style="text-align:center;">
@@ -9888,6 +9896,12 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         return;
       }
 
+      if (key === 'att-date') {
+        window.renderAttCalPopup && window.renderAttCalPopup(pop);
+        pop.classList.add('open');
+        return;
+      }
+
       var monthLabel = 'ตุลาคม 2569';
       var mSuffix = '10/2569';
       var maxDays = 31;
@@ -10810,16 +10824,60 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       updateOtLiveSummary();
     };
 
-    // Attendance (#attendance) Time Correction Interactive State
-    var attState = { mode: 'in', reason: 'ปฏิบัติงานนอกสถานที่' };
+    // Attendance (#attendance) Time Correction Interactive State (09:00:00 - 17:30:00, Nov 2569 Calendar)
+    var attState = { day: 5, mode: 'in', reason: 'ลืมสแกนลงเวลา' };
+    var attRecordedTimes = {
+      5: { in: '09:14:22', out: '17:35:08' },
+      6: { in: '08:56:10', out: '--:--:--' },
+      9: { in: '--:--:--', out: '17:32:40' },
+      12: { in: '09:08:45', out: '17:30:19' },
+      18: { in: '08:58:05', out: '--:--:--' },
+      24: { in: '09:00:12', out: '--:--:--' }
+    };
+    function getAttRecordedForDay(day) {
+      return attRecordedTimes[day] || { in: '08:55:18', out: '17:31:45' };
+    }
+
+    window.renderAttCalPopup = function(popEl) {
+      if (!popEl) return;
+      var html = '<div class="ck-pop-cal-head">' +
+        '<span>ปฏิทินเลือกวันที่ (พฤศจิกายน 2569)</span>' +
+        '<span class="pg-badge pg-badge-info" style="font-size:10.5px;">DD/MM/YYYY</span>' +
+        '</div>' +
+        '<div class="ck-pop-cal-dow"><span>อา.</span><span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span></div>' +
+        '<div class="ck-pop-cal-grid">';
+      for (var d = 1; d <= 30; d++) {
+        var fDate = pad2(d) + '/11/2569';
+        var isHol = (typeof isOtHoliday === 'function') ? isOtHoliday(d) : false;
+        var isSel = (d === attState.day);
+        var cls = 'ck-pop-day';
+        if (isSel) cls += ' active';
+        if (isHol && !isSel) cls += ' is-holiday';
+        var sty = isSel ? 'background:#1e70bf;color:#ffffff;font-weight:800;' : (isHol ? 'color:#dc2626;background:#fef2f2;cursor:pointer;' : '');
+        html += '<button type="button" class="' + cls + '" style="' + sty + '" onclick="window.pickAttCalDay(' + d + ', \'' + fDate + '\')">' + pad2(d) + '</button>';
+      }
+      html += '</div>';
+      popEl.innerHTML = html;
+    };
+
+    window.pickAttCalDay = function(day, formattedDate) {
+      attState.day = day;
+      var valEl = document.getElementById('att-date-val');
+      if (valEl) valEl.textContent = formattedDate;
+      var pop = document.getElementById('pop-att-date');
+      if (pop) pop.classList.remove('open');
+      var box = document.getElementById('att-date-box');
+      if (box) box.classList.remove('active');
+      window.updateAttSummary && window.updateAttSummary();
+    };
 
     window.onAttTimeInput = function(el) {
       if (!el) return;
-      var digits = el.value.replace(/\D/g, '').slice(0, 4);
-      if (digits.length === 4) {
+      var digits = el.value.replace(/\D/g, '').slice(0, 6);
+      if (digits.length >= 5) {
+        el.value = digits.slice(0, 2) + ':' + digits.slice(2, 4) + ':' + digits.slice(4, 6);
+      } else if (digits.length >= 3 && el.value.indexOf(':') === -1) {
         el.value = digits.slice(0, 2) + ':' + digits.slice(2);
-      } else if (digits.length === 3 && el.value.indexOf(':') === -1) {
-        el.value = digits;
       }
       window.updateAttSummary && window.updateAttSummary();
     };
@@ -10827,11 +10885,14 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     window.onAttTimeBlur = function(el) {
       if (!el) return;
       var digits = el.value.replace(/\D/g, '');
-      if (digits.length === 3) digits = '0' + digits;
-      if (digits.length >= 4) {
+      if (digits.length === 3) digits = '0' + digits + '00';
+      else if (digits.length === 4) digits = digits + '00';
+      else if (digits.length === 5) digits = '0' + digits;
+      if (digits.length >= 6) {
         var hh = Math.min(23, parseInt(digits.slice(0, 2), 10) || 0);
         var mm = Math.min(59, parseInt(digits.slice(2, 4), 10) || 0);
-        el.value = String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+        var ss = Math.min(59, parseInt(digits.slice(4, 6), 10) || 0);
+        el.value = String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
       }
       window.updateAttSummary && window.updateAttSummary();
     };
@@ -10869,40 +10930,50 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     };
 
     window.updateAttSummary = function() {
-      var dateText = (document.getElementById('att-date-val') || {}).textContent || '28/10/2569';
-      var inVal = (document.getElementById('att-in-time') || {}).value || '08:30';
-      var outVal = (document.getElementById('att-out-time') || {}).value || '17:30';
+      var dateText = (document.getElementById('att-date-val') || {}).textContent || '05/11/2569';
+      var inVal = (document.getElementById('att-in-time') || {}).value || '09:00:00';
+      var outVal = (document.getElementById('att-out-time') || {}).value || '17:30:00';
+      var rec = getAttRecordedForDay(attState.day);
       var modeLabel = attState.mode === 'in' ? 'แก้ไขเวลาเข้า' : (attState.mode === 'out' ? 'แก้ไขเวลาออก' : 'เข้าและออก');
       var timeDisplay = attState.mode === 'in' ? (inVal + ' น.') : (attState.mode === 'out' ? (outVal + ' น.') : (inVal + ' – ' + outVal + ' น.'));
+      var origDisplay = attState.mode === 'in' ? (rec.in + ' น.') : (attState.mode === 'out' ? (rec.out + ' น.') : (rec.in + ' – ' + rec.out + ' น.'));
+
+      // Update original time bar under date row
+      var origDateEl = document.getElementById('att-orig-date-lbl');
+      var origInEl = document.getElementById('att-orig-in-lbl');
+      var origOutEl = document.getElementById('att-orig-out-lbl');
+      if (origDateEl) origDateEl.textContent = dateText;
+      if (origInEl) origInEl.textContent = rec.in + ' น.';
+      if (origOutEl) origOutEl.textContent = rec.out + ' น.';
 
       // Parse DD/MM/YYYY Thai year for friendly header
       var parts = dateText.split('/');
-      var dNum = parseInt(parts[0], 10) || 28;
-      var mNum = parseInt(parts[1], 10) || 10;
+      var dNum = parseInt(parts[0], 10) || 5;
+      var mNum = parseInt(parts[1], 10) || 11;
       var yThai = parseInt(parts[2], 10) || 2569;
       var thMonths = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
       var thDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
       var dt = new Date(yThai - 543, mNum - 1, dNum);
       var dayColor = dt.getDay() === 0 ? '#dc2626' : (dt.getDay() === 6 ? '#7c3aed' : '#1e70bf');
-      var dateFriendly = '<span style="color:' + dayColor + ';font-weight:800;">' + thDays[dt.getDay()] + '</span> ที่ ' + dNum + ' ' + (thMonths[mNum] || 'ตุลาคม') + ' ' + yThai;
+      var dateFriendly = '<span style="color:' + dayColor + ';font-weight:800;">' + thDays[dt.getDay()] + '</span> ที่ ' + dNum + ' ' + (thMonths[mNum] || 'พฤศจิกายน') + ' ' + yThai;
 
-      // Compute net working hours (minus 1h lunch if span >= 5h)
-      var inM = (parseInt(inVal.split(':')[0], 10) || 8) * 60 + (parseInt(inVal.split(':')[1], 10) || 30);
+      // Compute net working hours (09:00:00 - 17:30:00 = 8.5h span - 1h lunch = 7.5h)
+      var inM = (parseInt(inVal.split(':')[0], 10) || 9) * 60 + (parseInt(inVal.split(':')[1], 10) || 0);
       var outM = (parseInt(outVal.split(':')[0], 10) || 17) * 60 + (parseInt(outVal.split(':')[1], 10) || 30);
       var spanH = Math.max(0, (outM - inM) / 60);
       var netH = spanH >= 5 ? Math.max(0, spanH - 1) : spanH;
 
       var badgeEl = document.getElementById('att-summary-date-badge');
-      var modeEl = document.getElementById('att-sum-mode');
+      var origEl = document.getElementById('att-sum-orig');
       var timeEl = document.getElementById('att-sum-time');
       var hrsEl = document.getElementById('att-sum-hrs');
       var greenEl = document.getElementById('att-sum-green-line');
 
       if (badgeEl) badgeEl.innerHTML = dateFriendly + ' · <span style="color:#1e70bf;">' + timeDisplay + '</span>';
-      if (modeEl) modeEl.textContent = modeLabel;
+      if (origEl) origEl.textContent = origDisplay;
       if (timeEl) timeEl.textContent = timeDisplay;
       if (hrsEl) hrsEl.textContent = netH.toFixed(1) + ' ชม.';
-      if (greenEl) greenEl.textContent = '✓ ' + modeLabel + 'เป็น ' + timeDisplay + ' · สาเหตุ: ' + attState.reason;
+      if (greenEl) greenEl.textContent = '✓ ' + modeLabel + ': เดิม ' + origDisplay + ' → ' + timeDisplay + ' · สาเหตุ: ' + attState.reason;
     };
 
     // Synced Check-Out across #overview and #attendance
@@ -11199,13 +11270,14 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       } else if (prefix === 'att') {
         var attCodes = ['TC-2569-008', 'TC-2569-009', 'TC-2569-005'];
         var attReqDates = ['28/10/2569', '24/10/2569', '14/10/2569'];
-        var attTypes = ['ปฏิบัติงานนอกสถานที่', 'ลืมสแกนบัตร / นิ้ว', 'บันทึกเวลาล่าช้า'];
+        var attTypes = ['ปฏิบัติงานนอกสถานที่', 'ลืมสแกนลงเวลา', 'ระบบสแกนขัดข้อง'];
         var attDates = ['28/10/2569', '24/10/2569', '14/10/2569'];
-        var attTimes = ['08:30 – 17:35 น.', '08:30 – 17:30 น.', '08:44 – 17:45 น. (สาย 14 นาที)'];
-        var attNetHrs = ['8.0 ชม. (ปกติ)', '8.0 ชม. (ปกติ)', '8.0 ชม. (บันทึกล่าช้า)'];
+        var attOrigTimes = ['เข้า --:--:-- น.', 'ออก --:--:-- น.', 'เข้า 09:14:22 น.'];
+        var attTimes = ['09:00:00 – 17:35:12 น.', '09:00:00 – 17:30:00 น.', '09:14:22 – 17:45:05 น. (สาย 14 นาที)'];
+        var attNetHrs = ['7.5 ชม. (ปกติ)', '7.5 ชม. (ปกติ)', '7.5 ชม. (บันทึกล่าช้า)'];
         var attReasons = [
-          'ยื่นเอกสารสำนักงานประกันสังคมพื้นที่ 3 ช่วงเช้า และเข้าสำนักงานเวลา 08:30 น. (มีใบรับรอง)',
-          'ลืมสแกนบัตรออกช่วงเย็น เนื่องจากติดประชุมด่วนกับทีมผู้บริหารจนถึง 17:30 น.',
+          'ยื่นเอกสารสำนักงานประกันสังคมพื้นที่ 3 ช่วงเช้า และเข้าสำนักงานเวลา 09:00:00 น. (มีใบรับรอง)',
+          'ลืมสแกนบัตรออกช่วงเย็น เนื่องจากติดประชุมด่วนกับทีมผู้บริหารจนถึง 17:30:00 น.',
           'ระบบสแกนนิ้วขัดข้องชั่วคราว จึงบันทึกล่าช้า 14 นาที'
         ];
         var attAttaches = ['ใบติดต่อประกันสังคม_สปส.pdf', 'บันทึกประชุมฝ่ายบริหาร_24ตค.pdf', 'ไม่มีเอกสารแนบสำหรับคำขอนี้'];
@@ -11216,10 +11288,12 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#f0fdf4;color:#15803d;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><strong style="color:#0f172a;font-size:13px;">' + attTypes[idx] + '</strong></div>';
         gridField2Label = 'วันที่บันทึกเวลา';
         gridField2Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + attDates[idx] + '</strong>';
-        gridField3Label = 'เวลาที่ขอปรับปรุง';
-        gridField3Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + attTimes[idx] + '</strong>';
-        gridField4Label = 'ชั่วโมงสุทธิ';
-        gridField4Val = '<strong style="color:#15803d;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + attNetHrs[idx] + '</strong>';
+        gridField3Label = 'เวลาเดิมในระบบ';
+        gridField3Val = '<strong style="color:#d97706;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + attOrigTimes[idx] + '</strong>';
+        gridField4Label = 'เวลาที่ขอปรับปรุง';
+        gridField4Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + attTimes[idx] + '</strong>';
+        gridField5Label = 'ชั่วโมงสุทธิ';
+        gridField5Val = '<strong style="color:#15803d;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + attNetHrs[idx] + '</strong>';
         reasonTitle = 'เหตุผลและคำชี้แจง:';
         reasonText = attReasons[idx];
         attachText = attAttaches[idx];

@@ -6538,7 +6538,7 @@ main, .page-view, .settings-page {
             <td style="text-align:center;" class="leave-status-cell">
               <span class="pg-badge pg-badge-warning" style="display:inline-flex;flex-direction:column;align-items:center;line-height:1.3;padding:4px 10px;">
                 <span>⏳ รออนุมัติ</span>
-                <small style="font-size:11px;font-weight:700;">(2/3)</small>
+                <small style="font-size:11px;font-weight:700;color:inherit;">(2/3)</small>
               </span>
             </td>
             <td style="text-align:center;white-space:nowrap;">
@@ -6661,7 +6661,7 @@ main, .page-view, .settings-page {
             <td style="text-align:center;" class="leave-status-cell">
               <span class="pg-badge pg-badge-danger" style="display:inline-flex;flex-direction:column;align-items:center;line-height:1.3;padding:4px 10px;">
                 <span>✕ ไม่อนุมัติ</span>
-                <small style="font-size:11px;font-weight:700;">(2/3)</small>
+                <small style="font-size:11px;font-weight:700;color:inherit;">(2/3)</small>
               </span>
             </td>
             <td style="text-align:center;white-space:nowrap;">
@@ -6872,6 +6872,15 @@ main, .page-view, .settings-page {
           <textarea id="ot-reason" class="pg-form-control" rows="2" required>ปิดงบการเงินประจำเดือนและตรวจสอบยอดประกันสังคมพนักงานประจำเดือนตุลาคม 2569</textarea>
         </div>
 
+        <div class="pg-form-group">
+          <label class="pg-form-label"><span>เอกสารแนบ</span></label>
+          <div class="pg-upload-box" onclick="alert('เลือกไฟล์เอกสารแนบประกอบการขอ OT (จำลอง)');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div class="pg-upload-text">อัปโหลดเอกสารแนบ (PDF, JPG, PNG)</div>
+            <div class="pg-upload-sub">แนบเอกสารอนุมัติแผนงาน หรือหลักฐานการทำงานล่วงเวลา (ถ้ามี)</div>
+          </div>
+        </div>
+
         </div>
         <div class="ck-leave-col-right" style="display:flex;flex-direction:column;gap:14px;">
         <!-- สายการอนุมัติอัตโนมัติ 3 ระดับ -->
@@ -7013,7 +7022,10 @@ main, .page-view, .settings-page {
                 <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ปิดงบเดือนและกระทบยอดเงินเดือนตุลาคม 2569</div>
               </td>
               <td style="text-align:center;">
-                <span class="pg-badge pg-badge-warning" style="padding:4px 10px;">รออนุมัติ (2/3)</span>
+                <span class="pg-badge pg-badge-warning" style="display:inline-flex;flex-direction:column;align-items:center;line-height:1.3;padding:4px 10px;">
+                  <span>⏳ รออนุมัติ</span>
+                  <small style="font-size:11px;font-weight:700;color:inherit;">(2/3)</small>
+                </span>
               </td>
               <td style="text-align:center;white-space:nowrap;">
                 <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;gap:3px;">
@@ -7435,7 +7447,10 @@ main, .page-view, .settings-page {
                 <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ลืมสแกนบัตรออกเนื่องจากติดประชุมด่วน</div>
               </td>
               <td style="text-align:center;">
-                <span class="pg-badge pg-badge-warning" style="padding:4px 10px;">รออนุมัติ (2/3)</span>
+                <span class="pg-badge pg-badge-warning" style="display:inline-flex;flex-direction:column;align-items:center;line-height:1.3;padding:4px 10px;">
+                  <span>⏳ รออนุมัติ</span>
+                  <small style="font-size:11px;font-weight:700;color:inherit;">(2/3)</small>
+                </span>
               </td>
               <td style="text-align:center;white-space:nowrap;">
                 <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
@@ -10426,7 +10441,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         } else {
           var timeOnly = String(s.label).replace(/^(เต็มวัน|เช้า|บ่าย)\s+/, '').replace(/–/g, ' - ');
           var dayTagMatch = String(s.label).match(/^(เต็มวัน|เช้า|บ่าย)\s+/);
-          var dayTagHtml = dayTagMatch ? '<span style="font-size:10.5px;font-weight:700;color:#64748b;">' + dayTagMatch[1] + '</span>' : '<span></span>';
+          var dayTagHtml = dayTagMatch ? '<span style="font-size:10.5px;font-weight:700;color:#64748b;">' + dayTagMatch[1] + '</span>' : '<span style="font-size:10.5px;font-weight:700;color:#64748b;">เวลา</span>';
           html += '<button type="button" class="ck-click-card' + activeCls + '" data-slot-id="' + s.id + '" style="padding:7px 8px;gap:4px;min-width:0;justify-content:space-between;align-items:center;" onclick="window.selectOtSlot && window.selectOtSlot(\'' + s.id + '\')">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;gap:4px;">' + dayTagHtml + '<span class="quota-pill" style="font-size:10.5px;padding:1px 6px;">' + gross.toFixed(2) + ' ชม.</span></div>' +
             '<strong style="font-size:14px;font-weight:800;color:#0f172a;text-align:center;width:100%;white-space:nowrap;padding:2px 0;">' + timeOnly + '</strong>' +

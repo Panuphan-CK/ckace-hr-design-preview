@@ -11222,20 +11222,22 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       else if (prefix === 'ben') modalTitle = 'รายละเอียดคำขอเบิกสวัสดิการ';
       if (titleEl) titleEl.textContent = modalTitle;
 
-      // Determine overall status
+      // Determine overall status (match Leave modal concise badge text)
       var statusClass = 'approved';
       var statusBadgeStyle = 'background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
       var statusIcon = '✓';
-      var statusText = String(item.badgeText || '').replace(/^[⏳✓✕]\s*/, '').trim();
+      var statusText = 'อนุมัติ';
 
       if (item.badgeText.includes('รออนุมัติ') || item.badgeText.includes('กำลังรอ')) {
         statusClass = 'pending';
         statusBadgeStyle = 'background:#fef3c7;color:#b45309;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
         statusIcon = '⏳';
+        statusText = 'รออนุมัติ';
       } else if (item.badgeText.includes('ไม่ได้รับ') || item.badgeText.includes('ไม่อนุมัติ')) {
         statusClass = 'rejected';
         statusBadgeStyle = 'background:#fee2e2;color:#dc2626;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
         statusIcon = '✕';
+        statusText = 'ไม่อนุมัติ';
       }
 
       // Metadata per prefix

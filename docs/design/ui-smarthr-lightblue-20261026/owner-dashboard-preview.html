@@ -5096,18 +5096,18 @@ main, .page-view, .settings-page {
 
     <!-- Req 1: ไอคอนและข้อความ "ลงเวลาเข้า - ออกงาน" ลบออกแล้ว -->
 
-    <!-- Req: Time In / Time Out Tiles (08:28:30 น. สีเขียว จัดกึ่งกลาง, --:--:-- น. สีเทา จัดกึ่งกลาง, คลิกเพื่อจำลองลงเวลาออกได้) -->
+    <!-- Req: Time In / Time Out Tiles (คลิกเพื่อลงเวลาเข้าและลงเวลาออกได้ทันที) -->
     <div class="ck-att-tiles">
-      <div class="ck-att-tile" style="border-top:3px solid #16a34a;">
+      <div class="ck-att-tile" id="dash-checkin-tile" style="cursor:pointer;border-top:3px solid #16a34a;" title="คลิกเพื่อลงเวลาเข้า" onclick="window.performDashboardCheckIn && window.performDashboardCheckIn();">
         <div class="ck-att-topline">
           <div class="ck-att-head-left">
             <span class="ck-att-circle in"><svg><use href="#arrow"/></svg></span>
             <span class="ck-att-label">เวลาเข้า</span>
           </div>
-          <span class="ck-att-pill green">✓ ตรงเวลา</span>
+          <span class="ck-att-pill green" id="dash-checkin-pill">✓ ตรงเวลา</span>
         </div>
         <div class="ck-att-bottomline" style="text-align:center;">
-          <strong class="ck-att-time" style="color:#16a34a !important;text-align:center;">08:28:30 น.</strong>
+          <strong class="ck-att-time" id="dash-checkin-time" style="color:#16a34a !important;text-align:center;">08:28:30 น.</strong>
         </div>
       </div>
 
@@ -7160,16 +7160,16 @@ main, .page-view, .settings-page {
         </div>
       </div>
       <div class="ck-att-tiles">
-        <div class="ck-att-tile" style="cursor:pointer;border-top:3px solid #16a34a;" onclick="alert('บันทึกเวลาเข้างาน 08:28:30 น. สำเร็จ');">
+        <div class="ck-att-tile" id="att-checkin-tile" style="cursor:pointer;border-top:3px solid #16a34a;" title="คลิกเพื่อลงเวลาเข้า" onclick="window.performDashboardCheckIn && window.performDashboardCheckIn();">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle in"><svg><use href="#arrow"/></svg></span>
               <span class="ck-att-label">เวลาเข้าวันนี้</span>
             </div>
-            <span class="ck-att-pill green">✓ ตรงเวลา</span>
+            <span class="ck-att-pill green" id="att-checkin-pill">✓ ตรงเวลา</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#16a34a !important;text-align:center;">08:28:30 น.</strong>
+            <strong class="ck-att-time" id="att-checkin-time" style="color:#16a34a !important;text-align:center;">08:28:30 น.</strong>
           </div>
         </div>
 
@@ -11006,8 +11006,60 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       if (greenEl) greenEl.textContent = '✓ ' + modeLabel + ': เดิม ' + origDisplay + ' → ' + timeDisplay + ' · สาเหตุ: ' + attState.reason;
     };
 
+    // Format current time HH:MM:SS น. & show non-blocking toast for clock-in/out
+    function formatNowTimeTh() {
+      var d = new Date();
+      var hh = String(d.getHours()).padStart(2, '0');
+      var mm = String(d.getMinutes()).padStart(2, '0');
+      var ss = String(d.getSeconds()).padStart(2, '0');
+      return hh + ':' + mm + ':' + ss + ' น.';
+    }
+
+    function showClockToast(msg, bgColor) {
+      var old = document.getElementById('ck-clock-toast');
+      if (old) old.remove();
+      var el = document.createElement('div');
+      el.id = 'ck-clock-toast';
+      el.textContent = msg;
+      el.style.cssText = 'position:fixed;right:22px;bottom:22px;z-index:9999;background:' + (bgColor || '#0f172a') + ';color:#ffffff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(15,23,42,0.2);transition:opacity 0.25s ease;';
+      document.body.appendChild(el);
+      setTimeout(function() { el.style.opacity = '0'; }, 2400);
+      setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 2700);
+    }
+
+    // Synced Check-In across #overview and #attendance
+    window.performDashboardCheckIn = function() {
+      var nowStr = formatNowTimeTh();
+      var pairs = [
+        { tileId: 'dash-checkin-tile', timeId: 'dash-checkin-time', pillId: 'dash-checkin-pill' },
+        { tileId: 'att-checkin-tile', timeId: 'att-checkin-time', pillId: 'att-checkin-pill' }
+      ];
+      pairs.forEach(function(pair) {
+        var tile = document.getElementById(pair.tileId);
+        var timeEl = document.getElementById(pair.timeId);
+        var pillEl = document.getElementById(pair.pillId);
+        if (tile) {
+          tile.style.borderTopColor = '#16a34a';
+          var c = tile.querySelector('.ck-att-circle.in');
+          if (c) c.style.background = '#16a34a';
+        }
+        if (timeEl) {
+          timeEl.textContent = nowStr;
+          timeEl.style.setProperty('color', '#16a34a', 'important');
+        }
+        if (pillEl) {
+          pillEl.textContent = '✓ ลงเวลาเข้าแล้ว';
+          pillEl.className = 'ck-att-pill green';
+          pillEl.style.background = '#dcfce7';
+          pillEl.style.color = '#15803d';
+        }
+      });
+      showClockToast('✓ บันทึกเวลาเข้างาน ' + nowStr + ' สำเร็จ', '#15803d');
+    };
+
     // Synced Check-Out across #overview and #attendance
     window.performDashboardCheckOut = function() {
+      var nowStr = formatNowTimeTh();
       var pairs = [
         { tileId: 'dash-checkout-tile', timeId: 'dash-checkout-time', pillId: 'dash-checkout-pill' },
         { tileId: 'att-checkout-tile', timeId: 'att-checkout-time', pillId: 'att-checkout-pill' }
@@ -11022,7 +11074,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           if (c) c.style.background = '#ef4444';
         }
         if (timeEl) {
-          timeEl.textContent = '17:32:10 น.';
+          timeEl.textContent = nowStr;
           timeEl.style.setProperty('color', '#dc2626', 'important');
         }
         if (pillEl) {
@@ -11032,6 +11084,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           pillEl.style.color = '#dc2626';
         }
       });
+      showClockToast('✓ บันทึกเวลาออกงาน ' + nowStr + ' สำเร็จ', '#dc2626');
     };
 
     // Initialize OT form on load

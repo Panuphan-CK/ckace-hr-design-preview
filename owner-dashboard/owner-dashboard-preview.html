@@ -7311,11 +7311,11 @@ main, .page-view, .settings-page {
       <form class="pg-form" onsubmit="event.preventDefault(); alert('ส่งคำขอแก้ไขเวลาเข้าสู่สายการอนุมัติ 3 ระดับเรียบร้อยแล้ว');">
       <div class="ck-leave-form-cols" style="align-items:stretch;">
         <div class="ck-leave-col-left" style="display:flex;flex-direction:column;gap:14px;">
-        <div style="display:grid;grid-template-columns:145px auto auto;justify-content:start;gap:10px;align-items:end;">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1.2fr);gap:10px;align-items:end;">
           <div class="pg-form-group" style="margin-bottom:0;">
             <label class="pg-form-label"><span>วันที่ขอแก้ไขเวลา <span class="req">*</span></span></label>
             <div class="ck-date-box-wrap">
-              <button type="button" class="ck-date-box" id="att-date-box" data-date-target="att-date" onclick="window.openPopupCal && window.openPopupCal(this, 'att-date')" style="padding:0 10px;min-height:42px;height:42px;box-sizing:border-box;">
+              <button type="button" class="ck-date-box" id="att-date-box" data-date-target="att-date" onclick="window.openPopupCal && window.openPopupCal(this, 'att-date')" style="width:100%;padding:0 12px;min-height:42px;height:42px;box-sizing:border-box;">
                 <span id="att-date-val">05/11/2569</span>
                 <svg><use href="#calendar"/></svg>
               </button>
@@ -7325,19 +7325,19 @@ main, .page-view, .settings-page {
 
           <div class="pg-form-group" style="margin-bottom:0;">
             <label class="pg-form-label"><span>เวลาเดิมในระบบ (เข้า – ออก)</span></label>
-            <div id="att-orig-time-bar" style="display:inline-flex;align-items:center;gap:4px;min-height:42px;height:42px;box-sizing:border-box;padding:3px 6px;background:#ffffff;border:1px solid #cbd5e1;border-radius:10px;width:fit-content;">
-              <span id="att-orig-in-lbl" style="width:76px;display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px 2px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:800;color:#d97706;">09:14:22</span>
+            <div id="att-orig-time-bar" style="display:flex;align-items:center;gap:6px;width:100%;min-height:42px;height:42px;box-sizing:border-box;padding:3px 6px;background:#ffffff;border:1px solid #cbd5e1;border-radius:10px;">
+              <span id="att-orig-in-lbl" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px 2px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:800;color:#d97706;">09:14:22</span>
               <span style="color:#64748b;font-weight:700;">–</span>
-              <span id="att-orig-out-lbl" style="width:76px;display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px 2px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:800;color:#1e70bf;">17:35:08</span>
+              <span id="att-orig-out-lbl" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;min-height:32px;padding:4px 2px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:800;color:#1e70bf;">17:35:08</span>
             </div>
           </div>
 
           <div class="pg-form-group" style="margin-bottom:0;">
             <label class="pg-form-label" for="att-in-time"><span>เวลาที่ขอแก้ (เข้า – ออก)</span></label>
-            <div style="display:inline-flex;align-items:center;gap:4px;min-height:42px;height:42px;box-sizing:border-box;padding:3px 6px;background:#ffffff;border:1px solid #bfdbfe;border-radius:10px;width:fit-content;">
-              <input type="text" id="att-in-time" class="pg-form-control" value="09:00:00" maxlength="8" placeholder="09:00:00" style="width:76px;text-align:center;font-weight:800;font-size:12px;padding:5px 2px;min-height:32px;height:32px;border:1px solid #e2e8f0;border-radius:7px;" oninput="window.onAttTimeInput && window.onAttTimeInput(this)" onblur="window.onAttTimeBlur && window.onAttTimeBlur(this)" />
+            <div style="display:flex;align-items:center;gap:6px;width:100%;min-height:42px;height:42px;box-sizing:border-box;padding:3px 6px;background:#ffffff;border:1px solid #bfdbfe;border-radius:10px;">
+              <input type="text" id="att-in-time" class="pg-form-control" value="09:00:00" maxlength="8" placeholder="09:00:00" style="flex:1;min-width:0;text-align:center;font-weight:800;font-size:12px;padding:5px 2px;min-height:32px;height:32px;border:1px solid #e2e8f0;border-radius:7px;" oninput="window.onAttTimeInput && window.onAttTimeInput(this)" onblur="window.onAttTimeBlur && window.onAttTimeBlur(this)" />
               <span style="color:#64748b;font-weight:700;">–</span>
-              <input type="text" id="att-out-time" class="pg-form-control" value="17:30:00" maxlength="8" placeholder="17:30:00" disabled style="width:76px;text-align:center;font-weight:800;font-size:12px;padding:5px 2px;min-height:32px;height:32px;border:1px solid #e2e8f0;border-radius:7px;background:#f1f5f9;color:#94a3b8;" oninput="window.onAttTimeInput && window.onAttTimeInput(this)" onblur="window.onAttTimeBlur && window.onAttTimeBlur(this)" />
+              <input type="text" id="att-out-time" class="pg-form-control" value="17:30:00" maxlength="8" placeholder="17:30:00" disabled style="flex:1;min-width:0;text-align:center;font-weight:800;font-size:12px;padding:5px 2px;min-height:32px;height:32px;border:1px solid #e2e8f0;border-radius:7px;background:#f1f5f9;color:#94a3b8;" oninput="window.onAttTimeInput && window.onAttTimeInput(this)" onblur="window.onAttTimeBlur && window.onAttTimeBlur(this)" />
             </div>
           </div>
         </div>

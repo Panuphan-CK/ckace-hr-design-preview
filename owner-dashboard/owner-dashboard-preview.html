@@ -7173,7 +7173,7 @@ main, .page-view, .settings-page {
           </div>
         </div>
 
-        <div class="ck-att-tile" style="cursor:pointer;border-top:3px solid #1e70bf;" title="คลิกเพื่อลงเวลาออก" onclick="var t=document.getElementById('att-checkout-time'),p=document.getElementById('att-checkout-pill');if(t){t.textContent='17:32:10 น.';t.style.setProperty('color','#16a34a','important');}if(p){p.textContent='✓ ลงเวลาออกแล้ว';p.className='ck-att-pill green';}">
+        <div class="ck-att-tile" style="cursor:pointer;border-top:3px solid #1e70bf;" title="คลิกเพื่อลงเวลาออก" onclick="var t=document.getElementById('att-checkout-time'),p=document.getElementById('att-checkout-pill'),c=this.querySelector('.ck-att-circle.out');this.style.borderTopColor='#ef4444';if(c){c.style.background='#ef4444';}if(t){t.textContent='17:32:10 น.';t.style.setProperty('color','#dc2626','important');}if(p){p.textContent='✓ ลงเวลาออกแล้ว';p.className='ck-att-pill';p.style.background='#fee2e2';p.style.color='#dc2626';}">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle out"><svg><use href="#clock"/></svg></span>

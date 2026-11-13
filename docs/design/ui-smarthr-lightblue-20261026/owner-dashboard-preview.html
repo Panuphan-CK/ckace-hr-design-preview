@@ -6795,9 +6795,9 @@ main, .page-view, .settings-page {
       <form class="pg-form" onsubmit="event.preventDefault(); alert('ส่งคำขออนุมัติ OT เข้าสู่สายการอนุมัติ 3 ระดับเรียบร้อยแล้ว');">
       <div class="ck-leave-form-cols">
         <div class="ck-leave-col-left" style="display:flex;flex-direction:column;gap:14px;">
-        <!-- 1 & 2. วันที่เริ่มต้น * และ วันที่สิ้นสุด (ปฏิทินเหมือนหน้าลางาน รองรับขอ OT หลายวัน) -->
-        <div class="pg-form-row2" id="ot-dates-row">
-          <div class="pg-form-group">
+        <!-- 1, 2 & 3. วันที่เริ่มต้น *, วันที่สิ้นสุด และ ประเภทอัตรา OT * (แถวเดียวกัน 3 ช่อง) -->
+        <div id="ot-dates-row" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.15fr);gap:10px;align-items:end;">
+          <div class="pg-form-group" style="margin-bottom:0;">
             <label class="pg-form-label"><span>วันที่เริ่มต้น <span class="req">*</span></span></label>
             <div class="ck-date-box-wrap">
               <button type="button" class="ck-date-box" id="ot-start-box" data-date-target="ot-start" onclick="window.openPopupCal && window.openPopupCal(this, 'ot-start')">
@@ -6808,7 +6808,7 @@ main, .page-view, .settings-page {
             </div>
           </div>
 
-          <div class="pg-form-group" id="ot-end-group">
+          <div class="pg-form-group" id="ot-end-group" style="margin-bottom:0;">
             <label class="pg-form-label"><span>วันที่สิ้นสุด</span></label>
             <div class="ck-date-box-wrap">
               <button type="button" class="ck-date-box" id="ot-end-box" data-date-target="ot-end" onclick="window.openPopupCal && window.openPopupCal(this, 'ot-end')">
@@ -6818,30 +6818,22 @@ main, .page-view, .settings-page {
               <div class="ck-date-popover ck-leave-range-popover" id="pop-ot-end"></div>
             </div>
           </div>
-        </div>
 
-        <!-- 3. ประเภทอัตรา OT * (แสดงอัตโนมัติแบบกะทัดรัด) -->
-        <div class="pg-form-group" style="gap:5px;">
-          <label class="pg-form-label" style="margin-bottom:0;"><span>ประเภทอัตรา OT <span class="req">*</span></span> <span style="font-size:11px;font-weight:600;color:#64748b;">(คำนวณอัตโนมัติ)</span></label>
-          <div id="ot-rate-auto-box" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:#eff6ff;color:#1e70bf;flex-shrink:0;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </span>
-              <span id="ot-rate-auto-title" style="font-size:12.5px;font-weight:800;color:#0f172a;white-space:nowrap;">วันทำงานปกติ (1.5 เท่า)</span>
-              <span id="ot-rate-auto-desc" style="font-size:11px;font-weight:500;color:#64748b;">· 1 วัน (กำหนดอัตโนมัติ)</span>
+          <div class="pg-form-group" style="margin-bottom:0;">
+            <label class="pg-form-label"><span>ประเภทอัตรา OT <span class="req">*</span></span></label>
+            <div id="ot-rate-auto-box" style="display:flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:6px 10px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;white-space:nowrap;">
+              <span id="ot-rate-auto-title" style="font-size:12.5px;font-weight:700;color:#0f172a;display:inline-flex;align-items:baseline;gap:4px;">วันทำงานปกติ <strong style="font-size:17px;font-weight:800;color:#1e70bf;line-height:1;">1.5</strong> เท่า</span>
             </div>
-            <span class="pg-badge" id="ot-rate-auto-pill" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;font-size:11px;font-weight:800;padding:2px 8px;border-radius:7px;white-space:nowrap;flex-shrink:0;">1.5 เท่า</span>
           </div>
         </div>
 
-        <!-- 4. ช่วงเวลาและชั่วโมง OT * (กะทัดรัด + กรอกเวลาในช่องระบุเองได้เลยไม่ต้องเปิดกรอบแยก) -->
+        <!-- 4. ช่วงเวลาและชั่วโมง OT * (บังคับ 4 กรอบ บรรทัดเดียว ไม่มีข้อความเทากำกับ พิมพ์ระบุเองได้เลย) -->
         <div class="pg-form-group" style="gap:5px;">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
             <label class="pg-form-label" style="margin-bottom:0;"><span>ช่วงเวลาและชั่วโมง OT <span class="req">*</span></span></label>
             <span id="ot-slot-mode-badge" style="font-size:11px;font-weight:700;color:#1e70bf;background:#eff6ff;padding:2px 8px;border-radius:6px;">โหมดวันทำงานปกติ</span>
           </div>
-          <div class="ck-click-grid-2" id="ot-slot-cards" style="gap:8px;">
+          <div id="ot-slot-cards" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;">
             <!-- Rendered dynamically by renderOtSlots() -->
           </div>
         </div>
@@ -6949,8 +6941,8 @@ main, .page-view, .settings-page {
             <span>ระเบียบและเงื่อนไขการขอทำงานล่วงเวลา (OT) ของบริษัท</span>
           </div>
           <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px;">
-            <li><b>วันทำงานปกติ:</b> คิดอัตราค่าล่วงเวลา 1.5 เท่า (หลังเวลาเลิกงานปกติ 18:00 น. เป็นต้นไป)</li>
-            <li><b>วันหยุดประจำสัปดาห์ / วันหยุดบริษัท:</b> คิดอัตรา 1.0–2.0 เท่าในเวลาปกติ และ 3.0 เท่าเมื่อล่วงเวลา</li>
+            <li><b>ล่วงเวลาวันทำงาน:</b> คิดอัตรา 1.5 เท่า (หลังเวลาเลิกงานปกติ 18:00 น. เป็นต้นไป)</li>
+            <li><b>วันหยุดประจำสัปดาห์ / วันหยุดบริษัท:</b> คิดอัตรา 1 เท่า (วันหยุดเวลาปกติ) และ 3 เท่า (วันหยุดล่วงเวลา)</li>
             <li><b>การหักเวลาพัก:</b> ช่วงคร่อม 12:00–14:00 น. หรือช่วงเย็น ระบบหักเวลาพักอัตโนมัติ 1 ชม. (ปรับแก้ได้)</li>
             <li><b>การขออนุมัติล่วงหน้า:</b> คำขอ OT จะเข้าสู่สายการอนุมัติครบ 3 ระดับตามโครงสร้างบริษัท</li>
           </ul>
@@ -10343,34 +10335,29 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     function getOtSlotsForMode(mode) {
       if (mode === 'holiday') {
         return [
-          { id: 'h1', label: 'เต็มวัน 09:00 – 17:30 น.', sub: 'ทำงานเต็มวันหยุด', startMin: 9 * 60, endMin: 17 * 60 + 30 },
-          { id: 'h2', label: 'ช่วงเช้า 09:00 – 12:00 น.', sub: 'ครึ่งวันเช้าวันหยุด', startMin: 9 * 60, endMin: 12 * 60 },
-          { id: 'h3', label: 'ช่วงบ่าย 13:00 – 17:30 น.', sub: 'ครึ่งวันบ่ายวันหยุด', startMin: 13 * 60, endMin: 17 * 60 + 30 },
-          { id: 'custom', label: 'ระบุเอง', sub: 'กำหนดเวลาเริ่ม – สิ้นสุดเอง', startMin: 12 * 60, endMin: 14 * 60, isCustom: true }
+          { id: 'h1', label: 'เต็มวัน 09:00–17:30', startMin: 9 * 60, endMin: 17 * 60 + 30 },
+          { id: 'h2', label: 'เช้า 09:00–12:00', startMin: 9 * 60, endMin: 12 * 60 },
+          { id: 'h3', label: 'บ่าย 13:00–17:30', startMin: 13 * 60, endMin: 17 * 60 + 30 },
+          { id: 'custom', label: 'ระบุเอง', startMin: 12 * 60, endMin: 14 * 60, isCustom: true }
         ];
       }
       return [
-        { id: 'w1', label: '18:00 – 20:00 น.', sub: 'ช่วงเย็นหลังเลิกงาน', startMin: 18 * 60, endMin: 20 * 60 },
-        { id: 'w2', label: '18:00 – 21:00 น.', sub: 'ช่วงปิดงบประจำเดือน', startMin: 18 * 60, endMin: 21 * 60 },
-        { id: 'w3', label: '18:00 – 22:00 น.', sub: 'เร่งด่วนส่งมอบงาน', startMin: 18 * 60, endMin: 22 * 60 },
-        { id: 'custom', label: 'ระบุเอง', sub: 'กำหนดเวลาเริ่ม – สิ้นสุดเอง', startMin: 18 * 60, endMin: 21 * 60, isCustom: true }
+        { id: 'w1', label: '18:00 – 20:00', startMin: 18 * 60, endMin: 20 * 60 },
+        { id: 'w2', label: '18:00 – 21:00', startMin: 18 * 60, endMin: 21 * 60 },
+        { id: 'w3', label: '18:00 – 22:00', startMin: 18 * 60, endMin: 22 * 60 },
+        { id: 'custom', label: 'ระบุเอง', startMin: 18 * 60, endMin: 21 * 60, isCustom: true }
       ];
     }
 
     function updateOtAutoRate() {
-      var days = Math.max(1, otState.endDay - otState.startDay + 1);
       var workCount = 0;
-      var weekendCount = 0;
-      var companyHolCount = 0;
+      var holidayCount = 0;
       for (var d = otState.startDay; d <= otState.endDay; d++) {
-        if (d === 25) companyHolCount++;
-        else if (isOtHolidayDay(d)) weekendCount++;
+        if (isOtHolidayDay(d)) holidayCount++;
         else workCount++;
       }
 
       var titleEl = document.getElementById('ot-rate-auto-title');
-      var descEl = document.getElementById('ot-rate-auto-desc');
-      var pillEl = document.getElementById('ot-rate-auto-pill');
       var boxEl = document.getElementById('ot-rate-auto-box');
       var modeBadge = document.getElementById('ot-slot-mode-badge');
 
@@ -10378,28 +10365,19 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       var modeChanged = (newMode !== otState.slotMode);
       otState.slotMode = newMode;
 
-      if (companyHolCount > 0 && workCount === 0 && weekendCount === 0) {
-        if (titleEl) titleEl.textContent = 'วันหยุดบริษัท (2.0 เท่า / ล่วงเวลา 3.0 เท่า)';
-        if (descEl) descEl.textContent = 'ตรวจพบวันหยุดประจำปีบริษัท (' + days + ' วัน) — ระบบกำหนดอัตราให้อัตโนมัติ';
-        if (pillEl) { pillEl.textContent = '2.0 – 3.0 เท่า'; pillEl.style.background = '#fef3c7'; pillEl.style.color = '#b45309'; pillEl.style.borderColor = '#fde68a'; }
-        if (boxEl) { boxEl.style.background = '#fffbeb'; boxEl.style.borderColor = '#fde68a'; }
-        if (modeBadge) { modeBadge.textContent = 'โหมดวันหยุดบริษัท'; modeBadge.style.background = '#fef3c7'; modeBadge.style.color = '#b45309'; }
-      } else if (workCount === 0) {
-        if (titleEl) titleEl.textContent = 'วันหยุดประจำสัปดาห์ (1.0 เท่า / ล่วงเวลา 3.0 เท่า)';
-        if (descEl) descEl.textContent = 'ตรวจพบวันเสาร์–อาทิตย์ / วันหยุด (' + days + ' วัน) — ระบบกำหนดอัตราให้อัตโนมัติ';
-        if (pillEl) { pillEl.textContent = '1.0 – 3.0 เท่า'; pillEl.style.background = '#f3e8ff'; pillEl.style.color = '#7c3aed'; pillEl.style.borderColor = '#e9d5ff'; }
-        if (boxEl) { boxEl.style.background = '#faf5ff'; boxEl.style.borderColor = '#e9d5ff'; }
+      // 3 อัตราตามระบบบริษัท: 1 เท่า = วันหยุดเวลาปกติ, 1.5 เท่า = ล่วงเวลาวันทำงาน, 3 เท่า = วันหยุดล่วงเวลา
+      if (workCount === 0) {
+        var isHolidayOvertime = (otState.endMin > 17 * 60 + 30);
+        if (isHolidayOvertime) {
+          if (titleEl) titleEl.innerHTML = 'วันหยุดล่วงเวลา <strong style="font-size:17px;font-weight:800;color:#7c3aed;line-height:1;">3</strong> เท่า';
+          if (boxEl) { boxEl.style.background = '#faf5ff'; boxEl.style.borderColor = '#e9d5ff'; }
+        } else {
+          if (titleEl) titleEl.innerHTML = 'วันหยุดเวลาปกติ <strong style="font-size:17px;font-weight:800;color:#0d8268;line-height:1;">1</strong> เท่า';
+          if (boxEl) { boxEl.style.background = '#f0fdf4'; boxEl.style.borderColor = '#bbf7d0'; }
+        }
         if (modeBadge) { modeBadge.textContent = 'โหมดวันหยุดบริษัท'; modeBadge.style.background = '#f3e8ff'; modeBadge.style.color = '#7c3aed'; }
-      } else if (weekendCount > 0 || companyHolCount > 0) {
-        if (titleEl) titleEl.textContent = 'คำนวณแยกตามวันทำงาน & วันหยุดอัตโนมัติ';
-        if (descEl) descEl.textContent = 'ช่วง ' + days + ' วัน (วันทำงาน ' + workCount + ' วัน, วันหยุด ' + (weekendCount + companyHolCount) + ' วัน)';
-        if (pillEl) { pillEl.textContent = '1.5 / 3.0 เท่า'; pillEl.style.background = '#eff6ff'; pillEl.style.color = '#1e70bf'; pillEl.style.borderColor = '#bfdbfe'; }
-        if (boxEl) { boxEl.style.background = '#f8fbff'; boxEl.style.borderColor = '#bfdbfe'; }
-        if (modeBadge) { modeBadge.textContent = 'โหมดวันทำงานปกติ'; modeBadge.style.background = '#eff6ff'; modeBadge.style.color = '#1e70bf'; }
       } else {
-        if (titleEl) titleEl.textContent = 'วันทำงานปกติ (1.5 เท่า)';
-        if (descEl) descEl.textContent = 'ตรวจพบวันทำงานปกติ (' + days + ' วัน) — ระบบกำหนดอัตราให้อัตโนมัติ';
-        if (pillEl) { pillEl.textContent = '1.5 เท่า'; pillEl.style.background = '#eff6ff'; pillEl.style.color = '#1e70bf'; pillEl.style.borderColor = '#bfdbfe'; }
+        if (titleEl) titleEl.innerHTML = 'วันทำงานปกติ <strong style="font-size:17px;font-weight:800;color:#1e70bf;line-height:1;">1.5</strong> เท่า';
         if (boxEl) { boxEl.style.background = '#f8fafc'; boxEl.style.borderColor = '#cbd5e1'; }
         if (modeBadge) { modeBadge.textContent = 'โหมดวันทำงานปกติ'; modeBadge.style.background = '#eff6ff'; modeBadge.style.color = '#1e70bf'; }
       }
@@ -10414,7 +10392,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       if (resetDefault) {
         var defSlot = otState.slotMode === 'holiday' ? slots[0] : slots[1];
         otState.slotId = defSlot.id;
-        otState.slotLabel = defSlot.label;
+        otState.slotLabel = defSlot.label + ' น.';
         otState.startMin = defSlot.startMin;
         otState.endMin = defSlot.endMin;
       }
@@ -10427,18 +10405,18 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         var activeCls = (otState.slotId === s.id) ? ' active' : '';
         if (s.isCustom) {
           var customGross = otState.slotId === 'custom' ? Math.max(0, (otState.endMin - otState.startMin) / 60) : Math.max(0, (parseTimeToMin(customDefaultEnd) - parseTimeToMin(customDefaultStart)) / 60);
-          html += '<div class="ck-click-card' + activeCls + '" data-slot-id="custom" style="padding:8px 10px;gap:4px;cursor:pointer;" onclick="window.selectOtSlot && window.selectOtSlot(\'custom\')">' +
-            '<div class="ck-click-card-top"><strong>ระบุเอง</strong><span class="quota-pill" id="ot-custom-gross-label">' + customGross.toFixed(1) + ' ชม.</span></div>' +
-            '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">' +
-              '<input type="time" id="ot-custom-start" value="' + customDefaultStart + '" style="flex:1;min-width:80px;padding:2px 5px;font-size:11.5px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#ffffff;color:#0f172a;" onclick="event.stopPropagation(); window.activateCustomSlot && window.activateCustomSlot();" onchange="window.onOtCustomTimeChange && window.onOtCustomTimeChange()" />' +
-              '<span style="font-size:11px;color:#64748b;font-weight:700;">–</span>' +
-              '<input type="time" id="ot-custom-end" value="' + customDefaultEnd + '" style="flex:1;min-width:80px;padding:2px 5px;font-size:11.5px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#ffffff;color:#0f172a;" onclick="event.stopPropagation(); window.activateCustomSlot && window.activateCustomSlot();" onchange="window.onOtCustomTimeChange && window.onOtCustomTimeChange()" />' +
+          html += '<div class="ck-click-card' + activeCls + '" data-slot-id="custom" style="padding:7px 8px;gap:4px;cursor:pointer;min-width:0;" onclick="window.selectOtSlot && window.selectOtSlot(\'custom\')">' +
+            '<div class="ck-click-card-top" style="gap:4px;"><strong style="font-size:12px;">ระบุเอง</strong><span class="quota-pill" id="ot-custom-gross-label" style="font-size:10.5px;padding:1px 6px;">' + customGross.toFixed(1) + ' ชม.</span></div>' +
+            '<div style="display:flex;align-items:center;gap:3px;width:100%;">' +
+              '<input type="text" id="ot-custom-start" value="' + customDefaultStart + '" maxlength="5" inputmode="numeric" placeholder="17:30" style="width:100%;min-width:0;padding:2px 4px;font-size:11.5px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#ffffff;color:#0f172a;text-align:center;" onclick="event.stopPropagation(); window.activateCustomSlot && window.activateCustomSlot();" oninput="window.onOtCustomTimeInput && window.onOtCustomTimeInput(this)" onblur="window.onOtCustomTimeBlur && window.onOtCustomTimeBlur(this)" />' +
+              '<span style="font-size:11px;color:#64748b;font-weight:700;flex-shrink:0;">–</span>' +
+              '<input type="text" id="ot-custom-end" value="' + customDefaultEnd + '" maxlength="5" inputmode="numeric" placeholder="20:30" style="width:100%;min-width:0;padding:2px 4px;font-size:11.5px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#ffffff;color:#0f172a;text-align:center;" onclick="event.stopPropagation(); window.activateCustomSlot && window.activateCustomSlot();" oninput="window.onOtCustomTimeInput && window.onOtCustomTimeInput(this)" onblur="window.onOtCustomTimeBlur && window.onOtCustomTimeBlur(this)" />' +
             '</div>' +
           '</div>';
         } else {
-          html += '<button type="button" class="ck-click-card' + activeCls + '" data-slot-id="' + s.id + '" style="padding:8px 10px;gap:3px;" onclick="window.selectOtSlot && window.selectOtSlot(\'' + s.id + '\')">' +
-            '<div class="ck-click-card-top"><strong>' + s.label + '</strong><span class="quota-pill">' + gross.toFixed(1) + ' ชม.</span></div>' +
-            '<span style="font-size:11px;font-weight:600;color:#64748b;">' + s.sub + '</span>' +
+          html += '<button type="button" class="ck-click-card' + activeCls + '" data-slot-id="' + s.id + '" style="padding:7px 8px;gap:4px;min-width:0;justify-content:center;" onclick="window.selectOtSlot && window.selectOtSlot(\'' + s.id + '\')">' +
+            '<div class="ck-click-card-top" style="gap:4px;"><strong style="font-size:12px;white-space:nowrap;">' + s.label + '</strong></div>' +
+            '<span class="quota-pill" style="font-size:10.5px;padding:1px 7px;align-self:flex-start;">' + gross.toFixed(1) + ' ชม.</span>' +
           '</button>';
         }
       });
@@ -10513,7 +10491,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       } else {
         otState.startMin = found.startMin;
         otState.endMin = found.endMin;
-        otState.slotLabel = found.label;
+        otState.slotLabel = found.label + ' น.';
+        updateOtAutoRate();
         autoDetectOtBreak(otState.startMin, otState.endMin);
         updateOtLiveSummary();
       }
@@ -10527,25 +10506,75 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     };
 
     function parseTimeToMin(val) {
-      if (!val || val.indexOf(':') === -1) return 0;
-      var parts = val.split(':');
-      return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+      if (!val) return 0;
+      var digits = String(val).replace(/\D/g, '');
+      if (val.indexOf(':') !== -1) {
+        var parts = val.split(':');
+        return Math.min(23, parseInt(parts[0], 10) || 0) * 60 + Math.min(59, parseInt(parts[1], 10) || 0);
+      }
+      if (digits.length === 4) {
+        return Math.min(23, parseInt(digits.slice(0, 2), 10) || 0) * 60 + Math.min(59, parseInt(digits.slice(2, 4), 10) || 0);
+      }
+      if (digits.length === 3) {
+        return Math.min(23, parseInt(digits.slice(0, 1), 10) || 0) * 60 + Math.min(59, parseInt(digits.slice(1, 3), 10) || 0);
+      }
+      return 0;
     }
+
+    function formatOtTimeDigits(raw, onBlur) {
+      var digits = String(raw || '').replace(/\D/g, '').slice(0, 4);
+      if (digits.length === 4) {
+        var hh = Math.min(23, parseInt(digits.slice(0, 2), 10) || 0);
+        var mm = Math.min(59, parseInt(digits.slice(2, 4), 10) || 0);
+        return pad2(hh) + ':' + pad2(mm);
+      }
+      if (onBlur && digits.length === 3) {
+        var h3 = Math.min(23, parseInt(digits.slice(0, 1), 10) || 0);
+        var m3 = Math.min(59, parseInt(digits.slice(1, 3), 10) || 0);
+        return pad2(h3) + ':' + pad2(m3);
+      }
+      if (onBlur && (digits.length === 1 || digits.length === 2)) {
+        var h2 = Math.min(23, parseInt(digits, 10) || 0);
+        return pad2(h2) + ':00';
+      }
+      return raw;
+    }
+
+    window.onOtCustomTimeInput = function(el) {
+      if (!el) return;
+      var formatted = formatOtTimeDigits(el.value, false);
+      if (formatted !== el.value) el.value = formatted;
+      var digits = el.value.replace(/\D/g, '');
+      if (digits.length === 4) {
+        window.onOtCustomTimeChange();
+      }
+    };
+
+    window.onOtCustomTimeBlur = function(el) {
+      if (!el) return;
+      el.value = formatOtTimeDigits(el.value, true);
+      window.onOtCustomTimeChange();
+    };
 
     window.onOtCustomTimeChange = function() {
       var csEl = document.getElementById('ot-custom-start');
       var ceEl = document.getElementById('ot-custom-end');
       if (!csEl || !ceEl) return;
       otState.slotId = 'custom';
-      var sMin = parseTimeToMin(csEl.value);
-      var eMin = parseTimeToMin(ceEl.value);
+      var sVal = formatOtTimeDigits(csEl.value, true);
+      var eVal = formatOtTimeDigits(ceEl.value, true);
+      if (sVal.indexOf(':') === -1) sVal = '18:00';
+      if (eVal.indexOf(':') === -1) eVal = '21:00';
+      var sMin = parseTimeToMin(sVal);
+      var eMin = parseTimeToMin(eVal);
       if (eMin <= sMin) eMin = sMin + 60;
       otState.startMin = sMin;
       otState.endMin = eMin;
-      otState.slotLabel = csEl.value + ' – ' + ceEl.value + ' น.';
+      otState.slotLabel = sVal + ' – ' + eVal + ' น.';
       var gross = Math.max(0, (eMin - sMin) / 60);
       var lbl = document.getElementById('ot-custom-gross-label');
       if (lbl) lbl.textContent = gross.toFixed(1) + ' ชม.';
+      updateOtAutoRate();
       autoDetectOtBreak(sMin, eMin);
       updateOtLiveSummary();
     };

@@ -7708,55 +7708,26 @@ main, .page-view, .settings-page {
 
     <form class="pg-form" id="ck-benefit-form" onsubmit="event.preventDefault(); window.submitBenefitForm && window.submitBenefitForm();">
       <div class="ck-leave-form-cols">
-        <!-- ฝั่งซ้าย: ประเภทสวัสดิการ (OPD), วันที่รักษา + สถานพยาบาล, ยอดตามใบเสร็จ (ลดเหลือ 1,000 อัตโนมัติ), อาการ, แนบใบเสร็จบังคับ -->
+        <!-- ฝั่งซ้าย: วันที่รักษา + สถานพยาบาล + ยอดตามใบเสร็จ, อาการ, แนบใบเสร็จบังคับ -->
         <div class="ck-leave-col-left" style="display:flex;flex-direction:column;gap:14px;">
-          <div class="pg-form-group">
-            <label class="pg-form-label"><span>ประเภทสวัสดิการบริษัท</span></label>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:#dcfce7;color:#15803d;flex-shrink:0;">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg>
-                </span>
-                <div>
-                  <strong style="display:block;font-size:13.5px;color:#0f172a;">ค่ารักษาพยาบาลผู้ป่วยนอก (OPD)</strong>
-                  <span style="font-size:11.5px;color:#15803d;font-weight:600;">วงเงินทั้งปี ฿10,000 · เบิกได้ครั้งละไม่เกิน ฿1,000</span>
-                </div>
-              </div>
-              <span class="quota-pill" style="background:#ffffff;color:#059669;border:1px solid #86efac;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:800;white-space:nowrap;">คงเหลือ ฿7,500</span>
-            </div>
-          </div>
-
-          <div class="pg-form-row2">
-            <div class="pg-form-group">
+          <div style="display:grid;grid-template-columns:150px 1fr 1fr;gap:10px;align-items:end;">
+            <div class="pg-form-group" style="margin:0;">
               <label class="pg-form-label"><span>วันที่เข้ารับการรักษา <span class="req">*</span></span></label>
               <div class="ck-date-box-wrap">
-                <button type="button" class="ck-date-box" id="ben-date-box" onclick="window.openPopupCal && window.openPopupCal(this, 'ben-date')">
+                <button type="button" class="ck-date-box" id="ben-date-box" data-date-target="ben-date" onclick="window.openPopupCal && window.openPopupCal(this, 'ben-date')" style="width:100%;padding:0 12px;min-height:42px;height:42px;box-sizing:border-box;">
                   <span id="ben-date-val">05/11/2569</span>
                   <svg><use href="#calendar"/></svg>
                 </button>
                 <div class="ck-date-popover" id="pop-ben-date"></div>
               </div>
             </div>
-            <div class="pg-form-group">
+            <div class="pg-form-group" style="margin:0;">
               <label class="pg-form-label" for="claim-hospital"><span>สถานพยาบาล / คลินิก <span class="req">*</span></span></label>
-              <input type="text" id="claim-hospital" class="pg-form-control" value="คลินิกเวชกรรมสีลม" placeholder="ระบุชื่อโรงพยาบาลหรือคลินิก" required>
+              <input type="text" id="claim-hospital" class="pg-form-control" value="คลินิกเวชกรรมสีลม" placeholder="ระบุชื่อโรงพยาบาลหรือคลินิก" style="height:42px;box-sizing:border-box;" required>
             </div>
-          </div>
-
-          <div class="pg-form-group">
-            <label class="pg-form-label" for="claim-amount-req" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-              <span>ยอดเงินตามใบเสร็จรับเงิน (บาท) <span class="req">*</span></span>
-              <span style="font-size:11px;font-weight:700;color:#1e70bf;">กรอกยอดตามใบเสร็จเท่านั้น (สูงสุด ฿1,000/ครั้ง)</span>
-            </label>
-            <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;">
-              <input type="number" id="claim-amount-req" class="pg-form-control" min="1" step="1" value="1250" placeholder="กรอกยอดเงินตามใบเสร็จจริง เช่น 1250" oninput="window.updateBenefitLiveQuota && window.updateBenefitLiveQuota()" required>
-              <div style="padding:9px 14px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;text-align:right;white-space:nowrap;">
-                <div style="font-size:10.5px;font-weight:700;color:#64748b;">ยอดเบิกสุทธิ</div>
-                <strong id="ben-capped-pill" style="font-size:15px;font-weight:800;color:#1e70bf;">฿1,000</strong>
-              </div>
-            </div>
-            <div id="ben-cap-notice" style="margin-top:6px;padding:7px 10px;border-radius:8px;font-size:11.5px;font-weight:700;background:#fffbeb;border:1px solid #fde68a;color:#b45309;">
-              ⚡ ยอดใบเสร็จ ฿1,250 เกินเพดาน ฿1,000/ครั้ง — ระบบลดยอดเบิกกลับมาเป็น ฿1,000 อัตโนมัติ
+            <div class="pg-form-group" style="margin:0;">
+              <label class="pg-form-label" for="claim-amount-req"><span>ยอดเงินตามใบเสร็จ (บาท) <span class="req">*</span></span></label>
+              <input type="text" inputmode="decimal" id="claim-amount-req" class="pg-form-control" value="1250" placeholder="เช่น 1250" oninput="window.updateBenefitLiveQuota && window.updateBenefitLiveQuota()" style="height:42px;box-sizing:border-box;" required>
             </div>
           </div>
 
@@ -7851,6 +7822,9 @@ main, .page-view, .settings-page {
 
           <div style="margin-top:6px;">
             <button type="submit" class="pg-btn pg-btn-primary" id="ben-submit-btn" style="width:100%;"><svg><use href="#paper-plane"/></svg> ส่งคำขอเบิกค่ารักษา OPD</button>
+            <div style="margin-top:8px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;font-size:11.5px;color:#64748b;line-height:1.5;">
+              <strong style="color:#1e70bf;">เงื่อนไขการเบิก:</strong> วงเงินค่ารักษา OPD ทั้งปี ฿10,000 · กรอกยอดเงินตามใบเสร็จจริงเท่านั้น ระบบจะลดยอดเบิกไม่เกิน ฿1,000/ครั้ง อัตโนมัติ และบังคับแนบไฟล์ใบเสร็จรับเงินทุกครั้ง
+            </div>
           </div>
         </div>
       </div>
@@ -7908,6 +7882,9 @@ main, .page-view, .settings-page {
             </td>
             <td style="text-align:center;white-space:nowrap;">
               <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn" title="ดูไฟล์แนบใบเสร็จ" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;" onclick="alert('เปิดไฟล์แนบ: ใบเสร็จ_คลินิกเวชกรรมสีลม_021169.pdf');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </button>
                 <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 0)">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -7943,6 +7920,9 @@ main, .page-view, .settings-page {
             </td>
             <td style="text-align:center;white-space:nowrap;">
               <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn" title="ดูไฟล์แนบใบเสร็จ" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;" onclick="alert('เปิดไฟล์แนบ: ใบเสร็จ_รพ_พญาไท2.pdf');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </button>
                 <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 1)">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -7978,6 +7958,9 @@ main, .page-view, .settings-page {
             </td>
             <td style="text-align:center;white-space:nowrap;">
               <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn" title="ดูไฟล์แนบใบเสร็จ" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;" onclick="alert('เปิดไฟล์แนบ: ใบเสร็จ_รพ_กรุงเทพ.pdf');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </button>
                 <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 2)">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -8013,6 +7996,9 @@ main, .page-view, .settings-page {
             </td>
             <td style="text-align:center;white-space:nowrap;">
               <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn" title="ดูไฟล์แนบใบเสร็จ" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;" onclick="alert('เปิดไฟล์แนบ: ใบรับรองแพทย์_รพ.วิภาวดี.pdf');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </button>
                 <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 3)">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -9918,6 +9904,12 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         return;
       }
 
+      if (key === 'ben-date') {
+        window.renderBenCalPopup && window.renderBenCalPopup(pop);
+        pop.classList.add('open');
+        return;
+      }
+
       var monthLabel = 'ตุลาคม 2569';
       var mSuffix = '10/2569';
       var maxDays = 31;
@@ -11110,7 +11102,56 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       name: 'ค่ารักษาพยาบาล OPD',
       budget: 7500,
       maxPerClaim: 1000,
-      fileName: ''
+      fileName: '',
+      day: 5
+    };
+
+    window.renderBenCalPopup = function(popEl) {
+      if (!popEl) return;
+      var monthLabel = 'พฤศจิกายน 2569';
+      var maxDays = 30;
+      var emptySlots = 6; // Mon-Sat empty since Nov 1, 2026 is Sunday
+
+      var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+        '<button type="button" class="ck-pop-nav-btn" onclick="event.stopPropagation();" title="เดือนก่อนหน้า">&lt;</button>' +
+        '<span style="font-weight:800;font-size:15px;color:#1e293b;">' + monthLabel + '</span>' +
+        '<button type="button" class="ck-pop-nav-btn" onclick="event.stopPropagation();" title="เดือนถัดไป">&gt;</button>' +
+        '</div>' +
+        '<div class="ck-pop-cal-dow-ref">' +
+        '<span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span style="color:#94a3b8;">ส.</span><span style="color:#94a3b8;">อา.</span>' +
+        '</div>' +
+        '<div class="ck-pop-cal-grid-ref">';
+
+      for (var i = 0; i < emptySlots; i++) {
+        html += '<span class="ck-pop-day-ref empty" style="visibility:hidden;"></span>';
+      }
+
+      for (var d = 1; d <= maxDays; d++) {
+        var fDate = pad2(d) + '/11/2569';
+        var classes = ['ck-pop-day-ref'];
+        var dow = d % 7;
+        var isHoliday = (dow === 0 || dow === 1 || d === 25);
+        if (isHoliday) classes.push('holiday');
+        if (d === benefitState.day) classes.push('selected', 'range-start', 'range-end');
+        var holidayTitle = isHoliday ? (d === 25 ? 'วันหยุดประจำปีบริษัท' : 'วันหยุดสัปดาห์') : '';
+        html += '<button type="button" class="' + classes.join(' ') + '" data-day="' + d + '" title="' + holidayTitle + '" style="cursor:pointer;" onclick="window.pickBenCalDay(' + d + ', \'' + fDate + '\')">' + d + '</button>';
+      }
+
+      html += '</div>' +
+        '<div style="margin-top:8px;font-size:11.5px;font-weight:600;color:#64748b;text-align:center;">' +
+        '(คลิกเลือกวันที่เข้ารับการรักษา)' +
+        '</div>';
+      popEl.innerHTML = html;
+    };
+
+    window.pickBenCalDay = function(day, formattedDate) {
+      benefitState.day = day;
+      var valEl = document.getElementById('ben-date-val');
+      if (valEl) valEl.textContent = formattedDate;
+      var pop = document.getElementById('pop-ben-date');
+      if (pop) pop.classList.remove('open');
+      var box = document.getElementById('ben-date-box');
+      if (box) box.classList.remove('active');
     };
 
     window.handleBenefitFileChange = function(inputEl) {
@@ -11139,7 +11180,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
 
     window.updateBenefitLiveQuota = function() {
       var input = document.getElementById('claim-amount-req');
-      var receiptAmt = input ? Math.max(0, parseFloat(input.value) || 0) : 0;
+      var raw = input ? String(input.value || '').replace(/[^0-9.]/g, '') : '0';
+      var receiptAmt = Math.max(0, parseFloat(raw) || 0);
       var claimableAmt = Math.min(receiptAmt, benefitState.maxPerClaim);
       var remain = benefitState.budget - claimableAmt;
 
@@ -11150,33 +11192,12 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       var usedEl = document.getElementById('ben-live-used');
       var aftEl = document.getElementById('ben-live-after');
       var alertEl = document.getElementById('ben-live-alert');
-      var capPill = document.getElementById('ben-capped-pill');
-      var capNotice = document.getElementById('ben-cap-notice');
       var subBtn = document.getElementById('ben-submit-btn');
 
       if (nameEl) nameEl.textContent = benefitState.name;
       if (befEl) befEl.textContent = '฿' + benefitState.budget.toLocaleString();
       if (recEl) recEl.textContent = '฿' + receiptAmt.toLocaleString();
       if (usedEl) usedEl.textContent = '- ฿' + claimableAmt.toLocaleString();
-      if (capPill) capPill.textContent = '฿' + claimableAmt.toLocaleString();
-
-      if (capNotice) {
-        if (receiptAmt > benefitState.maxPerClaim) {
-          capNotice.style.display = 'block';
-          capNotice.style.background = '#fffbeb';
-          capNotice.style.borderColor = '#fde68a';
-          capNotice.style.color = '#b45309';
-          capNotice.textContent = '⚡ ยอดใบเสร็จ ฿' + receiptAmt.toLocaleString() + ' เกินเพดาน ฿1,000/ครั้ง — ระบบลดยอดเบิกกลับมาเป็น ฿1,000 อัตโนมัติ';
-        } else if (receiptAmt > 0) {
-          capNotice.style.display = 'block';
-          capNotice.style.background = '#f0fdf4';
-          capNotice.style.borderColor = '#bbf7d0';
-          capNotice.style.color = '#15803d';
-          capNotice.textContent = '✓ ยอดตามใบเสร็จ ฿' + receiptAmt.toLocaleString() + ' ไม่เกินเพดาน ฿1,000/ครั้ง (เบิกได้เต็มตามใบเสร็จ)';
-        } else {
-          capNotice.style.display = 'none';
-        }
-      }
 
       if (remain < 0) {
         if (box) box.classList.add('over-limit');
@@ -11477,7 +11498,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         var benReqDates = ['02/11/2569', '28/10/2569', '10/09/2569', '16/05/2569'];
         var benReceipts = ['฿1,250', '฿850', '฿1,400', '฿650'];
         var benAmounts = ['฿1,000', '฿850', '฿1,000', '฿650'];
-        var benQuotas = ['คงเหลือ ฿7,500 / ฿10,000', 'คงเหลือ ฿7,500 / ฿10,000', 'คงเหลือ ฿8,350 / ฿10,000', 'คงเหลือ ฿9,350 / ฿10,000'];
+        var benQuotas = ['฿7,500', '฿7,500', '฿8,350', '฿9,350'];
         var benChannels = ['โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB'];
         var benReasons = [
           'ตรวจรักษาอาการไข้หวัด คลินิกเวชกรรมสีลม (ยอดใบเสร็จ ฿1,250 ปรับเบิกสูงสุด ฿1,000 ตามสิทธิ์)',
@@ -11492,7 +11513,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         gridField1Label = 'ประเภทสวัสดิการ';
         gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#ecfdf5;color:#059669;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span><strong style="color:#0f172a;font-size:13px;">ค่ารักษาพยาบาล (OPD)</strong></div>';
         gridField2Label = 'สิทธิ์คงเหลือปีนี้';
-        gridField2Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + benQuotas[idx] + '</strong>';
+        gridField2Val = '<strong style="color:#059669;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + benQuotas[idx] + '</strong>';
         gridField3Label = 'ยอดตามใบเสร็จ';
         gridField3Val = '<strong style="color:#475569;font-size:13.5px;font-weight:700;display:block;margin-top:2px;">' + benReceipts[idx] + '</strong>';
         gridField4Label = 'ยอดเบิกสุทธิ (≤ ฿1,000)';

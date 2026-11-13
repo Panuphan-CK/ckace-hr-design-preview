@@ -5092,7 +5092,7 @@ main, .page-view, .settings-page {
 
     <!-- Req: Time In / Time Out Tiles (08:28:30 น. สีเขียว จัดกึ่งกลาง, --:--:-- น. สีเทา จัดกึ่งกลาง, คลิกเพื่อจำลองลงเวลาออกได้) -->
     <div class="ck-att-tiles">
-      <div class="ck-att-tile" style="border-top:3px solid #16a34a;">
+      <div class="ck-att-tile">
         <div class="ck-att-topline">
           <div class="ck-att-head-left">
             <span class="ck-att-circle in"><svg><use href="#arrow"/></svg></span>
@@ -5105,7 +5105,7 @@ main, .page-view, .settings-page {
         </div>
       </div>
 
-      <div class="ck-att-tile" id="dash-checkout-tile" style="border-top:3px solid #1e70bf;cursor:pointer;" title="คลิกเพื่อลงเวลาออก" onclick="window.performDashboardCheckOut && window.performDashboardCheckOut();">
+      <div class="ck-att-tile" id="dash-checkout-tile" style="cursor:pointer;" title="คลิกเพื่อลงเวลาออก" onclick="window.performDashboardCheckOut && window.performDashboardCheckOut();">
         <div class="ck-att-topline">
           <div class="ck-att-head-left">
             <span class="ck-att-circle out"><svg><use href="#clock"/></svg></span>
@@ -5457,7 +5457,7 @@ main, .page-view, .settings-page {
     </div>
     <div class="ck-pers-grid">
       <!-- พักร้อน -->
-      <div class="ck-pers-card" style="border-top:3px solid #1e70bf;">
+      <div class="ck-pers-card">
         <div class="ck-pers-top">
           <div class="ck-pers-title-grp">
             <span class="pers-icon" style="background:#e0f2fe;color:#0284c7;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
@@ -5472,7 +5472,7 @@ main, .page-view, .settings-page {
       </div>
 
       <!-- ลาป่วย -->
-      <div class="ck-pers-card" style="border-top:3px solid #16a34a;">
+      <div class="ck-pers-card">
         <div class="ck-pers-top">
           <div class="ck-pers-title-grp">
             <span class="pers-icon" style="background:#dcfce7;color:#16a34a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
@@ -5487,7 +5487,7 @@ main, .page-view, .settings-page {
       </div>
 
       <!-- ลากิจ -->
-      <div class="ck-pers-card" style="border-top:3px solid #d97706;">
+      <div class="ck-pers-card">
         <div class="ck-pers-top">
           <div class="ck-pers-title-grp">
             <span class="pers-icon" style="background:#fef3c7;color:#d97706;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg></span>
@@ -6200,77 +6200,58 @@ main, .page-view, .settings-page {
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (ขยายขนาดให้ใหญ่ขึ้น ตัวอักษรใหญ่ขึ้น มีบรรทัด ใช้ไป... คงเหลือ... และหลอดแสดง % ไม่มีทศนิยม) -->
-  <div class="ck-leave-stat-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <!-- Card 1: ลาพักร้อน -->
-    <div class="ck-pers-card" style="border-top:3px solid #1e70bf;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
-          <b>ลาพักร้อน</b>
+  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
+  <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ลาพักร้อน</b>
         </div>
-        <small class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ 15.00 วัน</small>
+        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 15.00 วัน</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#1e70bf;">ใช้ 3.00 วัน / เหลือ 12.00 วัน</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:20%;height:100%;background:#1e70bf;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 20%</span></div>
-        <span class="ck-pers-remain blue" id="kpi-remain-annual" style="font-weight:800;color:#1e70bf;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 80%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">เหลือ 12.00 วัน</strong>
+        <span id="kpi-remain-annual" style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ใช้ไป 3.00 วัน (20%)</span>
       </div>
     </div>
-
-    <!-- Card 2: ลาป่วย -->
-    <div class="ck-pers-card" style="border-top:3px solid #16a34a;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#dcfce7;color:#16a34a;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
-          <b>ลาป่วย</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #16a34a;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#dcfce7;color:#16a34a;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ลาป่วย</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ 5.00 วัน</small>
+        <span style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 5.00 วัน</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#0d8268;">ใช้ 1.00 วัน / เหลือ 4.00 วัน</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill green" style="width:20%;height:100%;background:#0d8268;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 20%</span></div>
-        <span class="ck-pers-remain green" id="kpi-remain-sick" style="font-weight:800;color:#0d8268;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 80%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#0d8268;letter-spacing:-0.4px;line-height:1.1;">เหลือ 4.00 วัน</strong>
+        <span id="kpi-remain-sick" style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ใช้ไป 1.00 วัน (20%)</span>
       </div>
     </div>
-
-    <!-- Card 3: ลากิจ -->
-    <div class="ck-pers-card" style="border-top:3px solid #d97706;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#fef3c7;color:#d97706;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg></span>
-          <b>ลากิจ</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #d97706;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#fef3c7;color:#d97706;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ลากิจ</b>
         </div>
-        <small class="ck-badge-tag" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ 3.00 วัน</small>
+        <span style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 3.00 วัน</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#b45309;">ใช้ 1.00 วัน / เหลือ 2.00 วัน</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill amber" style="width:33.33%;height:100%;background:#b45309;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 33%</span></div>
-        <span class="ck-pers-remain amber" id="kpi-remain-personal" style="font-weight:800;color:#b45309;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 67%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#b45309;letter-spacing:-0.4px;line-height:1.1;">เหลือ 2.00 วัน</strong>
+        <span id="kpi-remain-personal" style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ใช้ไป 1.00 วัน (33%)</span>
       </div>
     </div>
-
-    <!-- Card 4: ลารายชั่วโมง -->
-    <div class="ck-pers-card" style="border-top:3px solid #0284c7;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
-          <b>ลารายชั่วโมง</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ลารายชั่วโมง</b>
         </div>
-        <small class="ck-badge-tag" style="background:#faf5ff;color:#6b21a8;border:1px solid #e9d5ff;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">8.00 ชม. = 1.00 วัน</small>
+        <span style="background:#faf5ff;color:#6b21a8;border:1px solid #e9d5ff;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">8 ชม. = 1 วัน</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#7c3aed;">ใช้ 2.00 ชม. / เหลือ 6.00 ชม.</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill purple" style="width:25%;height:100%;background:#7c3aed;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 25%</span></div>
-        <span class="ck-pers-remain purple" style="font-weight:800;color:#7c3aed;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 75%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">เหลือ 6.00 ชม.</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ใช้ไป 2.00 ชม. (25%)</span>
       </div>
     </div>
   </div>
@@ -7089,7 +7070,7 @@ main, .page-view, .settings-page {
         </div>
       </div>
       <div class="ck-att-tiles">
-        <div class="ck-att-tile" style="border-top:3px solid #16a34a;cursor:pointer;" onclick="alert('บันทึกเวลาเข้างาน 08:28:30 น. สำเร็จ');">
+        <div class="ck-att-tile" style="cursor:pointer;border-top:3px solid #16a34a;" onclick="alert('บันทึกเวลาเข้างาน 08:28:30 น. สำเร็จ');">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle in"><svg><use href="#arrow"/></svg></span>
@@ -7103,7 +7084,7 @@ main, .page-view, .settings-page {
           </div>
         </div>
 
-        <div class="ck-att-tile" style="border-top:3px solid #1e70bf;cursor:pointer;border-color:#1e70bf;background:#f8fbff;" onclick="document.getElementById('att-checkout-time').textContent='17:32:10 น.';document.getElementById('att-checkout-pill').textContent='✓ ลงเวลาออกแล้ว';document.getElementById('att-checkout-pill').className='ck-att-pill green';">
+        <div class="ck-att-tile" style="cursor:pointer;border-color:#1e70bf;background:#f8fbff;border-top:3px solid #1e70bf;" onclick="document.getElementById('att-checkout-time').textContent='17:32:10 น.';document.getElementById('att-checkout-pill').textContent='✓ ลงเวลาออกแล้ว';document.getElementById('att-checkout-pill').className='ck-att-pill green';">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle out" style="background:#1e70bf;"><svg><use href="#clock"/></svg></span>
@@ -7119,70 +7100,58 @@ main, .page-view, .settings-page {
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบฟอนต์และสีเหมือนหน้าแดชบอร์ด 100%) -->
-  <div class="ck-leave-stat-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <div class="ck-pers-card" style="border-top:3px solid #10b981;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#dcfce7;color:#16a34a;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#check"/></svg></span>
-          <b>มาทำงานตรงเวลา</b>
+  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
+  <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #10b981;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#dcfce7;color:#16a34a;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">มาทำงานตรงเวลา</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">19 วันทำงาน</small>
+        <span style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">19 วันทำงาน</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#0d8268;">ตรงเวลา 18 / 19 วัน</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:95%;height:100%;background:#10b981;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ตรงเวลา 95%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#0d8268;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">ปกติ</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#0d8268;letter-spacing:-0.4px;line-height:1.1;">18 / 19 วัน</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">คิดเป็น 95% (ปกติ)</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #f59e0b;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#fef3c7;color:#d97706;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#clock"/></svg></span>
-          <b>มาสาย / ออกก่อน</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #f59e0b;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#fef3c7;color:#d97706;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">มาสาย / ออกก่อน</b>
         </div>
-        <small class="ck-badge-tag" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">เกณฑ์ 3 ครั้ง</small>
+        <span style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">เกณฑ์ 3 ครั้ง</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#b45309;">สาย 1 ครั้ง (14 นาที)</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:33%;height:100%;background:#f59e0b;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ 33%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#b45309;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือโควตา 2</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#b45309;letter-spacing:-0.4px;line-height:1.1;">1 ครั้ง</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">รวม 14 นาที (เหลือโควตา 2)</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #1e70bf;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#workflow"/></svg></span>
-          <b>คำขอแก้ไขเวลา</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#workflow"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">คำขอแก้ไขเวลา</b>
         </div>
-        <small class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">เดือน ต.ค.</small>
+        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">เดือน ต.ค.</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#1e70bf;">อนุมัติ 2 / 3 รายการ</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:67%;height:100%;background:#1e70bf;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">อนุมัติ 67%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#1e70bf;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">รอ 1 รายการ</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">3 รายการ</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">อนุมัติ 2 / รออนุมัติ 1</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #0284c7;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#calendar"/></svg></span>
-          <b>ชั่วโมงทำงานสะสม</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#calendar"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ชั่วโมงทำงานสะสม</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">เป้า 152 ชม.</small>
+        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">เป้า 152 ชม.</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#0284c7;">ทำได้ 152 / 152 ชม.</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:100%;height:100%;background:#0284c7;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ครบ 100%</span></div>
-        
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">152.0 ชม.</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ครบตามเกณฑ์ 100%</span>
       </div>
     </div>
   </div>
@@ -7503,70 +7472,58 @@ main, .page-view, .settings-page {
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบฟอนต์และสีเหมือนหน้าแดชบอร์ด 100%) -->
-  <div class="ck-leave-stat-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <div class="ck-pers-card" style="border-top:3px solid #059669;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
-          <b>ค่ารักษา OPD</b>
+  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
+  <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ค่ารักษา OPD</b>
         </div>
-        <small class="ck-badge-tag" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ ฿10,000</small>
+        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿10,000</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#059669;">ใช้ ฿2,500 / เหลือ ฿7,500</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:25%;height:100%;background:#059669;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 25%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#059669;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 75%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#059669;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿7,500</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">เบิกแล้ว ฿2,500 (25%)</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #1e70bf;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#1e70bf;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#heart"/></svg></span>
-          <b>ทันตกรรม (Dental)</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#1e70bf;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#heart"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ทันตกรรม (Dental)</b>
         </div>
-        <small class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ ฿3,000</small>
+        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿3,000</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#1e70bf;">ใช้ ฿900 / เหลือ ฿2,100</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:30%;height:100%;background:#1e70bf;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 30%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#1e70bf;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 70%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿2,100</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">เบิกแล้ว ฿900 (30%)</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #0284c7;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#check"/></svg></span>
-          <b>ตรวจสุขภาพประจำปี</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#check"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ตรวจสุขภาพประจำปี</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ ฿2,500</small>
+        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿2,500</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#0284c7;">ใช้ ฿0 / เหลือ ฿2,500</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:0%;height:100%;background:#0284c7;border-radius:13px;"></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#0284c7;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 100%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿2,500</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ยังไม่ใช้สิทธิ์ (100%)</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #7c3aed;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#users"/></svg></span>
-          <b>สวัสดิการครอบครัว</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#users"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">สวัสดิการครอบครัว</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ ฿5,000</small>
+        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿5,000</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#7c3aed;">ใช้ ฿0 / เหลือ ฿5,000</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:0%;height:100%;background:#7c3aed;border-radius:13px;"></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#7c3aed;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 100%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿5,000</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ยังไม่ใช้สิทธิ์ (100%)</span>
       </div>
     </div>
   </div>
@@ -7899,70 +7856,58 @@ main, .page-view, .settings-page {
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบฟอนต์และสีเหมือนหน้าแดชบอร์ด 100%) -->
-  <div class="ck-leave-stat-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <div class="ck-pers-card" style="border-top:3px solid #1e70bf;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#1e70bf;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#calendar"/></svg></span>
-          <b>รออนุมัติลางาน</b>
+  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
+  <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#1e70bf;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#calendar"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">รออนุมัติลางาน</b>
         </div>
-        <small class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">ขั้นที่ 1–2</small>
+        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">ขั้นที่ 1–2</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#1e70bf;">รอพิจารณา 3 / 12 รายการ</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:25%;height:100%;background:#1e70bf;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">รอ 25%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#1e70bf;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">3 รายการ</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">3 รายการ</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">จากทั้งหมด 12 รายการ</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #7c3aed;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#clock"/></svg></span>
-          <b>รออนุมัติทำ OT</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">รออนุมัติทำ OT</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">รวม 5.5 ชม.</small>
+        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">รวม 5.5 ชม.</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#7c3aed;">รอพิจารณา 2 / 8 รายการ</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:25%;height:100%;background:#7c3aed;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">รอ 25%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#7c3aed;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">2 รายการ</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">2 รายการ</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">จากทั้งหมด 8 รายการ</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #0284c7;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#check"/></svg></span>
-          <b>รออนุมัติแก้ไขเวลา</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">รออนุมัติแก้ไขเวลา</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">มีหลักฐานแนบ</small>
+        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">มีหลักฐานแนบ</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#0284c7;">รอพิจารณา 2 / 5 รายการ</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:40%;height:100%;background:#0284c7;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">รอ 40%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#0284c7;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">2 รายการ</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">2 รายการ</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">จากทั้งหมด 5 รายการ</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #059669;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#heart"/></svg></span>
-          <b>รออนุมัติสวัสดิการ</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#heart"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">รออนุมัติสวัสดิการ</b>
         </div>
-        <small class="ck-badge-tag" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">OPD ฿1,200</small>
+        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">OPD ฿1,200</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#059669;">รอพิจารณา 1 / 4 รายการ</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:25%;height:100%;background:#059669;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">รอ 25%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#059669;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">1 รายการ</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#059669;letter-spacing:-0.4px;line-height:1.1;">1 รายการ</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">จากทั้งหมด 4 รายการ</span>
       </div>
     </div>
   </div>
@@ -8125,7 +8070,7 @@ main, .page-view, .settings-page {
           </div>
         </div>
 
-        <div class="ck-att-tile" style="border-top:3px solid #059669;cursor:pointer;border-color:#059669;background:#f0fdf4;" onclick="alert('ดาวน์โหลดรายงาน Excel สำหรับ Payroll งวด 31/10/2569 เรียบร้อยแล้ว');">
+        <div class="ck-att-tile" style="cursor:pointer;border-color:#059669;background:#f0fdf4;border-top:3px solid #059669;" onclick="alert('ดาวน์โหลดรายงาน Excel สำหรับ Payroll งวด 31/10/2569 เรียบร้อยแล้ว');">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle out" style="background:#059669;"><svg><use href="#file"/></svg></span>
@@ -8141,70 +8086,58 @@ main, .page-view, .settings-page {
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบฟอนต์และสีเหมือนหน้าแดชบอร์ด 100%) -->
-  <div class="ck-leave-stat-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <div class="ck-pers-card" style="border-top:3px solid #1e70bf;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#1e70bf;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#users"/></svg></span>
-          <b>พนักงานทั้งหมด</b>
+  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
+  <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#1e70bf;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#users"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">พนักงานทั้งหมด</b>
         </div>
-        <small class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">100% Active</small>
+        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">100% Active</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#1e70bf;">ปฏิบัติงาน 103 / 103 คน</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:100%;height:100%;background:#1e70bf;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">Active 100%</span></div>
-        
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">103 คน</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ปฏิบัติงานปกติทุกคน</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #0284c7;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#chart"/></svg></span>
-          <b>อัตราการลงเวลา</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#chart"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">อัตราการลงเวลา</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">↑ 1.5%</small>
+        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">↑ 1.5%</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#0284c7;">ตรงเวลา 98.6% / เป้า 98%</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:98%;height:100%;background:#0284c7;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">98.6%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#0284c7;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">ผ่านเกณฑ์</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">98.6%</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">สูงกว่าเป้า 98.0%</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #7c3aed;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#clock"/></svg></span>
-          <b>ชั่วโมง OT รวม</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ชั่วโมง OT รวม</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">ต.ค. 2569</small>
+        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">ต.ค. 2569</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#7c3aed;">ใช้ 482.5 / งบ 600 ชม.</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:80%;height:100%;background:#7c3aed;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 80%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#7c3aed;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 20%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">482.5 ชม.</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">รวมทุกแผนก 103 คน</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #059669;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#heart"/></svg></span>
-          <b>เบิกสวัสดิการรวม</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#heart"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">เบิกสวัสดิการรวม</b>
         </div>
-        <small class="ck-badge-tag" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">28 รายการ</small>
+        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">28 รายการ</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#059669;">เบิก ฿48,500 / งบ ฿80,000</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:61%;height:100%;background:#059669;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 61%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#059669;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 39%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#059669;letter-spacing:-0.4px;line-height:1.1;">฿48,500</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">อนุมัติโอนจ่ายครบแล้ว</span>
       </div>
     </div>
   </div>
@@ -8372,70 +8305,58 @@ main, .page-view, .settings-page {
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบฟอนต์และสีเหมือนหน้าแดชบอร์ด 100%) -->
-  <div class="ck-leave-stat-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <div class="ck-pers-card" style="border-top:3px solid #1e70bf;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
-          <b>ลาพักร้อน</b>
+  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
+  <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ลาพักร้อน</b>
         </div>
-        <small class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ 15.00 วัน</small>
+        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 15.00 วัน</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#1e70bf;">ใช้ 3.00 วัน / เหลือ 12.00 วัน</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:20%;height:100%;background:#1e70bf;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 20%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#1e70bf;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 80%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">เหลือ 12.00 วัน</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ใช้ไป 3.00 วัน (20%)</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #0284c7;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#check"/></svg></span>
-          <b>การลงเวลา</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">การลงเวลา</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">ตรงเวลา 95%</small>
+        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">ตรงเวลา 95%</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#0284c7;">ตรงเวลา 18 / 19 วัน</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:95%;height:100%;background:#0284c7;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ตรงเวลา 95%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#0284c7;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">ปกติ</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">18 / 19 วัน</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">บันทึกเวลาปกติ</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #7c3aed;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><use href="#clock"/></svg></span>
-          <b>ชั่วโมง OT</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ชั่วโมง OT</b>
         </div>
-        <small class="ck-badge-tag" style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">พ.ย. 2569</small>
+        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">พ.ย. 2569</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#7c3aed;">สะสม 42.5 ชม. (8 รายการ)</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:86%;height:100%;background:#7c3aed;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">อนุมัติ 86%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#7c3aed;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">รอ 14%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">42.5 ชม.</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">อนุมัติแล้ว 8 รายการ</span>
       </div>
     </div>
-    <div class="ck-pers-card" style="border-top:3px solid #059669;padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-      <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700;color:#0f172a;">
-          <span class="pers-icon" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
-          <b>ค่ารักษา OPD</b>
+    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
+          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ค่ารักษา OPD</b>
         </div>
-        <small class="ck-badge-tag" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">สิทธิ์ ฿10,000</small>
+        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿10,000</span>
       </div>
-      <div style="display:flex;justify-content:center;align-items:center;margin:10px 0 12px;text-align:center;">
-        <strong class="ck-leave-kpi-val" style="color:#059669;">ใช้ ฿2,500 / เหลือ ฿7,500</strong>
-      </div>
-      <div class="ck-pers-tube" style="height:26px;border-radius:13px;background:#e2edf8;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <div class="ck-pers-fill" style="width:25%;height:100%;background:#059669;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;"><span style="font-size:11.5px;font-weight:800;color:#ffffff;white-space:nowrap;">ใช้ไป 25%</span></div>
-        <span class="ck-pers-remain" style="font-weight:800;color:#059669;font-size:11.5px;white-space:nowrap;margin-left:auto;margin-right:10px;">เหลือ 75%</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <strong style="font-size:24px;font-weight:800;color:#059669;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿7,500</strong>
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">เบิกแล้ว ฿2,500 (25%)</span>
       </div>
     </div>
   </div>

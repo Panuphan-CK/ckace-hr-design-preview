@@ -10853,6 +10853,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       var gridField4Val = '';
       var gridField5Label = '';
       var gridField5Val = '';
+      var gridField6Label = '';
+      var gridField6Val = '';
       var reasonTitle = 'เหตุผลความจำเป็น:';
       var reasonText = '';
       var attachText = '';
@@ -10863,11 +10865,12 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         var otDatesOnly = ['29/10/2569', '25/10/2569', '19/10/2569'];
         var otTimeRanges = ['18:00 – 21:00 น.', '09:00 – 16:00 น.', '18:00 – 22:00 น.'];
         var otRatesHtml = [
-          'อัตรา <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f5f3ff;color:#7c3aed;font-weight:800;">1.5 เท่า</span>',
-          'อัตรา <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#eff6ff;color:#1e70bf;font-weight:800;">1.0 เท่า</span> (วันหยุด)',
-          'อัตรา <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f5f3ff;color:#7c3aed;font-weight:800;">1.5 เท่า</span>'
+          'อัตรา <strong style="color:#7c3aed;font-weight:800;">1.5</strong> เท่า',
+          'อัตรา <strong style="color:#1e70bf;font-weight:800;">1.0</strong> เท่า (วันหยุด)',
+          'อัตรา <strong style="color:#7c3aed;font-weight:800;">1.5</strong> เท่า'
         ];
         var otHrs = ['3.0 ชม.', '6.0 ชม.', '4.0 ชม.'];
+        var otBreaks = ['พักเย็น 1.0 ชม.', 'พักกลางวัน 1.0 ชม.', 'ไม่พัก (0.0 ชม.)'];
         var otReasons = [
           'ปิดงบเดือนและกระทบยอดเงินเดือนพนักงานประจำงวดตุลาคม 2569',
           'จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาสที่ 3 ตามกำหนด',
@@ -10881,12 +10884,14 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#f5f3ff;color:#7c3aed;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><strong style="color:#0f172a;font-size:13px;">ล่วงเวลา (OT)</strong></div>';
         gridField2Label = 'อัตราค่าตอบแทน';
         gridField2Val = '<div style="color:#0f172a;font-size:13px;font-weight:700;margin-top:2px;">' + (otRatesHtml[idx] || otRatesHtml[0]) + '</div>';
-        gridField3Label = 'วันที่';
+        gridField3Label = 'วันที่ทำ OT';
         gridField3Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + (otDatesOnly[idx] || '29/10/2569') + '</strong>';
-        gridField4Label = 'ช่วงเวลา';
+        gridField4Label = 'ช่วงเวลา OT';
         gridField4Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + (otTimeRanges[idx] || '18:00 – 21:00 น.') + '</strong>';
         gridField5Label = 'จำนวนชั่วโมง';
         gridField5Val = '<strong style="color:#7c3aed;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + (otHrs[idx] || '3.0 ชม.') + '</strong>';
+        gridField6Label = 'ชั่วโมงพัก';
+        gridField6Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + (otBreaks[idx] || 'พักเย็น 1.0 ชม.') + '</strong>';
         reasonTitle = 'รายละเอียดงาน:';
         reasonText = otReasons[idx];
         attachText = otAttaches[idx];
@@ -11088,6 +11093,12 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
                 '<div>' +
                   '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">' + gridField5Label + '</span>' +
                   gridField5Val +
+                '</div>'
+              ) : '') +
+              (gridField6Label ? (
+                '<div>' +
+                  '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">' + gridField6Label + '</span>' +
+                  gridField6Val +
                 '</div>'
               ) : '') +
             '</div>' +

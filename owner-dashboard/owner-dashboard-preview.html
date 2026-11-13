@@ -6200,9 +6200,8 @@ main, .page-view, .settings-page {
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (แถบสีด้านบน + ตัวเลขคงเหลือเด่น + หลอด Progress เพรียวสะอาด) -->
+  <!-- Row 2: 4 KPI Cards (แบบ B: Dual-Split Bar จับคู่ซ้าย-ขวาตรงกับหลอด 2 สี) -->
   <div class="ck-leave-stat-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <!-- Card 1: ลาพักร้อน -->
     <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
       <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;">
         <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:#0f172a;">
@@ -6211,19 +6210,14 @@ main, .page-view, .settings-page {
         </div>
         <small class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;">สิทธิ์ 15.00 วัน</small>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
-        <strong style="font-size:23px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">เหลือ 12.00 วัน</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;">ใช้ไป 3.00 วัน</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;white-space:nowrap;">ใช้ไป 3.00 วัน (20%)</span>
+        <strong id="kpi-remain-annual" style="font-size:21px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;white-space:nowrap;">เหลือ 12.00 วัน</strong>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="flex:1;height:10px;border-radius:99px;background:#e2edf8;overflow:hidden;">
-          <div style="width:20%;height:100%;background:#1e70bf;border-radius:99px;"></div>
-        </div>
-        <span id="kpi-remain-annual" style="font-size:11.5px;font-weight:800;color:#1e70bf;white-space:nowrap;">เหลือ 80%</span>
+      <div style="height:12px;border-radius:99px;background:#cfe3f7;overflow:hidden;display:flex;align-items:center;">
+        <div style="width:20%;height:100%;background:#1e70bf;border-radius:99px 0 0 99px;"></div>
       </div>
     </div>
-
-    <!-- Card 2: ลาป่วย -->
     <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #16a34a;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
       <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;">
         <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:#0f172a;">
@@ -6232,19 +6226,14 @@ main, .page-view, .settings-page {
         </div>
         <small class="ck-badge-tag" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;">สิทธิ์ 5.00 วัน</small>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
-        <strong style="font-size:23px;font-weight:800;color:#0d8268;letter-spacing:-0.4px;line-height:1.1;">เหลือ 4.00 วัน</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;">ใช้ไป 1.00 วัน</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;white-space:nowrap;">ใช้ไป 1.00 วัน (20%)</span>
+        <strong id="kpi-remain-sick" style="font-size:21px;font-weight:800;color:#0d8268;letter-spacing:-0.4px;line-height:1.1;white-space:nowrap;">เหลือ 4.00 วัน</strong>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="flex:1;height:10px;border-radius:99px;background:#e2edf8;overflow:hidden;">
-          <div style="width:20%;height:100%;background:#0d8268;border-radius:99px;"></div>
-        </div>
-        <span id="kpi-remain-sick" style="font-size:11.5px;font-weight:800;color:#0d8268;white-space:nowrap;">เหลือ 80%</span>
+      <div style="height:12px;border-radius:99px;background:#bbf7d0;overflow:hidden;display:flex;align-items:center;">
+        <div style="width:20%;height:100%;background:#0d8268;border-radius:99px 0 0 99px;"></div>
       </div>
     </div>
-
-    <!-- Card 3: ลากิจ -->
     <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #d97706;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
       <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;">
         <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:#0f172a;">
@@ -6253,19 +6242,14 @@ main, .page-view, .settings-page {
         </div>
         <small class="ck-badge-tag" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;">สิทธิ์ 3.00 วัน</small>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
-        <strong style="font-size:23px;font-weight:800;color:#b45309;letter-spacing:-0.4px;line-height:1.1;">เหลือ 2.00 วัน</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;">ใช้ไป 1.00 วัน</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;white-space:nowrap;">ใช้ไป 1.00 วัน (33%)</span>
+        <strong id="kpi-remain-personal" style="font-size:21px;font-weight:800;color:#b45309;letter-spacing:-0.4px;line-height:1.1;white-space:nowrap;">เหลือ 2.00 วัน</strong>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="flex:1;height:10px;border-radius:99px;background:#e2edf8;overflow:hidden;">
-          <div style="width:33.33%;height:100%;background:#b45309;border-radius:99px;"></div>
-        </div>
-        <span id="kpi-remain-personal" style="font-size:11.5px;font-weight:800;color:#b45309;white-space:nowrap;">เหลือ 67%</span>
+      <div style="height:12px;border-radius:99px;background:#fde68a;overflow:hidden;display:flex;align-items:center;">
+        <div style="width:33.33%;height:100%;background:#b45309;border-radius:99px 0 0 99px;"></div>
       </div>
     </div>
-
-    <!-- Card 4: ลารายชั่วโมง -->
     <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
       <div class="ck-pers-top" style="display:flex;justify-content:space-between;align-items:center;">
         <div class="ck-pers-title-grp" style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:#0f172a;">
@@ -6274,15 +6258,12 @@ main, .page-view, .settings-page {
         </div>
         <small class="ck-badge-tag" style="background:#faf5ff;color:#6b21a8;border:1px solid #e9d5ff;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;">8.00 ชม. = 1 วัน</small>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
-        <strong style="font-size:23px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">เหลือ 6.00 ชม.</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;">ใช้ไป 2.00 ชม.</span>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
+        <span style="font-size:11.5px;font-weight:600;color:#64748b;white-space:nowrap;">ใช้ไป 2.00 ชม. (25%)</span>
+        <strong style="font-size:21px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;white-space:nowrap;">เหลือ 6.00 ชม.</strong>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="flex:1;height:10px;border-radius:99px;background:#e2edf8;overflow:hidden;">
-          <div style="width:25%;height:100%;background:#7c3aed;border-radius:99px;"></div>
-        </div>
-        <span style="font-size:11.5px;font-weight:800;color:#7c3aed;white-space:nowrap;">เหลือ 75%</span>
+      <div style="height:12px;border-radius:99px;background:#ddd6fe;overflow:hidden;display:flex;align-items:center;">
+        <div style="width:25%;height:100%;background:#7c3aed;border-radius:99px 0 0 99px;"></div>
       </div>
     </div>
   </div>

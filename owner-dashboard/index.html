@@ -6981,12 +6981,12 @@ main, .page-view, .settings-page {
             <tr>
               <th style="width:12%;text-align:center;">รหัสคำขอ</th>
               <th style="width:15%;text-align:center;">พนักงาน</th>
-              <th style="width:10%;text-align:center;">ประเภทอัตรา</th>
-              <th style="width:15%;text-align:center;">วันที่ปฏิบัติงาน</th>
-              <th style="width:11%;text-align:center;">ชั่วโมง OT</th>
-              <th style="width:14%;text-align:center;">ภารกิจ / เหตุผล</th>
+              <th style="width:14%;text-align:center;">วันที่ปฏิบัติงาน</th>
+              <th style="width:10%;text-align:center;">ชั่วโมง OT</th>
+              <th style="width:11%;text-align:center;">ประเภทอัตรา</th>
+              <th style="width:14%;text-align:center;">รายละเอียดงาน</th>
               <th style="width:10%;text-align:center;">สถานะ</th>
-              <th style="width:13%;text-align:center;">จัดการ</th>
+              <th style="width:14%;text-align:center;">จัดการ</th>
             </tr>
           </thead>
           <tbody>
@@ -6999,14 +6999,14 @@ main, .page-view, .settings-page {
                 <div>คุณภาณุพันธุ์ ใจดี</div>
                 <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
               </td>
-              <td style="text-align:center;">
-                <span class="pg-badge" style="background:#f5f3ff;color:#7c3aed;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">1.5 เท่า</span>
-              </td>
               <td style="text-align:center;line-height:1.4;">
                 <div>29/10/2569</div>
                 <small style="color:#64748b;">(18:00 – 21:00 น.)</small>
               </td>
               <td style="text-align:center;font-weight:700;color:#7c3aed;">3.00 ชม.</td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#f5f3ff;color:#7c3aed;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">1.5 เท่า</span>
+              </td>
               <td style="text-align:center;">
                 <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ปิดงบเดือนและกระทบยอดเงินเดือนตุลาคม 2569</div>
               </td>
@@ -7014,15 +7014,18 @@ main, .page-view, .settings-page {
                 <span class="pg-badge pg-badge-warning" style="padding:4px 10px;">รออนุมัติ (2/3)</span>
               </td>
               <td style="text-align:center;white-space:nowrap;">
-                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
-                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ot', 0)">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;gap:3px;">
+                  <button type="button" class="ck-action-btn view" style="width:26px;height:26px;" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ot', 0)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
-                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ OT" onclick="alert('แก้ไขคำขอ OT: OT-2569-019');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  <button type="button" class="ck-action-btn" style="width:26px;height:26px;background:#f0f9ff;border-color:#bae6fd;color:#0284c7;" title="เปิดดูไฟล์แนบ: อนุมัติแผนงานปิดงบ.pdf" onclick="alert('เปิดดูไฟล์แนบ: อนุมัติแผนงานปิดงบ.pdf');">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
                   </button>
-                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ OT" onclick="alert('ยกเลิกคำขอ OT: OT-2569-019');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <button type="button" class="ck-action-btn edit" style="width:26px;height:26px;" title="แก้ไขคำขอ OT" onclick="alert('แก้ไขคำขอ OT: OT-2569-019');">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" style="width:26px;height:26px;" title="ยกเลิกคำขอ OT" onclick="alert('ยกเลิกคำขอ OT: OT-2569-019');">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
               </td>
@@ -7036,14 +7039,14 @@ main, .page-view, .settings-page {
                 <div>คุณภาณุพันธุ์ ใจดี</div>
                 <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
               </td>
-              <td style="text-align:center;">
-                <span class="pg-badge" style="background:#eff6ff;color:#1e70bf;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">1.0 เท่า</span>
-              </td>
               <td style="text-align:center;line-height:1.4;">
                 <div>25/10/2569</div>
                 <small style="color:#64748b;">(09:00 – 16:00 น.)</small>
               </td>
               <td style="text-align:center;font-weight:700;color:#7c3aed;">6.00 ชม.</td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#eff6ff;color:#1e70bf;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">1.0 เท่า</span>
+              </td>
               <td style="text-align:center;">
                 <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาส 3</div>
               </td>
@@ -7051,15 +7054,18 @@ main, .page-view, .settings-page {
                 <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
               </td>
               <td style="text-align:center;white-space:nowrap;">
-                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
-                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ot', 1)">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;gap:3px;">
+                  <button type="button" class="ck-action-btn view" style="width:26px;height:26px;" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ot', 1)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
-                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ OT" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  <button type="button" class="ck-action-btn" style="width:26px;height:26px;background:#f0f9ff;border-color:#bae6fd;color:#0284c7;" title="เปิดดูไฟล์แนบ: กำหนดการส่งมอบงานAudit.pdf" onclick="alert('เปิดดูไฟล์แนบ: กำหนดการส่งมอบงานAudit.pdf');">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
                   </button>
-                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ OT" onclick="alert('ยกเลิกคำขอ OT: OT-2569-018');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ OT" style="width:26px;height:26px;opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </button>
+                  <button type="button" class="ck-action-btn cancel" style="width:26px;height:26px;" title="ยกเลิกคำขอ OT" onclick="alert('ยกเลิกคำขอ OT: OT-2569-018');">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
               </td>
@@ -7073,14 +7079,14 @@ main, .page-view, .settings-page {
                 <div>คุณภาณุพันธุ์ ใจดี</div>
                 <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
               </td>
-              <td style="text-align:center;">
-                <span class="pg-badge" style="background:#f5f3ff;color:#7c3aed;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">1.5 เท่า</span>
-              </td>
               <td style="text-align:center;line-height:1.4;">
                 <div>19/10/2569</div>
                 <small style="color:#64748b;">(18:00 – 22:00 น.)</small>
               </td>
               <td style="text-align:center;font-weight:700;color:#7c3aed;">4.00 ชม.</td>
+              <td style="text-align:center;">
+                <span class="pg-badge" style="background:#f5f3ff;color:#7c3aed;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">1.5 เท่า</span>
+              </td>
               <td style="text-align:center;">
                 <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ตรวจสอบเอกสารทั่วไปหลังเวลางานปกติ</div>
               </td>
@@ -7088,15 +7094,15 @@ main, .page-view, .settings-page {
                 <span class="pg-badge pg-badge-danger" style="padding:4px 10px;">✕ ไม่อนุมัติ (1/3)</span>
               </td>
               <td style="text-align:center;white-space:nowrap;">
-                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
-                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ot', 2)">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;gap:3px;">
+                  <button type="button" class="ck-action-btn view" style="width:26px;height:26px;" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ot', 2)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
-                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ OT" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ไม่ได้รับการอนุมัติ');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ OT" style="width:26px;height:26px;opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ไม่ได้รับการอนุมัติ');">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </button>
-                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ OT" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ถูกปฏิเสธแล้ว');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ OT" style="width:26px;height:26px;opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ถูกปฏิเสธแล้ว');">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
               </td>
@@ -10823,6 +10829,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       var gridField3Val = '';
       var gridField4Label = '';
       var gridField4Val = '';
+      var gridField5Label = '';
+      var gridField5Val = '';
       var reasonTitle = 'เหตุผลความจำเป็น:';
       var reasonText = '';
       var attachText = '';
@@ -10830,8 +10838,13 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       if (prefix === 'ot') {
         var otCodes = ['OT-2569-019', 'OT-2569-018', 'OT-2569-017'];
         var otReqDates = ['29/10/2569', '25/10/2569', '19/10/2569'];
-        var otDates = ['29/10/2569 (18:00 – 21:00 น.)', '25/10/2569 (09:00 – 16:00 น.)', '19/10/2569 (18:00 – 22:00 น.)'];
-        var otRates = ['อัตรา 1.5 เท่า', 'อัตรา 1.0 เท่า (วันหยุด)', 'อัตรา 1.5 เท่า'];
+        var otDatesOnly = ['29/10/2569', '25/10/2569', '19/10/2569'];
+        var otTimeRanges = ['18:00 – 21:00 น.', '09:00 – 16:00 น.', '18:00 – 22:00 น.'];
+        var otRatesHtml = [
+          'อัตรา <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f5f3ff;color:#7c3aed;font-weight:800;">1.5 เท่า</span>',
+          'อัตรา <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#eff6ff;color:#1e70bf;font-weight:800;">1.0 เท่า</span> (วันหยุด)',
+          'อัตรา <span style="display:inline-block;padding:2px 8px;border-radius:6px;background:#f5f3ff;color:#7c3aed;font-weight:800;">1.5 เท่า</span>'
+        ];
         var otHrs = ['3.0 ชม.', '6.0 ชม.', '4.0 ชม.'];
         var otReasons = [
           'ปิดงบเดือนและกระทบยอดเงินเดือนพนักงานประจำงวดตุลาคม 2569',
@@ -10843,14 +10856,16 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         reqCode = otCodes[idx] || ('OT-2569-0' + (19 - idx));
         reqDate = otReqDates[idx] || '28/10/2569';
         gridField1Label = 'ประเภทการขอ';
-        gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#f5f3ff;color:#7c3aed;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><strong style="color:#0f172a;font-size:13px;">ทำงานล่วงเวลา (OT)</strong></div>';
+        gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#f5f3ff;color:#7c3aed;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><strong style="color:#0f172a;font-size:13px;">ล่วงเวลา (OT)</strong></div>';
         gridField2Label = 'อัตราค่าตอบแทน';
-        gridField2Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + otRates[idx] + '</strong>';
-        gridField3Label = 'ช่วงเวลาที่ทำ OT';
-        gridField3Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + otDates[idx] + '</strong>';
-        gridField4Label = 'จำนวนชั่วโมง';
-        gridField4Val = '<strong style="color:#7c3aed;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + otHrs[idx] + '</strong>';
-        reasonTitle = 'ภารกิจและรายละเอียดงาน:';
+        gridField2Val = '<div style="color:#0f172a;font-size:13px;font-weight:700;margin-top:2px;">' + (otRatesHtml[idx] || otRatesHtml[0]) + '</div>';
+        gridField3Label = 'วันที่';
+        gridField3Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + (otDatesOnly[idx] || '29/10/2569') + '</strong>';
+        gridField4Label = 'ช่วงเวลา';
+        gridField4Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + (otTimeRanges[idx] || '18:00 – 21:00 น.') + '</strong>';
+        gridField5Label = 'จำนวนชั่วโมง';
+        gridField5Val = '<strong style="color:#7c3aed;font-size:14px;font-weight:800;display:block;margin-top:2px;">' + (otHrs[idx] || '3.0 ชม.') + '</strong>';
+        reasonTitle = 'รายละเอียดงาน:';
         reasonText = otReasons[idx];
         attachText = otAttaches[idx];
       } else if (prefix === 'att') {
@@ -11047,6 +11062,12 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
                 '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">' + gridField4Label + '</span>' +
                 gridField4Val +
               '</div>' +
+              (gridField5Label ? (
+                '<div>' +
+                  '<span style="color:#64748b;display:block;font-size:11px;font-weight:600;">' + gridField5Label + '</span>' +
+                  gridField5Val +
+                '</div>'
+              ) : '') +
             '</div>' +
 
             '<!-- Reason Box (ชี้แล้วเป็นพื้นหลังขาว) -->' +

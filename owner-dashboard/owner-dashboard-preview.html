@@ -6803,7 +6803,7 @@ main, .page-view, .settings-page {
       </div>
 
       <form class="pg-form" onsubmit="event.preventDefault(); alert('ส่งคำขออนุมัติ OT เข้าสู่สายการอนุมัติ 3 ระดับเรียบร้อยแล้ว');">
-      <div class="ck-leave-form-cols">
+      <div class="ck-leave-form-cols" style="align-items:stretch;">
         <div class="ck-leave-col-left" style="display:flex;flex-direction:column;gap:14px;">
         <!-- 1, 2 & 3. วันที่เริ่มต้น *, วันที่สิ้นสุด และ ประเภทอัตรา OT * (แถวเดียวกัน 3 ช่อง กรอบอัตราพอดีข้อความ) -->
         <div id="ot-dates-row" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end;">
@@ -6867,12 +6867,12 @@ main, .page-view, .settings-page {
           </div>
         </div>
 
-        <div class="pg-form-group">
+        <div class="pg-form-group" style="flex:1;display:flex;flex-direction:column;margin-bottom:0;">
           <label class="pg-form-label" for="ot-reason"><span>รายละเอียดงาน <span class="req">*</span></span></label>
-          <textarea id="ot-reason" class="pg-form-control" rows="2" required>ปิดงบการเงินประจำเดือนและตรวจสอบยอดประกันสังคมพนักงานประจำเดือนตุลาคม 2569</textarea>
+          <textarea id="ot-reason" class="pg-form-control" rows="2" style="flex:1;min-height:80px;" required>ปิดงบการเงินประจำเดือนและตรวจสอบยอดประกันสังคมพนักงานประจำเดือนตุลาคม 2569</textarea>
         </div>
 
-        <div class="pg-form-group">
+        <div class="pg-form-group" style="margin-bottom:0;">
           <label class="pg-form-label"><span>เอกสารแนบ</span></label>
           <div class="pg-upload-box" onclick="alert('เลือกไฟล์เอกสารแนบประกอบการขอ OT (จำลอง)');">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>

@@ -7653,7 +7653,7 @@ main, .page-view, .settings-page {
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">สวัสดิการและค่ารักษาพยาบาล</h1>
+        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">สวัสดิการค่ารักษาพยาบาล (OPD)</h1>
         <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
         <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
@@ -7674,12 +7674,12 @@ main, .page-view, .settings-page {
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle in" style="transform:none;"><svg><use href="#heart"/></svg></span>
-              <span class="ck-att-label">ค่ารักษา OPD คงเหลือ</span>
+              <span class="ck-att-label">วงเงิน OPD คงเหลือ</span>
             </div>
             <span class="ck-att-pill green">เหลือ 75%</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#059669 !important;;text-align:center;">฿7,500 / ฿10,000</strong>
+            <strong class="ck-att-time" style="color:#059669 !important;text-align:center;">฿7,500 / ฿10,000</strong>
           </div>
         </div>
 
@@ -7687,344 +7687,460 @@ main, .page-view, .settings-page {
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle out" style="background:#1e70bf;"><svg><use href="#file"/></svg></span>
-              <span class="ck-att-label">ค่าทันตกรรมคงเหลือ</span>
+              <span class="ck-att-label">เพดานเบิกสูงสุด/ครั้ง</span>
             </div>
-            <span class="ck-att-pill" style="background:#dbeafe;color:#1e40af;">เหลือ 70%</span>
+            <span class="ck-att-pill" style="background:#dbeafe;color:#1e40af;">ตามใบเสร็จ</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#1e70bf !important;;text-align:center;">฿2,100 / ฿3,000</strong>
+            <strong class="ck-att-time" style="color:#1e70bf !important;text-align:center;">฿1,000 / ครั้ง</strong>
           </div>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
+  <!-- Row 2: 4 KPI Cards (มาตรฐานเดียวกับหน้าเวลาทำงาน: คู่ตัวเลข + แถบ Progress) -->
   <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+    <!-- 1. วงเงิน OPD คงเหลือ -->
+    <div class="ck-pers-card" style="padding:14px 16px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #10b981;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ค่ารักษา OPD</b>
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#dcfce7;color:#16a34a;border-radius:9px;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
+          <b style="font-size:13.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">วงเงิน OPD ประจำปี</b>
         </div>
-        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿10,000</span>
+        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿10,000</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#059669;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿7,500</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">เบิกแล้ว ฿2,500 (25%)</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:10px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">เบิกแล้ว (ปี 2569)</div>
+          <strong style="font-size:18px;font-weight:800;color:#15803d;line-height:1.2;white-space:nowrap;">฿2,500</strong>
+        </div>
+        <div style="padding-left:12px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">คงเหลือ</div>
+          <strong style="font-size:18px;font-weight:800;color:#059669;line-height:1.2;white-space:nowrap;">฿7,500</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#059669;white-space:nowrap;">คงเหลือ 75.0%</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="width:75%;height:100%;background:#10b981;border-radius:99px;"></div>
+        </div>
       </div>
     </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+
+    <!-- 2. เพดานเบิกต่อครั้ง -->
+    <div class="ck-pers-card" style="padding:14px 16px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#1e70bf;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#heart"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ทันตกรรม (Dental)</b>
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#e0f2fe;color:#1e70bf;border-radius:9px;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+          <b style="font-size:13.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">เงื่อนไขการเบิก OPD</b>
         </div>
-        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿3,000</span>
+        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">OPD เท่านั้น</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿2,100</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">เบิกแล้ว ฿900 (30%)</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:10px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">สูงสุด/ครั้ง</div>
+          <strong style="font-size:18px;font-weight:800;color:#1e70bf;line-height:1.2;white-space:nowrap;">฿1,000</strong>
+        </div>
+        <div style="padding-left:12px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">เบิกได้อีก</div>
+          <strong style="font-size:18px;font-weight:800;color:#0284c7;line-height:1.2;white-space:nowrap;">7+ ครั้ง</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#1e70bf;white-space:nowrap;">ลดยอดเกินเป็น ฿1,000 อัตโนมัติ</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="width:100%;height:100%;background:#1e70bf;border-radius:99px;"></div>
+        </div>
       </div>
     </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+
+    <!-- 3. คำขอเบิกสวัสดิการ -->
+    <div class="ck-pers-card" style="padding:14px 16px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #f59e0b;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#check"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ตรวจสุขภาพประจำปี</b>
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#fef3c7;color:#d97706;border-radius:9px;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#workflow"/></svg></span>
+          <b style="font-size:13.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">คำขอเบิก OPD</b>
         </div>
-        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿2,500</span>
+        <span style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">รออนุมัติ 1</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿2,500</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ยังไม่ใช้สิทธิ์ (100%)</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:10px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">พ.ย. 2569</div>
+          <strong style="font-size:18px;font-weight:800;color:#b45309;line-height:1.2;white-space:nowrap;">1 ครั้ง</strong>
+        </div>
+        <div style="padding-left:12px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">ปี 2569</div>
+          <strong style="font-size:18px;font-weight:800;color:#d97706;line-height:1.2;white-space:nowrap;">4 ครั้ง</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#d97706;white-space:nowrap;">อนุมัติแล้ว 75.0%</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;display:flex;">
+          <div style="width:75%;height:100%;background:#10b981;" title="อนุมัติ 3 ครั้ง"></div>
+          <div style="width:25%;height:100%;background:#f59e0b;" title="รออนุมัติ 1 ครั้ง"></div>
+        </div>
       </div>
     </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
+
+    <!-- 4. เอกสารและการโอนจ่าย -->
+    <div class="ck-pers-card" style="padding:14px 16px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #a78bfa;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#users"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">สวัสดิการครอบครัว</b>
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#f5f3ff;color:#8b5cf6;border-radius:9px;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+          <b style="font-size:13.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">หลักฐาน &amp; ช่องทางรับเงิน</b>
         </div>
-        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿5,000</span>
+        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">SCB เงินเดือน</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿5,000</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ยังไม่ใช้สิทธิ์ (100%)</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:10px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">ใบเสร็จ</div>
+          <strong style="font-size:16px;font-weight:800;color:#7c3aed;line-height:1.2;white-space:nowrap;">บังคับแนบ</strong>
+        </div>
+        <div style="padding-left:12px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">โอนคืนแล้ว</div>
+          <strong style="font-size:18px;font-weight:800;color:#8b5cf6;line-height:1.2;white-space:nowrap;">฿2,500</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#7c3aed;white-space:nowrap;">กรอกยอดตามใบเสร็จจริง</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="width:100%;height:100%;background:#a78bfa;border-radius:99px;"></div>
+        </div>
       </div>
     </div>
   </div>
 
-      <!-- Left: Interactive Benefit Claim Form (Click-Only, DD/MM/YYYY Calendar, Live Budget Deduction & Over-limit Alert, 3-Step Chain) -->
-    <div class="pg-card" style="margin-bottom:16px;">
-      <div class="pg-card-header">
-        <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> ยื่นขอเบิกสวัสดิการ</h3>
-      </div>
+  <!-- Row 3: ยื่นขอเบิกค่ารักษาพยาบาล OPD (รูปแบบใหม่: เฉพาะ OPD วงเงิน 10,000/ปี, สูงสุด 1,000/ครั้ง, บังคับแนบใบเสร็จ) -->
+  <div class="pg-card" style="margin-bottom:16px;">
+    <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> ยื่นขอเบิกค่ารักษาพยาบาล (OPD)</h3>
+      <span style="font-size:12px;font-weight:700;color:#059669;background:#ecfdf5;border:1px solid #a7f3d0;padding:4px 10px;border-radius:8px;">วงเงิน ฿10,000/ปี · สูงสุด ฿1,000/ครั้ง</span>
+    </div>
 
-      <form class="pg-form" onsubmit="event.preventDefault(); alert('ส่งคำขอเบิกสวัสดิการเข้าสู่สายการอนุมัติ 3 ระดับเรียบร้อยแล้ว');">
+    <form class="pg-form" id="ck-benefit-form" onsubmit="event.preventDefault(); window.submitBenefitForm && window.submitBenefitForm();">
       <div class="ck-leave-form-cols">
+        <!-- ฝั่งซ้าย: ประเภทสวัสดิการ (OPD), วันที่รักษา + สถานพยาบาล, ยอดตามใบเสร็จ (ลดเหลือ 1,000 อัตโนมัติ), อาการ, แนบใบเสร็จบังคับ -->
         <div class="ck-leave-col-left" style="display:flex;flex-direction:column;gap:14px;">
-        <div class="pg-form-group">
-          <label class="pg-form-label"><span>ประเภทสวัสดิการ <span class="req">*</span></span></label>
-          <div class="ck-click-grid-2" id="benefit-type-cards">
-            <button type="button" class="ck-click-card active" data-ben-name="ค่ารักษาพยาบาล OPD" data-ben-budget="7500" onclick="window.selectBenefitType && window.selectBenefitType(this, 'ค่ารักษาพยาบาล OPD', 7500)">
-              <div class="ck-click-card-top"><strong>ค่ารักษาพยาบาล (OPD)</strong><span class="quota-pill">เหลือ ฿7,500</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">วงเงิน ฿10,000/ปี</span>
-            </button>
-            <button type="button" class="ck-click-card" data-ben-name="ค่าทันตกรรม (Dental)" data-ben-budget="2100" onclick="window.selectBenefitType && window.selectBenefitType(this, 'ค่าทันตกรรม (Dental)', 2100)">
-              <div class="ck-click-card-top"><strong>ค่าทันตกรรม (Dental)</strong><span class="quota-pill">เหลือ ฿2,100</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">วงเงิน ฿3,000/ปี</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="pg-form-row2">
           <div class="pg-form-group">
-            <label class="pg-form-label"><span>วันที่เข้ารับการรักษา <span class="req">*</span></span></label>
-            <div class="ck-date-box-wrap">
-              <button type="button" class="ck-date-box" id="ben-date-box" onclick="window.openPopupCal && window.openPopupCal(this, 'ben-date')">
-                <span id="ben-date-val">28/10/2569</span>
-                <svg><use href="#calendar"/></svg>
-              </button>
-              <div class="ck-date-popover" id="pop-ben-date"></div>
+            <label class="pg-form-label"><span>ประเภทสวัสดิการบริษัท</span></label>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:#dcfce7;color:#15803d;flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg>
+                </span>
+                <div>
+                  <strong style="display:block;font-size:13.5px;color:#0f172a;">ค่ารักษาพยาบาลผู้ป่วยนอก (OPD)</strong>
+                  <span style="font-size:11.5px;color:#15803d;font-weight:600;">วงเงินทั้งปี ฿10,000 · เบิกได้ครั้งละไม่เกิน ฿1,000</span>
+                </div>
+              </div>
+              <span class="quota-pill" style="background:#ffffff;color:#059669;border:1px solid #86efac;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:800;white-space:nowrap;">คงเหลือ ฿7,500</span>
             </div>
           </div>
+
+          <div class="pg-form-row2">
+            <div class="pg-form-group">
+              <label class="pg-form-label"><span>วันที่เข้ารับการรักษา <span class="req">*</span></span></label>
+              <div class="ck-date-box-wrap">
+                <button type="button" class="ck-date-box" id="ben-date-box" onclick="window.openPopupCal && window.openPopupCal(this, 'ben-date')">
+                  <span id="ben-date-val">05/11/2569</span>
+                  <svg><use href="#calendar"/></svg>
+                </button>
+                <div class="ck-date-popover" id="pop-ben-date"></div>
+              </div>
+            </div>
+            <div class="pg-form-group">
+              <label class="pg-form-label" for="claim-hospital"><span>สถานพยาบาล / คลินิก <span class="req">*</span></span></label>
+              <input type="text" id="claim-hospital" class="pg-form-control" value="คลินิกเวชกรรมสีลม" placeholder="ระบุชื่อโรงพยาบาลหรือคลินิก" required>
+            </div>
+          </div>
+
           <div class="pg-form-group">
-            <label class="pg-form-label" for="claim-hospital"><span>สถานพยาบาล / คลินิก <span class="req">*</span></span></label>
-            <input type="text" id="claim-hospital" class="pg-form-control" value="คลินิกเวชกรรมสีลม" required>
+            <label class="pg-form-label" for="claim-amount-req" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <span>ยอดเงินตามใบเสร็จรับเงิน (บาท) <span class="req">*</span></span>
+              <span style="font-size:11px;font-weight:700;color:#1e70bf;">กรอกยอดตามใบเสร็จเท่านั้น (สูงสุด ฿1,000/ครั้ง)</span>
+            </label>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;">
+              <input type="number" id="claim-amount-req" class="pg-form-control" min="1" step="1" value="1250" placeholder="กรอกยอดเงินตามใบเสร็จจริง เช่น 1250" oninput="window.updateBenefitLiveQuota && window.updateBenefitLiveQuota()" required>
+              <div style="padding:9px 14px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;text-align:right;white-space:nowrap;">
+                <div style="font-size:10.5px;font-weight:700;color:#64748b;">ยอดเบิกสุทธิ</div>
+                <strong id="ben-capped-pill" style="font-size:15px;font-weight:800;color:#1e70bf;">฿1,000</strong>
+              </div>
+            </div>
+            <div id="ben-cap-notice" style="margin-top:6px;padding:7px 10px;border-radius:8px;font-size:11.5px;font-weight:700;background:#fffbeb;border:1px solid #fde68a;color:#b45309;">
+              ⚡ ยอดใบเสร็จ ฿1,250 เกินเพดาน ฿1,000/ครั้ง — ระบบลดยอดเบิกกลับมาเป็น ฿1,000 อัตโนมัติ
+            </div>
+          </div>
+
+          <div class="pg-form-group">
+            <label class="pg-form-label" for="claim-symptom"><span>อาการ / รายละเอียดการรักษา <span class="req">*</span></span></label>
+            <input type="text" id="claim-symptom" class="pg-form-control" value="ตรวจรักษาอาการไข้หวัดและรับยา" placeholder="ระบุอาการหรือเหตุผลการเข้ารับการรักษา" required>
+          </div>
+
+          <div class="pg-form-group">
+            <label class="pg-form-label" style="display:flex;justify-content:space-between;align-items:center;">
+              <span>เอกสารแนบ (ใบเสร็จรับเงินตัวจริง / ใบรับรองแพทย์) <span class="req">*</span></span>
+              <span id="ben-file-req-badge" style="font-size:11px;font-weight:700;color:#dc2626;">บังคับแนบไฟล์ทุกครั้ง</span>
+            </label>
+            <input type="file" id="ben-file-input" accept="image/*,.pdf" style="display:none;" onchange="window.handleBenefitFileChange && window.handleBenefitFileChange(this)">
+            <div class="pg-upload-box" id="ben-upload-box" style="cursor:pointer;border:1.5px dashed #93c5fd;background:#f8fbfe;" onclick="document.getElementById('ben-file-input') && document.getElementById('ben-file-input').click();">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <div class="pg-upload-text" id="ben-upload-text">คลิกเพื่อแนบไฟล์ใบเสร็จรับเงิน / ใบรับรองแพทย์ (บังคับ)</div>
+              <div class="pg-upload-sub" id="ben-upload-sub">รองรับไฟล์ PDF, JPG, PNG · โอนเข้าบัญชี SCB xxx-x-xx123-4</div>
+            </div>
           </div>
         </div>
 
-        <div class="pg-form-group">
-          <label class="pg-form-label" for="claim-amount-req">
-            <span>ยอดเงินที่ขอเบิก (บาท) <span class="req">*</span></span>
-          </label>
-          <div class="pg-radio-group" style="margin-bottom:6px;">
-            <button type="button" class="pg-radio-btn" onclick="window.setBenefitAmount && window.setBenefitAmount(900)">฿900</button>
-            <button type="button" class="pg-radio-btn active" onclick="window.setBenefitAmount && window.setBenefitAmount(1200)">฿1,200</button>
-            <button type="button" class="pg-radio-btn" onclick="window.setBenefitAmount && window.setBenefitAmount(2500)">฿2,500</button>
-            <button type="button" class="pg-radio-btn" onclick="window.setBenefitAmount && window.setBenefitAmount(8500)">฿8,500</button>
-          </div>
-          <input type="number" id="claim-amount-req" class="pg-form-control" value="1200" oninput="window.updateBenefitLiveQuota && window.updateBenefitLiveQuota()" required>
-        </div>
-
-        <div class="pg-form-group">
-          <label class="pg-form-label"><span>เอกสารแนบ (ใบเสร็จรับเงิน / ใบรับรองแพทย์) <span class="req">*</span></span></label>
-          <div class="pg-upload-box" onclick="alert('อัปโหลดไฟล์ใบเสร็จรับเงิน (จำลอง)');">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <div class="pg-upload-text">อัปโหลดภาพถ่ายใบเสร็จ / ใบรับรองแพทย์</div>
-            <div class="pg-upload-sub">โอนเข้าบัญชี SCB xxx-x-xx123-4</div>
-          </div>
-        </div>
-
-        </div>
+        <!-- ฝั่งขวา: สายการอนุมัติ 3 ระดับ + สรุปวงเงิน OPD + ปุ่มส่งคำขอ -->
         <div class="ck-leave-col-right" style="display:flex;flex-direction:column;gap:14px;">
-        <!-- สายการอนุมัติอัตโนมัติ 3 ระดับ -->
-        <div class="ck-auto-chain-box">
-          <div class="ck-auto-chain-head">
-            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ</strong>
+          <!-- สายการอนุมัติอัตโนมัติ 3 ระดับ -->
+          <div class="ck-auto-chain-box">
+            <div class="ck-auto-chain-head">
+              <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติ</strong>
+            </div>
+            <div class="ck-chain-steps-3">
+              <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">สม</div>
+                  <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 1</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                  <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณสมศักดิ์ มั่นคง</strong>
+                  <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผจก.ฝ่ายทรัพยากรบุคคล</span>
+                </div>
+              </div>
+              <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#b45309;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">ศว</div>
+                  <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 2</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                  <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณศิริพร วงศ์สวัสดิ์</strong>
+                  <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผอ.ฝ่ายทรัพยากรบุคคล</span>
+                </div>
+              </div>
+              <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:#f3e8ff;color:#7c3aed;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">จอ</div>
+                  <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 3</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+                  <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณจักรกฤษณ์ เอซ</strong>
+                  <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">กรรมการผู้จัดการ (MD)</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="ck-chain-steps-3">
-            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">สม</div>
-                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 1</span>
-              </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
-                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณสมศักดิ์ มั่นคง</strong>
-                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผจก.ฝ่ายทรัพยากรบุคคล</span>
-              </div>
-            </div>
-            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#b45309;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">ศว</div>
-                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 2</span>
-              </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
-                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณศิริพร วงศ์สวัสดิ์</strong>
-                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผอ.ฝ่ายทรัพยากรบุคคล</span>
-              </div>
-            </div>
-            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#f3e8ff;color:#7c3aed;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">จอ</div>
-                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 3</span>
-              </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
-                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณจักรกฤษณ์ เอซ</strong>
-                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">กรรมการผู้จัดการ (MD)</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- กล่องคำนวณวงเงินสวัสดิการคงเหลือสด พร้อมแจ้งเตือนทันทีเมื่อเบิกเกินวงเงิน -->
-        <div class="ck-quota-live-box" id="benefit-quota-live-box">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <strong style="font-size:13px;font-weight:800;">สรุปวงเงินสวัสดิการ (<span id="ben-live-type-name">ค่ารักษาพยาบาล OPD</span>)</strong>
-            <span class="pg-badge pg-badge-info">ปี พ.ศ. 2569</span>
-          </div>
-          <div class="ck-quota-metrics">
-            <div class="ck-quota-metric-item">
-              <span>วงเงินคงเหลือ</span>
-              <strong style="color:#1e70bf;" id="ben-live-before">฿7,500</strong>
+          <!-- กล่องคำนวณวงเงิน OPD คงเหลือสด พร้อมแสดงยอดตามใบเสร็จ vs ยอดลดเหลือ 1,000 อัตโนมัติ -->
+          <div class="ck-quota-live-box" id="benefit-quota-live-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong style="font-size:13px;font-weight:800;">สรุปวงเงิน (<span id="ben-live-type-name">ค่ารักษาพยาบาล OPD</span>)</strong>
+              <span class="pg-badge pg-badge-info">ปี พ.ศ. 2569</span>
             </div>
-            <div class="ck-quota-metric-item">
-              <span>ยอดขอเบิก</span>
-              <strong style="color:#b45309;" id="ben-live-used">- ฿1,200</strong>
+            <div class="ck-quota-metrics" style="grid-template-columns:repeat(4, minmax(0, 1fr));">
+              <div class="ck-quota-metric-item">
+                <span>วงเงินคงเหลือ</span>
+                <strong style="color:#1e70bf;" id="ben-live-before">฿7,500</strong>
+              </div>
+              <div class="ck-quota-metric-item">
+                <span>ยอดใบเสร็จ</span>
+                <strong style="color:#475569;" id="ben-live-receipt">฿1,250</strong>
+              </div>
+              <div class="ck-quota-metric-item">
+                <span>เบิกจริง (≤฿1,000)</span>
+                <strong style="color:#b45309;" id="ben-live-used">- ฿1,000</strong>
+              </div>
+              <div class="ck-quota-metric-item">
+                <span>คงเหลือสุทธิ</span>
+                <strong style="color:#059669;" id="ben-live-after">฿6,500</strong>
+              </div>
             </div>
-            <div class="ck-quota-metric-item">
-              <span>คงเหลือสุทธิ</span>
-              <strong style="color:#059669;" id="ben-live-after">฿6,300</strong>
+            <div class="ck-quota-alert-msg" id="ben-live-alert">
+              ✓ ระบบปรับยอดเบิกเป็น ฿1,000 อัตโนมัติ (ตามเพดานสูงสุด ฿1,000/ครั้ง) · คงเหลือทั้งปี ฿6,500
             </div>
           </div>
-          <div class="ck-quota-alert-msg" id="ben-live-alert">
-            ✓ วงเงินสวัสดิการเพียงพอ: หลังเบิกครั้งนี้จะเหลือวงเงิน ฿6,300
-          </div>
-        </div>
 
-        <div style="margin-top:6px;">
-          <button type="submit" class="pg-btn pg-btn-primary" id="ben-submit-btn" style="width:100%;"><svg><use href="#paper-plane"/></svg> ส่งคำขอเบิกสวัสดิการ</button>
-        </div>
+          <div style="margin-top:6px;">
+            <button type="submit" class="pg-btn pg-btn-primary" id="ben-submit-btn" style="width:100%;"><svg><use href="#paper-plane"/></svg> ส่งคำขอเบิกค่ารักษา OPD</button>
+          </div>
         </div>
       </div>
-          </form>
-    </div>
+    </form>
+  </div>
 
-    <!-- Right: Clickable Benefits History Table (Compact 4 Columns, Zero Horizontal Scroll) -->
-    <div class="pg-card">
-      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ประวัติการเบิกสวัสดิการ</h3>
-        <div class="ck-history-filters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <button type="button" class="pg-filter-pill active" data-filter="all" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'all', this)">ทั้งหมด (3)</button>
-          <button type="button" class="pg-filter-pill" data-filter="pending" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'pending', this)">⏳ รออนุมัติ (0)</button>
-          <button type="button" class="pg-filter-pill" data-filter="approved" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'approved', this)">✓ อนุมัติแล้ว (3)</button>
-          <button type="button" class="pg-filter-pill" data-filter="rejected" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'rejected', this)">✕ ไม่อนุมัติ (0)</button>
-        </div>
-      </div>
-
-      <div class="pg-table-responsive">
-        <table class="pg-table" id="benefits-history-table" style="width:100%;text-align:center;">
-          <thead>
-            <tr>
-              <th style="width:12%;text-align:center;">รหัสคำขอ</th>
-              <th style="width:14%;text-align:center;">พนักงาน</th>
-              <th style="width:14%;text-align:center;">ประเภทสวัสดิการ</th>
-              <th style="width:13%;text-align:center;">วันที่รักษา/ตรวจ</th>
-              <th style="width:11%;text-align:center;">ยอดเบิกจ่าย</th>
-              <th style="width:13%;text-align:center;">รายละเอียด / คลินิก</th>
-              <th style="width:10%;text-align:center;">สถานะ</th>
-              <th style="width:13%;text-align:center;">จัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="ben-row-item" data-status="approved" data-id="MED-2569-003">
-              <td style="text-align:center;">
-                <strong>MED-2569-003</strong>
-                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">28/10/2569</div>
-              </td>
-              <td style="text-align:center;">
-                <div>คุณภาณุพันธุ์ ใจดี</div>
-                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
-              </td>
-              <td style="text-align:center;">
-                <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล (OPD)</span>
-              </td>
-              <td style="text-align:center;">28/10/2569</td>
-              <td style="text-align:center;font-weight:700;color:#059669;">฿1,200</td>
-              <td style="text-align:center;">
-                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ตรวจรักษาโรคหวัด คลินิกเวชกรรมสีลม</div>
-              </td>
-              <td style="text-align:center;">
-                <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
-              </td>
-              <td style="text-align:center;white-space:nowrap;">
-                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
-                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 0)">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </button>
-                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                  </button>
-                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-003');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr class="ben-row-item" data-status="approved" data-id="MED-2569-002">
-              <td style="text-align:center;">
-                <strong>MED-2569-002</strong>
-                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">10/09/2569</div>
-              </td>
-              <td style="text-align:center;">
-                <div>คุณภาณุพันธุ์ ใจดี</div>
-                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
-              </td>
-              <td style="text-align:center;">
-                <span class="pg-badge" style="background:#eff6ff;color:#1e70bf;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ทันตกรรม (Dental)</span>
-              </td>
-              <td style="text-align:center;">10/09/2569</td>
-              <td style="text-align:center;font-weight:700;color:#059669;">฿900</td>
-              <td style="text-align:center;">
-                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ตรวจเช็กสุขภาพช่องปากและขูดหินปูน</div>
-              </td>
-              <td style="text-align:center;">
-                <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
-              </td>
-              <td style="text-align:center;white-space:nowrap;">
-                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
-                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 1)">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </button>
-                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                  </button>
-                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-002');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr class="ben-row-item" data-status="approved" data-id="MED-2569-001">
-              <td style="text-align:center;">
-                <strong>MED-2569-001</strong>
-                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">16/05/2569</div>
-              </td>
-              <td style="text-align:center;">
-                <div>คุณภาณุพันธุ์ ใจดี</div>
-                <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
-              </td>
-              <td style="text-align:center;">
-                <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล (OPD)</span>
-              </td>
-              <td style="text-align:center;">16/05/2569</td>
-              <td style="text-align:center;font-weight:700;color:#059669;">฿1,300</td>
-              <td style="text-align:center;">
-                <div style="display:inline-block;max-width:170px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">ตรวจสุขภาพและซื้อยาตามแพทย์สั่ง</div>
-              </td>
-              <td style="text-align:center;">
-                <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
-              </td>
-              <td style="text-align:center;white-space:nowrap;">
-                <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
-                  <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 2)">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </button>
-                  <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                  </button>
-                  <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-001');">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+  <!-- Row 4: ประวัติการเบิกสวัสดิการ OPD -->
+  <div class="pg-card">
+    <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ประวัติการเบิกค่ารักษาพยาบาล (OPD)</h3>
+      <div class="ck-history-filters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button type="button" class="pg-filter-pill active" data-filter="all" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'all', this)">ทั้งหมด (4)</button>
+        <button type="button" class="pg-filter-pill" data-filter="pending" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'pending', this)">⏳ รออนุมัติ (1)</button>
+        <button type="button" class="pg-filter-pill" data-filter="approved" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'approved', this)">✓ อนุมัติแล้ว (3)</button>
+        <button type="button" class="pg-filter-pill" data-filter="rejected" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'rejected', this)">✕ ไม่อนุมัติ (0)</button>
       </div>
     </div>
-  
+
+    <div class="pg-table-responsive">
+      <table class="pg-table" id="benefits-history-table" style="width:100%;text-align:center;">
+        <thead>
+          <tr>
+            <th style="width:11%;text-align:center;">รหัสคำขอ</th>
+            <th style="width:14%;text-align:center;">พนักงาน</th>
+            <th style="width:13%;text-align:center;">ประเภทสวัสดิการ</th>
+            <th style="width:10%;text-align:center;">วันที่รักษา</th>
+            <th style="width:10%;text-align:center;">ยอดใบเสร็จ</th>
+            <th style="width:11%;text-align:center;">ยอดเบิกสุทธิ</th>
+            <th style="width:12%;text-align:center;">สถานพยาบาล / อาการ</th>
+            <th style="width:9%;text-align:center;">สถานะ</th>
+            <th style="width:10%;text-align:center;">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ben-row-item" data-status="pending" data-id="MED-2569-004">
+            <td style="text-align:center;">
+              <strong>MED-2569-004</strong>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">02/11/2569</div>
+            </td>
+            <td style="text-align:center;">
+              <div>คุณภาณุพันธุ์ ใจดี</div>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล OPD</span>
+            </td>
+            <td style="text-align:center;">01/11/2569</td>
+            <td style="text-align:center;color:#64748b;font-weight:600;">฿1,250</td>
+            <td style="text-align:center;font-weight:800;color:#1e70bf;">฿1,000</td>
+            <td style="text-align:center;">
+              <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">คลินิกเวชกรรมสีลม · ไข้หวัด</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge pg-badge-warning" style="padding:4px 10px;">⏳ รออนุมัติ</span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;">
+              <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 0)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" onclick="alert('แก้ไขคำขอ: MED-2569-004');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-004');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="ben-row-item" data-status="approved" data-id="MED-2569-003">
+            <td style="text-align:center;">
+              <strong>MED-2569-003</strong>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">28/10/2569</div>
+            </td>
+            <td style="text-align:center;">
+              <div>คุณภาณุพันธุ์ ใจดี</div>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล OPD</span>
+            </td>
+            <td style="text-align:center;">28/10/2569</td>
+            <td style="text-align:center;color:#64748b;font-weight:600;">฿850</td>
+            <td style="text-align:center;font-weight:800;color:#059669;">฿850</td>
+            <td style="text-align:center;">
+              <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">รพ.พญาไท 2 · ภูมิแพ้</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;">
+              <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 1)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-003');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="ben-row-item" data-status="approved" data-id="MED-2569-002">
+            <td style="text-align:center;">
+              <strong>MED-2569-002</strong>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">10/09/2569</div>
+            </td>
+            <td style="text-align:center;">
+              <div>คุณภาณุพันธุ์ ใจดี</div>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล OPD</span>
+            </td>
+            <td style="text-align:center;">10/09/2569</td>
+            <td style="text-align:center;color:#64748b;font-weight:600;">฿1,400</td>
+            <td style="text-align:center;font-weight:800;color:#059669;">฿1,000</td>
+            <td style="text-align:center;">
+              <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">รพ.กรุงเทพ · ไมเกรน</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;">
+              <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 2)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-002');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr class="ben-row-item" data-status="approved" data-id="MED-2569-001">
+            <td style="text-align:center;">
+              <strong>MED-2569-001</strong>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">16/05/2569</div>
+            </td>
+            <td style="text-align:center;">
+              <div>คุณภาณุพันธุ์ ใจดี</div>
+              <div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล OPD</span>
+            </td>
+            <td style="text-align:center;">16/05/2569</td>
+            <td style="text-align:center;color:#64748b;font-weight:600;">฿650</td>
+            <td style="text-align:center;font-weight:800;color:#059669;">฿650</td>
+            <td style="text-align:center;">
+              <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">รพ.วิภาวดี · อาหารเป็นพิษ</div>
+            </td>
+            <td style="text-align:center;">
+              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;">
+              <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
+                <button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="window.openGenericModal && window.openGenericModal('ben', 3)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn edit" title="แก้ไขคำขอ" style="opacity:0.4;cursor:not-allowed;" onclick="alert('คำขอนี้ได้รับการอนุมัติเรียบร้อยแล้ว ไม่สามารถแก้ไขได้');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                </button>
+                <button type="button" class="ck-action-btn cancel" title="ยกเลิกคำขอ" onclick="alert('ยกเลิกคำขอ: MED-2569-001');">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </main>
 
 
@@ -11101,43 +11217,78 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     })();
 
     // Benefit Live Budget Deduction & Over-limit Alert
+    // Benefit OPD-Only Live Budget Deduction (10,000/yr, auto-cap 1,000/claim, mandatory file)
     var benefitState = {
       name: 'ค่ารักษาพยาบาล OPD',
-      budget: 7500
+      budget: 7500,
+      maxPerClaim: 1000,
+      fileName: ''
     };
 
-    window.selectBenefitType = function(btn, name, budget) {
-      var container = document.getElementById('benefit-type-cards');
-      if (container) {
-        container.querySelectorAll('.ck-click-card').forEach(function(c) { c.classList.remove('active'); });
+    window.handleBenefitFileChange = function(inputEl) {
+      var box = document.getElementById('ben-upload-box');
+      var txt = document.getElementById('ben-upload-text');
+      var sub = document.getElementById('ben-upload-sub');
+      var badge = document.getElementById('ben-file-req-badge');
+      var file = inputEl && inputEl.files && inputEl.files[0];
+      if (file) {
+        benefitState.fileName = file.name;
+        if (box) {
+          box.style.borderColor = '#10b981';
+          box.style.background = '#f0fdf4';
+        }
+        if (txt) {
+          txt.textContent = '✓ แนบไฟล์แล้ว: ' + file.name;
+          txt.style.color = '#15803d';
+        }
+        if (sub) sub.textContent = 'คลิกเพื่อเปลี่ยนไฟล์ใบเสร็จรับเงิน · โอนเข้าบัญชี SCB xxx-x-xx123-4';
+        if (badge) {
+          badge.textContent = '✓ แนบไฟล์แล้ว';
+          badge.style.color = '#15803d';
+        }
       }
-      if (btn) btn.classList.add('active');
-      benefitState.name = name;
-      benefitState.budget = budget;
-      window.updateBenefitLiveQuota();
-    };
-
-    window.setBenefitAmount = function(amt) {
-      var input = document.getElementById('claim-amount-req');
-      if (input) input.value = amt;
-      window.updateBenefitLiveQuota();
     };
 
     window.updateBenefitLiveQuota = function() {
       var input = document.getElementById('claim-amount-req');
-      var req = input ? (parseFloat(input.value) || 0) : 0;
-      var remain = benefitState.budget - req;
+      var receiptAmt = input ? Math.max(0, parseFloat(input.value) || 0) : 0;
+      var claimableAmt = Math.min(receiptAmt, benefitState.maxPerClaim);
+      var remain = benefitState.budget - claimableAmt;
+
       var box = document.getElementById('benefit-quota-live-box');
       var nameEl = document.getElementById('ben-live-type-name');
       var befEl = document.getElementById('ben-live-before');
+      var recEl = document.getElementById('ben-live-receipt');
       var usedEl = document.getElementById('ben-live-used');
       var aftEl = document.getElementById('ben-live-after');
       var alertEl = document.getElementById('ben-live-alert');
+      var capPill = document.getElementById('ben-capped-pill');
+      var capNotice = document.getElementById('ben-cap-notice');
       var subBtn = document.getElementById('ben-submit-btn');
 
       if (nameEl) nameEl.textContent = benefitState.name;
       if (befEl) befEl.textContent = '฿' + benefitState.budget.toLocaleString();
-      if (usedEl) usedEl.textContent = '- ฿' + req.toLocaleString();
+      if (recEl) recEl.textContent = '฿' + receiptAmt.toLocaleString();
+      if (usedEl) usedEl.textContent = '- ฿' + claimableAmt.toLocaleString();
+      if (capPill) capPill.textContent = '฿' + claimableAmt.toLocaleString();
+
+      if (capNotice) {
+        if (receiptAmt > benefitState.maxPerClaim) {
+          capNotice.style.display = 'block';
+          capNotice.style.background = '#fffbeb';
+          capNotice.style.borderColor = '#fde68a';
+          capNotice.style.color = '#b45309';
+          capNotice.textContent = '⚡ ยอดใบเสร็จ ฿' + receiptAmt.toLocaleString() + ' เกินเพดาน ฿1,000/ครั้ง — ระบบลดยอดเบิกกลับมาเป็น ฿1,000 อัตโนมัติ';
+        } else if (receiptAmt > 0) {
+          capNotice.style.display = 'block';
+          capNotice.style.background = '#f0fdf4';
+          capNotice.style.borderColor = '#bbf7d0';
+          capNotice.style.color = '#15803d';
+          capNotice.textContent = '✓ ยอดตามใบเสร็จ ฿' + receiptAmt.toLocaleString() + ' ไม่เกินเพดาน ฿1,000/ครั้ง (เบิกได้เต็มตามใบเสร็จ)';
+        } else {
+          capNotice.style.display = 'none';
+        }
+      }
 
       if (remain < 0) {
         if (box) box.classList.add('over-limit');
@@ -11146,7 +11297,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           aftEl.style.color = '#dc2626';
         }
         if (alertEl) {
-          alertEl.textContent = '⚠️ แจ้งเตือนทันที: ยอดขอเบิก (฿' + req.toLocaleString() + ') เกินวงเงินคงเหลือ (฿' + benefitState.budget.toLocaleString() + ') กรุณาปรับลดยอดเบิก!';
+          alertEl.textContent = '⚠️ แจ้งเตือน: ยอดเบิก (฿' + claimableAmt.toLocaleString() + ') เกินวงเงินคงเหลือทั้งปี (฿' + benefitState.budget.toLocaleString() + ')';
         }
         if (subBtn) subBtn.disabled = true;
       } else {
@@ -11156,10 +11307,35 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           aftEl.style.color = '#059669';
         }
         if (alertEl) {
-          alertEl.textContent = '✓ วงเงินสวัสดิการเพียงพอ: หลังเบิกครั้งนี้จะเหลือวงเงิน ฿' + remain.toLocaleString();
+          if (receiptAmt > benefitState.maxPerClaim) {
+            alertEl.textContent = '✓ ระบบปรับยอดเบิกเป็น ฿1,000 อัตโนมัติ (ตามเพดานสูงสุด ฿1,000/ครั้ง) · คงเหลือทั้งปี ฿' + remain.toLocaleString();
+          } else {
+            alertEl.textContent = '✓ วงเงิน OPD เพียงพอ: หลังเบิก ฿' + claimableAmt.toLocaleString() + ' จะเหลือวงเงินทั้งปี ฿' + remain.toLocaleString();
+          }
         }
         if (subBtn) subBtn.disabled = false;
       }
+    };
+
+    window.submitBenefitForm = function() {
+      var input = document.getElementById('claim-amount-req');
+      var receiptAmt = input ? Math.max(0, parseFloat(input.value) || 0) : 0;
+      if (receiptAmt <= 0) {
+        alert('กรุณากรอกยอดเงินตามใบเสร็จรับเงิน');
+        if (input) input.focus();
+        return;
+      }
+      if (!benefitState.fileName) {
+        var box = document.getElementById('ben-upload-box');
+        if (box) {
+          box.style.borderColor = '#ef4444';
+          box.style.background = '#fef2f2';
+        }
+        alert('กรุณาแนบไฟล์ใบเสร็จรับเงิน / ใบรับรองแพทย์ทุกครั้งก่อนส่งคำขอเบิก OPD');
+        return;
+      }
+      var claimableAmt = Math.min(receiptAmt, benefitState.maxPerClaim);
+      alert('ส่งคำขอเบิกค่ารักษา OPD สำเร็จ!\nยอดตามใบเสร็จ: ฿' + receiptAmt.toLocaleString() + '\nยอดเบิกสุทธิ (ไม่เกิน ฿1,000/ครั้ง): ฿' + claimableAmt.toLocaleString() + '\nไฟล์แนบ: ' + benefitState.fileName);
     };
 
     // Generic Row Inspector for OT, Attendance, Benefits
@@ -11230,33 +11406,43 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       ],
       ben: [
         {
-          title: 'รายละเอียดคำขอเบิกสวัสดิการ: MED-2569-003 (ยอดเบิก ฿1,200)',
-          badgeClass: 'pg-badge pg-badge-success',
-          badgeText: '✓ อนุมัติครบ 3/3',
+          title: 'รายละเอียดคำขอเบิก OPD: MED-2569-004 (ใบเสร็จ ฿1,250 → เบิก ฿1,000)',
+          badgeClass: 'pg-badge pg-badge-warning',
+          badgeText: '⏳ รออนุมัติ ขั้นที่ 2/3',
           steps: [
-            { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 28/10/2569 14:10 น.', reason: 'อนุมัติ ตรวจสอบข้อมูลการเข้ารับการรักษาถูกต้อง' },
-            { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 29/10/2569 09:30 น.', reason: 'อนุมัติ ใบเสร็จรับเงินตัวจริงและใบรับรองแพทย์ถูกต้องตามระเบียบ OPD' },
-            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 29/10/2569 15:45 น.', reason: 'อนุมัติส่งจ่ายโอนเข้าบัญชีธนาคารไทยพาณิชย์ (SCB)' }
+            { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 02/11/2569 10:15 น.', reason: 'อนุมัติ ใบเสร็จคลินิกเวชกรรมสีลม ฿1,250 ปรับเบิกตามสิทธิ์สูงสุด ฿1,000/ครั้ง' },
+            { state: 'current', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-warning', badge: '⏳ กำลังรออนุมัติ (อยู่ที่ขั้นตอนนี้)', reason: 'อยู่ระหว่างตรวจสอบใบเสร็จรับเงินตัวจริงและวงเงิน OPD ประจำปี' },
+            { state: 'waiting', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-gray', badge: 'รอดำเนินการต่อจากระดับที่ 2', reason: 'รอการส่งต่อจากระดับที่ 2' }
           ]
         },
         {
-          title: 'รายละเอียดคำขอเบิกสวัสดิการ: MED-2569-002 (ยอดเบิก ฿900 · ทันตกรรม)',
+          title: 'รายละเอียดคำขอเบิก OPD: MED-2569-003 (ยอดเบิก ฿850)',
           badgeClass: 'pg-badge pg-badge-success',
           badgeText: '✓ โอนเงินแล้ว (ครบ 3/3)',
           steps: [
-            { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 10/09/2569 16:00 น.', reason: 'อนุมัติ ตามสิทธิ์สวัสดิการทันตกรรมประจำปี' },
-            { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 11/09/2569 10:20 น.', reason: 'อนุมัติ ตรวจสอบใบเสร็จคลินิกทันตกรรมสยามถูกต้อง' },
-            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ โอนเงินแล้ว · 12/09/2569 14:00 น.', reason: 'อนุมัติและโอนเงินคืนเข้าบัญชีพนักงานเรียบร้อยแล้ว' }
+            { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 28/10/2569 14:10 น.', reason: 'อนุมัติ ตรวจสอบข้อมูลการเข้ารับการรักษาถูกต้อง' },
+            { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 29/10/2569 09:30 น.', reason: 'อนุมัติ ใบเสร็จ รพ.พญาไท 2 ยอด ฿850 ถูกต้องตามระเบียบ OPD' },
+            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ โอนเงินแล้ว · 29/10/2569 15:45 น.', reason: 'อนุมัติและโอนเงินเข้าบัญชีธนาคารไทยพาณิชย์ (SCB) เรียบร้อย' }
           ]
         },
         {
-          title: 'รายละเอียดคำขอเบิกสวัสดิการ: MED-2569-001 (ยอดเบิก ฿1,300 · OPD)',
+          title: 'รายละเอียดคำขอเบิก OPD: MED-2569-002 (ใบเสร็จ ฿1,400 → เบิก ฿1,000)',
+          badgeClass: 'pg-badge pg-badge-success',
+          badgeText: '✓ โอนเงินแล้ว (ครบ 3/3)',
+          steps: [
+            { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 10/09/2569 16:00 น.', reason: 'อนุมัติ ตามสิทธิ์ค่ารักษา OPD (ปรับเบิกสูงสุด ฿1,000/ครั้ง)' },
+            { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 11/09/2569 10:20 น.', reason: 'อนุมัติ ตรวจสอบใบเสร็จ รพ.กรุงเทพ ฿1,400 ถูกต้อง' },
+            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ โอนเงินแล้ว · 12/09/2569 14:00 น.', reason: 'อนุมัติและโอนเงินคืน ฿1,000 เข้าบัญชีพนักงานเรียบร้อยแล้ว' }
+          ]
+        },
+        {
+          title: 'รายละเอียดคำขอเบิก OPD: MED-2569-001 (ยอดเบิก ฿650)',
           badgeClass: 'pg-badge pg-badge-success',
           badgeText: '✓ โอนเงินแล้ว (ครบ 3/3)',
           steps: [
             { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 16/05/2569 13:15 น.', reason: 'อนุมัติ เห็นควรตามสิทธิ์ค่ารักษาพยาบาล OPD' },
-            { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 17/05/2569 09:50 น.', reason: 'อนุมัติ เอกสารใบเสร็จ รพ.วิภาวดี ครบถ้วน' },
-            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ โอนเงินแล้ว · 18/05/2569 11:30 น.', reason: 'อนุมัติจ่ายเงินคืนเข้าบัญชีเงินเดือน' }
+            { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 17/05/2569 09:50 น.', reason: 'อนุมัติ เอกสารใบเสร็จ รพ.วิภาวดี ฿650 ครบถ้วน' },
+            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ โอนเงินแล้ว · 18/05/2569 11:30 น.', reason: 'อนุมัติจ่ายเงินคืน ฿650 เข้าบัญชีเงินเดือน' }
           ]
         }
       ]
@@ -11398,30 +11584,33 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         reasonText = attReasons[idx];
         attachText = attAttaches[idx];
       } else {
-        // Benefits
-        var benCodes = ['MED-2569-003', 'MED-2569-002', 'MED-2569-001'];
-        var benReqDates = ['28/10/2569', '10/09/2569', '16/05/2569'];
-        var benTypes = ['ค่ารักษาพยาบาล (OPD)', 'ทันตกรรม (Dental)', 'ค่ารักษาพยาบาล (OPD)'];
-        var benAmounts = ['฿1,200', '฿900', '฿1,300'];
-        var benQuotas = ['คงเหลือ ฿8,800 / ฿10,000', 'คงเหลือ ฿7,000 / ฿10,000', 'คงเหลือ ฿8,300 / ฿10,000'];
-        var benChannels = ['โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB'];
+        // Benefits (OPD only: max 10,000/yr, max 1,000/claim)
+        var benCodes = ['MED-2569-004', 'MED-2569-003', 'MED-2569-002', 'MED-2569-001'];
+        var benReqDates = ['02/11/2569', '28/10/2569', '10/09/2569', '16/05/2569'];
+        var benReceipts = ['฿1,250', '฿850', '฿1,400', '฿650'];
+        var benAmounts = ['฿1,000', '฿850', '฿1,000', '฿650'];
+        var benQuotas = ['คงเหลือ ฿7,500 / ฿10,000', 'คงเหลือ ฿7,500 / ฿10,000', 'คงเหลือ ฿8,350 / ฿10,000', 'คงเหลือ ฿9,350 / ฿10,000'];
+        var benChannels = ['โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB'];
         var benReasons = [
-          'ตรวจรักษาโรคหวัดและภูมิแพ้ คลินิกเวชกรรมสีลม แนบใบเสร็จตัวจริงและใบรับรองแพทย์',
-          'ตรวจเช็กสุขภาพช่องปากและขูดหินปูนประจำปี คลินิกทันตกรรมสยาม',
+          'ตรวจรักษาอาการไข้หวัด คลินิกเวชกรรมสีลม (ยอดใบเสร็จ ฿1,250 ปรับเบิกสูงสุด ฿1,000 ตามสิทธิ์)',
+          'ตรวจรักษาโรคภูมิแพ้ รพ.พญาไท 2 แนบใบเสร็จตัวจริงและใบรับรองแพทย์',
+          'ตรวจรักษาอาการไมเกรน รพ.กรุงเทพ (ยอดใบเสร็จ ฿1,400 ปรับเบิกสูงสุด ฿1,000 ตามสิทธิ์)',
           'ตรวจรักษาอาการอาหารเป็นพิษ รพ.วิภาวดี เอกสารใบเสร็จครบถ้วน'
         ];
-        var benAttaches = ['ใบเสร็จ_คลินิกเวชกรรมสีลม.pdf', 'ใบเสร็จ_คลินิกทันตกรรมสยาม.pdf', 'ใบรับรองแพทย์_รพ.วิภาวดี.pdf'];
+        var benAttaches = ['ใบเสร็จ_คลินิกเวชกรรมสีลม_021169.pdf', 'ใบเสร็จ_รพ_พญาไท2.pdf', 'ใบเสร็จ_รพ_กรุงเทพ.pdf', 'ใบรับรองแพทย์_รพ.วิภาวดี.pdf'];
 
-        reqCode = benCodes[idx] || ('MED-2569-00' + (3 - idx));
-        reqDate = benReqDates[idx] || '28/10/2569';
+        reqCode = benCodes[idx] || ('MED-2569-00' + (4 - idx));
+        reqDate = benReqDates[idx] || '02/11/2569';
         gridField1Label = 'ประเภทสวัสดิการ';
-        gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#ecfdf5;color:#059669;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span><strong style="color:#0f172a;font-size:13px;">' + benTypes[idx] + '</strong></div>';
+        gridField1Val = '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#ecfdf5;color:#059669;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span><strong style="color:#0f172a;font-size:13px;">ค่ารักษาพยาบาล (OPD)</strong></div>';
         gridField2Label = 'สิทธิ์คงเหลือปีนี้';
         gridField2Val = '<strong style="color:#0f172a;font-size:13px;font-weight:700;display:block;margin-top:2px;">' + benQuotas[idx] + '</strong>';
-        gridField3Label = 'ช่องทางเบิกจ่าย';
-        gridField3Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + benChannels[idx] + '</strong>';
-        gridField4Label = 'ยอดเงินที่ขอเบิก';
+        gridField3Label = 'ยอดตามใบเสร็จ';
+        gridField3Val = '<strong style="color:#475569;font-size:13.5px;font-weight:700;display:block;margin-top:2px;">' + benReceipts[idx] + '</strong>';
+        gridField4Label = 'ยอดเบิกสุทธิ (≤ ฿1,000)';
         gridField4Val = '<strong style="color:#059669;font-size:15px;font-weight:800;display:block;margin-top:2px;">' + benAmounts[idx] + '</strong>';
+        gridField5Label = 'ช่องทางเบิกจ่าย';
+        gridField5Val = '<strong style="color:#0f172a;font-size:13px;display:block;margin-top:2px;">' + benChannels[idx] + '</strong>';
         reasonTitle = 'รายละเอียดการรักษา / ค่าใช้จ่าย:';
         reasonText = benReasons[idx];
         attachText = benAttaches[idx];

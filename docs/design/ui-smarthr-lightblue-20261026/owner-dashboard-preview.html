@@ -7676,10 +7676,10 @@ main, .page-view, .settings-page {
               <span class="ck-att-circle in" style="transform:none;"><svg><use href="#heart"/></svg></span>
               <span class="ck-att-label">วงเงิน OPD</span>
             </div>
-            <span class="ck-att-pill green">ใช้แล้ว ฿2,500</span>
+            <span class="ck-att-pill green">ใช้แล้ว ฿2,500.00</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#059669 !important;text-align:center;font-size:21px;">฿7,500 / ฿10,000</strong>
+            <strong class="ck-att-time" style="color:#059669 !important;text-align:center;font-size:20px;">฿7,500.00 / ฿10,000.00</strong>
           </div>
         </div>
 
@@ -7703,16 +7703,32 @@ main, .page-view, .settings-page {
   <div class="pg-card" style="margin-bottom:16px;">
     <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
       <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> ยื่นขอเบิกค่ารักษาพยาบาล (OPD)</h3>
-      <span style="font-size:12px;font-weight:700;color:#059669;background:#ecfdf5;border:1px solid #a7f3d0;padding:4px 10px;border-radius:8px;">วงเงิน ฿10,000/ปี · สูงสุด ฿1,000/ครั้ง</span>
+      <span style="font-size:12px;font-weight:700;color:#059669;background:#ecfdf5;border:1px solid #a7f3d0;padding:4px 10px;border-radius:8px;">วงเงิน ฿10,000.00/ปี · สูงสุด ฿1,000.00/ครั้ง</span>
     </div>
 
     <form class="pg-form" id="ck-benefit-form" onsubmit="event.preventDefault(); window.submitBenefitForm && window.submitBenefitForm();">
       <div class="ck-leave-form-cols">
-        <!-- ฝั่งซ้าย: วันที่รักษา + สถานพยาบาล + ยอดตามใบเสร็จ, อาการ, แนบใบเสร็จบังคับ -->
+        <!-- ฝั่งซ้าย: ประเภทสวัสดิการบริษัท, วันที่รักษา + สถานพยาบาล + ยอดตามใบเสร็จ, อาการ, แนบใบเสร็จบังคับ -->
         <div class="ck-leave-col-left" style="display:flex;flex-direction:column;gap:14px;">
-          <div style="display:grid;grid-template-columns:150px 1fr 1fr;gap:10px;align-items:end;">
+          <div class="pg-form-group" style="margin:0;">
+            <label class="pg-form-label"><span>ประเภทสวัสดิการบริษัท</span></label>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;">
+              <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:#dcfce7;color:#15803d;flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg>
+                </span>
+                <div style="min-width:0;">
+                  <strong style="display:block;font-size:13.5px;color:#0f172a;">ค่ารักษาพยาบาลผู้ป่วยนอก (OPD)</strong>
+                  <span style="font-size:11.5px;color:#15803d;font-weight:600;">วงเงินทั้งปี ฿10,000.00 · เบิกได้ครั้งละไม่เกิน ฿1,000.00</span>
+                </div>
+              </div>
+              <span class="quota-pill" style="background:#ffffff;color:#059669;border:1px solid #86efac;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:800;white-space:nowrap;flex-shrink:0;">คงเหลือ ฿7,500.00</span>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:minmax(150px,0.9fr) minmax(0,1.35fr) minmax(0,1fr);gap:12px;align-items:end;">
             <div class="pg-form-group" style="margin:0;">
-              <label class="pg-form-label"><span>วันที่เข้ารับการรักษา <span class="req">*</span></span></label>
+              <label class="pg-form-label" style="white-space:nowrap;"><span>วันที่เข้ารับการรักษา <span class="req">*</span></span></label>
               <div class="ck-date-box-wrap">
                 <button type="button" class="ck-date-box" id="ben-date-box" data-date-target="ben-date" onclick="window.openPopupCal && window.openPopupCal(this, 'ben-date')" style="width:100%;padding:0 12px;min-height:42px;height:42px;box-sizing:border-box;">
                   <span id="ben-date-val">05/11/2569</span>
@@ -7722,12 +7738,12 @@ main, .page-view, .settings-page {
               </div>
             </div>
             <div class="pg-form-group" style="margin:0;">
-              <label class="pg-form-label" for="claim-hospital"><span>สถานพยาบาล / คลินิก <span class="req">*</span></span></label>
+              <label class="pg-form-label" for="claim-hospital" style="white-space:nowrap;"><span>สถานพยาบาล / คลินิก <span class="req">*</span></span></label>
               <input type="text" id="claim-hospital" class="pg-form-control" value="คลินิกเวชกรรมสีลม" placeholder="ระบุชื่อโรงพยาบาลหรือคลินิก" style="height:42px;box-sizing:border-box;" required>
             </div>
             <div class="pg-form-group" style="margin:0;">
-              <label class="pg-form-label" for="claim-amount-req"><span>ยอดเงินตามใบเสร็จ (บาท) <span class="req">*</span></span></label>
-              <input type="text" inputmode="decimal" id="claim-amount-req" class="pg-form-control" value="1250" placeholder="เช่น 1250" oninput="window.updateBenefitLiveQuota && window.updateBenefitLiveQuota()" style="height:42px;box-sizing:border-box;" required>
+              <label class="pg-form-label" for="claim-amount-req" style="white-space:nowrap;"><span>ยอดเงินตามใบเสร็จ (บาท) <span class="req">*</span></span></label>
+              <input type="text" inputmode="decimal" id="claim-amount-req" class="pg-form-control" value="1,250.00" placeholder="0.00" onfocus="window.unformatBenefitAmountInput && window.unformatBenefitAmountInput(this)" onblur="window.formatBenefitAmountInput && window.formatBenefitAmountInput(this)" oninput="window.updateBenefitLiveQuota && window.updateBenefitLiveQuota()" style="height:42px;box-sizing:border-box;text-align:right;font-variant-numeric:tabular-nums;font-weight:700;" required>
             </div>
           </div>
 
@@ -7800,30 +7816,30 @@ main, .page-view, .settings-page {
             <div class="ck-quota-metrics" style="grid-template-columns:repeat(4, minmax(0, 1fr));">
               <div class="ck-quota-metric-item">
                 <span>วงเงินคงเหลือ</span>
-                <strong style="color:#1e70bf;" id="ben-live-before">฿7,500</strong>
+                <strong style="color:#1e70bf;" id="ben-live-before">฿7,500.00</strong>
               </div>
               <div class="ck-quota-metric-item">
                 <span>ยอดใบเสร็จ</span>
-                <strong style="color:#475569;" id="ben-live-receipt">฿1,250</strong>
+                <strong style="color:#475569;" id="ben-live-receipt">฿1,250.00</strong>
               </div>
               <div class="ck-quota-metric-item">
-                <span>เบิกจริง (≤฿1,000)</span>
-                <strong style="color:#b45309;" id="ben-live-used">- ฿1,000</strong>
+                <span>เบิกจริง (≤฿1,000.00)</span>
+                <strong style="color:#b45309;" id="ben-live-used">- ฿1,000.00</strong>
               </div>
               <div class="ck-quota-metric-item">
                 <span>คงเหลือสุทธิ</span>
-                <strong style="color:#059669;" id="ben-live-after">฿6,500</strong>
+                <strong style="color:#059669;" id="ben-live-after">฿6,500.00</strong>
               </div>
             </div>
             <div class="ck-quota-alert-msg" id="ben-live-alert">
-              ✓ ระบบปรับยอดเบิกเป็น ฿1,000 อัตโนมัติ (ตามเพดานสูงสุด ฿1,000/ครั้ง) · คงเหลือทั้งปี ฿6,500
+              ✓ ระบบปรับยอดเบิกเป็น ฿1,000.00 อัตโนมัติ (ตามเพดานสูงสุด ฿1,000.00/ครั้ง) · คงเหลือทั้งปี ฿6,500.00
             </div>
           </div>
 
           <div style="margin-top:6px;">
             <button type="submit" class="pg-btn pg-btn-primary" id="ben-submit-btn" style="width:100%;"><svg><use href="#paper-plane"/></svg> ส่งคำขอเบิกค่ารักษา OPD</button>
             <div style="margin-top:8px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;font-size:11.5px;color:#64748b;line-height:1.5;">
-              <strong style="color:#1e70bf;">เงื่อนไขการเบิก:</strong> วงเงินค่ารักษา OPD ทั้งปี ฿10,000 · กรอกยอดเงินตามใบเสร็จจริงเท่านั้น ระบบจะลดยอดเบิกไม่เกิน ฿1,000/ครั้ง อัตโนมัติ และบังคับแนบไฟล์ใบเสร็จรับเงินทุกครั้ง
+              <strong style="color:#1e70bf;">เงื่อนไขการเบิก:</strong> วงเงินค่ารักษา OPD ทั้งปี ฿10,000.00 · กรอกยอดเงินตามใบเสร็จจริงเท่านั้น ระบบจะลดยอดเบิกไม่เกิน ฿1,000.00/ครั้ง อัตโนมัติ และบังคับแนบไฟล์ใบเสร็จรับเงินทุกครั้ง
             </div>
           </div>
         </div>
@@ -7872,8 +7888,8 @@ main, .page-view, .settings-page {
               <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล OPD</span>
             </td>
             <td style="text-align:center;">01/11/2569</td>
-            <td style="text-align:center;color:#64748b;font-weight:600;">฿1,250</td>
-            <td style="text-align:center;font-weight:800;color:#1e70bf;">฿1,000</td>
+            <td style="text-align:center;color:#64748b;font-weight:600;">฿1,250.00</td>
+            <td style="text-align:center;font-weight:800;color:#1e70bf;">฿1,000.00</td>
             <td style="text-align:center;">
               <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">คลินิกเวชกรรมสีลม · ไข้หวัด</div>
             </td>
@@ -7910,8 +7926,8 @@ main, .page-view, .settings-page {
               <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล OPD</span>
             </td>
             <td style="text-align:center;">28/10/2569</td>
-            <td style="text-align:center;color:#64748b;font-weight:600;">฿850</td>
-            <td style="text-align:center;font-weight:800;color:#059669;">฿850</td>
+            <td style="text-align:center;color:#64748b;font-weight:600;">฿850.00</td>
+            <td style="text-align:center;font-weight:800;color:#059669;">฿850.00</td>
             <td style="text-align:center;">
               <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">รพ.พญาไท 2 · ภูมิแพ้</div>
             </td>
@@ -7948,8 +7964,8 @@ main, .page-view, .settings-page {
               <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล OPD</span>
             </td>
             <td style="text-align:center;">10/09/2569</td>
-            <td style="text-align:center;color:#64748b;font-weight:600;">฿1,400</td>
-            <td style="text-align:center;font-weight:800;color:#059669;">฿1,000</td>
+            <td style="text-align:center;color:#64748b;font-weight:600;">฿1,400.00</td>
+            <td style="text-align:center;font-weight:800;color:#059669;">฿1,000.00</td>
             <td style="text-align:center;">
               <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">รพ.กรุงเทพ · ไมเกรน</div>
             </td>
@@ -7986,8 +8002,8 @@ main, .page-view, .settings-page {
               <span class="pg-badge" style="background:#dcfce7;color:#15803d;font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;">ค่ารักษาพยาบาล OPD</span>
             </td>
             <td style="text-align:center;">16/05/2569</td>
-            <td style="text-align:center;color:#64748b;font-weight:600;">฿650</td>
-            <td style="text-align:center;font-weight:800;color:#059669;">฿650</td>
+            <td style="text-align:center;color:#64748b;font-weight:600;">฿650.00</td>
+            <td style="text-align:center;font-weight:800;color:#059669;">฿650.00</td>
             <td style="text-align:center;">
               <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">รพ.วิภาวดี · อาหารเป็นพิษ</div>
             </td>
@@ -11178,6 +11194,31 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       }
     };
 
+    function formatThMoney(n) {
+      return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    window.unformatBenefitAmountInput = function(el) {
+      if (!el) return;
+      var raw = String(el.value || '').replace(/,/g, '').trim();
+      if (raw && !isNaN(parseFloat(raw))) {
+        var num = parseFloat(raw);
+        el.value = Number.isInteger(num) ? String(num) : String(num);
+      }
+    };
+
+    window.formatBenefitAmountInput = function(el) {
+      if (!el) return;
+      var raw = String(el.value || '').replace(/[^0-9.]/g, '');
+      var num = parseFloat(raw);
+      if (!isNaN(num) && num > 0) {
+        el.value = formatThMoney(num);
+      } else {
+        el.value = '';
+      }
+      window.updateBenefitLiveQuota && window.updateBenefitLiveQuota();
+    };
+
     window.updateBenefitLiveQuota = function() {
       var input = document.getElementById('claim-amount-req');
       var raw = input ? String(input.value || '').replace(/[^0-9.]/g, '') : '0';
@@ -11195,31 +11236,31 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       var subBtn = document.getElementById('ben-submit-btn');
 
       if (nameEl) nameEl.textContent = benefitState.name;
-      if (befEl) befEl.textContent = '฿' + benefitState.budget.toLocaleString();
-      if (recEl) recEl.textContent = '฿' + receiptAmt.toLocaleString();
-      if (usedEl) usedEl.textContent = '- ฿' + claimableAmt.toLocaleString();
+      if (befEl) befEl.textContent = '฿' + formatThMoney(benefitState.budget);
+      if (recEl) recEl.textContent = '฿' + formatThMoney(receiptAmt);
+      if (usedEl) usedEl.textContent = '- ฿' + formatThMoney(claimableAmt);
 
       if (remain < 0) {
         if (box) box.classList.add('over-limit');
         if (aftEl) {
-          aftEl.textContent = 'เกินวงเงิน ฿' + Math.abs(remain).toLocaleString() + '!';
+          aftEl.textContent = 'เกินวงเงิน ฿' + formatThMoney(Math.abs(remain)) + '!';
           aftEl.style.color = '#dc2626';
         }
         if (alertEl) {
-          alertEl.textContent = '⚠️ แจ้งเตือน: ยอดเบิก (฿' + claimableAmt.toLocaleString() + ') เกินวงเงินคงเหลือทั้งปี (฿' + benefitState.budget.toLocaleString() + ')';
+          alertEl.textContent = '⚠️ แจ้งเตือน: ยอดเบิก (฿' + formatThMoney(claimableAmt) + ') เกินวงเงินคงเหลือทั้งปี (฿' + formatThMoney(benefitState.budget) + ')';
         }
         if (subBtn) subBtn.disabled = true;
       } else {
         if (box) box.classList.remove('over-limit');
         if (aftEl) {
-          aftEl.textContent = '฿' + remain.toLocaleString();
+          aftEl.textContent = '฿' + formatThMoney(remain);
           aftEl.style.color = '#059669';
         }
         if (alertEl) {
           if (receiptAmt > benefitState.maxPerClaim) {
-            alertEl.textContent = '✓ ระบบปรับยอดเบิกเป็น ฿1,000 อัตโนมัติ (ตามเพดานสูงสุด ฿1,000/ครั้ง) · คงเหลือทั้งปี ฿' + remain.toLocaleString();
+            alertEl.textContent = '✓ ระบบปรับยอดเบิกเป็น ฿1,000.00 อัตโนมัติ (ตามเพดานสูงสุด ฿1,000.00/ครั้ง) · คงเหลือทั้งปี ฿' + formatThMoney(remain);
           } else {
-            alertEl.textContent = '✓ วงเงิน OPD เพียงพอ: หลังเบิก ฿' + claimableAmt.toLocaleString() + ' จะเหลือวงเงินทั้งปี ฿' + remain.toLocaleString();
+            alertEl.textContent = '✓ วงเงิน OPD เพียงพอ: หลังเบิก ฿' + formatThMoney(claimableAmt) + ' จะเหลือวงเงินทั้งปี ฿' + formatThMoney(remain);
           }
         }
         if (subBtn) subBtn.disabled = false;
@@ -11228,7 +11269,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
 
     window.submitBenefitForm = function() {
       var input = document.getElementById('claim-amount-req');
-      var receiptAmt = input ? Math.max(0, parseFloat(input.value) || 0) : 0;
+      var raw = input ? String(input.value || '').replace(/[^0-9.]/g, '') : '0';
+      var receiptAmt = Math.max(0, parseFloat(raw) || 0);
       if (receiptAmt <= 0) {
         alert('กรุณากรอกยอดเงินตามใบเสร็จรับเงิน');
         if (input) input.focus();
@@ -11244,7 +11286,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         return;
       }
       var claimableAmt = Math.min(receiptAmt, benefitState.maxPerClaim);
-      alert('ส่งคำขอเบิกค่ารักษา OPD สำเร็จ!\nยอดตามใบเสร็จ: ฿' + receiptAmt.toLocaleString() + '\nยอดเบิกสุทธิ (ไม่เกิน ฿1,000/ครั้ง): ฿' + claimableAmt.toLocaleString() + '\nไฟล์แนบ: ' + benefitState.fileName);
+      alert('ส่งคำขอเบิกค่ารักษา OPD สำเร็จ!\nยอดตามใบเสร็จ: ฿' + formatThMoney(receiptAmt) + '\nยอดเบิกสุทธิ (ไม่เกิน ฿1,000.00/ครั้ง): ฿' + formatThMoney(claimableAmt) + '\nไฟล์แนบ: ' + benefitState.fileName);
     };
 
     // Generic Row Inspector for OT, Attendance, Benefits
@@ -11496,9 +11538,9 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         // Benefits (OPD only: max 10,000/yr, max 1,000/claim)
         var benCodes = ['MED-2569-004', 'MED-2569-003', 'MED-2569-002', 'MED-2569-001'];
         var benReqDates = ['02/11/2569', '28/10/2569', '10/09/2569', '16/05/2569'];
-        var benReceipts = ['฿1,250', '฿850', '฿1,400', '฿650'];
-        var benAmounts = ['฿1,000', '฿850', '฿1,000', '฿650'];
-        var benQuotas = ['฿7,500', '฿7,500', '฿8,350', '฿9,350'];
+        var benReceipts = ['฿1,250.00', '฿850.00', '฿1,400.00', '฿650.00'];
+        var benAmounts = ['฿1,000.00', '฿850.00', '฿1,000.00', '฿650.00'];
+        var benQuotas = ['฿7,500.00', '฿7,500.00', '฿8,350.00', '฿9,350.00'];
         var benChannels = ['โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB', 'โอนเข้าบัญชีเงินเดือน SCB'];
         var benReasons = [
           'ตรวจรักษาอาการไข้หวัด คลินิกเวชกรรมสีลม (ยอดใบเสร็จ ฿1,250 ปรับเบิกสูงสุด ฿1,000 ตามสิทธิ์)',

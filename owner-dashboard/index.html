@@ -5998,8 +5998,8 @@ main, .page-view, .settings-page {
 
     <section class="ck-card ck-att">
       <div class="ck-att-topbar">
-        <div class="ck-att-datebar wednesday" style="background:#eff6ff;border-color:#bfdbfe;color:#0b3b68;">
-          <span class="ck-att-full-text">จัดการรอบสิทธิ วันทำงาน เวลาปฏิบัติงาน และโครงสร้างการอนุมัติขององค์กร</span>
+        <div class="ck-att-datebar wednesday ck-live-date-banner">
+          <span class="ck-att-full-text ck-live-date-text">วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.</span>
         </div>
         <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
           <svg><use href="#calendar"/></svg>
@@ -6693,8 +6693,8 @@ main, .page-view, .settings-page {
 
     <section class="ck-card ck-att">
       <div class="ck-att-topbar">
-        <div class="ck-att-datebar wednesday" style="background:#f5f3ff;border-color:#ddd6fe;color:#5b21b6;">
-          <span class="ck-att-full-text">สรุปชั่วโมง OT สะสมและประมาณการค่าตอบแทนเดือนตุลาคม 2569</span>
+        <div class="ck-att-datebar wednesday ck-live-date-banner">
+          <span class="ck-att-full-text ck-live-date-text">วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.</span>
         </div>
         <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
           <svg><use href="#calendar"/></svg>
@@ -6710,8 +6710,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill green">อนุมัติแล้ว 8 รายการ</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#7c3aed !important;">42.5 ชม.</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#7c3aed !important;;text-align:center;">42.5 ชม.</strong>
           </div>
         </div>
 
@@ -6723,8 +6723,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill green">✓ โอนพร้อมเงินเดือน</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#059669 !important;">฿8,950</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#059669 !important;;text-align:center;">฿8,950</strong>
           </div>
         </div>
       </div>
@@ -6931,8 +6931,14 @@ main, .page-view, .settings-page {
 
     <!-- Right: Clickable OT History Table (Compact 4 Columns, Zero Horizontal Scroll) -->
     <div class="pg-card">
-      <div class="pg-card-header">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
         <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ประวัติคำขอ OT</h3>
+        <div class="ck-history-filters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button type="button" class="pg-filter-pill active" data-filter="all" onclick="window.filterGenericHistory && window.filterGenericHistory('ot-history-table', 'all', this)">ทั้งหมด (3)</button>
+          <button type="button" class="pg-filter-pill" data-filter="pending" onclick="window.filterGenericHistory && window.filterGenericHistory('ot-history-table', 'pending', this)">⏳ รออนุมัติ (1)</button>
+          <button type="button" class="pg-filter-pill" data-filter="approved" onclick="window.filterGenericHistory && window.filterGenericHistory('ot-history-table', 'approved', this)">✓ อนุมัติแล้ว (1)</button>
+          <button type="button" class="pg-filter-pill" data-filter="rejected" onclick="window.filterGenericHistory && window.filterGenericHistory('ot-history-table', 'rejected', this)">✕ ไม่อนุมัติ (1)</button>
+        </div>
       </div>
 
       <div class="pg-table-responsive">
@@ -7086,8 +7092,8 @@ main, .page-view, .settings-page {
 
     <section class="ck-card ck-att">
       <div class="ck-att-topbar">
-        <div class="ck-att-datebar wednesday" style="background:#f0fdf4;border-color:#bbf7d0;color:#15803d;">
-          <span class="ck-att-full-text">เวลาปัจจุบัน: <span id="punch-live-clock">08:28:30 น.</span> · วันทำงานปกติ (08:30 – 17:30 น.)</span>
+        <div class="ck-att-datebar wednesday ck-live-date-banner">
+          <span class="ck-att-full-text ck-live-date-text">วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.</span>
         </div>
         <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
           <svg><use href="#calendar"/></svg>
@@ -7310,8 +7316,14 @@ main, .page-view, .settings-page {
 
     <!-- Right: Clickable Attendance & Time Correction History (Compact 4 Columns, Zero Horizontal Scroll) -->
     <div class="pg-card">
-      <div class="pg-card-header">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
         <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ประวัติการลงเวลาและแก้ไขเวลา</h3>
+        <div class="ck-history-filters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button type="button" class="pg-filter-pill active" data-filter="all" onclick="window.filterGenericHistory && window.filterGenericHistory('attendance-history-table', 'all', this)">ทั้งหมด (3)</button>
+          <button type="button" class="pg-filter-pill" data-filter="pending" onclick="window.filterGenericHistory && window.filterGenericHistory('attendance-history-table', 'pending', this)">⏳ รออนุมัติ (1)</button>
+          <button type="button" class="pg-filter-pill" data-filter="approved" onclick="window.filterGenericHistory && window.filterGenericHistory('attendance-history-table', 'approved', this)">✓ อนุมัติแล้ว (1)</button>
+          <button type="button" class="pg-filter-pill" data-filter="rejected" onclick="window.filterGenericHistory && window.filterGenericHistory('attendance-history-table', 'rejected', this)">✕ ไม่อนุมัติ (1)</button>
+        </div>
       </div>
 
       <div class="pg-table-responsive">
@@ -7465,8 +7477,8 @@ main, .page-view, .settings-page {
 
     <section class="ck-card ck-att">
       <div class="ck-att-topbar">
-        <div class="ck-att-datebar wednesday" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46;">
-          <span class="ck-att-full-text">สรุปวงเงินสวัสดิการค่ารักษาพยาบาลและทันตกรรมคงเหลือ (ปี 2569)</span>
+        <div class="ck-att-datebar wednesday ck-live-date-banner">
+          <span class="ck-att-full-text ck-live-date-text">วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.</span>
         </div>
         <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
           <svg><use href="#calendar"/></svg>
@@ -7482,8 +7494,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill green">เหลือ 75%</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#059669 !important;">฿7,500 / ฿10,000</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#059669 !important;;text-align:center;">฿7,500 / ฿10,000</strong>
           </div>
         </div>
 
@@ -7495,8 +7507,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill" style="background:#dbeafe;color:#1e40af;">เหลือ 70%</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#1e70bf !important;">฿2,100 / ฿3,000</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#1e70bf !important;;text-align:center;">฿2,100 / ฿3,000</strong>
           </div>
         </div>
       </div>
@@ -7709,8 +7721,14 @@ main, .page-view, .settings-page {
 
     <!-- Right: Clickable Benefits History Table (Compact 4 Columns, Zero Horizontal Scroll) -->
     <div class="pg-card">
-      <div class="pg-card-header">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
         <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ประวัติการเบิกสวัสดิการ</h3>
+        <div class="ck-history-filters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button type="button" class="pg-filter-pill active" data-filter="all" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'all', this)">ทั้งหมด (3)</button>
+          <button type="button" class="pg-filter-pill" data-filter="pending" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'pending', this)">⏳ รออนุมัติ (0)</button>
+          <button type="button" class="pg-filter-pill" data-filter="approved" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'approved', this)">✓ อนุมัติแล้ว (3)</button>
+          <button type="button" class="pg-filter-pill" data-filter="rejected" onclick="window.filterGenericHistory && window.filterGenericHistory('benefits-history-table', 'rejected', this)">✕ ไม่อนุมัติ (0)</button>
+        </div>
       </div>
 
       <div class="pg-table-responsive">
@@ -7855,8 +7873,8 @@ main, .page-view, .settings-page {
 
     <section class="ck-card ck-att">
       <div class="ck-att-topbar">
-        <div class="ck-att-datebar wednesday" style="background:#fffbeb;border-color:#fde68a;color:#92400e;">
-          <span class="ck-att-full-text">สถานะรายการรออนุมัติในสายงานของคุณ (ประจำวันที่ 30/10/2569)</span>
+        <div class="ck-att-datebar wednesday ck-live-date-banner">
+          <span class="ck-att-full-text ck-live-date-text">วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.</span>
         </div>
         <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
           <svg><use href="#calendar"/></svg>
@@ -7872,8 +7890,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill" style="background:#fef3c7;color:#92400e;">ด่วน 2 รายการ</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#b45309 !important;">8 รายการ</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#b45309 !important;;text-align:center;">8 รายการ</strong>
           </div>
         </div>
 
@@ -7885,8 +7903,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill green">✓ ครบตาม SLA</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#059669 !important;">34 รายการ</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#059669 !important;;text-align:center;">34 รายการ</strong>
           </div>
         </div>
       </div>
@@ -8097,8 +8115,8 @@ main, .page-view, .settings-page {
 
     <section class="ck-card ck-att">
       <div class="ck-att-topbar">
-        <div class="ck-att-datebar wednesday" style="background:#eff6ff;border-color:#bfdbfe;color:#0b3b68;">
-          <span class="ck-att-full-text">ความพร้อมของข้อมูลสำหรับประมวลผลเงินเดือนงวด 31/10/2569</span>
+        <div class="ck-att-datebar wednesday ck-live-date-banner">
+          <span class="ck-att-full-text ck-live-date-text">วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.</span>
         </div>
         <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
           <svg><use href="#calendar"/></svg>
@@ -8114,8 +8132,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill green">✓ ครบ 100%</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#1e70bf !important;">103 / 103 คน</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#1e70bf !important;;text-align:center;">103 / 103 คน</strong>
           </div>
         </div>
 
@@ -8127,8 +8145,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill green">คลิกส่งออกทันที</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#059669 !important;">Excel / PDF</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#059669 !important;;text-align:center;">Excel / PDF</strong>
           </div>
         </div>
       </div>
@@ -8328,8 +8346,8 @@ main, .page-view, .settings-page {
 
     <section class="ck-card ck-att">
       <div class="ck-att-topbar">
-        <div class="ck-att-datebar wednesday" style="background:#eff6ff;border-color:#bfdbfe;color:#0b3b68;">
-          <span class="ck-att-full-text">ข้อมูลสถานะการจ้างงานและบัญชีรับเงินเดือนอัตโนมัติ</span>
+        <div class="ck-att-datebar wednesday ck-live-date-banner">
+          <span class="ck-att-full-text ck-live-date-text">วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.</span>
         </div>
         <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
           <svg><use href="#calendar"/></svg>
@@ -8345,8 +8363,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill green">พนักงานประจำ</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#1e70bf !important;">01/02/2567 (2 ปี 8 ด.)</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#1e70bf !important;;text-align:center;">01/02/2567 (2 ปี 8 ด.)</strong>
           </div>
         </div>
 
@@ -8358,8 +8376,8 @@ main, .page-view, .settings-page {
             </div>
             <span class="ck-att-pill green">✓ ยืนยันแล้ว</span>
           </div>
-          <div class="ck-att-bottomline">
-            <strong class="ck-att-time" style="color:#059669 !important;">xxx-x-xx123-4</strong>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" style="color:#059669 !important;;text-align:center;">xxx-x-xx123-4</strong>
           </div>
         </div>
       </div>
@@ -8746,6 +8764,18 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     if (leaveTextEl) {
       leaveTextEl.textContent = conf.name + 'ที่ ' + dayOfMonth + ' ' + month + ' ' + year + ' เวลา ' + hours + ':' + minutes + ':' + seconds + ' น.';
     }
+
+    // All Subpages Live Date Sync (Standardized with #leave)
+    document.querySelectorAll('.ck-live-date-banner').forEach(function(b) {
+      if (conf) {
+        b.style.background = conf.bg;
+        b.style.borderColor = conf.border;
+        b.style.color = conf.color;
+      }
+    });
+    document.querySelectorAll('.ck-live-date-text').forEach(function(t) {
+      t.textContent = conf.name + 'ที่ ' + dayOfMonth + ' ' + month + ' ' + year + ' เวลา ' + hours + ':' + minutes + ':' + seconds + ' น.';
+    });
 
     var punchEl = document.getElementById('punch-live-clock');
     if (punchEl) {
@@ -10645,6 +10675,21 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       modal.style.display = 'flex';
     };
     window.inspectGenericRow = window.openGenericModal;
+
+    window.filterGenericHistory = function(tableId, filter, btnEl) {
+      if (btnEl && btnEl.parentElement) {
+        btnEl.parentElement.querySelectorAll('.pg-filter-pill').forEach(function(b) {
+          b.classList.remove('active');
+        });
+        btnEl.classList.add('active');
+      }
+      var tbl = document.getElementById(tableId);
+      if (!tbl) return;
+      tbl.querySelectorAll('tbody tr').forEach(function(tr) {
+        var st = tr.getAttribute('data-status') || 'approved';
+        tr.style.display = (filter === 'all' || st === filter) ? '' : 'none';
+      });
+    };
 
     window.closeDetailModal = function() {
       var modal = document.getElementById('ck-detail-modal');

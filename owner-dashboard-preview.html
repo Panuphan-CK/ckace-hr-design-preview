@@ -5098,24 +5098,24 @@ main, .page-view, .settings-page {
 
     <!-- Req: Time In / Time Out Tiles (คลิกเพื่อลงเวลาเข้าและลงเวลาออกได้ทันที) -->
     <div class="ck-att-tiles">
-      <div class="ck-att-tile" id="dash-checkin-tile" style="cursor:pointer;border-top:3px solid #16a34a;" title="คลิกเพื่อลงเวลาเข้า" onclick="window.performDashboardCheckIn && window.performDashboardCheckIn();">
+      <div class="ck-att-tile" id="dash-checkin-tile" style="cursor:pointer;border-top:3px solid #1e70bf;" title="คลิกเพื่อลงเวลาเข้า" onclick="window.performDashboardCheckIn && window.performDashboardCheckIn();">
         <div class="ck-att-topline">
           <div class="ck-att-head-left">
-            <span class="ck-att-circle in"><svg><use href="#arrow"/></svg></span>
-            <span class="ck-att-label">เวลาเข้า</span>
+            <span class="ck-att-circle in" style="background:#94a3b8;"><svg><use href="#arrow"/></svg></span>
+            <span class="ck-att-label">เวลาเข้าวันนี้</span>
           </div>
-          <span class="ck-att-pill green" id="dash-checkin-pill">✓ ตรงเวลา</span>
+          <span class="ck-att-pill gray" id="dash-checkin-pill">ยังไม่ลงเวลา</span>
         </div>
         <div class="ck-att-bottomline" style="text-align:center;">
-          <strong class="ck-att-time" id="dash-checkin-time" style="color:#16a34a !important;text-align:center;">08:28:30 น.</strong>
+          <strong class="ck-att-time" id="dash-checkin-time" style="color:#94a3b8 !important;text-align:center;">--:--:-- น.</strong>
         </div>
       </div>
 
       <div class="ck-att-tile" id="dash-checkout-tile" style="cursor:pointer;border-top:3px solid #1e70bf;" title="คลิกเพื่อลงเวลาออก" onclick="window.performDashboardCheckOut && window.performDashboardCheckOut();">
         <div class="ck-att-topline">
           <div class="ck-att-head-left">
-            <span class="ck-att-circle out"><svg><use href="#clock"/></svg></span>
-            <span class="ck-att-label">เวลาออก</span>
+            <span class="ck-att-circle out" style="background:#94a3b8;"><svg><use href="#clock"/></svg></span>
+            <span class="ck-att-label">เวลาออกวันนี้</span>
           </div>
           <span class="ck-att-pill gray" id="dash-checkout-pill">ยังไม่ลงเวลา</span>
         </div>
@@ -7160,23 +7160,23 @@ main, .page-view, .settings-page {
         </div>
       </div>
       <div class="ck-att-tiles">
-        <div class="ck-att-tile" id="att-checkin-tile" style="cursor:pointer;border-top:3px solid #16a34a;" title="คลิกเพื่อลงเวลาเข้า" onclick="window.performDashboardCheckIn && window.performDashboardCheckIn();">
+        <div class="ck-att-tile" id="att-checkin-tile" style="cursor:pointer;border-top:3px solid #1e70bf;" title="คลิกเพื่อลงเวลาเข้า" onclick="window.performDashboardCheckIn && window.performDashboardCheckIn();">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle in"><svg><use href="#arrow"/></svg></span>
+              <span class="ck-att-circle in" style="background:#94a3b8;"><svg><use href="#arrow"/></svg></span>
               <span class="ck-att-label">เวลาเข้าวันนี้</span>
             </div>
-            <span class="ck-att-pill green" id="att-checkin-pill">✓ ตรงเวลา</span>
+            <span class="ck-att-pill gray" id="att-checkin-pill">ยังไม่ลงเวลา</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" id="att-checkin-time" style="color:#16a34a !important;text-align:center;">08:28:30 น.</strong>
+            <strong class="ck-att-time" id="att-checkin-time" style="color:#94a3b8 !important;text-align:center;">--:--:-- น.</strong>
           </div>
         </div>
 
         <div class="ck-att-tile" id="att-checkout-tile" style="cursor:pointer;border-top:3px solid #1e70bf;" title="คลิกเพื่อลงเวลาออก" onclick="window.performDashboardCheckOut && window.performDashboardCheckOut();">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle out"><svg><use href="#clock"/></svg></span>
+              <span class="ck-att-circle out" style="background:#94a3b8;"><svg><use href="#clock"/></svg></span>
               <span class="ck-att-label">เวลาออกวันนี้</span>
             </div>
             <span class="ck-att-pill gray" id="att-checkout-pill">ยังไม่ลงเวลา</span>
@@ -11042,6 +11042,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           tile.style.borderTopColor = '#16a34a';
           var c = tile.querySelector('.ck-att-circle.in');
           if (c) c.style.background = '#16a34a';
+          var lbl = tile.querySelector('.ck-att-label');
+          if (lbl) lbl.style.setProperty('color', '#16a34a', 'important');
         }
         if (timeEl) {
           timeEl.textContent = nowStr;
@@ -11072,6 +11074,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           tile.style.borderTopColor = '#ef4444';
           var c = tile.querySelector('.ck-att-circle.out');
           if (c) c.style.background = '#ef4444';
+          var lbl = tile.querySelector('.ck-att-label');
+          if (lbl) lbl.style.setProperty('color', '#dc2626', 'important');
         }
         if (timeEl) {
           timeEl.textContent = nowStr;

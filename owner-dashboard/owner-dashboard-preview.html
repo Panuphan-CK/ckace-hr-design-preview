@@ -6795,45 +6795,89 @@ main, .page-view, .settings-page {
       <form class="pg-form" onsubmit="event.preventDefault(); alert('ส่งคำขออนุมัติ OT เข้าสู่สายการอนุมัติ 3 ระดับเรียบร้อยแล้ว');">
       <div class="ck-leave-form-cols">
         <div class="ck-leave-col-left" style="display:flex;flex-direction:column;gap:14px;">
-        <div class="pg-form-group">
-          <label class="pg-form-label"><span>วันที่ปฏิบัติงาน <span class="req">*</span></span></label>
-          <div class="ck-date-box-wrap">
-            <button type="button" class="ck-date-box" id="ot-date-box" onclick="window.openPopupCal && window.openPopupCal(this, 'ot-date')">
-              <span id="ot-date-val">30/10/2569</span>
-              <svg><use href="#calendar"/></svg>
-            </button>
-            <div class="ck-date-popover" id="pop-ot-date"></div>
+        <!-- 1 & 2. วันที่เริ่มต้น * และ วันที่สิ้นสุด (ปฏิทินเหมือนหน้าลางาน รองรับขอ OT หลายวัน) -->
+        <div class="pg-form-row2" id="ot-dates-row">
+          <div class="pg-form-group">
+            <label class="pg-form-label"><span>วันที่เริ่มต้น <span class="req">*</span></span></label>
+            <div class="ck-date-box-wrap">
+              <button type="button" class="ck-date-box" id="ot-start-box" data-date-target="ot-start" onclick="window.openPopupCal && window.openPopupCal(this, 'ot-start')">
+                <span id="ot-start-val">05/11/2569</span>
+                <svg><use href="#calendar"/></svg>
+              </button>
+              <div class="ck-date-popover ck-leave-range-popover" id="pop-ot-start"></div>
+            </div>
+          </div>
+
+          <div class="pg-form-group" id="ot-end-group">
+            <label class="pg-form-label"><span>วันที่สิ้นสุด</span></label>
+            <div class="ck-date-box-wrap">
+              <button type="button" class="ck-date-box" id="ot-end-box" data-date-target="ot-end" onclick="window.openPopupCal && window.openPopupCal(this, 'ot-end')">
+                <span id="ot-end-val">05/11/2569</span>
+                <svg><use href="#calendar"/></svg>
+              </button>
+              <div class="ck-date-popover ck-leave-range-popover" id="pop-ot-end"></div>
+            </div>
           </div>
         </div>
 
+        <!-- 3. ประเภทอัตรา OT * (แสดงอัตโนมัติตามวันทำงาน/วันหยุดที่เลือก USER ไม่ต้องเลือกเอง) -->
         <div class="pg-form-group">
-          <label class="pg-form-label"><span>ประเภทอัตรา OT <span class="req">*</span></span></label>
-          <div class="pg-radio-group">
-            <button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">วันทำงานปกติ (1.5 เท่า)</button>
-            <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">วันหยุดปกติ (1.0 เท่า)</button>
-            <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">วันหยุดล่วงเวลา (3.0 เท่า)</button>
+          <label class="pg-form-label"><span>ประเภทอัตรา OT <span class="req">*</span></span> <span style="font-size:11px;font-weight:600;color:#64748b;">(คำนวณอัตโนมัติตามปฏิทิน)</span></label>
+          <div id="ot-rate-auto-box" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:#eff6ff;color:#1e70bf;flex-shrink:0;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <div style="min-width:0;">
+                <div id="ot-rate-auto-title" style="font-size:13px;font-weight:800;color:#0f172a;">วันทำงานปกติ (1.5 เท่า)</div>
+                <div id="ot-rate-auto-desc" style="font-size:11.5px;font-weight:500;color:#64748b;">ตรวจพบวันทำงานปกติ (1 วัน) — ระบบกำหนดอัตราให้อัตโนมัติ</div>
+              </div>
+            </div>
+            <span class="pg-badge" id="ot-rate-auto-pill" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:8px;white-space:nowrap;">1.5 เท่า</span>
           </div>
         </div>
 
+        <!-- 4. ช่วงเวลาและชั่วโมง OT * (เปลี่ยนชุดตัวเลือกอัตโนมัติตามวันทำงาน / วันหยุดบริษัท + ระบุเอง) -->
         <div class="pg-form-group">
-          <label class="pg-form-label"><span>ช่วงเวลาและชั่วโมง OT <span class="req">*</span></span></label>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;">
+            <label class="pg-form-label" style="margin-bottom:0;"><span>ช่วงเวลาและชั่วโมง OT <span class="req">*</span></span></label>
+            <span id="ot-slot-mode-badge" style="font-size:11px;font-weight:700;color:#1e70bf;background:#eff6ff;padding:2px 8px;border-radius:6px;">โหมดวันทำงานปกติ</span>
+          </div>
           <div class="ck-click-grid-2" id="ot-slot-cards">
-            <button type="button" class="ck-click-card" data-ot-hrs="2.0" onclick="window.selectOtHours && window.selectOtHours(this, 2.0, '18:00 – 20:00 น.')">
-              <div class="ck-click-card-top"><strong>18:00 – 20:00 น.</strong><span class="quota-pill">2.0 ชม.</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">ช่วงเย็นหลังเลิกงาน</span>
-            </button>
-            <button type="button" class="ck-click-card active" data-ot-hrs="3.0" onclick="window.selectOtHours && window.selectOtHours(this, 3.0, '18:00 – 21:00 น.')">
-              <div class="ck-click-card-top"><strong>18:00 – 21:00 น.</strong><span class="quota-pill">3.0 ชม.</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">ช่วงปิดงบประจำเดือน</span>
-            </button>
-            <button type="button" class="ck-click-card" data-ot-hrs="4.0" onclick="window.selectOtHours && window.selectOtHours(this, 4.0, '18:00 – 22:00 น.')">
-              <div class="ck-click-card-top"><strong>18:00 – 22:00 น.</strong><span class="quota-pill">4.0 ชม.</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">เร่งด่วนส่งมอบงาน</span>
-            </button>
-            <button type="button" class="ck-click-card" data-ot-hrs="7.0" onclick="window.selectOtHours && window.selectOtHours(this, 7.0, '09:00 – 17:00 น. (วันหยุด)')">
-              <div class="ck-click-card-top"><strong>09:00 – 17:00 น.</strong><span class="quota-pill">7.0 ชม.</span></div>
-              <span style="font-size:11.5px;font-weight:600;color:#64748b;">วันหยุดเสาร์-อาทิตย์</span>
-            </button>
+            <!-- Rendered dynamically by renderOtSlots() -->
+          </div>
+          <div id="ot-custom-time-box" style="display:none;margin-top:8px;padding:10px 12px;background:#f8fbff;border:1px solid #bfdbfe;border-radius:10px;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:12px;font-weight:700;color:#334155;">เริ่ม:</span>
+                <input type="time" id="ot-custom-start" class="pg-form-control" value="18:00" style="width:auto;padding:5px 8px;font-size:12.5px;" onchange="window.onOtCustomTimeChange && window.onOtCustomTimeChange()" />
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:12px;font-weight:700;color:#334155;">สิ้นสุด:</span>
+                <input type="time" id="ot-custom-end" class="pg-form-control" value="21:00" style="width:auto;padding:5px 8px;font-size:12.5px;" onchange="window.onOtCustomTimeChange && window.onOtCustomTimeChange()" />
+              </div>
+              <span id="ot-custom-gross-label" style="font-size:12px;font-weight:700;color:#1e70bf;margin-left:auto;">ระยะเวลา 3.0 ชม.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. รูปแบบการพัก * (แสดงอัตโนมัติตามช่วงเวลาที่เลือก + USER แก้ไขเอง/ไม่พัก/ระบุชั่วโมงเองได้) -->
+        <div class="pg-form-group">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+            <label class="pg-form-label" style="margin-bottom:0;"><span>รูปแบบการพัก <span class="req">*</span></span></label>
+            <span id="ot-break-auto-hint" style="font-size:11px;font-weight:700;color:#b45309;background:#fffbeb;border:1px solid #fde68a;padding:2px 8px;border-radius:6px;">ตรวจพบช่วงเย็น — แนะนำพักเย็น 1.0 ชม.</span>
+          </div>
+          <div class="pg-radio-group" id="ot-break-group" style="display:flex;flex-wrap:wrap;gap:6px;">
+            <button type="button" class="pg-radio-btn" data-break="lunch" onclick="window.toggleOtBreak && window.toggleOtBreak('lunch', this)">พักกลางวัน 1 ชม.</button>
+            <button type="button" class="pg-radio-btn" data-break="activity" onclick="window.toggleOtBreak && window.toggleOtBreak('activity', this)">พักกิจกรรม 1 ชม.</button>
+            <button type="button" class="pg-radio-btn active" data-break="evening" onclick="window.toggleOtBreak && window.toggleOtBreak('evening', this)">พักเย็น 1 ชม.</button>
+            <button type="button" class="pg-radio-btn" data-break="none" onclick="window.toggleOtBreak && window.toggleOtBreak('none', this)">ไม่พัก (0 ชม.)</button>
+            <button type="button" class="pg-radio-btn" data-break="custom" onclick="window.toggleOtBreak && window.toggleOtBreak('custom', this)">ระบุเอง</button>
+          </div>
+          <div id="ot-break-custom-box" style="display:none;margin-top:8px;padding:8px 12px;background:#f8fbff;border:1px solid #bfdbfe;border-radius:10px;align-items:center;gap:8px;">
+            <span style="font-size:12px;font-weight:700;color:#334155;">ระบุเวลาพักเอง (ชั่วโมง):</span>
+            <input type="number" id="ot-break-custom-hrs" class="pg-form-control" value="1.0" min="0" max="8" step="0.5" style="width:90px;padding:5px 8px;font-size:12.5px;" oninput="window.onOtCustomBreakChange && window.onOtCustomBreakChange()" />
+            <span style="font-size:12px;color:#64748b;">ชม.</span>
           </div>
         </div>
 
@@ -6885,7 +6929,7 @@ main, .page-view, .settings-page {
 
         <!-- กล่องสรุปชั่วโมง OT เดือนนี้แบบสด -->
         <div class="ck-quota-live-box" id="ot-quota-live-box">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
             <strong style="font-size:13px;font-weight:800;">สรุปชั่วโมง OT เดือนนี้</strong>
             <span class="pg-badge pg-badge-info" id="ot-selected-slot-label">18:00 – 21:00 น.</span>
           </div>
@@ -6895,16 +6939,19 @@ main, .page-view, .settings-page {
               <strong style="color:#1e70bf;">42.5 ชม.</strong>
             </div>
             <div class="ck-quota-metric-item">
-              <span>ขอครั้งนี้</span>
-              <strong style="color:#7c3aed;" id="ot-live-req">+ 3.0 ชม.</strong>
+              <span>ขอครั้งนี้ (สุทธิ)</span>
+              <strong style="color:#7c3aed;" id="ot-live-req">+ 2.0 ชม.</strong>
             </div>
             <div class="ck-quota-metric-item">
               <span>สะสมรวมสุทธิ</span>
-              <strong style="color:#0d8268;" id="ot-live-remain">45.5 ชม.</strong>
+              <strong style="color:#0d8268;" id="ot-live-remain">44.5 ชม.</strong>
             </div>
           </div>
+          <div id="ot-live-breakdown" style="font-size:11.5px;font-weight:600;color:#475569;margin-top:6px;">
+            1 วัน × (ช่วงเวลา 3.0 ชม. − พักเย็น 1.0 ชม.) = 2.0 ชม. สุทธิ
+          </div>
           <div class="ck-quota-alert-msg" id="ot-live-alert">
-            ✓ จำนวนชั่วโมง OT อยู่ในเกณฑ์ที่กำหนด (บันทึกรวม 45.5 ชม.)
+            ✓ จำนวนชั่วโมง OT อยู่ในเกณฑ์ที่กำหนด (บันทึกรวม 44.5 ชม.)
           </div>
         </div>
 
@@ -9676,6 +9723,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       if (isOpen) {
         leaveCalRangePicking = false;
         leaveCalRangeStart = null;
+        otCalRangePicking = false;
+        otCalRangeStart = null;
         return;
       }
 
@@ -9685,6 +9734,14 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         leaveCalRangePicking = false;
         leaveCalRangeStart = null;
         renderLeaveCalPopup(pop, key);
+        pop.classList.add('open');
+        return;
+      }
+
+      if (key === 'ot-start' || key === 'ot-end') {
+        otCalRangePicking = false;
+        otCalRangeStart = null;
+        window.renderOtCalPopup && window.renderOtCalPopup(pop, key);
         pop.classList.add('open');
         return;
       }
@@ -10099,35 +10156,466 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     };
     window.inspectLeaveRow = window.openDetailModal;
 
-    // OT Live Quota Selection
-    window.selectOtHours = function(btn, hrs, label) {
+    // OT Calendar, Auto Rate, Dynamic Slots, Auto Break Detection & Live Summary
+    var otCalRangePicking = false;
+    var otCalRangeStart = null;
+    var otState = {
+      startDay: 5,
+      endDay: 5,
+      slotMode: 'workday',
+      slotId: 'w2',
+      slotLabel: '18:00 – 21:00 น.',
+      startMin: 18 * 60,
+      endMin: 21 * 60,
+      breaks: { lunch: false, activity: false, evening: true, none: false, custom: false },
+      customBreakHrs: 1.0
+    };
+
+    function isOtHolidayDay(day) {
+      var dow = day % 7; // Nov 1, 2026 = Sunday (1=Sun, 0=Sat)
+      return (dow === 0 || dow === 1 || day === 25);
+    }
+
+    function syncOtDateBoxes() {
+      var sEl = document.getElementById('ot-start-val');
+      var eEl = document.getElementById('ot-end-val');
+      if (sEl) sEl.textContent = pad2(otState.startDay) + '/11/2569';
+      if (eEl) eEl.textContent = pad2(otState.endDay) + '/11/2569';
+    }
+
+    window.renderOtCalPopup = function(pop, key) {
+      if (!pop) return;
+      var monthLabel = 'พฤศจิกายน 2569';
+      var maxDays = 30;
+      var emptySlots = 6;
+
+      var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+        '<button type="button" class="ck-pop-nav-btn" onclick="event.stopPropagation();" title="เดือนก่อนหน้า">&lt;</button>' +
+        '<span style="font-weight:800;font-size:15px;color:#1e293b;">' + monthLabel + '</span>' +
+        '<button type="button" class="ck-pop-nav-btn" onclick="event.stopPropagation();" title="เดือนถัดไป">&gt;</button>' +
+        '</div>' +
+        '<div class="ck-pop-cal-dow-ref">' +
+        '<span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span style="color:#94a3b8;">ส.</span><span style="color:#94a3b8;">อา.</span>' +
+        '</div>' +
+        '<div class="ck-pop-cal-grid-ref" id="ot-popup-cal-grid-' + key + '">';
+
+      for (var i = 0; i < emptySlots; i++) {
+        html += '<span class="ck-pop-day-ref empty" style="visibility:hidden;"></span>';
+      }
+
+      for (var d = 1; d <= maxDays; d++) {
+        var classes = ['ck-pop-day-ref'];
+        var isHoliday = isOtHolidayDay(d);
+        if (isHoliday) classes.push('holiday');
+
+        if (otCalRangePicking && otCalRangeStart !== null) {
+          if (d === otCalRangeStart) classes.push('selected', 'range-start');
+        } else {
+          if (d === otState.startDay && d === otState.endDay) {
+            classes.push('selected', 'range-start', 'range-end');
+          } else if (d === otState.startDay) {
+            classes.push('selected', 'range-start');
+          } else if (d === otState.endDay) {
+            classes.push('selected', 'range-end');
+          } else if (d > otState.startDay && d < otState.endDay) {
+            classes.push('in-range');
+          }
+        }
+
+        var holidayTitle = isHoliday ? (d === 25 ? 'วันหยุดประจำปีบริษัท' : 'วันหยุดสัปดาห์') : '';
+        html += '<button type="button" class="' + classes.join(' ') + '" data-day="' + d + '" title="' + holidayTitle + '" onclick="window.onOtCalDayClick(\'' + key + '\', ' + d + ')">' + d + '</button>';
+      }
+
+      html += '</div>';
+      html += '<div style="margin-top:12px;padding-top:8px;border-top:1px solid #f1f5f9;">' +
+        '<div style="font-size:11.5px;font-weight:700;color:#1e70bf;text-align:center;margin-bottom:6px;">' +
+        (otCalRangePicking ? '👉 คลิกเลือก "วันสิ้นสุด"' : '👉 คลิกเลือกวันเดียว หรือช่วงวันเริ่มต้น - สิ้นสุด') +
+        '</div>' +
+        '<div style="display:flex;justify-content:center;gap:4px;flex-wrap:wrap;">' +
+        '<button type="button" class="pg-filter-pill" style="padding:2px 8px;font-size:11px;" onclick="window.pickOtRangePreset(5, 5, \'' + key + '\')">วันทำงาน (5 พ.ย.)</button>' +
+        '<button type="button" class="pg-filter-pill" style="padding:2px 8px;font-size:11px;" onclick="window.pickOtRangePreset(5, 6, \'' + key + '\')">2 วัน (5-6 พ.ย.)</button>' +
+        '<button type="button" class="pg-filter-pill" style="padding:2px 8px;font-size:11px;" onclick="window.pickOtRangePreset(7, 7, \'' + key + '\')">วันหยุด (7 พ.ย.)</button>' +
+        '<button type="button" class="pg-filter-pill" style="padding:2px 8px;font-size:11px;" onclick="window.pickOtRangePreset(25, 25, \'' + key + '\')">วันหยุดบริษัท (25 พ.ย.)</button>' +
+        '</div>' +
+        '</div>';
+
+      pop.innerHTML = html;
+
+      var grid = pop.querySelector('#ot-popup-cal-grid-' + key);
+      if (grid) {
+        grid.querySelectorAll('.ck-pop-day-ref').forEach(function(btn) {
+          if (btn.classList.contains('empty')) return;
+          var dayNum = parseInt(btn.getAttribute('data-day'), 10);
+          btn.addEventListener('mouseenter', function() {
+            if (otCalRangePicking && otCalRangeStart !== null) {
+              var min = Math.min(otCalRangeStart, dayNum);
+              var max = Math.max(otCalRangeStart, dayNum);
+              grid.querySelectorAll('.ck-pop-day-ref').forEach(function(b) {
+                if (b.classList.contains('empty')) return;
+                var curr = parseInt(b.getAttribute('data-day'), 10);
+                if (curr >= min && curr <= max) b.classList.add('range-hover');
+                else b.classList.remove('range-hover');
+              });
+            }
+          });
+        });
+      }
+    };
+
+    window.onOtCalDayClick = function(key, day) {
+      var pop = document.getElementById('pop-' + key);
+      if (key === 'ot-end' && !otCalRangePicking) {
+        if (day >= otState.startDay) {
+          otState.endDay = day;
+          syncOtDateBoxes();
+          onOtDatesChanged();
+          if (pop) window.renderOtCalPopup(pop, key);
+          setTimeout(function() {
+            if (pop) pop.classList.remove('open');
+            var box = document.getElementById(key + '-box');
+            if (box) box.classList.remove('active');
+          }, 220);
+          return;
+        }
+      }
+
+      if (!otCalRangePicking) {
+        otCalRangePicking = true;
+        otCalRangeStart = day;
+        otState.startDay = day;
+        otState.endDay = day;
+        syncOtDateBoxes();
+        onOtDatesChanged();
+        if (pop) window.renderOtCalPopup(pop, key);
+      } else {
+        otCalRangePicking = false;
+        if (day < otCalRangeStart) {
+          otState.startDay = day;
+          otState.endDay = otCalRangeStart;
+        } else {
+          otState.startDay = otCalRangeStart;
+          otState.endDay = day;
+        }
+        otCalRangeStart = null;
+        syncOtDateBoxes();
+        onOtDatesChanged();
+        if (pop) {
+          window.renderOtCalPopup(pop, key);
+          setTimeout(function() {
+            pop.classList.remove('open');
+            var box = document.getElementById(key + '-box');
+            if (box) box.classList.remove('active');
+          }, 220);
+        }
+      }
+    };
+
+    window.pickOtRangePreset = function(s, e, key) {
+      otCalRangePicking = false;
+      otCalRangeStart = null;
+      otState.startDay = s;
+      otState.endDay = e;
+      syncOtDateBoxes();
+      onOtDatesChanged();
+      var pop = document.getElementById('pop-' + key);
+      if (pop) {
+        window.renderOtCalPopup(pop, key);
+        setTimeout(function() {
+          pop.classList.remove('open');
+          var box = document.getElementById(key + '-box');
+          if (box) box.classList.remove('active');
+        }, 220);
+      }
+    };
+
+    function getOtSlotsForMode(mode) {
+      if (mode === 'holiday') {
+        return [
+          { id: 'h1', label: 'เต็มวัน 09:00 – 17:30 น.', sub: 'ทำงานเต็มวันหยุด', startMin: 9 * 60, endMin: 17 * 60 + 30 },
+          { id: 'h2', label: 'ช่วงเช้า 09:00 – 12:00 น.', sub: 'ครึ่งวันเช้าวันหยุด', startMin: 9 * 60, endMin: 12 * 60 },
+          { id: 'h3', label: 'ช่วงบ่าย 13:00 – 17:30 น.', sub: 'ครึ่งวันบ่ายวันหยุด', startMin: 13 * 60, endMin: 17 * 60 + 30 },
+          { id: 'custom', label: 'ระบุเอง', sub: 'กำหนดเวลาเริ่ม – สิ้นสุดเอง', startMin: 12 * 60, endMin: 14 * 60, isCustom: true }
+        ];
+      }
+      return [
+        { id: 'w1', label: '18:00 – 20:00 น.', sub: 'ช่วงเย็นหลังเลิกงาน', startMin: 18 * 60, endMin: 20 * 60 },
+        { id: 'w2', label: '18:00 – 21:00 น.', sub: 'ช่วงปิดงบประจำเดือน', startMin: 18 * 60, endMin: 21 * 60 },
+        { id: 'w3', label: '18:00 – 22:00 น.', sub: 'เร่งด่วนส่งมอบงาน', startMin: 18 * 60, endMin: 22 * 60 },
+        { id: 'custom', label: 'ระบุเอง', sub: 'กำหนดเวลาเริ่ม – สิ้นสุดเอง', startMin: 18 * 60, endMin: 21 * 60, isCustom: true }
+      ];
+    }
+
+    function updateOtAutoRate() {
+      var days = Math.max(1, otState.endDay - otState.startDay + 1);
+      var workCount = 0;
+      var weekendCount = 0;
+      var companyHolCount = 0;
+      for (var d = otState.startDay; d <= otState.endDay; d++) {
+        if (d === 25) companyHolCount++;
+        else if (isOtHolidayDay(d)) weekendCount++;
+        else workCount++;
+      }
+
+      var titleEl = document.getElementById('ot-rate-auto-title');
+      var descEl = document.getElementById('ot-rate-auto-desc');
+      var pillEl = document.getElementById('ot-rate-auto-pill');
+      var boxEl = document.getElementById('ot-rate-auto-box');
+      var modeBadge = document.getElementById('ot-slot-mode-badge');
+
+      var newMode = (workCount === 0) ? 'holiday' : 'workday';
+      var modeChanged = (newMode !== otState.slotMode);
+      otState.slotMode = newMode;
+
+      if (companyHolCount > 0 && workCount === 0 && weekendCount === 0) {
+        if (titleEl) titleEl.textContent = 'วันหยุดบริษัท (2.0 เท่า / ล่วงเวลา 3.0 เท่า)';
+        if (descEl) descEl.textContent = 'ตรวจพบวันหยุดประจำปีบริษัท (' + days + ' วัน) — ระบบกำหนดอัตราให้อัตโนมัติ';
+        if (pillEl) { pillEl.textContent = '2.0 – 3.0 เท่า'; pillEl.style.background = '#fef3c7'; pillEl.style.color = '#b45309'; pillEl.style.borderColor = '#fde68a'; }
+        if (boxEl) { boxEl.style.background = '#fffbeb'; boxEl.style.borderColor = '#fde68a'; }
+        if (modeBadge) { modeBadge.textContent = 'โหมดวันหยุดบริษัท'; modeBadge.style.background = '#fef3c7'; modeBadge.style.color = '#b45309'; }
+      } else if (workCount === 0) {
+        if (titleEl) titleEl.textContent = 'วันหยุดประจำสัปดาห์ (1.0 เท่า / ล่วงเวลา 3.0 เท่า)';
+        if (descEl) descEl.textContent = 'ตรวจพบวันเสาร์–อาทิตย์ / วันหยุด (' + days + ' วัน) — ระบบกำหนดอัตราให้อัตโนมัติ';
+        if (pillEl) { pillEl.textContent = '1.0 – 3.0 เท่า'; pillEl.style.background = '#f3e8ff'; pillEl.style.color = '#7c3aed'; pillEl.style.borderColor = '#e9d5ff'; }
+        if (boxEl) { boxEl.style.background = '#faf5ff'; boxEl.style.borderColor = '#e9d5ff'; }
+        if (modeBadge) { modeBadge.textContent = 'โหมดวันหยุดบริษัท'; modeBadge.style.background = '#f3e8ff'; modeBadge.style.color = '#7c3aed'; }
+      } else if (weekendCount > 0 || companyHolCount > 0) {
+        if (titleEl) titleEl.textContent = 'คำนวณแยกตามวันทำงาน & วันหยุดอัตโนมัติ';
+        if (descEl) descEl.textContent = 'ช่วง ' + days + ' วัน (วันทำงาน ' + workCount + ' วัน, วันหยุด ' + (weekendCount + companyHolCount) + ' วัน)';
+        if (pillEl) { pillEl.textContent = '1.5 / 3.0 เท่า'; pillEl.style.background = '#eff6ff'; pillEl.style.color = '#1e70bf'; pillEl.style.borderColor = '#bfdbfe'; }
+        if (boxEl) { boxEl.style.background = '#f8fbff'; boxEl.style.borderColor = '#bfdbfe'; }
+        if (modeBadge) { modeBadge.textContent = 'โหมดวันทำงานปกติ'; modeBadge.style.background = '#eff6ff'; modeBadge.style.color = '#1e70bf'; }
+      } else {
+        if (titleEl) titleEl.textContent = 'วันทำงานปกติ (1.5 เท่า)';
+        if (descEl) descEl.textContent = 'ตรวจพบวันทำงานปกติ (' + days + ' วัน) — ระบบกำหนดอัตราให้อัตโนมัติ';
+        if (pillEl) { pillEl.textContent = '1.5 เท่า'; pillEl.style.background = '#eff6ff'; pillEl.style.color = '#1e70bf'; pillEl.style.borderColor = '#bfdbfe'; }
+        if (boxEl) { boxEl.style.background = '#f8fafc'; boxEl.style.borderColor = '#cbd5e1'; }
+        if (modeBadge) { modeBadge.textContent = 'โหมดวันทำงานปกติ'; modeBadge.style.background = '#eff6ff'; modeBadge.style.color = '#1e70bf'; }
+      }
+
+      return modeChanged;
+    }
+
+    function renderOtSlots(resetDefault) {
+      var container = document.getElementById('ot-slot-cards');
+      if (!container) return;
+      var slots = getOtSlotsForMode(otState.slotMode);
+      if (resetDefault) {
+        var defSlot = otState.slotMode === 'holiday' ? slots[0] : slots[1];
+        otState.slotId = defSlot.id;
+        otState.slotLabel = defSlot.label;
+        otState.startMin = defSlot.startMin;
+        otState.endMin = defSlot.endMin;
+      }
+
+      var html = '';
+      slots.forEach(function(s) {
+        var gross = Math.max(0, (s.endMin - s.startMin) / 60);
+        var activeCls = (otState.slotId === s.id) ? ' active' : '';
+        var pillText = s.isCustom ? 'กำหนดเอง' : gross.toFixed(1) + ' ชม.';
+        html += '<button type="button" class="ck-click-card' + activeCls + '" data-slot-id="' + s.id + '" onclick="window.selectOtSlot && window.selectOtSlot(\'' + s.id + '\')">' +
+          '<div class="ck-click-card-top"><strong>' + s.label + '</strong><span class="quota-pill">' + pillText + '</span></div>' +
+          '<span style="font-size:11.5px;font-weight:600;color:#64748b;">' + s.sub + '</span>' +
+          '</button>';
+      });
+      container.innerHTML = html;
+
+      var customBox = document.getElementById('ot-custom-time-box');
+      if (customBox) customBox.style.display = (otState.slotId === 'custom') ? 'block' : 'none';
+    }
+
+    function autoDetectOtBreak(startMin, endMin) {
+      var overlapsMidday = (startMin < 14 * 60 && endMin > 12 * 60);
+      var overlapsEvening = (endMin > 17 * 60 + 30);
+      var hintEl = document.getElementById('ot-break-auto-hint');
+
+      otState.breaks = { lunch: false, activity: false, evening: false, none: false, custom: false };
+      if (overlapsMidday && overlapsEvening) {
+        otState.breaks.lunch = true;
+        if (hintEl) {
+          hintEl.textContent = 'ตรวจพบช่วง 12:00–14:00 และช่วงเย็น — แสดงพักกลางวัน/กิจกรรมอัตโนมัติ (แก้ไขได้)';
+          hintEl.style.background = '#fffbeb'; hintEl.style.color = '#b45309'; hintEl.style.borderColor = '#fde68a';
+        }
+      } else if (overlapsMidday) {
+        otState.breaks.lunch = true;
+        if (hintEl) {
+          hintEl.textContent = 'ตรวจพบช่วง 12:00–14:00 น. — แสดงพักกลางวันและพักกิจกรรมอัตโนมัติ (แก้ไขได้)';
+          hintEl.style.background = '#fffbeb'; hintEl.style.color = '#b45309'; hintEl.style.borderColor = '#fde68a';
+        }
+      } else if (overlapsEvening) {
+        otState.breaks.evening = true;
+        if (hintEl) {
+          hintEl.textContent = 'ตรวจพบช่วงเย็น — แสดงพักเย็น 1.0 ชม. อัตโนมัติ (เลือกไม่พัก/แก้ไขได้)';
+          hintEl.style.background = '#fffbeb'; hintEl.style.color = '#b45309'; hintEl.style.borderColor = '#fde68a';
+        }
+      } else {
+        otState.breaks.none = true;
+        if (hintEl) {
+          hintEl.textContent = 'ช่วงเวลาไม่คร่อมเวลาพัก — ไม่หักเวลาพัก (แก้ไขได้)';
+          hintEl.style.background = '#f0fdf4'; hintEl.style.color = '#15803d'; hintEl.style.borderColor = '#bbf7d0';
+        }
+      }
+      syncOtBreakButtons();
+    }
+
+    function syncOtBreakButtons() {
+      var grp = document.getElementById('ot-break-group');
+      if (grp) {
+        grp.querySelectorAll('.pg-radio-btn').forEach(function(btn) {
+          var k = btn.getAttribute('data-break');
+          if (otState.breaks[k]) btn.classList.add('active');
+          else btn.classList.remove('active');
+        });
+      }
+      var customBox = document.getElementById('ot-break-custom-box');
+      if (customBox) customBox.style.display = otState.breaks.custom ? 'flex' : 'none';
+    }
+
+    window.selectOtSlot = function(slotId) {
+      var slots = getOtSlotsForMode(otState.slotMode);
+      var found = slots.find(function(s) { return s.id === slotId; }) || slots[0];
+      otState.slotId = found.id;
+
+      var customBox = document.getElementById('ot-custom-time-box');
+      if (found.isCustom) {
+        if (customBox) customBox.style.display = 'block';
+        var csEl = document.getElementById('ot-custom-start');
+        var ceEl = document.getElementById('ot-custom-end');
+        if (csEl && ceEl) {
+          if (otState.slotMode === 'holiday') {
+            csEl.value = '12:00'; ceEl.value = '14:00';
+          } else {
+            csEl.value = '18:00'; ceEl.value = '21:00';
+          }
+          window.onOtCustomTimeChange();
+        }
+      } else {
+        if (customBox) customBox.style.display = 'none';
+        otState.startMin = found.startMin;
+        otState.endMin = found.endMin;
+        otState.slotLabel = found.label;
+        autoDetectOtBreak(otState.startMin, otState.endMin);
+        updateOtLiveSummary();
+      }
+
       var container = document.getElementById('ot-slot-cards');
       if (container) {
-        container.querySelectorAll('.ck-click-card').forEach(function(c) { c.classList.remove('active'); });
+        container.querySelectorAll('.ck-click-card').forEach(function(c) {
+          c.classList.toggle('active', c.getAttribute('data-slot-id') === found.id);
+        });
       }
-      if (btn) btn.classList.add('active');
-      var capRemain = 5.5;
-      var netRemain = capRemain - hrs;
-      var box = document.getElementById('ot-quota-live-box');
+    };
+
+    function parseTimeToMin(val) {
+      if (!val || val.indexOf(':') === -1) return 0;
+      var parts = val.split(':');
+      return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+    }
+
+    window.onOtCustomTimeChange = function() {
+      var csEl = document.getElementById('ot-custom-start');
+      var ceEl = document.getElementById('ot-custom-end');
+      if (!csEl || !ceEl) return;
+      var sMin = parseTimeToMin(csEl.value);
+      var eMin = parseTimeToMin(ceEl.value);
+      if (eMin <= sMin) eMin = sMin + 60;
+      otState.startMin = sMin;
+      otState.endMin = eMin;
+      otState.slotLabel = csEl.value + ' – ' + ceEl.value + ' น.';
+      var gross = Math.max(0, (eMin - sMin) / 60);
+      var lbl = document.getElementById('ot-custom-gross-label');
+      if (lbl) lbl.textContent = 'ระยะเวลา ' + gross.toFixed(1) + ' ชม.';
+      autoDetectOtBreak(sMin, eMin);
+      updateOtLiveSummary();
+    };
+
+    window.toggleOtBreak = function(key) {
+      if (key === 'none') {
+        otState.breaks = { lunch: false, activity: false, evening: false, none: true, custom: false };
+      } else if (key === 'custom') {
+        otState.breaks = { lunch: false, activity: false, evening: false, none: false, custom: true };
+      } else {
+        otState.breaks.none = false;
+        otState.breaks.custom = false;
+        otState.breaks[key] = !otState.breaks[key];
+        if (!otState.breaks.lunch && !otState.breaks.activity && !otState.breaks.evening) {
+          otState.breaks.none = true;
+        }
+      }
+      syncOtBreakButtons();
+      updateOtLiveSummary();
+    };
+
+    window.onOtCustomBreakChange = function() {
+      var inp = document.getElementById('ot-break-custom-hrs');
+      var val = parseFloat(inp ? inp.value : '0');
+      if (isNaN(val) || val < 0) val = 0;
+      otState.customBreakHrs = val;
+      updateOtLiveSummary();
+    };
+
+    function getBreakHoursAndLabel() {
+      if (otState.breaks.none) return { hrs: 0, text: 'ไม่พัก 0.0 ชม.' };
+      if (otState.breaks.custom) return { hrs: otState.customBreakHrs, text: 'พักกำหนดเอง ' + otState.customBreakHrs.toFixed(1) + ' ชม.' };
+      var hrs = 0;
+      var names = [];
+      if (otState.breaks.lunch) { hrs += 1.0; names.push('พักกลางวัน'); }
+      if (otState.breaks.activity) { hrs += 1.0; names.push('พักกิจกรรม'); }
+      if (otState.breaks.evening) { hrs += 1.0; names.push('พักเย็น'); }
+      if (names.length === 0) return { hrs: 0, text: 'ไม่พัก 0.0 ชม.' };
+      return { hrs: hrs, text: names.join(' + ') + ' ' + hrs.toFixed(1) + ' ชม.' };
+    }
+
+    function updateOtLiveSummary() {
+      var days = Math.max(1, otState.endDay - otState.startDay + 1);
+      var grossPerDay = Math.max(0, (otState.endMin - otState.startMin) / 60);
+      var brk = getBreakHoursAndLabel();
+      var netPerDay = Math.max(0, grossPerDay - brk.hrs);
+      var totalReq = netPerDay * days;
+      var totalAccum = 42.5 + totalReq;
+
       var lbl = document.getElementById('ot-selected-slot-label');
       var reqEl = document.getElementById('ot-live-req');
       var remEl = document.getElementById('ot-live-remain');
+      var brkEl = document.getElementById('ot-live-breakdown');
       var alertEl = document.getElementById('ot-live-alert');
       var subBtn = document.getElementById('ot-submit-btn');
 
-      if (lbl) lbl.textContent = label;
-      if (reqEl) reqEl.textContent = '+ ' + hrs.toFixed(1) + ' ชม.';
-      var totalAccum = 42.5 + hrs;
-      if (box) box.classList.remove('over-limit');
+      if (lbl) lbl.textContent = otState.slotLabel + (days > 1 ? ' (' + days + ' วัน)' : '');
+      if (reqEl) reqEl.textContent = '+ ' + totalReq.toFixed(1) + ' ชม.';
       if (remEl) {
         remEl.textContent = totalAccum.toFixed(1) + ' ชม.';
         remEl.style.color = '#0d8268';
       }
-      if (alertEl) {
-        alertEl.textContent = '✓ จำนวนชั่วโมง OT อยู่ในเกณฑ์ที่กำหนด (สะสมรวม ' + totalAccum.toFixed(1) + ' ชม.)';
+      if (brkEl) {
+        brkEl.textContent = days + ' วัน × (ช่วงเวลา ' + grossPerDay.toFixed(1) + ' ชม. − ' + brk.text + ') = ' + totalReq.toFixed(1) + ' ชม. สุทธิ';
       }
-      if (subBtn) subBtn.disabled = false;
+      if (alertEl) {
+        alertEl.textContent = '✓ จำนวนชั่วโมง OT สุทธิ ' + totalReq.toFixed(1) + ' ชม. (สะสมรวม ' + totalAccum.toFixed(1) + ' ชม.)';
+      }
+      if (subBtn) subBtn.disabled = (totalReq <= 0);
+    }
+
+    function onOtDatesChanged() {
+      var modeChanged = updateOtAutoRate();
+      renderOtSlots(modeChanged);
+      if (modeChanged) {
+        autoDetectOtBreak(otState.startMin, otState.endMin);
+      }
+      updateOtLiveSummary();
+    }
+
+    window.selectOtHours = function(btn, hrs, label) {
+      updateOtLiveSummary();
     };
+
+    // Initialize OT form on load
+    (function initOtForm() {
+      syncOtDateBoxes();
+      updateOtAutoRate();
+      renderOtSlots(true);
+      autoDetectOtBreak(otState.startMin, otState.endMin);
+      updateOtLiveSummary();
+    })();
 
     // Benefit Live Budget Deduction & Over-limit Alert
     var benefitState = {

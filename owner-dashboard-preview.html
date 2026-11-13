@@ -10840,23 +10840,39 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
 
     window.renderAttCalPopup = function(popEl) {
       if (!popEl) return;
-      var html = '<div class="ck-pop-cal-head">' +
-        '<span>ปฏิทินเลือกวันที่ (พฤศจิกายน 2569)</span>' +
-        '<span class="pg-badge pg-badge-info" style="font-size:10.5px;">DD/MM/YYYY</span>' +
+      var monthLabel = 'พฤศจิกายน 2569';
+      var maxDays = 30;
+      var emptySlots = 6; // Mon-Sat empty since Nov 1, 2026 is Sunday
+
+      var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+        '<button type="button" class="ck-pop-nav-btn" onclick="event.stopPropagation();" title="เดือนก่อนหน้า">&lt;</button>' +
+        '<span style="font-weight:800;font-size:15px;color:#1e293b;">' + monthLabel + '</span>' +
+        '<button type="button" class="ck-pop-nav-btn" onclick="event.stopPropagation();" title="เดือนถัดไป">&gt;</button>' +
         '</div>' +
-        '<div class="ck-pop-cal-dow"><span>อา.</span><span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span></div>' +
-        '<div class="ck-pop-cal-grid">';
-      for (var d = 1; d <= 30; d++) {
-        var fDate = pad2(d) + '/11/2569';
-        var isHol = (typeof isOtHoliday === 'function') ? isOtHoliday(d) : false;
-        var isSel = (d === attState.day);
-        var cls = 'ck-pop-day';
-        if (isSel) cls += ' active';
-        if (isHol && !isSel) cls += ' is-holiday';
-        var sty = isSel ? 'background:#1e70bf;color:#ffffff;font-weight:800;' : (isHol ? 'color:#dc2626;background:#fef2f2;cursor:pointer;' : '');
-        html += '<button type="button" class="' + cls + '" style="' + sty + '" onclick="window.pickAttCalDay(' + d + ', \'' + fDate + '\')">' + pad2(d) + '</button>';
+        '<div class="ck-pop-cal-dow-ref">' +
+        '<span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span style="color:#94a3b8;">ส.</span><span style="color:#94a3b8;">อา.</span>' +
+        '</div>' +
+        '<div class="ck-pop-cal-grid-ref">';
+
+      for (var i = 0; i < emptySlots; i++) {
+        html += '<span class="ck-pop-day-ref empty" style="visibility:hidden;"></span>';
       }
-      html += '</div>';
+
+      for (var d = 1; d <= maxDays; d++) {
+        var fDate = pad2(d) + '/11/2569';
+        var classes = ['ck-pop-day-ref'];
+        var dow = d % 7; // 1=Sun, 0=Sat
+        var isHoliday = (dow === 0 || dow === 1 || d === 25);
+        if (isHoliday) classes.push('holiday');
+        if (d === attState.day) classes.push('selected', 'range-start', 'range-end');
+        var holidayTitle = isHoliday ? (d === 25 ? 'วันหยุดประจำปีบริษัท' : 'วันหยุดสัปดาห์') : '';
+        html += '<button type="button" class="' + classes.join(' ') + '" data-day="' + d + '" title="' + holidayTitle + '" style="cursor:pointer;" onclick="window.pickAttCalDay(' + d + ', \'' + fDate + '\')">' + d + '</button>';
+      }
+
+      html += '</div>' +
+        '<div style="margin-top:8px;font-size:11.5px;font-weight:600;color:#64748b;text-align:center;">' +
+        '(คลิกเลือกวันที่ต้องการแก้ไขเวลา 1 วัน)' +
+        '</div>';
       popEl.innerHTML = html;
     };
 

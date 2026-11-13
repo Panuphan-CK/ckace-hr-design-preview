@@ -10648,7 +10648,8 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         var dateRangeStr = (otState.startDay === otState.endDay)
           ? ('ที่ ' + otState.startDay + ' พฤศจิกายน 2569')
           : ('ที่ ' + otState.startDay + '-' + otState.endDay + ' พฤศจิกายน 2569');
-        lbl.innerHTML = daysStr + ' <span style="color:#1e293b;font-weight:800;">' + dateRangeStr + ' · ' + otState.slotLabel + '</span>';
+        var slotDisplay = String(otState.slotLabel || '').replace(/\s*น\.$/, '').trim();
+        lbl.innerHTML = daysStr + ' <span style="color:#1e293b;font-weight:800;">' + dateRangeStr + ' · </span><span style="color:#7c3aed;font-weight:800;">' + slotDisplay + '</span> <span style="color:#1e293b;font-weight:800;">น.</span>';
       }
       if (reqEl) reqEl.textContent = '+ ' + totalReq.toFixed(1) + ' ชม.';
       if (remEl) {
@@ -10866,7 +10867,7 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
       var statusClass = 'approved';
       var statusBadgeStyle = 'background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:12px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;';
       var statusIcon = '✓';
-      var statusText = item.badgeText;
+      var statusText = String(item.badgeText || '').replace(/^[⏳✓✕]\s*/, '').trim();
 
       if (item.badgeText.includes('รออนุมัติ') || item.badgeText.includes('กำลังรอ')) {
         statusClass = 'pending';
@@ -10908,7 +10909,11 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           'อัตรา <strong style="color:#7c3aed;font-weight:800;">1.5</strong> เท่า'
         ];
         var otHrs = ['3.0 ชม.', '6.0 ชม.', '4.0 ชม.'];
-        var otBreaks = ['พักเย็น 1.0 ชม.', 'พักกลางวัน 1.0 ชม.', 'ไม่พัก (0.0 ชม.)'];
+        var otBreaks = [
+          'พักเย็น <strong style="color:#d97706;font-weight:800;">1.0</strong> ชม.',
+          'พักกลางวัน <strong style="color:#d97706;font-weight:800;">1.0</strong> ชม.',
+          'ไม่พัก (<strong style="color:#64748b;font-weight:800;">0.0</strong> ชม.)'
+        ];
         var otReasons = [
           'ปิดงบเดือนและกระทบยอดเงินเดือนพนักงานประจำงวดตุลาคม 2569',
           'จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาสที่ 3 ตามกำหนด',
@@ -11051,24 +11056,26 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
           cardBg = '#fef2f2';
         }
 
-        // Parse dates or info from st.badge
-        var badgeTextClean = st.badge.replace(/s*·.*$/, '').trim();
-        var dateMatch = st.badge.match(/·s*(.+)$/);
-        var dateStr = dateMatch ? dateMatch[1] : '-';
+        // Parse dates or info from st.badge & align wording with Leave modal
+        var badgeTextClean = st.badge.replace(/\s*·.*$/, '').trim();
+        var dateMatch = st.badge.match(/·\s*(.+)$/);
+        var apprDateStr = dateMatch ? dateMatch[1] : (st.state === 'current' ? 'รอดำเนินการ' : '-');
+        var assignDateStr = reqDate ? (reqDate + ' 09:00 น.') : '-';
+        var whoClean = String(st.who || '').replace(/^ระดับที่\s*\d+\s*:\s*/, '');
 
         stepCardsHtml += '<div class="ck-modal-hover-card" style="background:' + cardBg + ';border:1px solid ' + cardBorder + ';border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:4px;">' +
           '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
             '<div style="display:flex;align-items:center;gap:7px;min-width:0;">' +
               '<span style="width:20px;height:20px;border-radius:50%;background:#e2e8f0;color:#334155;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + (sIdx + 1) + '</span>' +
               '<div style="min-width:0;">' +
-                '<strong style="font-size:12.5px;color:#0f172a;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + st.who + '</strong>' +
+                '<strong style="font-size:12.5px;color:#0f172a;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + whoClean + '</strong>' +
               '</div>' +
             '</div>' +
             '<span style="' + badgeStyle + 'padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;flex-shrink:0;">' + badgeTextClean + '</span>' +
           '</div>' +
           '<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#64748b;padding-left:27px;">' +
-            '<span>ลำดับที่ ' + (sIdx + 1) + '</span>' +
-            '<span>เวลา: ' + dateStr + '</span>' +
+            '<span>มอบหมาย: ' + assignDateStr + '</span>' +
+            '<span>อนุมัติ: ' + apprDateStr + '</span>' +
           '</div>' +
           '<div style="font-size:11.5px;color:#334155;padding-left:27px;line-height:1.35;background:rgba(255,255,255,0.75);border-radius:6px;padding:4px 8px;margin-top:2px;border:1px solid rgba(0,0,0,0.04);">' +
             '<span style="color:#64748b;font-weight:600;">ความเห็น: </span>' + (st.reason || '-') +

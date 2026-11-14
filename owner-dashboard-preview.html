@@ -3388,6 +3388,14 @@ body.role-employee .ck-donut-slice {
   cursor: default !important;
 }
 
+/* 5. หน้ารายงาน: แยกระดับพนักงาน กับ ระดับหัวหน้า */
+body:not(.role-employee) .rep-employee-only {
+  display: none !important;
+}
+body.role-employee .rep-manager-only {
+  display: none !important;
+}
+
 
 .brand-logo-img {
   height: auto;
@@ -3820,6 +3828,101 @@ main, .page-view, .settings-page {
   color: #ffffff !important;
   border-color: #1e70bf;
   box-shadow: 0 2px 6px rgba(30, 112, 191, 0.22);
+}
+#rep-emp-type-group .pg-radio-btn,
+#rep-mgr-type-group .pg-radio-btn,
+#appr-filter-group .pg-radio-btn {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  white-space: nowrap;
+  gap: 0;
+  padding: 8px 16px;
+}
+
+#benefits-history-table .ck-table-actions {
+  gap: 3px;
+}
+#benefits-history-table .ck-action-btn {
+  width: 26px;
+  height: 26px;
+}
+
+/* Table Pagination (ทุกหน้า) */
+.ck-pagination-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 12px 6px;
+  margin-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+.ck-pagination-info {
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  text-align: center;
+}
+.ck-pagination-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ck-pg-btn {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+.ck-pg-btn:hover:not(:disabled):not(.active) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+.ck-pg-btn.active {
+  background: #00b074;
+  border-color: #00b074;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 176, 116, 0.28);
+}
+.ck-pg-btn:disabled {
+  color: #cbd5e1;
+  background: #f8fafc;
+  cursor: default;
+  box-shadow: none;
+}
+
+.rep-kpi-5grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 0;
+}
+@media (max-width: 1280px) {
+  .rep-kpi-5grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 768px) {
+  .rep-kpi-5grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* DD/MM/YYYY Clickable Date Box + Instant Popup Calendar */
@@ -4406,19 +4509,19 @@ main, .page-view, .settings-page {
 /* Approval Card */
 .appr-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
 }
 .appr-card {
   background: #ffffff;
   border: 1.5px solid #cbe0f5;
   border-radius: 14px;
-  padding: 18px 20px;
+  padding: 15px 16px;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -4429,46 +4532,130 @@ main, .page-view, .settings-page {
 .appr-user {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
 }
 .appr-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
   background: linear-gradient(135deg, #1e70bf, #0b3b68);
   color: #fff !important;
   font-weight: 800;
   display: grid;
   place-items: center;
-  font-size: 14px;
+  font-size: 13px;
   flex-shrink: 0;
+}
+.appr-meta {
+  min-width: 0;
 }
 .appr-meta strong {
   display: block;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 800;
-  color: #000000 !important;
+  color: #0f172a !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .appr-meta small {
-  font-size: 12px;
+  display: block;
+  font-size: 11.5px;
   font-weight: 600;
-  color: #000000 !important;
+  color: #64748b !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .appr-desc {
-  background: #f8fbff;
-  border: 1px solid #d0e2f5;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 12.5px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 8px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155 !important;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.appr-desc-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 6px;
+}
+.appr-desc-row .lbl {
+  color: #64748b;
   font-weight: 600;
-  color: #000000 !important;
-  line-height: 1.55;
+  flex-shrink: 0;
+}
+.appr-desc-row .val {
+  color: #0f172a;
+  font-weight: 700;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.appr-desc-note {
+  background: #ffffff;
+  color: #334155;
+  font-size: 11.5px;
+  line-height: 1.45;
+  margin-top: 4px;
+  padding: 7px 0;
+  border-top: 1px solid #cbd5e1;
+  border-bottom: 1px solid #cbd5e1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .appr-actions {
   display: flex;
-  gap: 8px;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 6px;
 }
+.appr-actions-row1 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+.appr-actions-row2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.appr-actions-row2 .appr-act-btn {
+  flex: 1;
+}
+.appr-act-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 5px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: all 0.14s ease;
+}
+.appr-act-btn.approve { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+.appr-act-btn.approve:hover { background: #a7f3d0; border-color: #34d399; }
+.appr-act-btn.revise { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+.appr-act-btn.revise:hover { background: #fef3c7; }
+.appr-act-btn.reject { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+.appr-act-btn.reject:hover { background: #fee2e2; }
+.appr-act-btn.attach { background: #f8fafc; color: #475569; border-color: #cbd5e1; }
+.appr-act-btn.attach:hover { background: #f1f5f9; }
+.appr-act-btn.detail { background: #eff6ff; color: #1e70bf; border-color: #bfdbfe; }
+.appr-act-btn.detail:hover { background: #dbeafe; }
 
 /* Profile Card */
 .pf-hero-card {
@@ -4521,6 +4708,9 @@ main, .page-view, .settings-page {
   color: #0b3b68 !important;
 }
 
+@media (max-width: 1280px) {
+  .appr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 980px) {
   .ck-stat-rail-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ck-leave-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
@@ -6179,10 +6369,10 @@ main, .page-view, .settings-page {
         <div class="ck-att-tile" style="border-top:3px solid #1e70bf;">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle in" style="transform:none;"><svg><use href="#calendar"/></svg></span>
+              <span class="ck-att-circle in" style="background:#1e70bf;transform:none;"><svg><use href="#calendar"/></svg></span>
               <span class="ck-att-label">วันลาสะสม</span>
             </div>
-            <span class="ck-att-pill green">21.74%</span>
+            <span class="ck-att-pill" style="background:#eff6ff;color:#1e70bf;border-color:#bfdbfe;">ใช้ไป 21.74%</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
             <strong class="ck-att-time" style="color:#1e70bf !important;text-align:center;">5.00 / 23.00 วัน</strong>
@@ -6196,10 +6386,10 @@ main, .page-view, .settings-page {
               <span class="ck-att-circle out" style="background:#f59e0b;"><svg><use href="#workflow"/></svg></span>
               <span class="ck-att-label">คำขอลาปี 2569</span>
             </div>
-            <span class="ck-att-pill" style="background:#fef3c7;color:#b45309;">⏳ รออนุมัติ 1</span>
+            <span class="ck-att-pill" style="background:#fef3c7;color:#b45309;border-color:#fde68a;">⏳ รออนุมัติ 1</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#0d8268 !important;text-align:center;display:inline-flex;align-items:baseline;justify-content:center;gap:4px;"><span style="font-size:13.5px;font-weight:700;">อนุมัติ</span> <span style="font-size:22px;font-weight:800;">3</span> <span style="font-size:13.5px;font-weight:700;">/ ทั้งหมด</span> <span style="font-size:22px;font-weight:800;">4</span></strong>
+            <strong class="ck-att-time" style="color:#d97706 !important;text-align:center;">อนุมัติแล้ว 75%</strong>
           </div>
         </div>
       </div>
@@ -6717,7 +6907,7 @@ main, .page-view, .settings-page {
               <span class="ck-att-circle in" style="background:#1e70bf;transform:none;"><svg><use href="#calendar"/></svg></span>
               <span class="ck-att-label">ชั่วโมง OT ปีนี้</span>
             </div>
-            <span class="ck-att-pill green">สะสมปี 2569</span>
+            <span class="ck-att-pill" style="background:#eff6ff;color:#1e70bf;border-color:#bfdbfe;">สะสมปี 2569</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
             <strong class="ck-att-time" style="color:#1e70bf !important;text-align:center;">168.5 ชม.</strong>
@@ -6730,7 +6920,7 @@ main, .page-view, .settings-page {
               <span class="ck-att-circle out" style="background:#7c3aed;"><svg><use href="#clock"/></svg></span>
               <span class="ck-att-label">ชั่วโมง OT เดือนนี้</span>
             </div>
-            <span class="ck-att-pill" style="background:#f5f3ff;color:#6d28d9;">พ.ย. 2569</span>
+            <span class="ck-att-pill" style="background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe;">พ.ย. 2569</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
             <strong class="ck-att-time" style="color:#7c3aed !important;text-align:center;">42.5 ชม.</strong>
@@ -7673,7 +7863,7 @@ main, .page-view, .settings-page {
         <div class="ck-att-tile" style="border-top:3px solid #059669;">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle in" style="transform:none;"><svg><use href="#heart"/></svg></span>
+              <span class="ck-att-circle in" style="background:#059669;transform:none;"><svg><use href="#heart"/></svg></span>
               <span class="ck-att-label">วงเงิน OPD</span>
             </div>
             <span class="ck-att-pill green">ใช้แล้ว ฿2,500.00</span>
@@ -7689,7 +7879,7 @@ main, .page-view, .settings-page {
               <span class="ck-att-circle out" style="background:#1e70bf;"><svg><use href="#file"/></svg></span>
               <span class="ck-att-label">คำขอเบิกปี 2569</span>
             </div>
-            <span class="ck-att-pill" style="background:#fef3c7;color:#b45309;">⏳ รออนุมัติ 1</span>
+            <span class="ck-att-pill" style="background:#eff6ff;color:#1e70bf;border-color:#bfdbfe;">⏳ รออนุมัติ 1</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
             <strong class="ck-att-time" style="color:#1e70bf !important;text-align:center;display:inline-flex;align-items:baseline;justify-content:center;gap:4px;"><span style="font-size:13.5px;font-weight:700;">อนุมัติ</span> <span style="font-size:22px;font-weight:800;">3</span> <span style="font-size:13.5px;font-weight:700;">/ ทั้งหมด</span> <span style="font-size:22px;font-weight:800;">4</span></strong>
@@ -7862,15 +8052,15 @@ main, .page-view, .settings-page {
       <table class="pg-table" id="benefits-history-table" style="width:100%;text-align:center;">
         <thead>
           <tr>
-            <th style="width:11%;text-align:center;">รหัสคำขอ</th>
-            <th style="width:14%;text-align:center;">พนักงาน</th>
-            <th style="width:13%;text-align:center;">ประเภทสวัสดิการ</th>
+            <th style="width:10%;text-align:center;">รหัสคำขอ</th>
+            <th style="width:13%;text-align:center;">พนักงาน</th>
+            <th style="width:12%;text-align:center;">ประเภทสวัสดิการ</th>
             <th style="width:10%;text-align:center;">วันที่รักษา</th>
             <th style="width:10%;text-align:center;">ยอดใบเสร็จ</th>
             <th style="width:11%;text-align:center;">ยอดเบิกสุทธิ</th>
             <th style="width:12%;text-align:center;">สถานพยาบาล / อาการ</th>
             <th style="width:9%;text-align:center;">สถานะ</th>
-            <th style="width:10%;text-align:center;">จัดการ</th>
+            <th style="width:13%;text-align:center;">จัดการ</th>
           </tr>
         </thead>
         <tbody>
@@ -7931,7 +8121,7 @@ main, .page-view, .settings-page {
               <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">รพ.พญาไท 2 · ภูมิแพ้</div>
             </td>
             <td style="text-align:center;">
-              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
+              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
             </td>
             <td style="text-align:center;white-space:nowrap;">
               <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
@@ -7969,7 +8159,7 @@ main, .page-view, .settings-page {
               <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">รพ.กรุงเทพ · ไมเกรน</div>
             </td>
             <td style="text-align:center;">
-              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
+              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
             </td>
             <td style="text-align:center;white-space:nowrap;">
               <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
@@ -8007,7 +8197,7 @@ main, .page-view, .settings-page {
               <div style="display:inline-block;max-width:165px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">รพ.วิภาวดี · อาหารเป็นพิษ</div>
             </td>
             <td style="text-align:center;">
-              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ โอนเงินแล้ว</span>
+              <span class="pg-badge pg-badge-success" style="padding:4px 10px;">✓ อนุมัติ</span>
             </td>
             <td style="text-align:center;white-space:nowrap;">
               <div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">
@@ -8042,7 +8232,7 @@ main, .page-view, .settings-page {
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">ศูนย์รวมงานอนุมัติ 3 ระดับ</h1>
+        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">ระบบงานอนุมัติ</h1>
         <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
         <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
@@ -8063,200 +8253,304 @@ main, .page-view, .settings-page {
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle in" style="background:#f59e0b;transform:none;"><svg><use href="#clock"/></svg></span>
-              <span class="ck-att-label">รอการพิจารณา</span>
+              <span class="ck-att-label">รออนุมัติ</span>
             </div>
-            <span class="ck-att-pill" style="background:#fef3c7;color:#92400e;">ด่วน 2 รายการ</span>
+            <span class="ck-att-pill" style="background:#fef3c7;color:#b45309;border-color:#fde68a;">เร่งด่วน 2</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#b45309 !important;;text-align:center;">8 รายการ</strong>
+            <strong class="ck-att-time" style="color:#d97706 !important;text-align:center;">8 รายการ</strong>
           </div>
         </div>
 
-        <div class="ck-att-tile" style="border-top:3px solid #10b981;">
+        <div class="ck-att-tile" style="border-top:3px solid #059669;">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle out" style="background:#10b981;"><svg><use href="#check"/></svg></span>
-              <span class="ck-att-label">อนุมัติแล้วเดือนนี้</span>
+              <span class="ck-att-circle out" style="background:#059669;"><svg><use href="#check"/></svg></span>
+              <span class="ck-att-label">พิจารณาแล้ว</span>
             </div>
-            <span class="ck-att-pill green">✓ ครบตาม SLA</span>
+            <span class="ck-att-pill green">✓ อนุมัติ 100%</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#059669 !important;;text-align:center;">34 รายการ</strong>
+            <strong class="ck-att-time" style="color:#059669 !important;text-align:center;">36 รายการ</strong>
           </div>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
-  <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#1e70bf;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#calendar"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">รออนุมัติลางาน</b>
-        </div>
-        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">ขั้นที่ 1–2</span>
-      </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">3 รายการ</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">จากทั้งหมด 12 รายการ</span>
-      </div>
-    </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">รออนุมัติทำ OT</b>
-        </div>
-        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">รวม 5.5 ชม.</span>
-      </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">2 รายการ</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">จากทั้งหมด 8 รายการ</span>
-      </div>
-    </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">รออนุมัติแก้ไขเวลา</b>
-        </div>
-        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">มีหลักฐานแนบ</span>
-      </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">2 รายการ</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">จากทั้งหมด 5 รายการ</span>
-      </div>
-    </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#heart"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">รออนุมัติสวัสดิการ</b>
-        </div>
-        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">OPD ฿1,200</span>
-      </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#059669;letter-spacing:-0.4px;line-height:1.1;">1 รายการ</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">จากทั้งหมด 4 รายการ</span>
+  <!-- Click-Only Filter Bar (ชิดซ้าย เหมือนประเภทรายงาน) -->
+  <div class="pg-card" style="padding:14px 20px;">
+    <div style="display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:10px;">
+      <span style="font-size:13px;font-weight:800;color:#0f172a;white-space:nowrap;">กรองคำขอ:</span>
+      <div class="pg-radio-group" id="appr-filter-group">
+        <button type="button" class="pg-radio-btn active" onclick="window.filterApprovalCards && window.filterApprovalCards('all', this)">ทั้งหมด (8)</button>
+        <button type="button" class="pg-radio-btn" onclick="window.filterApprovalCards && window.filterApprovalCards('leave', this)">ขอลางาน (3)</button>
+        <button type="button" class="pg-radio-btn" onclick="window.filterApprovalCards && window.filterApprovalCards('ot', this)">เบิก OT (2)</button>
+        <button type="button" class="pg-radio-btn" onclick="window.filterApprovalCards && window.filterApprovalCards('attendance', this)">ขอแก้ไขเวลา (2)</button>
+        <button type="button" class="pg-radio-btn" onclick="window.filterApprovalCards && window.filterApprovalCards('benefits', this)">เบิกค่ารักษา (1)</button>
       </div>
     </div>
   </div>
 
-  <!-- Click-Only Filter Bar -->
-  <div class="pg-card" style="padding:14px 18px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-      <strong style="font-size:13.5px;font-weight:800;">กรองคำขอ:</strong>
-      <div class="pg-radio-group" style="flex:1;max-width:680px;">
-        <button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ทั้งหมด (8)</button>
-        <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ขอลางาน (3)</button>
-        <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ขอทำ OT (2)</button>
-        <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ขอแก้ไขเวลา (2)</button>
-        <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">เบิกค่ารักษา (1)</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Approval Cards Grid (2 cols) -->
-  <div class="appr-grid">
-    <!-- Card 1 -->
-    <div class="appr-card">
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+  <!-- Approval Cards Grid (4 cols per row, pure white cards) -->
+  <div class="appr-grid" id="appr-cards-grid">
+    <!-- Card 1 (Leave) -->
+    <div class="appr-card" data-appr-cat="leave" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-004')">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
           <div class="appr-user">
             <div class="appr-avatar">จญ</div>
             <div class="appr-meta">
               <strong>คุณจิรัญญา สว่างจิต</strong>
-              <small>เจ้าหน้าที่ทรัพยากรบุคคล · ฝ่ายทรัพยากรบุคคล</small>
+              <small>ฝ่ายทรัพยากรบุคคล</small>
             </div>
           </div>
-          <span class="pg-badge pg-badge-info">ลาพักร้อน · ขั้นที่ 2/3</span>
+          <span class="pg-badge pg-badge-info" style="font-size:10.5px;padding:3px 7px;flex-shrink:0;">ลาพักร้อน (2/3)</span>
         </div>
         <div class="appr-desc">
-          <strong>รหัสคำขอ:</strong> LEV-0012 · <strong>วันที่ลา:</strong> 07/10/2569 – 09/10/2569 (3 วัน เต็มวัน)<br>
-          <strong>เหตุผลการลา:</strong> เดินทางไปทำธุระครอบครัว (สิทธิ์คงเหลือ 9.0 วัน)<br>
-          <strong>สายอนุมัติ:</strong> ✓ ระดับ 1 อนุมัติแล้ว ➔ <strong>⏳ รอระดับ 2 (คุณศิริพร)</strong> ➔ ระดับ 3 คุณจักรกฤษณ์
+          <div class="appr-desc-row"><span class="lbl">รหัสคำขอ :</span><span class="val">LEV-0012 (06/10/2569)</span></div>
+          <div class="appr-desc-row"><span class="lbl">วันที่ลา :</span><span class="val">07–09 ต.ค. 69</span></div>
+          <div class="appr-desc-row"><span class="lbl">จำนวนวันลา :</span><span class="val">3 วัน เต็มวัน</span></div>
+          <div class="appr-desc-note"><strong>รายละเอียด :</strong> เดินทางไปทำธุระครอบครัว (สิทธิ์คงเหลือ 9.0 วัน)</div>
         </div>
       </div>
       <div class="appr-actions">
-        <button type="button" class="pg-btn pg-btn-danger" style="padding:7px 14px;font-size:12.5px;" onclick="alert('บันทึกไม่อนุมัติพร้อมระบุเหตุผลเรียบร้อยแล้ว');">✕ ไม่อนุมัติ</button>
-        <button type="button" class="pg-btn pg-btn-primary" style="padding:7px 16px;font-size:12.5px;" onclick="alert('อนุมัติคำขอและส่งต่อให้ผู้อนุมัติระดับที่ 3 เรียบร้อยแล้ว');">✓ อนุมัติ (ส่งต่อระดับ 3)</button>
+        <div class="appr-actions-row1">
+          <button type="button" class="appr-act-btn approve" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('approve','LEV-0012','คุณจิรัญญา สว่างจิต','ลาพักร้อน (2/3)');">✓ อนุมัติ</button>
+          <button type="button" class="appr-act-btn revise" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('revise','LEV-0012','คุณจิรัญญา สว่างจิต','ลาพักร้อน (2/3)');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ส่งให้แก้ไข</button>
+          <button type="button" class="appr-act-btn reject" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('reject','LEV-0012','คุณจิรัญญา สว่างจิต','ลาพักร้อน (2/3)');">✕ ไม่อนุมัติ</button>
+        </div>
+        <div class="appr-actions-row2">
+          <button type="button" class="appr-act-btn detail" onclick="event.stopPropagation();window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-004');">ดูรายละเอียด</button>
+        </div>
       </div>
     </div>
 
-    <!-- Card 2 -->
-    <div class="appr-card">
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+    <!-- Card 2 (OT) -->
+    <div class="appr-card" data-appr-cat="ot" onclick="window.openGenericModal && window.openGenericModal('ot', 1)">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
           <div class="appr-user">
             <div class="appr-avatar" style="background:linear-gradient(135deg,#0d9488,#042f2e)">อด</div>
             <div class="appr-meta">
               <strong>คุณอธิป วัฒนกุล</strong>
-              <small>นักบัญชีอาวุโส · ฝ่ายบัญชีและการเงิน</small>
+              <small>ฝ่ายบัญชีและการเงิน</small>
             </div>
           </div>
-          <span class="pg-badge pg-badge-warning">ขอทำ OT · ขั้นที่ 2/3</span>
+          <span class="pg-badge pg-badge-warning" style="font-size:10.5px;padding:3px 7px;flex-shrink:0;">เบิก OT (2/3)</span>
         </div>
         <div class="appr-desc">
-          <strong>รหัสคำขอ:</strong> OT-0024 · <strong>วันที่ทำ OT:</strong> 15/10/2569 เวลา 18:00 – 20:30 น. (2.5 ชม. 1.5x)<br>
-          <strong>ภารกิจ:</strong> จัดเตรียมรายงานภาษีและปิดงบลูกค้ารายใหญ่<br>
-          <strong>สายอนุมัติ:</strong> ✓ ระดับ 1 อนุมัติแล้ว ➔ <strong>⏳ รอระดับ 2 (ฝ่าย HR)</strong> ➔ ระดับ 3 คุณจักรกฤษณ์
+          <div class="appr-desc-row"><span class="lbl">รหัสคำขอ :</span><span class="val">OT-0024 (14/10/2569)</span></div>
+          <div class="appr-desc-row"><span class="lbl">วันที่ทำ OT :</span><span class="val">15 ต.ค. 69</span></div>
+          <div class="appr-desc-row"><span class="lbl">ช่วงเวลา OT :</span><span class="val">18:00–20:30 น. (2.5 ชม.)</span></div>
+          <div class="appr-desc-note"><strong>รายละเอียด :</strong> จัดเตรียมรายงานภาษีและปิดงบลูกค้ารายใหญ่</div>
         </div>
       </div>
       <div class="appr-actions">
-        <button type="button" class="pg-btn pg-btn-danger" style="padding:7px 14px;font-size:12.5px;" onclick="alert('บันทึกไม่อนุมัติพร้อมระบุเหตุผลเรียบร้อยแล้ว');">✕ ไม่อนุมัติ</button>
-        <button type="button" class="pg-btn pg-btn-primary" style="padding:7px 16px;font-size:12.5px;" onclick="alert('อนุมัติคำขอและส่งต่อให้ผู้อนุมัติระดับที่ 3 เรียบร้อยแล้ว');">✓ อนุมัติ (ส่งต่อระดับ 3)</button>
+        <div class="appr-actions-row1">
+          <button type="button" class="appr-act-btn approve" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('approve','OT-0024','คุณอธิป วัฒนกุล','เบิก OT (2/3)');">✓ อนุมัติ</button>
+          <button type="button" class="appr-act-btn revise" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('revise','OT-0024','คุณอธิป วัฒนกุล','เบิก OT (2/3)');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ส่งให้แก้ไข</button>
+          <button type="button" class="appr-act-btn reject" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('reject','OT-0024','คุณอธิป วัฒนกุล','เบิก OT (2/3)');">✕ ไม่อนุมัติ</button>
+        </div>
+        <div class="appr-actions-row2">
+          <button type="button" class="appr-act-btn detail" onclick="event.stopPropagation();window.openGenericModal && window.openGenericModal('ot', 1);">ดูรายละเอียด</button>
+        </div>
       </div>
     </div>
 
-    <!-- Card 3 -->
-    <div class="appr-card">
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+    <!-- Card 3 (Attendance - hasAttachment) -->
+    <div class="appr-card" data-appr-cat="attendance" onclick="window.openGenericModal && window.openGenericModal('att', 1)">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
           <div class="appr-user">
             <div class="appr-avatar" style="background:linear-gradient(135deg,#ea580c,#7c2d12)">นน</div>
             <div class="appr-meta">
               <strong>คุณนภัสสร นาคิน</strong>
-              <small>เจ้าหน้าที่ปฏิบัติการ · ฝ่ายปฏิบัติการ</small>
+              <small>ฝ่ายปฏิบัติการ</small>
             </div>
           </div>
-          <span class="pg-badge pg-badge-info">ขอแก้ไขเวลา · ขั้นที่ 1/3</span>
+          <span class="pg-badge pg-badge-info" style="font-size:10.5px;padding:3px 7px;flex-shrink:0;">แก้ไขเวลา (1/3)</span>
         </div>
         <div class="appr-desc">
-          <strong>รหัสคำขอ:</strong> TC-0009 · <strong>วันที่:</strong> 16/10/2569 แก้ไขเวลาเข้างานเป็น 08:30 น.<br>
-          <strong>เหตุผล:</strong> พบลูกค้าช่วงเช้าก่อนเข้าสำนักงาน มีเอกสารนัดหมายแนบ<br>
-          <strong>สายอนุมัติ:</strong> <strong>⏳ รอระดับ 1 (หัวหน้างาน)</strong> ➔ ระดับ 2 คุณศิริพร ➔ ระดับ 3 คุณจักรกฤษณ์
+          <div class="appr-desc-row"><span class="lbl">รหัสคำขอ :</span><span class="val">TC-0009 (16/10/2569)</span></div>
+          <div class="appr-desc-row"><span class="lbl">วันที่แก้ไข :</span><span class="val">16 ต.ค. 69</span></div>
+          <div class="appr-desc-row"><span class="lbl">เวลาที่ขอปรับปรุง :</span><span class="val">เข้างาน 08:30:00 น.</span></div>
+          <div class="appr-desc-note"><strong>รายละเอียด :</strong> พบลูกค้าช่วงเช้าก่อนเข้าสำนักงาน (มีเอกสารแนบ)</div>
         </div>
       </div>
       <div class="appr-actions">
-        <button type="button" class="pg-btn pg-btn-danger" style="padding:7px 14px;font-size:12.5px;" onclick="alert('บันทึกไม่อนุมัติพร้อมระบุเหตุผลเรียบร้อยแล้ว');">✕ ไม่อนุมัติ</button>
-        <button type="button" class="pg-btn pg-btn-primary" style="padding:7px 16px;font-size:12.5px;" onclick="alert('อนุมัติคำขอและส่งต่อให้ผู้อนุมัติระดับที่ 2 เรียบร้อยแล้ว');">✓ อนุมัติ (ส่งต่อระดับ 2)</button>
+        <div class="appr-actions-row1">
+          <button type="button" class="appr-act-btn approve" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('approve','TC-0009','คุณนภัสสร นาคิน','แก้ไขเวลา (1/3)');">✓ อนุมัติ</button>
+          <button type="button" class="appr-act-btn revise" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('revise','TC-0009','คุณนภัสสร นาคิน','แก้ไขเวลา (1/3)');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ส่งให้แก้ไข</button>
+          <button type="button" class="appr-act-btn reject" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('reject','TC-0009','คุณนภัสสร นาคิน','แก้ไขเวลา (1/3)');">✕ ไม่อนุมัติ</button>
+        </div>
+        <div class="appr-actions-row2">
+          <button type="button" class="appr-act-btn attach" onclick="event.stopPropagation();alert('เปิดไฟล์แนบของคำขอ TC-0009');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> ไฟล์แนบ</button>
+          <button type="button" class="appr-act-btn detail" onclick="event.stopPropagation();window.openGenericModal && window.openGenericModal('att', 1);">ดูรายละเอียด</button>
+        </div>
       </div>
     </div>
 
-    <!-- Card 4 -->
-    <div class="appr-card">
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+    <!-- Card 4 (Leave - hasAttachment) -->
+    <div class="appr-card" data-appr-cat="leave" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-003')">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
           <div class="appr-user">
             <div class="appr-avatar" style="background:linear-gradient(135deg,#7c3aed,#3b0764)">กด</div>
             <div class="appr-meta">
               <strong>คุณกมลวรรณ เด่นดวง</strong>
-              <small>เจ้าหน้าที่การตลาด · ฝ่ายการตลาด</small>
+              <small>ฝ่ายการตลาด</small>
             </div>
           </div>
-          <span class="pg-badge pg-badge-success">ลากิจรายชั่วโมง · ขั้นที่ 3/3</span>
+          <span class="pg-badge pg-badge-success" style="font-size:10.5px;padding:3px 7px;flex-shrink:0;">ลากิจ (3/3)</span>
         </div>
         <div class="appr-desc">
-          <strong>รหัสคำขอ:</strong> LEV-0015 · <strong>วันที่ลา:</strong> 12/11/2569 เวลา 13:00 – 15:00 น. (2.0 ชม.)<br>
-          <strong>เหตุผลการลา:</strong> ติดต่อทำนิติกรรมที่ดินราชการ (แนบหนังสือราชการ)<br>
-          <strong>สายอนุมัติ:</strong> ✓ ระดับ 1 อนุมัติแล้ว ➔ ✓ ระดับ 2 อนุมัติแล้ว ➔ <strong>⏳ รอระดับ 3 (MD อนุมัติสูงสุด)</strong>
+          <div class="appr-desc-row"><span class="lbl">รหัสคำขอ :</span><span class="val">LEV-0015 (11/11/2569)</span></div>
+          <div class="appr-desc-row"><span class="lbl">วันที่ลา :</span><span class="val">12 พ.ย. 69</span></div>
+          <div class="appr-desc-row"><span class="lbl">จำนวนวันลา :</span><span class="val">2.0 ชม. (0.25 วัน)</span></div>
+          <div class="appr-desc-note"><strong>รายละเอียด :</strong> ติดต่อทำนิติกรรมที่ดินราชการ (แนบหนังสือราชการ)</div>
         </div>
       </div>
       <div class="appr-actions">
-        <button type="button" class="pg-btn pg-btn-danger" style="padding:7px 14px;font-size:12.5px;" onclick="alert('บันทึกไม่อนุมัติพร้อมระบุเหตุผลเรียบร้อยแล้ว');">✕ ไม่อนุมัติ</button>
-        <button type="button" class="pg-btn pg-btn-primary" style="padding:7px 16px;font-size:12.5px;" onclick="alert('อนุมัติขั้นสุดท้ายเรียบร้อยแล้ว');">✓ อนุมัติขั้นสุดท้าย (3/3)</button>
+        <div class="appr-actions-row1">
+          <button type="button" class="appr-act-btn approve" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('approve','LEV-0015','คุณกมลวรรณ เด่นดวง','ลากิจ (3/3)');">✓ อนุมัติ</button>
+          <button type="button" class="appr-act-btn revise" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('revise','LEV-0015','คุณกมลวรรณ เด่นดวง','ลากิจ (3/3)');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ส่งให้แก้ไข</button>
+          <button type="button" class="appr-act-btn reject" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('reject','LEV-0015','คุณกมลวรรณ เด่นดวง','ลากิจ (3/3)');">✕ ไม่อนุมัติ</button>
+        </div>
+        <div class="appr-actions-row2">
+          <button type="button" class="appr-act-btn attach" onclick="event.stopPropagation();alert('เปิดไฟล์แนบของคำขอ LEV-0015');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> ไฟล์แนบ</button>
+          <button type="button" class="appr-act-btn detail" onclick="event.stopPropagation();window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-003');">ดูรายละเอียด</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 (Benefits - hasAttachment) -->
+    <div class="appr-card" data-appr-cat="benefits" onclick="window.openGenericModal && window.openGenericModal('ben', 0)">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+          <div class="appr-user">
+            <div class="appr-avatar" style="background:linear-gradient(135deg,#059669,#064e3b)">สม</div>
+            <div class="appr-meta">
+              <strong>คุณสมชาย สายเสมอ</strong>
+              <small>ฝ่ายบัญชีและการเงิน</small>
+            </div>
+          </div>
+          <span class="pg-badge pg-badge-success" style="font-size:10.5px;padding:3px 7px;flex-shrink:0;">สวัสดิการ (2/3)</span>
+        </div>
+        <div class="appr-desc">
+          <div class="appr-desc-row"><span class="lbl">รหัสคำขอ :</span><span class="val">MED-0018 (27/10/2569)</span></div>
+          <div class="appr-desc-row"><span class="lbl">วันที่รักษา :</span><span class="val">27 ต.ค. 69</span></div>
+          <div class="appr-desc-row"><span class="lbl">ยอดขอเบิก :</span><span class="val" style="color:#059669;">฿1,200.00 (OPD)</span></div>
+          <div class="appr-desc-note"><strong>รายละเอียด :</strong> รพ.สมิติเวช · ตรวจสุขภาพและค่ายา (มีใบเสร็จ)</div>
+        </div>
+      </div>
+      <div class="appr-actions">
+        <div class="appr-actions-row1">
+          <button type="button" class="appr-act-btn approve" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('approve','MED-0018','คุณสมชาย สายเสมอ','สวัสดิการ (2/3)');">✓ อนุมัติ</button>
+          <button type="button" class="appr-act-btn revise" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('revise','MED-0018','คุณสมชาย สายเสมอ','สวัสดิการ (2/3)');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ส่งให้แก้ไข</button>
+          <button type="button" class="appr-act-btn reject" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('reject','MED-0018','คุณสมชาย สายเสมอ','สวัสดิการ (2/3)');">✕ ไม่อนุมัติ</button>
+        </div>
+        <div class="appr-actions-row2">
+          <button type="button" class="appr-act-btn attach" onclick="event.stopPropagation();alert('เปิดไฟล์แนบของคำขอ MED-0018');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> ไฟล์แนบ</button>
+          <button type="button" class="appr-act-btn detail" onclick="event.stopPropagation();window.openGenericModal && window.openGenericModal('ben', 0);">ดูรายละเอียด</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 6 (Leave - hasAttachment) -->
+    <div class="appr-card" data-appr-cat="leave" onclick="window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-002')">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+          <div class="appr-user">
+            <div class="appr-avatar" style="background:linear-gradient(135deg,#dc2626,#7f1d1d)">วส</div>
+            <div class="appr-meta">
+              <strong>คุณวรรณา สดใส</strong>
+              <small>ฝ่ายบัญชีและการเงิน</small>
+            </div>
+          </div>
+          <span class="pg-badge pg-badge-danger" style="font-size:10.5px;padding:3px 7px;flex-shrink:0;">ลาป่วย (1/3)</span>
+        </div>
+        <div class="appr-desc">
+          <div class="appr-desc-row"><span class="lbl">รหัสคำขอ :</span><span class="val">LEV-0019 (28/10/2569)</span></div>
+          <div class="appr-desc-row"><span class="lbl">วันที่ลา :</span><span class="val">29 ต.ค. 69</span></div>
+          <div class="appr-desc-row"><span class="lbl">จำนวนวันลา :</span><span class="val">1 วัน เต็มวัน</span></div>
+          <div class="appr-desc-note"><strong>รายละเอียด :</strong> ไข้หวัดใหญ่และมีไข้สูง (แนบใบรับรองแพทย์แล้ว)</div>
+        </div>
+      </div>
+      <div class="appr-actions">
+        <div class="appr-actions-row1">
+          <button type="button" class="appr-act-btn approve" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('approve','LEV-0019','คุณวรรณา สดใส','ลาป่วย (1/3)');">✓ อนุมัติ</button>
+          <button type="button" class="appr-act-btn revise" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('revise','LEV-0019','คุณวรรณา สดใส','ลาป่วย (1/3)');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ส่งให้แก้ไข</button>
+          <button type="button" class="appr-act-btn reject" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('reject','LEV-0019','คุณวรรณา สดใส','ลาป่วย (1/3)');">✕ ไม่อนุมัติ</button>
+        </div>
+        <div class="appr-actions-row2">
+          <button type="button" class="appr-act-btn attach" onclick="event.stopPropagation();alert('เปิดไฟล์แนบของคำขอ LEV-0019');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> ไฟล์แนบ</button>
+          <button type="button" class="appr-act-btn detail" onclick="event.stopPropagation();window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-002');">ดูรายละเอียด</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 7 (OT) -->
+    <div class="appr-card" data-appr-cat="ot" onclick="window.openGenericModal && window.openGenericModal('ot', 0)">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+          <div class="appr-user">
+            <div class="appr-avatar" style="background:linear-gradient(135deg,#0284c7,#0c4a6e)">พม</div>
+            <div class="appr-meta">
+              <strong>คุณพิชัย มงคล</strong>
+              <small>ฝ่ายตรวจสอบบัญชี</small>
+            </div>
+          </div>
+          <span class="pg-badge pg-badge-warning" style="font-size:10.5px;padding:3px 7px;flex-shrink:0;">เบิก OT (1/3)</span>
+        </div>
+        <div class="appr-desc">
+          <div class="appr-desc-row"><span class="lbl">รหัสคำขอ :</span><span class="val">OT-0025 (23/10/2569)</span></div>
+          <div class="appr-desc-row"><span class="lbl">วันที่ทำ OT :</span><span class="val">24 ต.ค. 69</span></div>
+          <div class="appr-desc-row"><span class="lbl">ช่วงเวลา OT :</span><span class="val">18:00–21:00 น. (3.0 ชม.)</span></div>
+          <div class="appr-desc-note"><strong>รายละเอียด :</strong> ปิดงบตรวจสอบบัญชีประจำไตรมาส 3</div>
+        </div>
+      </div>
+      <div class="appr-actions">
+        <div class="appr-actions-row1">
+          <button type="button" class="appr-act-btn approve" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('approve','OT-0025','คุณพิชัย มงคล','เบิก OT (1/3)');">✓ อนุมัติ</button>
+          <button type="button" class="appr-act-btn revise" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('revise','OT-0025','คุณพิชัย มงคล','เบิก OT (1/3)');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ส่งให้แก้ไข</button>
+          <button type="button" class="appr-act-btn reject" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('reject','OT-0025','คุณพิชัย มงคล','เบิก OT (1/3)');">✕ ไม่อนุมัติ</button>
+        </div>
+        <div class="appr-actions-row2">
+          <button type="button" class="appr-act-btn detail" onclick="event.stopPropagation();window.openGenericModal && window.openGenericModal('ot', 0);">ดูรายละเอียด</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 8 (Attendance) -->
+    <div class="appr-card" data-appr-cat="attendance" onclick="window.openGenericModal && window.openGenericModal('att', 0)">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+          <div class="appr-user">
+            <div class="appr-avatar" style="background:linear-gradient(135deg,#6366f1,#312e81)">กม</div>
+            <div class="appr-meta">
+              <strong>คุณกานดา มาดี</strong>
+              <small>ฝ่ายตรวจสอบบัญชี</small>
+            </div>
+          </div>
+          <span class="pg-badge pg-badge-info" style="font-size:10.5px;padding:3px 7px;flex-shrink:0;">แก้ไขเวลา (2/3)</span>
+        </div>
+        <div class="appr-desc">
+          <div class="appr-desc-row"><span class="lbl">รหัสคำขอ :</span><span class="val">TC-0011 (28/10/2569)</span></div>
+          <div class="appr-desc-row"><span class="lbl">วันที่แก้ไข :</span><span class="val">28 ต.ค. 69</span></div>
+          <div class="appr-desc-row"><span class="lbl">เวลาที่ขอปรับปรุง :</span><span class="val">เข้างาน 09:00:00 น.</span></div>
+          <div class="appr-desc-note"><strong>รายละเอียด :</strong> ลืมสแกนนิ้วเข้างานช่วงเช้าเนื่องจากเร่งส่งเอกสาร</div>
+        </div>
+      </div>
+      <div class="appr-actions">
+        <div class="appr-actions-row1">
+          <button type="button" class="appr-act-btn approve" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('approve','TC-0011','คุณกานดา มาดี','แก้ไขเวลา (2/3)');">✓ อนุมัติ</button>
+          <button type="button" class="appr-act-btn revise" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('revise','TC-0011','คุณกานดา มาดี','แก้ไขเวลา (2/3)');"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ส่งให้แก้ไข</button>
+          <button type="button" class="appr-act-btn reject" onclick="event.stopPropagation();window.openApprovalActionModal && window.openApprovalActionModal('reject','TC-0011','คุณกานดา มาดี','แก้ไขเวลา (2/3)');">✕ ไม่อนุมัติ</button>
+        </div>
+        <div class="appr-actions-row2">
+          <button type="button" class="appr-act-btn detail" onclick="event.stopPropagation();window.openGenericModal && window.openGenericModal('att', 0);">ดูรายละเอียด</button>
+        </div>
       </div>
     </div>
   </div>
@@ -8272,7 +8566,8 @@ main, .page-view, .settings-page {
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
-        <h1 class="ck-hero-greet" style="color:#0b3b68 !important;">รายงานและสถิติทรัพยากรบุคคล</h1>
+        <h1 class="ck-hero-greet rep-employee-only" style="color:#0b3b68 !important;">รายงานประวัติส่วนตัว</h1>
+        <h1 class="ck-hero-greet rep-manager-only" style="color:#0b3b68 !important;">รายงานและสถิติ</h1>
         <div class="ck-hero-name" style="color:#2d4356 !important;">คุณภาณุพันธุ์ ใจดี</div>
         <div class="ck-hero-role" style="color:#1e70bf !important;">ตำแหน่ง เจ้าหน้าที่ทรัพยากรบุคคล</div>
       </div>
@@ -8283,202 +8578,666 @@ main, .page-view, .settings-page {
         <div class="ck-att-datebar wednesday ck-live-date-banner">
           <span class="ck-att-full-text ck-live-date-text">วันพุธที่ 28 ตุลาคม 2569 เวลา 21:37:35 น.</span>
         </div>
-        <div class="ck-year-filter-btn" style="cursor:default;box-shadow:none;">
-          <svg><use href="#calendar"/></svg>
-          <span>ปี 2569</span>
+
+        <!-- ชุดกรองจากหน้าแดชบอด (มุมขวา ปี 2569) -->
+        <div class="ov-filter" id="rep-filter-wrap">
+          <button class="ck-year-filter-btn" id="rep-filter-btn" type="button" title="คลิกเพื่อกรองช่วงเวลาและขอบเขตข้อมูล">
+            <svg><use href="#calendar"/></svg>
+            <span id="rep-filter-label">ปี 2569</span>
+            <svg class="arrow-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="ov-filter-box" id="rep-filter-box">
+            <div class="ov-filter-head">
+              <svg><use href="#settings-gear"/></svg>
+              <span>กรองและขอบเขตข้อมูล</span>
+            </div>
+
+            <!-- 1. ปีปฏิทิน -->
+            <div class="ov-fg">
+              <div class="ov-fg-t">ปีปฏิทิน</div>
+              <div class="ov-fopts" data-g="rep-year" id="rep-year-opts">
+                <span class="ov-fopt active" data-val="ปี 2569" data-year="2569">ปี 2569</span>
+                <span class="ov-fopt" data-val="ปี 2568" data-year="2568">ปี 2568</span>
+                <span class="ov-fopt" data-val="ปี 2567" data-year="2567">ปี 2567</span>
+              </div>
+            </div>
+
+            <!-- 2. ช่วงเวลา -->
+            <div class="ov-fg">
+              <div class="ov-fg-t">ช่วงเวลา</div>
+              <div class="ov-fopts" data-g="rep-period" id="rep-period-opts">
+                <span class="ov-fopt active" data-period="all">ทั้งปี</span>
+                <span class="ov-fopt" data-period="this-month">เดือนนี้</span>
+                <span class="ov-fopt" data-period="prev-month">เดือนก่อน</span>
+                <span class="ov-fopt" data-period="custom" id="rep-period-custom-btn">
+                  <svg viewBox="0 0 24 24" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px;display:inline-block;"><rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/></svg>ช่วงเวลา
+                </span>
+              </div>
+
+              <!-- Custom Period Expandable Box -->
+              <div class="ov-custom-period-box" id="rep-custom-period-box" style="display: none;">
+                <div class="ov-custom-period-title">กำหนดช่วงเวลา</div>
+
+                <div class="ov-picker-type-wrap" id="rep-picker-type-wrap">
+                  <button type="button" class="ov-picker-type-btn" id="rep-picker-type-btn">
+                    <span class="ov-picker-type-label">
+                      <svg class="ov-cal-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/></svg>
+                      <span id="rep-picker-current-type-text">เลือกเดือน</span>
+                    </span>
+                    <svg class="ov-picker-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                  </button>
+                  <div class="ov-picker-dropdown-menu" id="rep-picker-dropdown-menu" style="display: none;">
+                    <button type="button" class="ov-picker-dropdown-item active" data-type="month">
+                      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/></svg>
+                      <span>เลือกเดือน</span>
+                    </button>
+                    <button type="button" class="ov-picker-dropdown-item" data-type="date">
+                      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="14" r="2" fill="currentColor"/></svg>
+                      <span>กำหนดช่วงวันที่</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="ov-picker-card">
+                  <div class="ov-month-picker-panel" id="rep-month-picker-panel">
+                    <div class="ov-picker-nav">
+                      <button type="button" class="ov-nav-btn prev" id="rep-month-prev" title="ปีก่อนหน้า">‹</button>
+                      <span class="ov-nav-title" id="rep-month-year-label">2569</span>
+                      <button type="button" class="ov-nav-btn next" id="rep-month-next" title="ปีถัดไป">›</button>
+                    </div>
+                    <div class="ov-months-grid">
+                      <button type="button" class="ov-m-btn" data-m="1">ม.ค.</button>
+                      <button type="button" class="ov-m-btn" data-m="2">ก.พ.</button>
+                      <button type="button" class="ov-m-btn" data-m="3">มี.ค.</button>
+                      <button type="button" class="ov-m-btn" data-m="4">เม.ย.</button>
+                      <button type="button" class="ov-m-btn" data-m="5">พ.ค.</button>
+                      <button type="button" class="ov-m-btn" data-m="6">มิ.ย.</button>
+                      <button type="button" class="ov-m-btn" data-m="7">ก.ค.</button>
+                      <button type="button" class="ov-m-btn" data-m="8">ส.ค.</button>
+                      <button type="button" class="ov-m-btn" data-m="9">ก.ย.</button>
+                      <button type="button" class="ov-m-btn active" data-m="10">ต.ค.</button>
+                      <button type="button" class="ov-m-btn" data-m="11">พ.ย.</button>
+                      <button type="button" class="ov-m-btn" data-m="12">ธ.ค.</button>
+                    </div>
+                  </div>
+
+                  <div class="ov-date-picker-panel" id="rep-date-picker-panel" style="display: none;">
+                    <div class="ov-picker-nav">
+                      <button type="button" class="ov-nav-btn prev" id="rep-date-prev" title="เดือนก่อนหน้า">‹</button>
+                      <span class="ov-nav-title" id="rep-date-month-label">พฤศจิกายน 2569</span>
+                      <button type="button" class="ov-nav-btn next" id="rep-date-next" title="เดือนถัดไป">›</button>
+                    </div>
+                    <div class="ov-calendar-weekdays">
+                      <span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span><span>อา.</span>
+                    </div>
+                    <div class="ov-calendar-days-grid" id="rep-calendar-days-grid"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. ขอบเขตข้อมูล (ระดับหัวหน้า - ซ่อนอัตโนมัติในระดับพนักงาน) -->
+            <div class="ov-fg ov-scope-fg" id="rep-scope-fg">
+              <div class="ov-fg-t">ขอบเขตข้อมูล (ระดับหัวหน้า)</div>
+              <div class="ov-fopts" data-g="rep-scope-type" id="rep-scope-opts">
+                <span class="ov-fopt active" data-scope="all">ภาพรวม</span>
+                <span class="ov-fopt" data-scope="self">ตนเอง</span>
+                <span class="ov-fopt" data-scope="dept">ตามแผนก</span>
+                <span class="ov-fopt" data-scope="emp">เจาะจงพนักงาน</span>
+              </div>
+
+              <!-- Scope Sub-Selectors (เหมือนหน้าแดชบอร์ด) -->
+              <div class="ov-scope-subwrap" id="rep-scope-subwrap" style="margin-top: 8px;">
+                <div class="ov-scope-field" id="rep-scope-dept-field" style="display: none;">
+                  <label class="ov-scope-label">เลือกแผนก</label>
+                  <div class="ov-select-custom-wrap">
+                    <select class="ov-select-ctrl" id="rep-scope-dept-select">
+                      <option value="ฝ่ายทรัพยากรบุคคล" selected>ฝ่ายทรัพยากรบุคคล (20 คน)</option>
+                      <option value="ฝ่ายบัญชีและการเงิน">ฝ่ายบัญชีและการเงิน (45 คน)</option>
+                      <option value="ฝ่ายตรวจสอบบัญชี">ฝ่ายตรวจสอบบัญชี (38 คน)</option>
+                    </select>
+                    <svg class="ov-select-arrow" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                  </div>
+                </div>
+
+                <div class="ov-scope-field" id="rep-scope-emp-field" style="display: none;">
+                  <label class="ov-scope-label">เลือกพนักงานรายบุคคล</label>
+                  <div class="ov-select-custom-wrap">
+                    <select class="ov-select-ctrl" id="rep-scope-emp-select">
+                      <option value="คุณภาณุพันธุ์ ใจดี" selected>คุณภาณุพันธุ์ ใจดี (ฝ่ายทรัพยากรบุคคล)</option>
+                      <option value="คุณสมชาย สายเสมอ">คุณสมชาย สายเสมอ (ฝ่ายบัญชีและการเงิน)</option>
+                      <option value="คุณวรรณา สดใส">คุณวรรณา สดใส (ฝ่ายบัญชีและการเงิน)</option>
+                      <option value="คุณพิชัย มงคล">คุณพิชัย มงคล (ฝ่ายตรวจสอบบัญชี)</option>
+                      <option value="คุณกานดา มาดี">คุณกานดา มาดี (ฝ่ายตรวจสอบบัญชี)</option>
+                    </select>
+                    <svg class="ov-select-arrow" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ov-factions">
+              <button class="ov-freset" type="button" id="rep-freset">รีเซ็ต</button>
+              <button class="ov-fapply" type="button" id="rep-fapply">นำไปใช้</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="ck-att-tiles">
+
+      <!-- Hero Tiles: ระดับพนักงาน -->
+      <div class="ck-att-tiles rep-employee-only">
         <div class="ck-att-tile" style="border-top:3px solid #1e70bf;">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle in" style="transform:none;"><svg><use href="#users"/></svg></span>
-              <span class="ck-att-label">ตรวจสอบข้อมูลพนักงาน</span>
+              <span class="ck-att-circle in" style="transform:none;"><svg><use href="#check"/></svg></span>
+              <span class="ck-att-label">คำขอทั้งหมด</span>
             </div>
-            <span class="ck-att-pill green">✓ ครบ 100%</span>
+            <span class="ck-att-pill green">✓ 87.50%</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#1e70bf !important;;text-align:center;">103 / 103 คน</strong>
+            <strong class="ck-att-time" id="rep-emp-hero-total" style="color:#1e70bf !important;text-align:center;">อนุมัติ 7 / 8 รายการ</strong>
           </div>
         </div>
 
-        <div class="ck-att-tile" style="cursor:pointer;border-color:#059669;background:#f0fdf4;border-top:3px solid #059669;" onclick="alert('ดาวน์โหลดรายงาน Excel สำหรับ Payroll งวด 31/10/2569 เรียบร้อยแล้ว');">
+        <div class="ck-att-tile" style="border-top:3px solid #059669;">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle out" style="background:#059669;"><svg><use href="#file"/></svg></span>
-              <span class="ck-att-label">ส่งออกไฟล์ Payroll</span>
+              <span class="ck-att-circle out" style="background:#059669;"><svg><use href="#clock"/></svg></span>
+              <span class="ck-att-label">เข้าออกงาน</span>
             </div>
-            <span class="ck-att-pill green">คลิกส่งออกทันที</span>
+            <span class="ck-att-pill green" id="rep-emp-hero-clock-pill">ตรงเวลา 100%</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#059669 !important;;text-align:center;">Excel / PDF</strong>
+            <strong class="ck-att-time" id="rep-emp-hero-clock" style="color:#059669 !important;text-align:center;">198 / 200 วัน</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Tiles: ระดับหัวหน้า (ข้อมูลของทีมวันนี้: ซ้าย สถานะทีม / ขวา ลงเวลาวันนี้) -->
+      <div class="ck-att-tiles rep-manager-only">
+        <div class="ck-att-tile" style="border-top:3px solid #1e70bf;">
+          <div class="ck-att-topline">
+            <div class="ck-att-head-left">
+              <span class="ck-att-circle in" style="background:#1e70bf;transform:none;"><svg><use href="#users"/></svg></span>
+              <span class="ck-att-label">สถานะทีม</span>
+            </div>
+            <span class="ck-att-pill" id="rep-mgr-hero-team-pill" style="background:#eff6ff;color:#1e70bf;border-color:#bfdbfe;">ลาวันนี้ 6 คน</span>
+          </div>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" id="rep-mgr-hero-team" style="color:#1e70bf !important;text-align:center;">94 / 103 คน</strong>
+          </div>
+        </div>
+
+        <div class="ck-att-tile" style="border-top:3px solid #059669;">
+          <div class="ck-att-topline">
+            <div class="ck-att-head-left">
+              <span class="ck-att-circle out" style="background:#059669;"><svg><use href="#clock"/></svg></span>
+              <span class="ck-att-label">ลงเวลาวันนี้</span>
+            </div>
+            <span class="ck-att-pill green" id="rep-mgr-hero-clock-pill">ครบ 94.2%</span>
+          </div>
+          <div class="ck-att-bottomline" style="text-align:center;">
+            <strong class="ck-att-time" id="rep-mgr-hero-clock" style="color:#059669 !important;text-align:center;">97 / 103 คน</strong>
           </div>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
-  <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#1e70bf;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#users"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">พนักงานทั้งหมด</b>
+  <!-- ==========================================
+       REPORTS VIEW 1: ระดับพนักงาน (อนุมัติแล้วเท่านั้น)
+       ========================================== -->
+  <div class="rep-employee-only" id="rep-employee-view" style="display:flex;flex-direction:column;gap:18px;">
+    <!-- Row 2: 5 KPI Cards (เพิ่มลงเวลาเข้า-ออกงาน + แยกข้อมูลซ้าย-ขวาไม่ซ้ำกัน) -->
+    <div class="rep-kpi-5grid">
+      <!-- 1. ชั่วโมงทำงาน -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #16a34a;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#dcfce7;color:#16a34a;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ชั่วโมงทำงาน</b>
+          </div>
+          <span id="rep-kpi-clock-cnt" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">ตรงเวลา 100%</span>
         </div>
-        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">100% Active</span>
-      </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">103 คน</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ปฏิบัติงานปกติทุกคน</span>
-      </div>
-    </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#chart"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">อัตราการลงเวลา</b>
-        </div>
-        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">↑ 1.5%</span>
-      </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">98.6%</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">สูงกว่าเป้า 98.0%</span>
-      </div>
-    </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ชั่วโมง OT รวม</b>
-        </div>
-        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">ต.ค. 2569</span>
-      </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">482.5 ชม.</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">รวมทุกแผนก 103 คน</span>
-      </div>
-    </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#heart"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">เบิกสวัสดิการรวม</b>
-        </div>
-        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">28 รายการ</span>
-      </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#059669;letter-spacing:-0.4px;line-height:1.1;">฿48,500</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">อนุมัติโอนจ่ายครบแล้ว</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Click-Only Filter Card (แทนการดรอปดาวน์ทั้งหมด) -->
-  <div class="pg-card" style="padding:16px 20px;">
-    <div class="pg-form" style="gap:12px;">
-      <div>
-        <div style="font-size:12.5px;font-weight:800;margin-bottom:6px;">ประเภทรายงาน:</div>
-        <div class="pg-radio-group">
-          <button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">สรุปเวลาทำงาน-ขาด-ลา-มาสาย</button>
-          <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">รายงานชั่วโมง OT สำหรับ Payroll</button>
-          <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">รายงานโควตาวันลาคงเหลือ</button>
-          <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">รายงานเบิกสวัสดิการค่ารักษา</button>
-        </div>
-      </div>
-      <div class="pg-form-row2">
-        <div>
-          <div style="font-size:12.5px;font-weight:800;margin-bottom:6px;">รอบเดือน:</div>
-          <div class="pg-radio-group">
-            <button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ต.ค. 2569</button>
-            <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ก.ย. 2569</button>
-            <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ส.ค. 2569</button>
-            <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ทั้งปี 2569</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">วันทำงาน</div>
+            <strong id="rep-kpi-clock-days" style="font-size:16.5px;font-weight:800;color:#16a34a;line-height:1.2;white-space:nowrap;">3 วัน</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">ชั่วโมงรวม</div>
+            <strong id="rep-kpi-clock-hrs" style="font-size:16.5px;font-weight:800;color:#0b3b68;line-height:1.2;white-space:nowrap;">22.5 ชม.</strong>
           </div>
         </div>
-        <div>
-          <div style="font-size:12.5px;font-weight:800;margin-bottom:6px;">แผนก:</div>
-          <div class="pg-radio-group">
-            <button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ทุกแผนก</button>
-            <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ฝ่ายบัญชี</button>
-            <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ฝ่ายการเงิน</button>
-            <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ฝ่ายบุคคล</button>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;font-weight:700;color:#16a34a;white-space:nowrap;">เฉลี่ย 7.5 ชม./วัน</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div id="rep-kpi-clock-bar" style="width:100%;height:100%;background:#16a34a;border-radius:99px;"></div>
           </div>
         </div>
       </div>
+
+      <!-- 2. วันลาที่ใช้ไป -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#e0f2fe;color:#1e70bf;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#calendar"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">วันลาที่ใช้ไป</b>
+          </div>
+          <span id="rep-kpi-leave-cnt" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 23.00 วัน</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">ใช้ไปแล้ว</div>
+            <strong id="rep-kpi-leave-val" style="font-size:16.5px;font-weight:800;color:#1e70bf;line-height:1.2;white-space:nowrap;">1.25 วัน</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">คงเหลือ</div>
+            <strong id="rep-kpi-leave-rem" style="font-size:16.5px;font-weight:800;color:#0b3b68;line-height:1.2;white-space:nowrap;">21.75 วัน</strong>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span id="rep-kpi-leave-pct" style="font-size:11px;font-weight:700;color:#1e70bf;white-space:nowrap;">ใช้ไป 5.4%</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div id="rep-kpi-leave-bar" style="width:5.4%;height:100%;background:#1e70bf;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. เบิกล่วงเวลา (OT) -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#f3e8ff;color:#7c3aed;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">เบิกล่วงเวลา (OT)</b>
+          </div>
+          <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">✓ อนุมัติ</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">ชั่วโมง OT</div>
+            <strong id="rep-kpi-ot-val" style="font-size:16.5px;font-weight:800;color:#7c3aed;line-height:1.2;white-space:nowrap;">6.00 ชม.</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">จำนวนครั้ง</div>
+            <strong id="rep-kpi-ot-cnt" style="font-size:16.5px;font-weight:800;color:#5b21b6;line-height:1.2;white-space:nowrap;">1 ครั้ง</strong>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;font-weight:700;color:#7c3aed;white-space:nowrap;">อนุมัติจ่าย 100%</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div id="rep-kpi-ot-bar" style="width:100%;height:100%;background:#7c3aed;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. แก้ไขลงเวลา -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#e0f2fe;color:#0284c7;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">แก้ไขเวลา</b>
+          </div>
+          <span id="rep-kpi-att-cnt" style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">✓ อนุมัติ</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">แก้ไขเวลาเข้า</div>
+            <strong id="rep-kpi-att-in" style="font-size:16.5px;font-weight:800;color:#0284c7;line-height:1.2;white-space:nowrap;">1 ครั้ง</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">แก้ไขเวลาออก</div>
+            <strong id="rep-kpi-att-out" style="font-size:16.5px;font-weight:800;color:#64748b;line-height:1.2;white-space:nowrap;">0 ครั้ง</strong>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;font-weight:700;color:#0284c7;white-space:nowrap;">สำเร็จ 100%</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div id="rep-kpi-att-bar" style="width:100%;height:100%;background:#0284c7;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. เบิกสวัสดิการ OPD -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#d1fae5;color:#059669;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#heart"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">สวัสดิการ OPD</b>
+          </div>
+          <span id="rep-kpi-ben-cnt" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">3 รายการ</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">เบิกไปแล้ว</div>
+            <strong id="rep-kpi-ben-val" style="font-size:16.5px;font-weight:800;color:#059669;line-height:1.2;white-space:nowrap;">฿2,500</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">คงเหลือ</div>
+            <strong id="rep-kpi-ben-rem" style="font-size:16.5px;font-weight:800;color:#047857;line-height:1.2;white-space:nowrap;">฿7,500</strong>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span id="rep-kpi-ben-pct" style="font-size:11px;font-weight:700;color:#059669;white-space:nowrap;">ใช้ไป 25.0% (฿10,000)</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div id="rep-kpi-ben-bar" style="width:25%;height:100%;background:#059669;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: ประเภทรายงาน (ทั้งหมด / ลางาน / เบิกล่วงเวลา / ลงเวลา / สวัสดิการ) -->
+    <div class="pg-card" style="padding:14px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+          <span style="font-size:13px;font-weight:800;color:#0f172a;">ประเภทรายงาน:</span>
+          <div class="pg-radio-group" id="rep-emp-type-group">
+            <button type="button" class="pg-radio-btn active" data-rep-type="all">ทั้งหมด (<span data-cnt="all">7</span>)</button>
+            <button type="button" class="pg-radio-btn" data-rep-type="leave">ลางาน (<span data-cnt="leave">2</span>)</button>
+            <button type="button" class="pg-radio-btn" data-rep-type="ot">เบิกล่วงเวลา (<span data-cnt="ot">1</span>)</button>
+            <button type="button" class="pg-radio-btn" data-rep-type="attendance">แก้ไขเวลา (<span data-cnt="attendance">1</span>)</button>
+            <button type="button" class="pg-radio-btn" data-rep-type="benefits">สวัสดิการ (<span data-cnt="benefits">3</span>)</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span id="rep-active-period-badge" style="font-size:12px;font-weight:700;color:#1e70bf;background:#eff6ff;border:1px solid #bfdbfe;padding:4px 10px;border-radius:8px;">ช่วงเวลา: ปี 2569 · ทั้งปี</span>
+          <button type="button" onclick="window.resetReportFilters && window.resetReportFilters()" title="รีเซ็ตตัวกรองรายงาน" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#475569;background:#f8fafc;border:1px solid #cbd5e1;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <span>รีเซ็ต</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 4: ตารางประวัติที่ได้รับอนุมัติแล้ว (รูปแบบเดียวกับหน้าอื่นๆ) -->
+    <div class="pg-card">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ประวัติรายการของฉันที่ได้รับอนุมัติแล้ว</h3>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button type="button" onclick="window.exportReportTable && window.exportReportTable('rep-emp-table', 'excel', 'ประวัติรายการของฉันที่ได้รับอนุมัติแล้ว')" title="ส่งออก Excel จากข้อมูลที่กรองอยู่" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;border:1px solid #bbf7d0;background:#f0fdf4;color:#15803d;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13l6 6"/><path d="M15 13l-6 6"/></svg>
+            <span>Excel</span>
+          </button>
+          <button type="button" onclick="window.exportReportTable && window.exportReportTable('rep-emp-table', 'pdf', 'ประวัติรายการของฉันที่ได้รับอนุมัติแล้ว')" title="ส่งออก PDF จากข้อมูลที่กรองอยู่" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+            <span>PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pg-table-responsive">
+        <table class="pg-table" id="rep-emp-table" style="width:100%;text-align:center;">
+          <thead>
+            <tr>
+              <th style="width:12%;text-align:center;">รหัสคำขอ</th>
+              <th style="width:14%;text-align:center;">พนักงาน</th>
+              <th style="width:11%;text-align:center;">ประเภท</th>
+              <th style="width:14%;text-align:center;">วันที่มีผล</th>
+              <th style="width:11%;text-align:center;">จำนวน / ยอด</th>
+              <th style="width:18%;text-align:center;">รายละเอียด</th>
+              <th style="width:11%;text-align:center;">สถานะ</th>
+              <th style="width:9%;text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="rep-emp-tbody">
+            <!-- Rendered by JS from approved personal history -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Row 5: การ์ดแยกต่างหาก สำหรับบันทึกเวลาเข้า-ออกงาน -->
+    <div class="pg-card" id="rep-clock-card">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#059669"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> บันทึกเวลาเข้า-ออกงาน</h3>
+          <span id="rep-clock-count-badge" style="font-size:12px;font-weight:700;color:#059669;background:#ecfdf5;border:1px solid #a7f3d0;padding:4px 10px;border-radius:8px;">3 วันทำงาน</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button type="button" onclick="window.exportReportTable && window.exportReportTable('rep-clock-table', 'excel', 'บันทึกเวลาเข้า-ออกงาน')" title="ส่งออก Excel จากข้อมูลที่กรองอยู่" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;border:1px solid #bbf7d0;background:#f0fdf4;color:#15803d;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13l6 6"/><path d="M15 13l-6 6"/></svg>
+            <span>Excel</span>
+          </button>
+          <button type="button" onclick="window.exportReportTable && window.exportReportTable('rep-clock-table', 'pdf', 'บันทึกเวลาเข้า-ออกงาน')" title="ส่งออก PDF จากข้อมูลที่กรองอยู่" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+            <span>PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pg-table-responsive">
+        <table class="pg-table" id="rep-clock-table" style="width:100%;text-align:center;">
+          <thead>
+            <tr>
+              <th style="width:13%;text-align:center;">รหัสบันทึก</th>
+              <th style="width:15%;text-align:center;">พนักงาน</th>
+              <th style="width:12%;text-align:center;">วันที่</th>
+              <th style="width:13%;text-align:center;">เวลาเข้างาน</th>
+              <th style="width:13%;text-align:center;">เวลาออกงาน</th>
+              <th style="width:11%;text-align:center;">ชั่วโมงทำงาน</th>
+              <th style="width:14%;text-align:center;">สถานที่ / หมายเหตุ</th>
+              <th style="width:9%;text-align:center;">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="rep-clock-tbody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- Table Card -->
-  <div class="pg-card">
-    <div class="pg-card-header">
-      <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ตารางสรุปเวลาทำงานและสถิติรายบุคคล</h3>
+  <!-- ==========================================
+       REPORTS VIEW 2: ระดับหัวหน้า (รูปแบบเดียวกับหน้าพนักงาน + KPI ตามแดชบอร์ด ไม่มีเข้าออกงาน)
+       ========================================== -->
+  <div class="rep-manager-only" id="rep-manager-view" style="display:flex;flex-direction:column;gap:18px;">
+
+    <!-- Row 2: 5 KPI Cards (สถิติสะสมของทีมและตัวเอง: สีไม่ซ้ำทั้ง 7 การ์ด) -->
+    <div class="rep-kpi-5grid">
+      <!-- 1. คำขอทั้งหมด (Indigo) -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #4f46e5;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#eef2ff;color:#4f46e5;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">คำขอทั้งหมด</b>
+          </div>
+          <span style="background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">✓ 87.5%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">อนุมัติแล้ว</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#4f46e5;line-height:1.2;white-space:nowrap;">56 รายการ</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">รออนุมัติ</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#d97706;line-height:1.2;white-space:nowrap;">8 รายการ</strong>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;font-weight:700;color:#4f46e5;white-space:nowrap;">รวม 64 รายการ</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div style="width:87.5%;height:100%;background:#4f46e5;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. การลงเวลาทีม (Sky) -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#e0f2fe;color:#0284c7;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#chart"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">การลงเวลาทีม</b>
+          </div>
+          <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สะสมปี 2569</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">ตรงเวลา</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#0284c7;line-height:1.2;white-space:nowrap;">94.2%</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">มาสาย/ขาด</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#dc2626;line-height:1.2;white-space:nowrap;">5.8%</strong>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;font-weight:700;color:#0284c7;white-space:nowrap;">เฉลี่ย 7.8 ชม./วัน</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div style="width:94.2%;height:100%;background:#0284c7;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. วันลาที่ใช้ไป (Amber - ข้อมูลเหมือนพนักงาน) -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #d97706;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#fef3c7;color:#d97706;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#calendar"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">วันลาที่ใช้ไป</b>
+          </div>
+          <span style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 23.00 วัน</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">ใช้ไปแล้ว</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#d97706;line-height:1.2;white-space:nowrap;">1.25 วัน</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">คงเหลือ</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#0b3b68;line-height:1.2;white-space:nowrap;">21.75 วัน</strong>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;font-weight:700;color:#d97706;white-space:nowrap;">ใช้ไป 5.4%</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div style="width:5.4%;height:100%;background:#d97706;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. เบิกล่วงเวลา (OT) (Purple) -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#f3e8ff;color:#7c3aed;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">เบิกล่วงเวลา (OT)</b>
+          </div>
+          <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">42 คน</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">ชั่วโมง OT</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#7c3aed;line-height:1.2;white-space:nowrap;">482.5 ชม.</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">จำนวนครั้ง</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#5b21b6;line-height:1.2;white-space:nowrap;">42 ครั้ง</strong>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;font-weight:700;color:#7c3aed;white-space:nowrap;">อนุมัติจ่าย 100%</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div style="width:100%;height:100%;background:#7c3aed;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. สวัสดิการ OPD (Teal) -->
+      <div class="ck-pers-card" style="padding:14px 15px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0d9488;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#ccfbf1;color:#0d9488;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#heart"/></svg></span>
+            <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">สวัสดิการ OPD</b>
+          </div>
+          <span style="background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">28 รายการ</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+          <div style="border-right:1px solid #cbd5e1;padding-right:8px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">เบิกไปแล้ว</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#0d9488;line-height:1.2;white-space:nowrap;">฿48,500</strong>
+          </div>
+          <div style="padding-left:10px;">
+            <div style="font-size:11px;font-weight:600;color:#64748b;">คงเหลือ</div>
+            <strong style="font-size:16.5px;font-weight:800;color:#0f766e;line-height:1.2;white-space:nowrap;">฿151,500</strong>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;font-weight:700;color:#0d9488;white-space:nowrap;">ใช้ไป 24.3%</span>
+          <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div style="width:24.3%;height:100%;background:#0d9488;border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="pg-table-responsive">
-      <table class="pg-table">
-        <thead>
-          <tr>
-            <th>รหัสพนักงาน</th>
-            <th>ชื่อ - นามสกุล</th>
-            <th>แผนก</th>
-            <th>วันทำงานปกติ</th>
-            <th>ลาพักร้อน (คงเหลือ)</th>
-            <th>ลาป่วย (คงเหลือ)</th>
-            <th>ลากิจ (คงเหลือ)</th>
-            <th>OT สะสม</th>
-            <th>สถานะ Payroll</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="ck-clickable-row selected">
-            <td><strong>CK-2024-0089</strong></td>
-            <td><strong>คุณภาณุพันธุ์ ใจดี</strong></td>
-            <td>ฝ่ายทรัพยากรบุคคล</td>
-            <td>22 วัน</td>
-            <td>ใช้ 3 วัน (เหลือ 12)</td>
-            <td>ใช้ 1 วัน (เหลือ 4)</td>
-            <td>ใช้ 1 วัน (เหลือ 2)</td>
-            <td><strong>42.5 ชม.</strong></td>
-            <td><span class="pg-badge pg-badge-success">✓ พร้อมจ่าย Payroll</span></td>
-          </tr>
-          <tr class="ck-clickable-row">
-            <td><strong>CK-2023-0042</strong></td>
-            <td><strong>คุณสมชาย สายเสมอ</strong></td>
-            <td>ฝ่ายบัญชีและการเงิน</td>
-            <td>22 วัน</td>
-            <td>ใช้ 2 วัน (เหลือ 13)</td>
-            <td>ใช้ 0 วัน (เหลือ 5)</td>
-            <td>ใช้ 0 วัน (เหลือ 3)</td>
-            <td><strong>38.0 ชม.</strong></td>
-            <td><span class="pg-badge pg-badge-success">✓ พร้อมจ่าย Payroll</span></td>
-          </tr>
-          <tr class="ck-clickable-row">
-            <td><strong>CK-2023-0055</strong></td>
-            <td><strong>คุณวรรณา สดใส</strong></td>
-            <td>ฝ่ายการเงินและสินเชื่อ</td>
-            <td>22 วัน</td>
-            <td>ใช้ 4 วัน (เหลือ 11)</td>
-            <td>ใช้ 1 วัน (เหลือ 4)</td>
-            <td>ใช้ 0.25 วัน (เหลือ 2.75)</td>
-            <td><strong>24.5 ชม.</strong></td>
-            <td><span class="pg-badge pg-badge-success">✓ พร้อมจ่าย Payroll</span></td>
-          </tr>
-          <tr class="ck-clickable-row">
-            <td><strong>CK-2022-0012</strong></td>
-            <td><strong>คุณกานดา มาดี</strong></td>
-            <td>ฝ่ายบริหารงานกลาง</td>
-            <td>22 วัน</td>
-            <td>ใช้ 1 วัน (เหลือ 14)</td>
-            <td>ใช้ 1 วัน (เหลือ 4)</td>
-            <td>ใช้ 0 วัน (เหลือ 3)</td>
-            <td><strong>15.0 ชม.</strong></td>
-            <td><span class="pg-badge pg-badge-success">✓ พร้อมจ่าย Payroll</span></td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Row 3: ประเภทรายงาน (เหมือนของพนักงาน: ไม่มีกรอบแผนก) -->
+    <div class="pg-card" style="padding:14px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+          <span style="font-size:13px;font-weight:800;color:#0f172a;white-space:nowrap;">ประเภทรายงาน:</span>
+          <div class="pg-radio-group" id="rep-mgr-type-group">
+            <button type="button" class="pg-radio-btn active" style="white-space:nowrap;" data-mgr-cat="all" onclick="window.setMgrReportCat('all',this)">ทั้งหมด (<span data-mgr-cnt="all">8</span>)</button>
+            <button type="button" class="pg-radio-btn" style="white-space:nowrap;" data-mgr-cat="leave" onclick="window.setMgrReportCat('leave',this)">ลางาน (<span data-mgr-cnt="leave">3</span>)</button>
+            <button type="button" class="pg-radio-btn" style="white-space:nowrap;" data-mgr-cat="ot" onclick="window.setMgrReportCat('ot',this)">เบิกล่วงเวลา (<span data-mgr-cnt="ot">2</span>)</button>
+            <button type="button" class="pg-radio-btn" style="white-space:nowrap;" data-mgr-cat="attendance" onclick="window.setMgrReportCat('attendance',this)">แก้ไขเวลา (<span data-mgr-cnt="attendance">1</span>)</button>
+            <button type="button" class="pg-radio-btn" style="white-space:nowrap;" data-mgr-cat="benefits" onclick="window.setMgrReportCat('benefits',this)">สวัสดิการ (<span data-mgr-cnt="benefits">2</span>)</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span id="rep-mgr-active-period-badge" style="font-size:12px;font-weight:700;color:#1e70bf;background:#eff6ff;border:1px solid #bfdbfe;padding:4px 10px;border-radius:8px;">ช่วงเวลา: ปี 2569 · ทั้งปี</span>
+          <button type="button" onclick="window.resetReportFilters && window.resetReportFilters()" title="รีเซ็ตตัวกรองรายงาน" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#475569;background:#f8fafc;border:1px solid #cbd5e1;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <span>รีเซ็ต</span>
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <!-- Row 4: ตารางประวัติรายการ (เหมือนของพนักงาน + กรองตามชุดกรองข้อมูลด้านบน) -->
+    <div class="pg-card">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ประวัติรายการ</h3>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div class="ck-history-filters" id="rep-mgr-status-filters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <button type="button" class="pg-filter-pill active" data-mgr-status="all" onclick="window.setMgrReportStatus && window.setMgrReportStatus('all', this)">ทั้งหมด (<span data-mgr-st-cnt="all">11</span>)</button>
+            <button type="button" class="pg-filter-pill" data-mgr-status="pending" onclick="window.setMgrReportStatus && window.setMgrReportStatus('pending', this)">⏳ รออนุมัติ (<span data-mgr-st-cnt="pending">2</span>)</button>
+            <button type="button" class="pg-filter-pill" data-mgr-status="approved" onclick="window.setMgrReportStatus && window.setMgrReportStatus('approved', this)">✓ อนุมัติแล้ว (<span data-mgr-st-cnt="approved">8</span>)</button>
+            <button type="button" class="pg-filter-pill" data-mgr-status="rejected" onclick="window.setMgrReportStatus && window.setMgrReportStatus('rejected', this)">✕ ไม่อนุมัติ (<span data-mgr-st-cnt="rejected">1</span>)</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button type="button" onclick="window.exportReportTable && window.exportReportTable('rep-mgr-table', 'excel', 'ประวัติรายการ')" title="ส่งออก Excel จากข้อมูลที่กรองอยู่" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;border:1px solid #bbf7d0;background:#f0fdf4;color:#15803d;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13l6 6"/><path d="M15 13l-6 6"/></svg>
+              <span>Excel</span>
+            </button>
+            <button type="button" onclick="window.exportReportTable && window.exportReportTable('rep-mgr-table', 'pdf', 'ประวัติรายการ')" title="ส่งออก PDF จากข้อมูลที่กรองอยู่" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+              <span>PDF</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pg-table-responsive">
+        <table class="pg-table" id="rep-mgr-table" style="width:100%;text-align:center;">
+          <thead>
+            <tr>
+              <th style="width:12%;text-align:center;">รหัสคำขอ</th>
+              <th style="width:15%;text-align:center;">พนักงาน</th>
+              <th style="width:11%;text-align:center;">ประเภท</th>
+              <th style="width:13%;text-align:center;">วันที่มีผล</th>
+              <th style="width:11%;text-align:center;">จำนวน / ยอด</th>
+              <th style="width:18%;text-align:center;">รายละเอียด</th>
+              <th style="width:11%;text-align:center;">สถานะ</th>
+              <th style="width:9%;text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="rep-mgr-tbody">
+            <!-- Rendered dynamically by renderManagerReport() -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /.rep-manager-only -->
 </main>
 
 
@@ -8696,6 +9455,33 @@ main, .page-view, .settings-page {
 </main>
 
 <!-- Centered Floating Modal Dialog for Request Details & 3-Level Approval Chain (ดีไซน์ประยุกต์ใหม่ตามตัวอย่าง: 2 คอลัมน์, สรุปการลาประจำปี 3 การ์ด, ไฟล์แนบ, ขั้นตอนการอนุมัติ Stepper, ตารางรายละเอียดการอนุมัติ) -->
+<div id="appr-action-modal" class="ck-modal-backdrop" style="display:none;z-index:1060;" onclick="if(event.target===this)window.closeApprovalActionModal()">
+  <div class="ck-modal" style="max-width:480px;width:92%;padding:0;overflow:hidden;border-radius:16px;">
+    <div id="appr-action-modal-head" style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;background:#f0fdf4;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="appr-action-modal-icon" style="width:34px;height:34px;border-radius:10px;background:#059669;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;">✓</span>
+        <div>
+          <div id="appr-action-modal-title" style="font-size:15px;font-weight:800;color:#0f172a;">ยืนยันการอนุมัติคำขอ</div>
+          <div id="appr-action-modal-sub" style="font-size:12px;font-weight:600;color:#475569;">LEV-0012 · คุณจิรัญญา สว่างจิต</div>
+        </div>
+      </div>
+      <button type="button" onclick="window.closeApprovalActionModal()" style="border:none;background:transparent;font-size:18px;color:#64748b;cursor:pointer;padding:4px 8px;">✕</button>
+    </div>
+    <div style="padding:18px 20px;background:#ffffff;display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label for="appr-action-note" style="display:block;font-size:12.5px;font-weight:700;color:#0f172a;margin-bottom:6px;">
+          รายละเอียดการพิจารณา <span id="appr-action-req-flag" style="color:#dc2626;display:none;">*</span>
+        </label>
+        <textarea id="appr-action-note" rows="4" placeholder="กรอกรายละเอียดหรือความคิดเห็นสำหรับผู้ยื่นคำขอ..." style="width:100%;box-sizing:border-box;border:1.5px solid #cbd5e1;border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13px;color:#0f172a;resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:4px;">
+        <button type="button" onclick="window.closeApprovalActionModal()" style="padding:8px 16px;border-radius:9px;border:1px solid #cbd5e1;background:#f8fafc;color:#475569;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">ยกเลิก</button>
+        <button type="button" id="appr-action-confirm-btn" onclick="window.submitApprovalAction()" style="padding:8px 18px;border-radius:9px;border:1px solid #059669;background:#059669;color:#ffffff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">ยืนยันอนุมัติ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="ck-detail-modal" class="ck-modal-backdrop" style="display:none;" onclick="if(event.target===this)window.closeDetailModal()">
   <div class="ck-modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-detail-title">
     <div class="ck-modal-head" style="padding:18px 24px;border-bottom:1px solid #f1f5f9;background:#ffffff;display:flex;justify-content:space-between;align-items:center;">
@@ -11368,31 +12154,31 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
         {
           title: 'รายละเอียดคำขอเบิก OPD: MED-2569-003 (ยอดเบิก ฿850)',
           badgeClass: 'pg-badge pg-badge-success',
-          badgeText: '✓ โอนเงินแล้ว (ครบ 3/3)',
+          badgeText: '✓ อนุมัติ (ครบ 3/3)',
           steps: [
             { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 28/10/2569 14:10 น.', reason: 'อนุมัติ ตรวจสอบข้อมูลการเข้ารับการรักษาถูกต้อง' },
             { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 29/10/2569 09:30 น.', reason: 'อนุมัติ ใบเสร็จ รพ.พญาไท 2 ยอด ฿850 ถูกต้องตามระเบียบ OPD' },
-            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ โอนเงินแล้ว · 29/10/2569 15:45 น.', reason: 'อนุมัติและโอนเงินเข้าบัญชีธนาคารไทยพาณิชย์ (SCB) เรียบร้อย' }
+            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติ · 29/10/2569 15:45 น.', reason: 'อนุมัติและโอนเงินเข้าบัญชีธนาคารไทยพาณิชย์ (SCB) เรียบร้อย' }
           ]
         },
         {
           title: 'รายละเอียดคำขอเบิก OPD: MED-2569-002 (ใบเสร็จ ฿1,400 → เบิก ฿1,000)',
           badgeClass: 'pg-badge pg-badge-success',
-          badgeText: '✓ โอนเงินแล้ว (ครบ 3/3)',
+          badgeText: '✓ อนุมัติ (ครบ 3/3)',
           steps: [
             { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 10/09/2569 16:00 น.', reason: 'อนุมัติ ตามสิทธิ์ค่ารักษา OPD (ปรับเบิกสูงสุด ฿1,000/ครั้ง)' },
             { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 11/09/2569 10:20 น.', reason: 'อนุมัติ ตรวจสอบใบเสร็จ รพ.กรุงเทพ ฿1,400 ถูกต้อง' },
-            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ โอนเงินแล้ว · 12/09/2569 14:00 น.', reason: 'อนุมัติและโอนเงินคืน ฿1,000 เข้าบัญชีพนักงานเรียบร้อยแล้ว' }
+            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติ · 12/09/2569 14:00 น.', reason: 'อนุมัติและโอนเงินคืน ฿1,000 เข้าบัญชีพนักงานเรียบร้อยแล้ว' }
           ]
         },
         {
           title: 'รายละเอียดคำขอเบิก OPD: MED-2569-001 (ยอดเบิก ฿650)',
           badgeClass: 'pg-badge pg-badge-success',
-          badgeText: '✓ โอนเงินแล้ว (ครบ 3/3)',
+          badgeText: '✓ อนุมัติ (ครบ 3/3)',
           steps: [
             { state: 'done', who: 'ระดับที่ 1: คุณสมศักดิ์ มั่นคง (ผจก.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 16/05/2569 13:15 น.', reason: 'อนุมัติ เห็นควรตามสิทธิ์ค่ารักษาพยาบาล OPD' },
             { state: 'done', who: 'ระดับที่ 2: คุณศิริพร วงศ์สวัสดิ์ (ผอ.ฝ่ายทรัพยากรบุคคล)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติแล้ว · 17/05/2569 09:50 น.', reason: 'อนุมัติ เอกสารใบเสร็จ รพ.วิภาวดี ฿650 ครบถ้วน' },
-            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ โอนเงินแล้ว · 18/05/2569 11:30 น.', reason: 'อนุมัติจ่ายเงินคืน ฿650 เข้าบัญชีเงินเดือน' }
+            { state: 'done', who: 'ระดับที่ 3: คุณจักรกฤษณ์ เอซ (กรรมการผู้จัดการ)', badgeClass: 'pg-badge pg-badge-success', badge: '✓ อนุมัติ · 18/05/2569 11:30 น.', reason: 'อนุมัติจ่ายเงินคืน ฿650 เข้าบัญชีเงินเดือน' }
           ]
         }
       ]
@@ -11793,6 +12579,1023 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
     });
 
     window.updateLeaveLiveQuota();
+  })();
+
+  // ==========================================
+  // หน้ารายงาน (#reports): ชุดกรองแดชบอร์ด + รายงานระดับพนักงาน (อนุมัติแล้วเท่านั้น)
+  // ==========================================
+  (function() {
+    var wrap = document.getElementById('rep-filter-wrap');
+    var btn = document.getElementById('rep-filter-btn');
+    var box = document.getElementById('rep-filter-box');
+    var labelEl = document.getElementById('rep-filter-label');
+    var periodBadge = document.getElementById('rep-active-period-badge');
+    if (!wrap || !btn || !box) return;
+
+    var approvedRecords = [
+      {
+        reqId: 'MED-2569-003',
+        dateStr: '28/10/2569',
+        useDate: '28/10/2569',
+        yearBE: 2569, month: 10, day: 28,
+        cat: 'benefits',
+        catLabel: 'ค่ารักษาพยาบาล OPD',
+        catStyle: 'background:#dcfce7;color:#15803d;',
+        detail: 'รพ.พญาไท 2 · ภูมิแพ้',
+        amountText: '฿850.00',
+        amountColor: '#059669',
+        benefitAmt: 850,
+        statusText: '✓ อนุมัติ',
+        hasAttachment: true,
+        modalOnclick: "window.openGenericModal && window.openGenericModal('ben', 1)"
+      },
+      {
+        reqId: 'TC-2569-008',
+        dateStr: '28/10/2569',
+        useDate: '28/10/2569',
+        yearBE: 2569, month: 10, day: 28,
+        cat: 'attendance',
+        catLabel: 'แก้ไขเวลาเข้า',
+        catStyle: 'background:#e0f2fe;color:#0369a1;',
+        detail: 'ยื่นเอกสารประกันสังคมพื้นที่ 3 ช่วงเช้า',
+        amountText: '<div><strong style="color:#1e70bf;">09:00:00</strong> <span style="color:#64748b;font-weight:600;">– 17:35:12 น.</span></div>',
+        amountColor: '#64748b',
+        attCount: 1,
+        statusText: '✓ อนุมัติ',
+        hasAttachment: false,
+        modalOnclick: "window.openGenericModal && window.openGenericModal('att', 0)"
+      },
+      {
+        reqId: 'OT-2569-018',
+        dateStr: '25/10/2569',
+        useDate: '25/10/2569<div style="font-size:11.5px;color:#64748b;margin-top:2px;">(09:00–16:00 น.)</div>',
+        yearBE: 2569, month: 10, day: 25,
+        cat: 'ot',
+        catLabel: 'OT 1.0 เท่า',
+        catStyle: 'background:#f3e8ff;color:#7c3aed;',
+        detail: 'จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาส 3',
+        amountText: '6.00 ชม.',
+        amountColor: '#7c3aed',
+        otHours: 6,
+        statusText: '✓ อนุมัติ',
+        hasAttachment: false,
+        modalOnclick: "window.openGenericModal && window.openGenericModal('ot', 1)"
+      },
+      {
+        reqId: 'LEV-2569-003',
+        dateStr: '20/10/2569',
+        useDate: '22/10/2569<div style="font-size:11.5px;color:#64748b;margin-top:2px;">(13:00–15:00 น.)</div>',
+        yearBE: 2569, month: 10, day: 20,
+        cat: 'leave',
+        catLabel: 'ลากิจ',
+        catStyle: 'background:#fef3c7;color:#b45309;',
+        detail: 'ติดต่อ สนง.ที่ดินเขตบางรัก',
+        amountText: '0.25 วัน',
+        amountColor: '#1e70bf',
+        leaveDays: 0.25,
+        statusText: '✓ อนุมัติ',
+        hasAttachment: false,
+        modalOnclick: "window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-003')"
+      },
+      {
+        reqId: 'LEV-2569-002',
+        dateStr: '15/10/2569',
+        useDate: '15/10/2569',
+        yearBE: 2569, month: 10, day: 15,
+        cat: 'leave',
+        catLabel: 'ลาป่วย',
+        catStyle: 'background:#fee2e2;color:#b91c1c;',
+        detail: 'ไข้หวัดใหญ่ (มีใบรับรองแพทย์)',
+        amountText: '1.00 วัน',
+        amountColor: '#1e70bf',
+        leaveDays: 1,
+        statusText: '✓ อนุมัติ',
+        hasAttachment: false,
+        modalOnclick: "window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-002')"
+      },
+      {
+        reqId: 'MED-2569-002',
+        dateStr: '10/09/2569',
+        useDate: '10/09/2569',
+        yearBE: 2569, month: 9, day: 10,
+        cat: 'benefits',
+        catLabel: 'ค่ารักษาพยาบาล OPD',
+        catStyle: 'background:#dcfce7;color:#15803d;',
+        detail: 'รพ.กรุงเทพ · ไมเกรน (ใบเสร็จ ฿1,400.00)',
+        amountText: '฿1,000.00',
+        amountColor: '#059669',
+        benefitAmt: 1000,
+        statusText: '✓ อนุมัติ',
+        hasAttachment: true,
+        modalOnclick: "window.openGenericModal && window.openGenericModal('ben', 2)"
+      },
+      {
+        reqId: 'MED-2569-001',
+        dateStr: '16/05/2569',
+        useDate: '16/05/2569',
+        yearBE: 2569, month: 5, day: 16,
+        cat: 'benefits',
+        catLabel: 'ค่ารักษาพยาบาล OPD',
+        catStyle: 'background:#dcfce7;color:#15803d;',
+        detail: 'รพ.วิภาวดี · อาหารเป็นพิษ',
+        amountText: '฿650.00',
+        amountColor: '#059669',
+        benefitAmt: 650,
+        statusText: '✓ อนุมัติ',
+        hasAttachment: true,
+        modalOnclick: "window.openGenericModal && window.openGenericModal('ben', 3)"
+      }
+    ];
+
+    var monthNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    var fullMonthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+
+    var state = {
+      yearBE: 2569,
+      period: 'all', // 'all' | 'this-month' | 'prev-month' | 'custom'
+      customMode: 'month', // 'month' | 'date'
+      customMonthYearBE: 2569,
+      customMonth: 10,
+      calYearBE: 2569,
+      calMonth: 10, // October 2569
+      rangeStart: null, // YYYYMMDD number
+      rangeEnd: null,
+      catFilter: 'all'
+    };
+
+    function toYmdNum(yBE, m, d) {
+      return yBE * 10000 + m * 100 + d;
+    }
+
+    function fmtNum(n) {
+      return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Open/Close filter dropdown
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var isOpen = box.classList.contains('open');
+      box.classList.toggle('open', !isOpen);
+      wrap.classList.toggle('open', !isOpen);
+    });
+    box.addEventListener('click', function(e) { e.stopPropagation(); });
+    document.addEventListener('click', function() {
+      box.classList.remove('open');
+      wrap.classList.remove('open');
+    });
+
+    // Year pills
+    var yearOpts = document.getElementById('rep-year-opts');
+    if (yearOpts) {
+      yearOpts.querySelectorAll('.ov-fopt').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+          yearOpts.querySelectorAll('.ov-fopt').forEach(function(s) { s.classList.remove('active'); });
+          opt.classList.add('active');
+          state.yearBE = parseInt(opt.getAttribute('data-year'), 10) || 2569;
+        });
+      });
+    }
+
+    // Period pills
+    var periodOpts = document.getElementById('rep-period-opts');
+    var customBox = document.getElementById('rep-custom-period-box');
+    var customBtn = document.getElementById('rep-period-custom-btn');
+    if (periodOpts && customBox) {
+      periodOpts.querySelectorAll('.ov-fopt').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+          periodOpts.querySelectorAll('.ov-fopt').forEach(function(s) { s.classList.remove('active'); });
+          opt.classList.add('active');
+          state.period = opt.getAttribute('data-period') || 'all';
+          customBox.style.display = (opt === customBtn) ? 'block' : 'none';
+        });
+      });
+    }
+
+    // Scope pills (Manager only - แสดงตัวเลือกแผนก / พนักงานเหมือนหน้าแดชบอร์ด)
+    var scopeOpts = document.getElementById('rep-scope-opts');
+    var scopeDeptField = document.getElementById('rep-scope-dept-field');
+    var scopeEmpField = document.getElementById('rep-scope-emp-field');
+    if (scopeOpts) {
+      scopeOpts.querySelectorAll('.ov-fopt').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+          scopeOpts.querySelectorAll('.ov-fopt').forEach(function(s) { s.classList.remove('active'); });
+          opt.classList.add('active');
+          var sc = opt.getAttribute('data-scope') || 'all';
+          if (scopeDeptField) scopeDeptField.style.display = (sc === 'dept') ? 'block' : 'none';
+          if (scopeEmpField) scopeEmpField.style.display = (sc === 'emp') ? 'block' : 'none';
+        });
+      });
+    }
+
+    // Picker type dropdown
+    var pickerTypeBtn = document.getElementById('rep-picker-type-btn');
+    var pickerMenu = document.getElementById('rep-picker-dropdown-menu');
+    var pickerTypeWrap = document.getElementById('rep-picker-type-wrap');
+    var currentTypeText = document.getElementById('rep-picker-current-type-text');
+    var monthPanel = document.getElementById('rep-month-picker-panel');
+    var datePanel = document.getElementById('rep-date-picker-panel');
+
+    if (pickerTypeBtn && pickerMenu) {
+      pickerTypeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var isOpen = pickerMenu.style.display === 'block';
+        pickerMenu.style.display = isOpen ? 'none' : 'block';
+        if (pickerTypeWrap) pickerTypeWrap.classList.toggle('open', !isOpen);
+      });
+      pickerMenu.querySelectorAll('.ov-picker-dropdown-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var t = item.getAttribute('data-type');
+          state.customMode = t;
+          pickerMenu.querySelectorAll('.ov-picker-dropdown-item').forEach(function(s) { s.classList.remove('active'); });
+          item.classList.add('active');
+          if (currentTypeText) currentTypeText.textContent = (t === 'month') ? 'เลือกเดือน' : 'กำหนดช่วงวันที่';
+          if (monthPanel) monthPanel.style.display = (t === 'month') ? 'block' : 'none';
+          if (datePanel) datePanel.style.display = (t === 'date') ? 'block' : 'none';
+          if (t === 'date') renderCalendar();
+          pickerMenu.style.display = 'none';
+          if (pickerTypeWrap) pickerTypeWrap.classList.remove('open');
+        });
+      });
+    }
+
+    // Month picker
+    var monthYearLabel = document.getElementById('rep-month-year-label');
+    var monthPrev = document.getElementById('rep-month-prev');
+    var monthNext = document.getElementById('rep-month-next');
+    if (monthPrev && monthNext && monthYearLabel) {
+      monthPrev.addEventListener('click', function(e) {
+        e.stopPropagation();
+        state.customMonthYearBE--;
+        monthYearLabel.textContent = state.customMonthYearBE;
+      });
+      monthNext.addEventListener('click', function(e) {
+        e.stopPropagation();
+        state.customMonthYearBE++;
+        monthYearLabel.textContent = state.customMonthYearBE;
+      });
+    }
+    box.querySelectorAll('.ov-m-btn').forEach(function(mBtn) {
+      mBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        box.querySelectorAll('.ov-m-btn').forEach(function(b) { b.classList.remove('active'); });
+        mBtn.classList.add('active');
+        state.customMonth = parseInt(mBtn.getAttribute('data-m'), 10) || 10;
+      });
+    });
+
+    // Date calendar picker
+    var dateMonthLabel = document.getElementById('rep-date-month-label');
+    var daysGrid = document.getElementById('rep-calendar-days-grid');
+    var datePrev = document.getElementById('rep-date-prev');
+    var dateNext = document.getElementById('rep-date-next');
+
+    function renderCalendar() {
+      if (!daysGrid || !dateMonthLabel) return;
+      dateMonthLabel.textContent = fullMonthNames[state.calMonth - 1] + ' ' + state.calYearBE;
+      var yearCE = state.calYearBE - 543;
+      var firstDay = new Date(yearCE, state.calMonth - 1, 1).getDay();
+      var offset = (firstDay === 0) ? 6 : firstDay - 1;
+      var daysInMonth = new Date(yearCE, state.calMonth, 0).getDate();
+      daysGrid.innerHTML = '';
+      for (var i = 0; i < offset; i++) {
+        var empty = document.createElement('span');
+        empty.className = 'ov-cal-day empty';
+        daysGrid.appendChild(empty);
+      }
+      for (var d = 1; d <= daysInMonth; d++) {
+        (function(dayNum) {
+          var el = document.createElement('button');
+          el.type = 'button';
+          el.className = 'ov-cal-day';
+          el.textContent = dayNum;
+          var ymd = toYmdNum(state.calYearBE, state.calMonth, dayNum);
+          if (state.rangeStart && state.rangeEnd) {
+            if (ymd === state.rangeStart || ymd === state.rangeEnd) el.classList.add('selected');
+            else if (ymd > state.rangeStart && ymd < state.rangeEnd) el.classList.add('in-range');
+          } else if (state.rangeStart && ymd === state.rangeStart) {
+            el.classList.add('selected');
+          }
+          el.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!state.rangeStart || (state.rangeStart && state.rangeEnd)) {
+              state.rangeStart = ymd;
+              state.rangeEnd = null;
+            } else if (ymd < state.rangeStart) {
+              state.rangeEnd = state.rangeStart;
+              state.rangeStart = ymd;
+            } else {
+              state.rangeEnd = ymd;
+            }
+            renderCalendar();
+          });
+          daysGrid.appendChild(el);
+        })(d);
+      }
+    }
+
+    if (datePrev && dateNext) {
+      datePrev.addEventListener('click', function(e) {
+        e.stopPropagation();
+        state.calMonth--;
+        if (state.calMonth < 1) { state.calMonth = 12; state.calYearBE--; }
+        renderCalendar();
+      });
+      dateNext.addEventListener('click', function(e) {
+        e.stopPropagation();
+        state.calMonth++;
+        if (state.calMonth > 12) { state.calMonth = 1; state.calYearBE++; }
+        renderCalendar();
+      });
+    }
+
+    function matchesPeriod(rec) {
+      if (state.period === 'all') return rec.yearBE === state.yearBE;
+      if (state.period === 'this-month') return rec.yearBE === state.yearBE && rec.month === 10;
+      if (state.period === 'prev-month') return rec.yearBE === state.yearBE && rec.month === 9;
+      if (state.period === 'custom') {
+        if (state.customMode === 'month') {
+          return rec.yearBE === state.customMonthYearBE && rec.month === state.customMonth;
+        }
+        var ymd = toYmdNum(rec.yearBE, rec.month, rec.day);
+        if (state.rangeStart && state.rangeEnd) return ymd >= state.rangeStart && ymd <= state.rangeEnd;
+        if (state.rangeStart) return ymd === state.rangeStart;
+        return rec.yearBE === state.yearBE;
+      }
+      return true;
+    }
+
+    function getPeriodDisplayLabel() {
+      if (state.period === 'all') return 'ปี ' + state.yearBE;
+      if (state.period === 'this-month') return 'ต.ค. ' + state.yearBE;
+      if (state.period === 'prev-month') return 'ก.ย. ' + state.yearBE;
+      if (state.period === 'custom') {
+        if (state.customMode === 'month') return monthNames[state.customMonth - 1] + ' ' + state.customMonthYearBE;
+        if (state.rangeStart) {
+          var sY = Math.floor(state.rangeStart / 10000);
+          var sM = Math.floor((state.rangeStart % 10000) / 100);
+          var sD = state.rangeStart % 100;
+          if (state.rangeEnd && state.rangeEnd !== state.rangeStart) {
+            var eM = Math.floor((state.rangeEnd % 10000) / 100);
+            var eD = state.rangeEnd % 100;
+            return sD + '/' + sM + ' – ' + eD + '/' + eM + '/' + sY;
+          }
+          return sD + ' ' + monthNames[sM - 1] + ' ' + sY;
+        }
+      }
+      return 'ปี ' + state.yearBE;
+    }
+
+    function renderEmployeeReport() {
+      var periodMatched = approvedRecords.filter(matchesPeriod);
+      var counts = { all: periodMatched.length, leave: 0, ot: 0, clock: 0, attendance: 0, benefits: 0 };
+      var leaveDays = 0, otHours = 0, attCount = 0, benefitAmt = 0;
+
+      periodMatched.forEach(function(r) {
+        counts[r.cat]++;
+        if (r.leaveDays) leaveDays += r.leaveDays;
+        if (r.otHours) otHours += r.otHours;
+        if (r.attCount) attCount += r.attCount;
+        if (r.benefitAmt) benefitAmt += r.benefitAmt;
+      });
+
+      var clockRecords = [
+        { id: 'CLK-2569-1027', dateStr: '27/10/2569', yearBE: 2569, month: 10, day: 27, timeIn: '08:55:12 น.', timeOut: '17:34:05 น.', hours: '7.5 ชม.', hoursNum: 7.5, detail: 'สำนักงานใหญ่ (GPS)', statusText: '✓ ปกติ' },
+        { id: 'CLK-2569-1026', dateStr: '26/10/2569', yearBE: 2569, month: 10, day: 26, timeIn: '08:58:40 น.', timeOut: '17:31:20 น.', hours: '7.5 ชม.', hoursNum: 7.5, detail: 'สำนักงานใหญ่ (GPS)', statusText: '✓ ปกติ' },
+        { id: 'CLK-2569-1021', dateStr: '21/10/2569', yearBE: 2569, month: 10, day: 21, timeIn: '08:52:09 น.', timeOut: '17:38:44 น.', hours: '7.5 ชม.', hoursNum: 7.5, detail: 'สำนักงานใหญ่ (สแกนนิ้ว)', statusText: '✓ ปกติ' }
+      ];
+      var clockRows = clockRecords.filter(matchesPeriod);
+      var clockHrs = clockRows.reduce(function(sum, c) { return sum + (c.hoursNum || 0); }, 0);
+
+      // Update Hero Tiles (2 การ์ดมุมขวาบน)
+      var heroTotal = document.getElementById('rep-emp-hero-total');
+      if (heroTotal) heroTotal.textContent = 'อนุมัติ ' + counts.all + ' / 8 รายการ';
+      var heroClock = document.getElementById('rep-emp-hero-clock');
+      var heroClockPill = document.getElementById('rep-emp-hero-clock-pill');
+      if (heroClock) heroClock.textContent = '198 / 200 วัน';
+      if (heroClockPill) heroClockPill.textContent = clockRows.length > 0 ? 'ตรงเวลา 100%' : 'ไม่มีบันทึก';
+
+      // KPI 1: ชั่วโมงทำงาน
+      var kClockDays = document.getElementById('rep-kpi-clock-days');
+      var kClockHrs = document.getElementById('rep-kpi-clock-hrs');
+      var kClockCnt = document.getElementById('rep-kpi-clock-cnt');
+      var kClockBar = document.getElementById('rep-kpi-clock-bar');
+      if (kClockDays) kClockDays.textContent = clockRows.length + ' วัน';
+      if (kClockHrs) kClockHrs.textContent = clockHrs.toFixed(1) + ' ชม.';
+      if (kClockCnt) kClockCnt.textContent = clockRows.length > 0 ? 'ตรงเวลา 100%' : '0 วัน';
+      if (kClockBar) kClockBar.style.width = clockRows.length > 0 ? '100%' : '0%';
+
+      // KPI 2: วันลาที่ใช้ไป (ใช้ไปแล้ว vs คงเหลือ)
+      var leaveRemain = Math.max(0, 23 - leaveDays);
+      var kLeaveVal = document.getElementById('rep-kpi-leave-val');
+      var kLeaveRem = document.getElementById('rep-kpi-leave-rem');
+      var kLeaveCnt = document.getElementById('rep-kpi-leave-cnt');
+      var kLeavePct = document.getElementById('rep-kpi-leave-pct');
+      var kLeaveBar = document.getElementById('rep-kpi-leave-bar');
+      if (kLeaveVal) kLeaveVal.textContent = fmtNum(leaveDays) + ' วัน';
+      if (kLeaveRem) kLeaveRem.textContent = fmtNum(leaveRemain) + ' วัน';
+      if (kLeaveCnt) kLeaveCnt.textContent = 'สิทธิ์ 23.00 วัน';
+      var leavePct = ((leaveDays / 23) * 100);
+      if (kLeavePct) kLeavePct.textContent = 'ใช้ไป ' + leavePct.toFixed(1) + '%';
+      if (kLeaveBar) kLeaveBar.style.width = Math.min(100, leavePct).toFixed(1) + '%';
+
+      // KPI 3: เบิกล่วงเวลา OT (ชั่วโมง OT vs จำนวนครั้ง)
+      var kOtVal = document.getElementById('rep-kpi-ot-val');
+      var kOtCnt = document.getElementById('rep-kpi-ot-cnt');
+      var kOtBar = document.getElementById('rep-kpi-ot-bar');
+      if (kOtVal) kOtVal.textContent = fmtNum(otHours) + ' ชม.';
+      if (kOtCnt) kOtCnt.textContent = counts.ot + ' ครั้ง';
+      if (kOtBar) kOtBar.style.width = otHours > 0 ? '100%' : '0%';
+
+      // KPI 4: แก้ไขเวลา (แก้ไขเวลาเข้า vs แก้ไขเวลาออก)
+      var attInCount = periodMatched.filter(function(r) { return r.cat === 'attendance' && r.catLabel.indexOf('เข้า') !== -1; }).length;
+      var attOutCount = Math.max(0, attCount - attInCount);
+      var kAttIn = document.getElementById('rep-kpi-att-in');
+      var kAttOut = document.getElementById('rep-kpi-att-out');
+      var kAttCnt = document.getElementById('rep-kpi-att-cnt');
+      var kAttBar = document.getElementById('rep-kpi-att-bar');
+      if (kAttIn) kAttIn.textContent = attInCount + ' ครั้ง';
+      if (kAttOut) kAttOut.textContent = attOutCount + ' ครั้ง';
+      if (kAttCnt) kAttCnt.textContent = attCount > 0 ? '✓ อนุมัติ' : '0 รายการ';
+      if (kAttBar) kAttBar.style.width = attCount > 0 ? '100%' : '0%';
+
+      // KPI 5: สวัสดิการ OPD (เบิกไปแล้ว vs คงเหลือ)
+      var benRemain = Math.max(0, 10000 - benefitAmt);
+      var kBenVal = document.getElementById('rep-kpi-ben-val');
+      var kBenRem = document.getElementById('rep-kpi-ben-rem');
+      var kBenCnt = document.getElementById('rep-kpi-ben-cnt');
+      var kBenPct = document.getElementById('rep-kpi-ben-pct');
+      var kBenBar = document.getElementById('rep-kpi-ben-bar');
+      if (kBenVal) kBenVal.textContent = '฿' + benefitAmt.toLocaleString('en-US');
+      if (kBenRem) kBenRem.textContent = '฿' + benRemain.toLocaleString('en-US');
+      if (kBenCnt) kBenCnt.textContent = counts.benefits + ' รายการ';
+      var benPct = ((benefitAmt / 10000) * 100);
+      if (kBenPct) kBenPct.textContent = 'ใช้ไป ' + benPct.toFixed(1) + '% (฿10,000)';
+      if (kBenBar) kBenBar.style.width = Math.min(100, benPct).toFixed(1) + '%';
+
+      // Update type button counts
+      var typeGroup = document.getElementById('rep-emp-type-group');
+      if (typeGroup) {
+        Object.keys(counts).forEach(function(k) {
+          var span = typeGroup.querySelector('[data-cnt="' + k + '"]');
+          if (span) span.textContent = counts[k];
+        });
+      }
+
+      // Filter table rows by selected report type
+      var rows = periodMatched.filter(function(r) {
+        return state.catFilter === 'all' || r.cat === state.catFilter;
+      });
+
+      var tbody = document.getElementById('rep-emp-tbody');
+      if (tbody) {
+        if (rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" data-empty-row="1" style="text-align:center;padding:28px;color:#64748b;font-weight:600;">ไม่พบรายการที่อนุมัติแล้วในช่วงเวลาที่เลือก</td></tr>';
+        } else {
+          tbody.innerHTML = rows.map(function(r) {
+            var attachBtn = r.hasAttachment
+              ? '<button type="button" class="ck-action-btn" title="ดูไฟล์แนบ" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;" onclick="event.stopPropagation();alert(\'เปิดไฟล์แนบของคำขอ ' + r.reqId + '\');">' +
+                  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>' +
+                '</button>'
+              : '';
+            return '<tr class="ck-clickable-row" onclick="' + r.modalOnclick + '">' +
+              '<td style="text-align:center;"><strong>' + r.reqId + '</strong><div style="font-size:11.5px;color:#64748b;margin-top:2px;">' + r.dateStr + '</div></td>' +
+              '<td style="text-align:center;"><div>คุณภาณุพันธุ์ ใจดี</div><div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div></td>' +
+              '<td style="text-align:center;"><span class="pg-badge" style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;' + r.catStyle + '">' + r.catLabel + '</span></td>' +
+              '<td style="text-align:center;">' + r.useDate + '</td>' +
+              '<td style="text-align:center;font-weight:800;color:' + r.amountColor + ';">' + r.amountText + '</td>' +
+              '<td style="text-align:center;"><div style="display:inline-block;max-width:190px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">' + r.detail + '</div></td>' +
+              '<td style="text-align:center;"><span class="pg-badge pg-badge-success" style="padding:4px 10px;">' + r.statusText + '</span></td>' +
+              '<td style="text-align:center;white-space:nowrap;"><div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">' +
+                attachBtn +
+                '<button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="event.stopPropagation();' + r.modalOnclick + '">' +
+                  '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+                '</button>' +
+              '</div></td>' +
+            '</tr>';
+          }).join('');
+        }
+        if (window.refreshTablePagination) window.refreshTablePagination('rep-emp-table', true);
+      }
+
+      // Render separate card: บันทึกเวลาเข้า-ออกงาน (ใช้ clockRows ที่กรองแล้ว)
+      var clockBadge = document.getElementById('rep-clock-count-badge');
+      if (clockBadge) clockBadge.textContent = clockRows.length + ' วันทำงาน';
+      var clockTbody = document.getElementById('rep-clock-tbody');
+      if (clockTbody) {
+        if (clockRows.length === 0) {
+          clockTbody.innerHTML = '<tr><td colspan="8" data-empty-row="1" style="text-align:center;padding:28px;color:#64748b;font-weight:600;">ไม่พบบันทึกเวลาเข้า-ออกงานในช่วงเวลาที่เลือก</td></tr>';
+        } else {
+          clockTbody.innerHTML = clockRows.map(function(c) {
+            return '<tr class="ck-clickable-row">' +
+              '<td style="text-align:center;"><strong>' + c.id + '</strong></td>' +
+              '<td style="text-align:center;"><div>คุณภาณุพันธุ์ ใจดี</div><div style="font-size:11.5px;color:#64748b;margin-top:2px;">ฝ่ายทรัพยากรบุคคล</div></td>' +
+              '<td style="text-align:center;">' + c.dateStr + '</td>' +
+              '<td style="text-align:center;font-weight:800;color:#16a34a;">' + c.timeIn + '</td>' +
+              '<td style="text-align:center;font-weight:800;color:#1e70bf;">' + c.timeOut + '</td>' +
+              '<td style="text-align:center;font-weight:700;color:#334155;">' + c.hours + '</td>' +
+              '<td style="text-align:center;color:#64748b;">' + c.detail + '</td>' +
+              '<td style="text-align:center;"><span class="pg-badge pg-badge-success" style="padding:4px 10px;">' + c.statusText + '</span></td>' +
+            '</tr>';
+          }).join('');
+        }
+        if (window.refreshTablePagination) window.refreshTablePagination('rep-clock-table', true);
+      }
+    }
+
+    // Category tabs
+    var typeGroup = document.getElementById('rep-emp-type-group');
+    if (typeGroup) {
+      typeGroup.querySelectorAll('.pg-radio-btn').forEach(function(tBtn) {
+        tBtn.addEventListener('click', function() {
+          typeGroup.querySelectorAll('.pg-radio-btn').forEach(function(b) { b.classList.remove('active'); });
+          tBtn.classList.add('active');
+          state.catFilter = tBtn.getAttribute('data-rep-type') || 'all';
+          renderEmployeeReport();
+        });
+      });
+    }
+
+    // Apply & Reset filter
+    var applyBtn = document.getElementById('rep-fapply');
+    var resetBtn = document.getElementById('rep-freset');
+    if (applyBtn) {
+      applyBtn.addEventListener('click', function() {
+        var lbl = getPeriodDisplayLabel();
+        if (labelEl) labelEl.textContent = lbl;
+        if (periodBadge) {
+          periodBadge.textContent = 'ช่วงเวลา: ' + (state.period === 'all' ? lbl + ' · ทั้งปี' : lbl);
+        }
+        var mgrPeriodBadge = document.getElementById('rep-mgr-active-period-badge');
+        if (mgrPeriodBadge) {
+          var activeScopeEl = document.querySelector('#rep-scope-opts .ov-fopt.active');
+          var sc = activeScopeEl ? activeScopeEl.getAttribute('data-scope') : 'all';
+          var scTxt = '';
+          if (sc === 'self') {
+            scTxt = ' · ตนเอง (คุณภาณุพันธุ์ ใจดี)';
+          } else if (sc === 'dept') {
+            var ds = document.getElementById('rep-scope-dept-select');
+            if (ds) scTxt = ' · ' + ds.value;
+          } else if (sc === 'emp') {
+            var es = document.getElementById('rep-scope-emp-select');
+            if (es) scTxt = ' · ' + es.value;
+          }
+          mgrPeriodBadge.textContent = 'ช่วงเวลา: ' + (state.period === 'all' ? lbl + ' · ทั้งปี' : lbl) + scTxt;
+        }
+        renderEmployeeReport();
+        if (window.renderManagerReport) window.renderManagerReport();
+        box.classList.remove('open');
+        wrap.classList.remove('open');
+      });
+    }
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function() {
+        state.yearBE = 2569;
+        state.period = 'all';
+        state.customMode = 'month';
+        state.customMonthYearBE = 2569;
+        state.customMonth = 10;
+        state.rangeStart = null;
+        state.rangeEnd = null;
+        if (yearOpts) {
+          yearOpts.querySelectorAll('.ov-fopt').forEach(function(s) {
+            s.classList.toggle('active', s.getAttribute('data-year') === '2569');
+          });
+        }
+        if (periodOpts) {
+          periodOpts.querySelectorAll('.ov-fopt').forEach(function(s) {
+            s.classList.toggle('active', s.getAttribute('data-period') === 'all');
+          });
+        }
+        if (scopeOpts) {
+          scopeOpts.querySelectorAll('.ov-fopt').forEach(function(s) {
+            s.classList.toggle('active', s.getAttribute('data-scope') === 'all');
+          });
+        }
+        if (scopeDeptField) scopeDeptField.style.display = 'none';
+        if (scopeEmpField) scopeEmpField.style.display = 'none';
+        if (customBox) customBox.style.display = 'none';
+        if (labelEl) labelEl.textContent = 'ปี 2569';
+        if (periodBadge) periodBadge.textContent = 'ช่วงเวลา: ปี 2569 · ทั้งปี';
+        var mgrPeriodBadge = document.getElementById('rep-mgr-active-period-badge');
+        if (mgrPeriodBadge) mgrPeriodBadge.textContent = 'ช่วงเวลา: ปี 2569 · ทั้งปี';
+        renderEmployeeReport();
+        if (window.renderManagerReport) window.renderManagerReport();
+        box.classList.remove('open');
+        wrap.classList.remove('open');
+      });
+    }
+
+    window.resetReportFilters = function() {
+      var empAllBtn = document.querySelector('#rep-emp-type-group [data-rep-type="all"]');
+      if (empAllBtn) {
+        empAllBtn.click();
+      } else {
+        state.catFilter = 'all';
+      }
+      var mgrAllBtn = document.querySelector('#rep-mgr-type-group [data-mgr-cat="all"]');
+      if (window.setMgrReportCat) {
+        window.setMgrReportCat('all', mgrAllBtn);
+      }
+      var mgrStAllBtn = document.querySelector('#rep-mgr-status-filters [data-mgr-status="all"]');
+      if (window.setMgrReportStatus) {
+        window.setMgrReportStatus('all', mgrStAllBtn);
+      }
+      if (resetBtn) {
+        resetBtn.click();
+      }
+    };
+
+    renderEmployeeReport();
+  })();
+
+  // ==========================================
+  // Table Pagination (แสดง 1 ถึง X จาก Y แถว + ปุ่ม « ‹ 1 › » ทุกหน้า)
+  // ==========================================
+  (function() {
+    var PAGE_SIZE = 10;
+
+    function getFilterableRows(table) {
+      var tbody = table.querySelector('tbody');
+      if (!tbody) return [];
+      return Array.prototype.slice.call(tbody.querySelectorAll('tr')).filter(function(tr) {
+        if (tr.querySelector('[data-empty-row="1"]')) return false;
+        // Respect existing status filters (which set style.display = 'none' when not paginated)
+        if (tr.getAttribute('data-pg-hidden') !== '1' && tr.style.display === 'none') return false;
+        return true;
+      });
+    }
+
+    function renderPagination(table, resetPage) {
+      var wrap = table.closest('.pg-card');
+      if (!wrap) return;
+      var resp = table.closest('.pg-table-responsive') || table;
+      var pagEl = wrap.querySelector('.ck-pagination-wrap[data-for="' + (table.id || '') + '"]');
+      if (!pagEl) {
+        pagEl = document.createElement('div');
+        pagEl.className = 'ck-pagination-wrap';
+        if (table.id) pagEl.setAttribute('data-for', table.id);
+        resp.insertAdjacentElement('afterend', pagEl);
+      }
+
+      var rows = getFilterableRows(table);
+      var total = rows.length;
+      var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      var curPage = resetPage ? 1 : (parseInt(table.getAttribute('data-cur-page'), 10) || 1);
+      if (curPage > totalPages) curPage = totalPages;
+      if (curPage < 1) curPage = 1;
+      table.setAttribute('data-cur-page', curPage);
+
+      var startIdx = (curPage - 1) * PAGE_SIZE;
+      var endIdx = Math.min(total, startIdx + PAGE_SIZE);
+
+      rows.forEach(function(tr, idx) {
+        if (idx >= startIdx && idx < endIdx) {
+          tr.style.display = '';
+          tr.removeAttribute('data-pg-hidden');
+        } else {
+          tr.style.display = 'none';
+          tr.setAttribute('data-pg-hidden', '1');
+        }
+      });
+
+      var startDisp = total === 0 ? 0 : startIdx + 1;
+      var html = '<div class="ck-pagination-info">แสดง ' + startDisp + ' ถึง ' + endIdx + ' จาก ' + total + ' แถว</div>';
+      html += '<div class="ck-pagination-btns">';
+      html += '<button type="button" class="ck-pg-btn" data-pg="first"' + (curPage <= 1 ? ' disabled' : '') + ' aria-label="หน้าแรก">&laquo;</button>';
+      html += '<button type="button" class="ck-pg-btn" data-pg="prev"' + (curPage <= 1 ? ' disabled' : '') + ' aria-label="หน้าก่อนหน้า">&lsaquo;</button>';
+
+      for (var p = 1; p <= totalPages; p++) {
+        html += '<button type="button" class="ck-pg-btn' + (p === curPage ? ' active' : '') + '" data-pg="' + p + '">' + p + '</button>';
+      }
+
+      html += '<button type="button" class="ck-pg-btn" data-pg="next"' + (curPage >= totalPages ? ' disabled' : '') + ' aria-label="หน้าถัดไป">&rsaquo;</button>';
+      html += '<button type="button" class="ck-pg-btn" data-pg="last"' + (curPage >= totalPages ? ' disabled' : '') + ' aria-label="หน้าสุดท้าย">&raquo;</button>';
+      html += '</div>';
+
+      pagEl.innerHTML = html;
+      pagEl.querySelectorAll('.ck-pg-btn').forEach(function(b) {
+        b.addEventListener('click', function() {
+          if (b.disabled) return;
+          var act = b.getAttribute('data-pg');
+          var next = curPage;
+          if (act === 'first') next = 1;
+          else if (act === 'prev') next = curPage - 1;
+          else if (act === 'next') next = curPage + 1;
+          else if (act === 'last') next = totalPages;
+          else next = parseInt(act, 10) || 1;
+          table.setAttribute('data-cur-page', next);
+          renderPagination(table, false);
+        });
+      });
+    }
+
+    window.refreshTablePagination = function(tableOrId, resetPage) {
+      var tbl = (typeof tableOrId === 'string') ? document.getElementById(tableOrId) : tableOrId;
+      if (tbl) renderPagination(tbl, !!resetPage);
+    };
+
+    // Hook existing history filters so pagination updates when filtering tabs
+    if (typeof window.filterLeaveHistory === 'function') {
+      var origLeaveFilter = window.filterLeaveHistory;
+      window.filterLeaveHistory = function(filter, btnEl) {
+        var tbl = document.getElementById('leave-history-table');
+        if (tbl) tbl.querySelectorAll('tbody tr').forEach(function(tr) { tr.removeAttribute('data-pg-hidden'); tr.style.display = ''; });
+        origLeaveFilter(filter, btnEl);
+        if (tbl) renderPagination(tbl, true);
+      };
+    }
+    if (typeof window.filterGenericHistory === 'function') {
+      var origGenFilter = window.filterGenericHistory;
+      window.filterGenericHistory = function(tableId, filter, btnEl) {
+        var tbl = document.getElementById(tableId);
+        if (tbl) tbl.querySelectorAll('tbody tr').forEach(function(tr) { tr.removeAttribute('data-pg-hidden'); tr.style.display = ''; });
+        origGenFilter(tableId, filter, btnEl);
+        if (tbl) renderPagination(tbl, true);
+      };
+    }
+
+    document.querySelectorAll('.pg-table').forEach(function(tbl) {
+      renderPagination(tbl, true);
+    });
+  })();
+
+  // ==========================================
+  // Export Excel (CSV UTF-8 BOM) / PDF (Print Preview) จากข้อมูลที่กรองอยู่
+  // ==========================================
+  window.exportReportTable = function(tableId, format, title) {
+    var tbl = document.getElementById(tableId);
+    if (!tbl) return;
+
+    var headers = [];
+    var skipLast = false;
+    tbl.querySelectorAll('thead th').forEach(function(th, idx, all) {
+      var txt = th.textContent.replace(/\s+/g, ' ').trim();
+      if (idx === all.length - 1 && txt === 'จัดการ') {
+        skipLast = true;
+      } else {
+        headers.push(txt);
+      }
+    });
+
+    var rows = [];
+    tbl.querySelectorAll('tbody tr').forEach(function(tr) {
+      if (tr.querySelector('[data-empty-row="1"]')) return;
+      if (tr.getAttribute('data-pg-hidden') !== '1' && tr.style.display === 'none') return;
+      var cells = tr.querySelectorAll('td');
+      var rowData = [];
+      for (var i = 0; i < cells.length; i++) {
+        if (skipLast && i === cells.length - 1) continue;
+        rowData.push(cells[i].textContent.replace(/\s+/g, ' ').trim());
+      }
+      if (rowData.length) rows.push(rowData);
+    });
+
+    if (rows.length === 0) {
+      alert('ไม่มีข้อมูลสำหรับส่งออกในช่วงเวลาที่เลือก');
+      return;
+    }
+
+    if (format === 'excel') {
+      var csvLines = [headers].concat(rows).map(function(cols) {
+        return cols.map(function(val) {
+          return '"' + String(val).replace(/"/g, '""') + '"';
+        }).join(',');
+      });
+      var csvContent = '\uFEFF' + csvLines.join('\r\n');
+      var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = (title || 'report') + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    } else if (format === 'pdf') {
+      var periodBadge = document.getElementById('rep-active-period-badge');
+      var periodText = periodBadge ? periodBadge.textContent.trim() : '';
+      var win = window.open('', '_blank', 'width=960,height=700');
+      if (!win) {
+        alert('กรุณาอนุญาต Pop-up เพื่อเปิดหน้าต่างพิมพ์ PDF');
+        return;
+      }
+      var theadHtml = '<tr>' + headers.map(function(h) { return '<th>' + h + '</th>'; }).join('') + '</tr>';
+      var tbodyHtml = rows.map(function(r) {
+        return '<tr>' + r.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
+      }).join('');
+      win.document.write(
+        '<!doctype html><html lang="th"><head><meta charset="utf-8"><title>' + (title || 'รายงาน') + '</title>' +
+        '<style>body{font-family:"Sarabun","Noto Sans Thai",sans-serif;padding:24px;color:#0f172a;}h2{margin:0 0 6px;color:#0b3b68;}p{margin:0 0 16px;color:#475569;font-size:13px;}table{width:100%;border-collapse:collapse;font-size:12.5px;}th,td{border:1px solid #cbd5e1;padding:8px 10px;text-align:center;}th{background:#eff6ff;color:#0b3b68;font-weight:700;}</style>' +
+        '</head><body><h2>' + (title || 'รายงาน') + '</h2><p>คุณภาณุพันธุ์ ใจดี · ฝ่ายทรัพยากรบุคคล' + (periodText ? ' · ' + periodText : '') + ' (' + rows.length + ' รายการ)</p>' +
+        '<table><thead>' + theadHtml + '</thead><tbody>' + tbodyHtml + '</tbody></table>' +
+        '<script>window.onload=function(){window.print();};<\/script></body></html>'
+      );
+      win.document.close();
+    }
+  };
+
+  // ==========================================
+  // ประวัติรายการพนักงาน มุมมองหัวหน้า (#reports -> .rep-manager-only)
+  // ==========================================
+  (function initManagerReportTable() {
+    var mgrCat = 'all';
+    var mgrStatus = 'all';
+    var mgrData = [
+      { reqId: 'MED-2569-003', dateStr: '28/10/2569', emp: 'คุณภาณุพันธุ์ ใจดี', dept: 'ฝ่ายทรัพยากรบุคคล', cat: 'benefits', catLabel: 'ค่ารักษาพยาบาล OPD', catStyle: 'background:#dcfce7;color:#15803d;', useDate: '28/10/2569', amountText: '฿850.00', amountColor: '#059669', detail: 'รพ.พญาไท 2 · ภูมิแพ้', status: 'approved', statusText: '✓ อนุมัติ', statusClass: 'pg-badge pg-badge-success', hasAttachment: true, modalOnclick: "window.openGenericModal && window.openGenericModal('ben', 1)" },
+      { reqId: 'TC-2569-008', dateStr: '28/10/2569', emp: 'คุณภาณุพันธุ์ ใจดี', dept: 'ฝ่ายทรัพยากรบุคคล', cat: 'attendance', catLabel: 'แก้ไขเวลาเข้า', catStyle: 'background:#e0f2fe;color:#0369a1;', useDate: '28/10/2569', amountText: '<div><strong style="color:#1e70bf;">09:00:00</strong> <span style="color:#64748b;font-weight:600;">– 17:35:12 น.</span></div>', amountColor: '#64748b', detail: 'ยื่นเอกสารประกันสังคมพื้นที่ 3 ช่วงเช้า', status: 'approved', statusText: '✓ อนุมัติ', statusClass: 'pg-badge pg-badge-success', hasAttachment: false, modalOnclick: "window.openGenericModal && window.openGenericModal('att', 0)" },
+      { reqId: 'OT-2569-018', dateStr: '25/10/2569', emp: 'คุณภาณุพันธุ์ ใจดี', dept: 'ฝ่ายทรัพยากรบุคคล', cat: 'ot', catLabel: 'OT 1.0 เท่า', catStyle: 'background:#f3e8ff;color:#7c3aed;', useDate: '25/10/2569<div style="font-size:11.5px;color:#64748b;margin-top:2px;">(09:00–16:00 น.)</div>', amountText: '6.00 ชม.', amountColor: '#7c3aed', detail: 'จัดทำแฟ้มเอกสารผู้สอบบัญชีประจำไตรมาส 3', status: 'approved', statusText: '✓ อนุมัติ', statusClass: 'pg-badge pg-badge-success', hasAttachment: false, modalOnclick: "window.openGenericModal && window.openGenericModal('ot', 1)" },
+      { reqId: 'LEV-2569-003', dateStr: '20/10/2569', emp: 'คุณภาณุพันธุ์ ใจดี', dept: 'ฝ่ายทรัพยากรบุคคล', cat: 'leave', catLabel: 'ลากิจ', catStyle: 'background:#fef3c7;color:#b45309;', useDate: '22/10/2569<div style="font-size:11.5px;color:#64748b;margin-top:2px;">(13:00–15:00 น.)</div>', amountText: '0.25 วัน', amountColor: '#1e70bf', detail: 'ติดต่อ สนง.ที่ดินเขตบางรัก', status: 'approved', statusText: '✓ อนุมัติ', statusClass: 'pg-badge pg-badge-success', hasAttachment: false, modalOnclick: "window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-003')" },
+      { reqId: 'LEV-2569-002', dateStr: '15/10/2569', emp: 'คุณภาณุพันธุ์ ใจดี', dept: 'ฝ่ายทรัพยากรบุคคล', cat: 'leave', catLabel: 'ลาป่วย', catStyle: 'background:#fee2e2;color:#b91c1c;', useDate: '15/10/2569', amountText: '1.00 วัน', amountColor: '#1e70bf', detail: 'ไข้หวัดใหญ่ (มีใบรับรองแพทย์)', status: 'approved', statusText: '✓ อนุมัติ', statusClass: 'pg-badge pg-badge-success', hasAttachment: false, modalOnclick: "window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-002')" },
+      { reqId: 'LEV-2569-009', dateStr: '28/10/2569', emp: 'คุณสมชาย สายเสมอ', dept: 'ฝ่ายบัญชีและการเงิน', cat: 'leave', catLabel: 'ลาพักร้อน', catStyle: 'background:#eff6ff;color:#1e70bf;', useDate: '28/10/2569–29/10/2569', amountText: '2.00 วัน', amountColor: '#1e70bf', detail: 'พักผ่อนประจำปีกับครอบครัว', status: 'pending', statusText: '⏳ รออนุมัติ', statusClass: 'pg-badge pg-badge-warning', hasAttachment: false, modalOnclick: "window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-003')" },
+      { reqId: 'MED-2569-004', dateStr: '15/10/2569', emp: 'คุณสมชาย สายเสมอ', dept: 'ฝ่ายบัญชีและการเงิน', cat: 'benefits', catLabel: 'ค่ารักษาพยาบาล OPD', catStyle: 'background:#dcfce7;color:#15803d;', useDate: '15/10/2569', amountText: '฿1,200.00', amountColor: '#059669', detail: 'รพ.สมิติเวช · ตรวจสุขภาพและยา', status: 'approved', statusText: '✓ อนุมัติ', statusClass: 'pg-badge pg-badge-success', hasAttachment: true, modalOnclick: "window.openGenericModal && window.openGenericModal('ben', 2)" },
+      { reqId: 'TC-2569-011', dateStr: '22/10/2569', emp: 'คุณวรรณา สดใส', dept: 'ฝ่ายบัญชีและการเงิน', cat: 'attendance', catLabel: 'แก้ไขเวลาเข้า', catStyle: 'background:#e0f2fe;color:#0369a1;', useDate: '22/10/2569', amountText: '<div><strong style="color:#1e70bf;">08:45:00</strong> <span style="color:#64748b;font-weight:600;">– 17:30:00 น.</span></div>', amountColor: '#64748b', detail: 'ลืมสแกนนิ้วเข้างานช่วงเช้า', status: 'approved', statusText: '✓ อนุมัติ', statusClass: 'pg-badge pg-badge-success', hasAttachment: false, modalOnclick: "window.openGenericModal && window.openGenericModal('att', 0)" },
+      { reqId: 'OT-2569-021', dateStr: '24/10/2569', emp: 'คุณพิชัย มงคล', dept: 'ฝ่ายตรวจสอบบัญชี', cat: 'ot', catLabel: 'OT 1.5 เท่า', catStyle: 'background:#f3e8ff;color:#7c3aed;', useDate: '24/10/2569<div style="font-size:11.5px;color:#64748b;margin-top:2px;">(18:00–21:00 น.)</div>', amountText: '3.00 ชม.', amountColor: '#7c3aed', detail: 'ปิดงบตรวจสอบบัญชีประจำไตรมาส 3', status: 'pending', statusText: '⏳ รออนุมัติ', statusClass: 'pg-badge pg-badge-warning', hasAttachment: false, modalOnclick: "window.openGenericModal && window.openGenericModal('ot', 1)" },
+      { reqId: 'MED-2569-005', dateStr: '19/10/2569', emp: 'คุณกานดา มาดี', dept: 'ฝ่ายตรวจสอบบัญชี', cat: 'benefits', catLabel: 'ค่ารักษาพยาบาล OPD', catStyle: 'background:#dcfce7;color:#15803d;', useDate: '19/10/2569', amountText: '฿1,500.00', amountColor: '#059669', detail: 'คลินิกทันตกรรม · ขูดหินปูน', status: 'approved', statusText: '✓ อนุมัติ', statusClass: 'pg-badge pg-badge-success', hasAttachment: true, modalOnclick: "window.openGenericModal && window.openGenericModal('ben', 3)" },
+      { reqId: 'LEV-2569-012', dateStr: '12/10/2569', emp: 'คุณกานดา มาดี', dept: 'ฝ่ายตรวจสอบบัญชี', cat: 'leave', catLabel: 'ลากิจ', catStyle: 'background:#fef3c7;color:#b45309;', useDate: '14/10/2569', amountText: '1.00 วัน', amountColor: '#1e70bf', detail: 'ติดภารกิจส่วนตัว (วันปิดงบประจำเดือน)', status: 'rejected', statusText: '✕ ไม่อนุมัติ', statusClass: 'pg-badge pg-badge-danger', hasAttachment: false, modalOnclick: "window.openDetailModal && window.openDetailModal('leave', 'LEV-2569-003')" }
+    ];
+
+    function getMgrScopeFilter() {
+      var activeOpt = document.querySelector('#rep-scope-opts .ov-fopt.active');
+      var sc = activeOpt ? (activeOpt.getAttribute('data-scope') || 'all') : 'all';
+      var deptVal = '';
+      var empVal = '';
+      if (sc === 'self') {
+        empVal = 'คุณภาณุพันธุ์ ใจดี';
+      } else if (sc === 'dept') {
+        var ds = document.getElementById('rep-scope-dept-select');
+        deptVal = ds ? ds.value : '';
+      } else if (sc === 'emp') {
+        var es = document.getElementById('rep-scope-emp-select');
+        empVal = es ? es.value : '';
+      }
+      return { sc: sc, dept: deptVal, emp: empVal };
+    }
+
+    window.renderManagerReport = function() {
+      var scope = getMgrScopeFilter();
+      var scopeMatched = mgrData.filter(function(r) {
+        if (scope.sc === 'dept' && scope.dept) return r.dept === scope.dept;
+        if ((scope.sc === 'emp' || scope.sc === 'self') && scope.emp) return r.emp === scope.emp;
+        return true;
+      });
+
+      var counts = { all: scopeMatched.length, leave: 0, ot: 0, attendance: 0, benefits: 0 };
+      scopeMatched.forEach(function(r) {
+        if (counts[r.cat] !== undefined) counts[r.cat]++;
+      });
+      var typeGroup = document.getElementById('rep-mgr-type-group');
+      if (typeGroup) {
+        Object.keys(counts).forEach(function(k) {
+          var el = typeGroup.querySelector('[data-mgr-cnt="' + k + '"]');
+          if (el) el.textContent = counts[k];
+        });
+      }
+
+      var catMatched = scopeMatched.filter(function(r) {
+        return mgrCat === 'all' || r.cat === mgrCat;
+      });
+
+      var stCounts = { all: catMatched.length, pending: 0, approved: 0, rejected: 0 };
+      catMatched.forEach(function(r) {
+        if (stCounts[r.status] !== undefined) stCounts[r.status]++;
+      });
+      var stGroup = document.getElementById('rep-mgr-status-filters');
+      if (stGroup) {
+        Object.keys(stCounts).forEach(function(k) {
+          var el = stGroup.querySelector('[data-mgr-st-cnt="' + k + '"]');
+          if (el) el.textContent = stCounts[k];
+        });
+      }
+
+      var rows = catMatched.filter(function(r) {
+        return mgrStatus === 'all' || r.status === mgrStatus;
+      });
+
+      var tbody = document.getElementById('rep-mgr-tbody');
+      if (!tbody) return;
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" data-empty-row="1" style="text-align:center;padding:32px;color:#64748b;font-weight:600;">ไม่พบรายการตามเงื่อนไขที่เลือก</td></tr>';
+      } else {
+        tbody.innerHTML = rows.map(function(r) {
+          var attachBtn = r.hasAttachment
+            ? '<button type="button" class="ck-action-btn" title="ดูไฟล์แนบ" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;" onclick="event.stopPropagation();alert(\'เปิดไฟล์แนบของคำขอ ' + r.reqId + '\');">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>' +
+              '</button>'
+            : '';
+          var detailAction = r.modalOnclick || ('alert(\'รายละเอียดคำขอ ' + r.reqId + '\')');
+          return '<tr class="ck-clickable-row" onclick="' + detailAction + '">' +
+            '<td style="text-align:center;"><strong>' + r.reqId + '</strong><div style="font-size:11.5px;color:#64748b;margin-top:2px;">' + r.dateStr + '</div></td>' +
+            '<td style="text-align:center;"><div>' + r.emp + '</div><div style="font-size:11.5px;color:#64748b;margin-top:2px;">' + r.dept + '</div></td>' +
+            '<td style="text-align:center;"><span class="pg-badge" style="font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700;' + r.catStyle + '">' + r.catLabel + '</span></td>' +
+            '<td style="text-align:center;">' + r.useDate + '</td>' +
+            '<td style="text-align:center;font-weight:800;color:' + r.amountColor + ';">' + r.amountText + '</td>' +
+            '<td style="text-align:center;"><div style="display:inline-block;max-width:190px;word-break:break-word;white-space:normal;line-height:1.4;text-align:center;">' + r.detail + '</div></td>' +
+            '<td style="text-align:center;"><span class="' + r.statusClass + '" style="padding:4px 10px;">' + r.statusText + '</span></td>' +
+            '<td style="text-align:center;white-space:nowrap;"><div class="ck-table-actions" style="justify-content:center;flex-wrap:nowrap;white-space:nowrap;">' +
+              attachBtn +
+              '<button type="button" class="ck-action-btn view" title="ดูรายละเอียดคำขอ" onclick="event.stopPropagation();' + detailAction + '">' +
+                '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+              '</button>' +
+            '</div></td>' +
+          '</tr>';
+        }).join('');
+      }
+      if (window.refreshTablePagination) window.refreshTablePagination('rep-mgr-table', true);
+    };
+
+    window.setMgrReportCat = function(cat, btnEl) {
+      mgrCat = cat || 'all';
+      if (btnEl && btnEl.parentElement) {
+        btnEl.parentElement.querySelectorAll('.pg-radio-btn').forEach(function(b) { b.classList.remove('active'); });
+        btnEl.classList.add('active');
+      }
+      window.renderManagerReport();
+    };
+
+    window.setMgrReportStatus = function(st, btnEl) {
+      mgrStatus = st || 'all';
+      if (btnEl && btnEl.parentElement) {
+        btnEl.parentElement.querySelectorAll('.pg-filter-pill').forEach(function(b) { b.classList.remove('active'); });
+        btnEl.classList.add('active');
+      }
+      window.renderManagerReport();
+    };
+
+    window.filterApprovalCards = function(cat, btnEl) {
+      if (btnEl && btnEl.parentElement) {
+        btnEl.parentElement.querySelectorAll('.pg-radio-btn').forEach(function(b) { b.classList.remove('active'); });
+        btnEl.classList.add('active');
+      }
+      var grid = document.getElementById('appr-cards-grid');
+      if (!grid) return;
+      grid.querySelectorAll('.appr-card').forEach(function(card) {
+        var c = card.getAttribute('data-appr-cat');
+        card.style.display = (cat === 'all' || c === cat) ? '' : 'none';
+      });
+    };
+
+    var currentApprAction = null;
+    window.openApprovalActionModal = function(mode, reqId, empName, typeLabel) {
+      currentApprAction = { mode: mode, reqId: reqId, empName: empName, typeLabel: typeLabel };
+      var modal = document.getElementById('appr-action-modal');
+      var head = document.getElementById('appr-action-modal-head');
+      var icon = document.getElementById('appr-action-modal-icon');
+      var title = document.getElementById('appr-action-modal-title');
+      var sub = document.getElementById('appr-action-modal-sub');
+      var reqFlag = document.getElementById('appr-action-req-flag');
+      var noteEl = document.getElementById('appr-action-note');
+      var btn = document.getElementById('appr-action-confirm-btn');
+      if (!modal) return;
+      if (sub) sub.textContent = reqId + ' · ' + empName + ' · ' + typeLabel;
+      if (noteEl) noteEl.value = '';
+      if (mode === 'approve') {
+        if (head) head.style.background = '#f0fdf4';
+        if (icon) { icon.style.background = '#059669'; icon.textContent = '✓'; }
+        if (title) title.textContent = 'ยืนยันการอนุมัติคำขอ';
+        if (reqFlag) reqFlag.style.display = 'none';
+        if (noteEl) noteEl.placeholder = 'กรอกรายละเอียดการอนุมัติเพิ่มเติม (ถ้ามี)...';
+        if (btn) { btn.style.background = '#059669'; btn.style.borderColor = '#059669'; btn.textContent = '✓ ยืนยันอนุมัติ'; }
+      } else if (mode === 'revise') {
+        if (head) head.style.background = '#fffbeb';
+        if (icon) { icon.style.background = '#d97706'; icon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'; }
+        if (title) title.textContent = 'ส่งให้พนักงานแก้ไขคำขอ';
+        if (reqFlag) reqFlag.style.display = 'inline';
+        if (noteEl) noteEl.placeholder = 'ระบุรายละเอียดหรือจุดที่ต้องแก้ไขให้ชัดเจน...';
+        if (btn) { btn.style.background = '#d97706'; btn.style.borderColor = '#d97706'; btn.textContent = 'ยืนยันส่งให้แก้ไข'; }
+      } else {
+        if (head) head.style.background = '#fef2f2';
+        if (icon) { icon.style.background = '#dc2626'; icon.textContent = '✕'; }
+        if (title) title.textContent = 'ยืนยันไม่อนุมัติคำขอ';
+        if (reqFlag) reqFlag.style.display = 'inline';
+        if (noteEl) noteEl.placeholder = 'ระบุเหตุผลและรายละเอียดที่ไม่อนุมัติ...';
+        if (btn) { btn.style.background = '#dc2626'; btn.style.borderColor = '#dc2626'; btn.textContent = '✕ ยืนยันไม่อนุมัติ'; }
+      }
+      modal.style.display = 'flex';
+      if (noteEl) setTimeout(function() { noteEl.focus(); }, 50);
+    };
+
+    window.closeApprovalActionModal = function() {
+      var modal = document.getElementById('appr-action-modal');
+      if (modal) modal.style.display = 'none';
+      currentApprAction = null;
+    };
+
+    window.submitApprovalAction = function() {
+      if (!currentApprAction) return;
+      var noteEl = document.getElementById('appr-action-note');
+      var note = noteEl ? noteEl.value.trim() : '';
+      if ((currentApprAction.mode === 'revise' || currentApprAction.mode === 'reject') && !note) {
+        alert('กรุณากรอกรายละเอียดการพิจารณาก่อนดำเนินการ');
+        if (noteEl) noteEl.focus();
+        return;
+      }
+      var actionLabel = currentApprAction.mode === 'approve' ? 'อนุมัติคำขอ' : (currentApprAction.mode === 'revise' ? 'ส่งให้แก้ไขคำขอ' : 'ไม่อนุมัติคำขอ');
+      alert(actionLabel + ' ' + currentApprAction.reqId + ' (' + currentApprAction.empName + ') เรียบร้อยแล้ว' + (note ? '\nรายละเอียด: ' + note : ''));
+      window.closeApprovalActionModal();
+    };
+
+    window.renderManagerReport();
   })();
 
 </script>

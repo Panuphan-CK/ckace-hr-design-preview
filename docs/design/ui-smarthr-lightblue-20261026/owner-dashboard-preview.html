@@ -3831,13 +3831,35 @@ main, .page-view, .settings-page {
 }
 #rep-emp-type-group .pg-radio-btn,
 #rep-mgr-type-group .pg-radio-btn,
-#appr-filter-group .pg-radio-btn {
+#appr-filter-group .pg-radio-btn,
+#settings-tab-group .pg-radio-btn {
   flex: 0 0 auto;
   width: auto;
   min-width: 0;
   white-space: nowrap;
   gap: 0;
   padding: 8px 16px;
+}
+.ck-settings-2col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.ck-profile-kpi-6 {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+@media (max-width: 1320px) {
+  .ck-profile-kpi-6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .ck-profile-kpi-6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 980px) {
+  .ck-settings-2col { grid-template-columns: minmax(0, 1fr); }
 }
 
 #benefits-history-table .ck-table-actions {
@@ -4662,50 +4684,60 @@ main, .page-view, .settings-page {
   background: #ffffff;
   border: 1px solid #dbe8f5;
   border-radius: 14px;
-  padding: 24px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 14px;
+  align-items: stretch;
+  text-align: left;
+  gap: 12px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 .pf-hero-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
   background: linear-gradient(135deg, #1e70bf, #0b3b68);
   color: #ffffff !important;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 800;
   display: grid;
   place-items: center;
+  flex-shrink: 0;
   box-shadow: 0 4px 12px rgba(11, 59, 104, 0.2);
 }
 .pf-info-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 14px;
   width: 100%;
   text-align: left;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 .pf-info-item {
-  background: #f8fbff;
-  border: 1px solid #d8e8f8;
-  border-radius: 9px;
-  padding: 10px 12px;
+  background: #ffffff;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  border-radius: 0;
+  padding: 5px 2px;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  flex-wrap: wrap;
 }
 .pf-info-label {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
-  color: #000000 !important;
-  margin-bottom: 2px;
+  color: #0f172a !important;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+.pf-info-label::after {
+  content: " :";
 }
 .pf-info-val {
-  font-size: 13.5px;
-  font-weight: 800;
-  color: #0b3b68 !important;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b !important;
 }
 
 @media (max-width: 1280px) {
@@ -6180,9 +6212,9 @@ main, .page-view, .settings-page {
 </section>
 
 </main>
-<main id="settings" class="settings-page" hidden>
-<!-- Row 1: 2-Card Hero Layout (มาตรฐานเดียวกับหน้าลางานและแดชบอร์ด) -->
-  <div class="ck-row1" style="margin-bottom:20px;">
+<main id="settings" class="page-view" hidden>
+  <!-- Row 1: 2-Card Hero Layout (มาตรฐานเดียวกับทุกหน้าในระบบ) -->
+  <div class="ck-row1">
     <section class="ck-hero">
       <div class="ck-hero-bg"></div>
       <div class="ck-hero-content">
@@ -6206,135 +6238,363 @@ main, .page-view, .settings-page {
         <div class="ck-att-tile" style="border-top:3px solid #1e70bf;">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle in" style="transform:none;"><svg><use href="#settings-gear"/></svg></span>
+              <span class="ck-att-circle in" style="background:#1e70bf;transform:none;"><svg><use href="#settings-gear"/></svg></span>
               <span class="ck-att-label">หมวดตั้งค่าระบบ</span>
             </div>
-            <span class="ck-att-pill green">✓ พร้อมใช้งาน</span>
+            <span class="ck-att-pill" style="background:#eff6ff;color:#1e70bf;border-color:#bfdbfe;">ครบทุกระบบ</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#1e70bf !important;text-align:center;">9 หมวดหลัก</strong>
+            <strong class="ck-att-time" style="color:#1e70bf !important;text-align:center;">4 หมวดหลัก</strong>
           </div>
         </div>
 
-        <div class="ck-att-tile" style="border-top:3px solid #10b981;">
+        <div class="ck-att-tile" style="border-top:3px solid #059669;">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle out" style="background:#10b981;"><svg><use href="#workflow"/></svg></span>
-              <span class="ck-att-label">โครงสร้างอนุมัติ</span>
+              <span class="ck-att-circle out" style="background:#059669;"><svg><use href="#workflow"/></svg></span>
+              <span class="ck-att-label">พนักงาน &amp; สายอนุมัติ</span>
             </div>
-            <span class="ck-att-pill green">ผูก 103 คน</span>
+            <span class="ck-att-pill green">✓ ผูกครบ 100%</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#0d8268 !important;text-align:center;">มาตรฐาน 3 ระดับ</strong>
+            <strong class="ck-att-time" style="color:#059669 !important;text-align:center;">103 คน · 3 ระดับ</strong>
           </div>
         </div>
       </div>
     </section>
   </div>
-<div class="settings-layout">
-<nav class="settings-nav" aria-label="หมวดตั้งค่าระบบลา">
-<div class="settings-nav-label">ตั้งค่าระบบลา</div>
-<button type="button" data-setting-menu="cycle" aria-current="true"><span class="section-number">01</span><svg><use href="#calendar"/></svg>รอบการลา</button>
-<button type="button" data-setting-menu="days"><span class="section-number">02</span><svg><use href="#check"/></svg>วันทำงานบริษัท</button>
-<button type="button" data-setting-menu="hours"><span class="section-number">03</span><svg><use href="#clock"/></svg>เวลาทำงานและ OT</button>
-<button type="button" data-setting-menu="holidays"><span class="section-number">04</span><svg><use href="#calendar"/></svg>วันหยุดประจำปี</button>
-<button type="button" data-setting-menu="leave-types"><span class="section-number">05</span><svg><use href="#file"/></svg>รายการและสิทธิการลา</button>
-<button type="button" data-setting-menu="employees"><span class="section-number">06</span><svg><use href="#users"/></svg>รายชื่อพนักงาน</button>
-<button type="button" data-setting-menu="departments"><span class="section-number">07</span><svg><use href="#org"/></svg>แผนกและฝ่าย</button>
-<button type="button" data-setting-menu="approvals"><span class="section-number">08</span><svg><use href="#workflow"/></svg>ระดับการอนุมัติ</button>
-<button type="button" data-setting-menu="permissions"><span class="section-number">09</span><svg><use href="#settings-gear"/></svg>ระดับและขอบเขตสิทธิ์</button>
-</nav>
-<div class="settings-content">
-<section class="settings-section" data-setting-panel="cycle">
-<div class="setting-section-head"><div><h2>รอบการลา</h2><p>กำหนดวันที่เริ่มรอบสิทธิและวิธีจัดการวันลาคงเหลือเมื่อขึ้นรอบใหม่</p></div><span class="preview-tag">ข้อมูลตัวอย่าง</span></div>
-<div class="setting-card"><h3>วันเริ่มรอบสิทธิประจำปี</h3><p class="setting-help">กำหนดวันที่และเดือนเริ่มต้นรอบสิทธิ ระบบคำนวณรอบถัดไปให้อัตโนมัติ</p><div class="setting-grid three">
-<div class="setting-field"><label>วันที่เริ่มรอบ</label><div class="pg-radio-group"><button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">วันที่ 01</button><button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">วันที่ 15</button><button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">สิ้นเดือน</button></div></div>
-<div class="setting-field"><label>เดือนเริ่มรอบ</label><div class="pg-radio-group"><button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">มกราคม</button><button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">เมษายน</button><button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">กรกฎาคม</button></div></div>
-<div class="setting-field"><span class="field-label">รอบสิทธิถัดไป</span><div class="setting-input" style="display:flex;align-items:center;background:#f6faff;font-weight:800;color:#000000">01/01/2570</div></div>
-</div></div>
-<div class="setting-card"><h3>นโยบายจัดการสิทธิวันลาพักร้อนคงเหลือสิ้นปี</h3><p class="setting-help">กำหนดตามระเบียบบริษัท: วันลาพักร้อนคงเหลือไม่มีการสะสมยกไปใช้ในปีถัดไป</p><div class="choice-grid">
-<button type="button" class="choice-card" aria-pressed="true"><span class="choice-radio"></span><span><strong>ตัดสิทธิ์เมื่อสิ้นสุดรอบปี (ไม่มีการสะสมยกไป)</strong><small>วันลาพักร้อนคงเหลือใช้ได้ถึงวันที่ 31/12/2569 เท่านั้น ไม่มีการสะสมยกไปปีถัดไป</small></span></button>
-</div></div>
-</section>
-<section class="settings-section" data-setting-panel="days" hidden>
-<div class="setting-section-head"><div><h2>วันที่ทำงานของบริษัท</h2><p>เลือกวันทำงานปกติ ระบบจะใช้ประกอบการคำนวณวันลาและปฏิทินบริษัท</p></div><span class="preview-tag">ข้อมูลตัวอย่าง</span></div>
-<div class="setting-card"><div class="setting-toolbar"><div><h3>วันทำงานประจำสัปดาห์</h3><p class="setting-help" style="margin:4px 0 0">วันที่ไม่ได้เลือกจะถือเป็นวันหยุดประจำสัปดาห์</p></div><span class="status-pill">5 วันทำงาน</span></div><div class="day-selector">
-<button type="button" class="day-choice" aria-pressed="true"><i><svg><use href="#check"/></svg></i>จันทร์</button><button type="button" class="day-choice" aria-pressed="true"><i><svg><use href="#check"/></svg></i>อังคาร</button><button type="button" class="day-choice" aria-pressed="true"><i><svg><use href="#check"/></svg></i>พุธ</button><button type="button" class="day-choice" aria-pressed="true"><i><svg><use href="#check"/></svg></i>พฤหัสบดี</button><button type="button" class="day-choice" aria-pressed="true"><i><svg><use href="#check"/></svg></i>ศุกร์</button><button type="button" class="day-choice" aria-pressed="false"><i></i>เสาร์</button><button type="button" class="day-choice" aria-pressed="false"><i></i>อาทิตย์</button>
-</div></div><div class="setting-card"><h3>การนับวันลา</h3><p class="setting-help">วันหยุดประจำสัปดาห์จะไม่นับเป็นวันลา เว้นแต่ประเภทการลาจะกำหนดเป็นกรณีพิเศษ</p><label class="toggle-row"><span class="toggle-copy"><strong>ไม่นับวันหยุดประจำสัปดาห์ในคำขอลา</strong><small>ตัวอย่างการตั้งค่า · ปรับได้ตามระเบียบบริษัท</small></span><input class="switch" type="checkbox" checked aria-label="ไม่นับวันหยุดประจำสัปดาห์ในคำขอลา"></label></div>
-</section>
-<section class="settings-section" data-setting-panel="hours" hidden>
-<div class="setting-section-head"><div><h2>เวลาทำงานและ OT</h2><p>ตั้งเวลามาตรฐานและช่วงพักที่ใช้ประกอบการลงเวลาและคำขอทำงานล่วงเวลา</p></div><span class="preview-tag">ข้อมูลตัวอย่าง</span></div>
-<div class="setting-card"><h3>เวลาปฏิบัติงานมาตรฐาน</h3><p class="setting-help">เวลาตัวอย่างสำหรับวันทำงาน · พนักงานเลือกปรับเวลาพักได้ตามสิทธิที่เปิดไว้</p><div class="schedule-group">
-<div class="schedule-block"><div class="schedule-block-head"><strong>เวลาเข้างาน – เลิกงาน</strong><span>เวลางาน</span></div><div class="schedule-times"><label>เริ่มงาน<input type="text" inputmode="numeric" maxlength="5" value="08:30"></label><em>ถึง</em><label>เลิกงาน<input type="text" inputmode="numeric" maxlength="5" value="17:30"></label></div></div>
-<div class="schedule-block"><div class="schedule-block-head"><strong>เวลาพักกลางวัน</strong><span>พัก 60 นาที</span></div><div class="schedule-times"><label>เริ่มพัก<input type="text" inputmode="numeric" maxlength="5" value="12:00"></label><em>ถึง</em><label>กลับเข้าทำงาน<input type="text" inputmode="numeric" maxlength="5" value="13:00"></label></div></div>
-<div class="schedule-block"><div class="schedule-block-head"><strong>เวลากิจกรรม</strong><span>กิจกรรมบริษัท</span></div><div class="schedule-times"><label>เริ่ม<input type="text" inputmode="numeric" maxlength="5" value="15:00"></label><em>ถึง</em><label>สิ้นสุด<input type="text" inputmode="numeric" maxlength="5" value="15:15"></label></div></div>
-<div class="schedule-block"><div class="schedule-block-head"><strong>เวลาพักเย็น</strong><span>ก่อนทำ OT</span></div><div class="schedule-times"><label>เริ่มพัก<input type="text" inputmode="numeric" maxlength="5" value="17:30"></label><em>ถึง</em><label>สิ้นสุด<input type="text" inputmode="numeric" maxlength="5" value="18:00"></label></div></div>
-<div class="schedule-block"><div class="schedule-block-head"><strong>การคำนวณ OT</strong><span>เชื่อมเวลางาน</span></div><label class="toggle-row"><span class="toggle-copy"><strong>เริ่มคำนวณหลังเวลางาน</strong><small>ใช้เวลาเลิกงานและช่วงพักเย็น</small></span><input class="switch" type="checkbox" checked aria-label="เริ่มคำนวณ OT หลังเวลางาน"></label></div>
-</div></div>
-<div class="setting-card"><h3>ตัวเลือกที่พนักงานกำหนดได้</h3><p class="setting-help">เปิดให้พนักงานเลือกเวลาพักและสวัสดิการอาหารตามเงื่อนไขของบริษัท</p><div class="toggle-list">
-<label class="toggle-row"><span class="toggle-copy"><strong>ปรับระยะเวลาพักกลางวันได้</strong><small>เลือกพัก 30, 45 หรือ 60 นาที</small></span><input class="switch" type="checkbox" checked aria-label="อนุญาตให้พนักงานปรับระยะเวลาพักกลางวัน"></label>
-<label class="toggle-row"><span class="toggle-copy"><strong>เลือกไม่พักกลางวันได้</strong><small>เปิดตัวเลือกนี้ให้พนักงานในวันที่ไม่ต้องการพัก</small></span><input class="switch" type="checkbox" aria-label="อนุญาตให้พนักงานไม่พักกลางวัน"></label>
-</div><div class="duration-options"><strong>ตัวเลือกเวลาพักที่อนุญาต</strong><label class="duration-option"><input type="checkbox" checked>30 นาที</label><label class="duration-option"><input type="checkbox" checked>45 นาที</label><label class="duration-option"><input type="checkbox" checked>60 นาที</label></div><div style="margin-top:17px"><div class="setting-toolbar"><div><h3>สวัสดิการมื้ออาหาร</h3><p class="setting-help" style="margin:4px 0 0">รายการตัวอย่างที่เลือกได้เมื่อทำ OT</p></div><button type="button" class="inline-add" data-toast="ปุ่มเพิ่มรายการสวัสดิการเป็นตัวอย่างในพรีวิว">+ เพิ่มรายการ</button></div><div class="benefit-items"><span class="benefit-chip">มื้อเย็น <b>ตัวอย่าง</b></span><span class="benefit-chip">อาหารระหว่าง OT <b>ตัวอย่าง</b></span></div></div></div>
-</section><section class="settings-section" data-setting-panel="holidays" hidden>
-<div class="setting-section-head"><div><h2>ตั้งค่าวันหยุดประจำปี</h2><p>จัดการวันหยุดบริษัทและวันหยุดพิเศษในปฏิทินประจำปี</p></div><span class="preview-tag">ข้อมูลตัวอย่าง</span></div>
-<div class="setting-card"><div class="setting-toolbar"><div><h3>วันหยุดบริษัท</h3><p class="setting-help" style="margin:4px 0 0">ปีปฏิทิน พ.ศ. 2569 / 2570</p></div><div class="settings-actions"><div class="pg-radio-group"><button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">พ.ศ. 2569</button><button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">พ.ศ. 2570</button></div><button type="button" class="button primary" data-toast="เพิ่มวันหยุดตัวอย่างแล้ว">+ เพิ่มวันหยุด</button></div></div>
-<div class="settings-table-wrap"><table class="settings-table"><thead><tr><th>วันที่</th><th>วันหยุด</th><th>ประเภท</th><th>สถานะ</th><th></th></tr></thead><tbody>
-<tr><td>01/01/2569</td><td><strong>วันขึ้นปีใหม่</strong><small>วันหยุดตามปฏิทิน</small></td><td>วันหยุดบริษัท</td><td><span class="status-pill">เปิดใช้</span></td><td><button type="button" class="table-action" data-toast="แก้ไขรายการตัวอย่าง">แก้ไข</button></td></tr>
-<tr><td>06/04/2569</td><td><strong>วันจักรี</strong><small>วันหยุดตามปฏิทิน</small></td><td>วันหยุดบริษัท</td><td><span class="status-pill">เปิดใช้</span></td><td><button type="button" class="table-action" data-toast="แก้ไขรายการตัวอย่าง">แก้ไข</button></td></tr>
-<tr><td>13/04/2569 – 15/04/2569</td><td><strong>วันสงกรานต์</strong><small>วันหยุดตามปฏิทิน</small></td><td>วันหยุดบริษัท</td><td><span class="status-pill">เปิดใช้</span></td><td><button type="button" class="table-action" data-toast="แก้ไขรายการตัวอย่าง">แก้ไข</button></td></tr>
-<tr><td>23/10/2569</td><td><strong>วันปิยมหาราช</strong><small>วันหยุดตามปฏิทิน</small></td><td>วันหยุดบริษัท</td><td><span class="status-pill">เปิดใช้</span></td><td><button type="button" class="table-action" data-toast="แก้ไขรายการตัวอย่าง">แก้ไข</button></td></tr>
-</tbody></table></div></div>
-</section>
-<section class="settings-section" data-setting-panel="leave-types" hidden>
-<div class="setting-section-head"><div><h2>ชื่อรายการลาและสิทธิ</h2><p>กำหนดชื่อรายการ จำนวนสิทธิขั้นต่ำ และการลาแบบเต็มวัน ครึ่งวัน และรายชั่วโมง</p></div><span class="preview-tag">ข้อมูลตัวอย่าง</span></div>
-<div class="setting-card"><div class="setting-toolbar"><div><h3>ประเภทการลา (รองรับเต็มวัน / ครึ่งวัน / รายชั่วโมง)</h3><p class="setting-help" style="margin:4px 0 0">วันลาพักร้อนคงเหลือไม่มีการสะสมยกไปปีถัดไป</p></div><button type="button" class="button primary" data-toast="เพิ่มประเภทลาตัวอย่าง">+ เพิ่มประเภทลา</button></div>
-<div class="settings-table-wrap"><table class="settings-table"><thead><tr><th>ชื่อรายการลา</th><th>สิทธิต่อปี</th><th>รูปแบบที่อนุญาต</th><th>การสะสมยกไปปีถัดไป</th><th>สถานะ</th></tr></thead><tbody>
-<tr><td><strong>ลาพักร้อน</strong><small>ANNUAL</small></td><td><strong>15 วัน</strong></td><td>เต็มวัน · ครึ่งวัน · รายชั่วโมง</td><td><strong>ไม่มีการสะสมยกไป</strong></td><td><span class="status-pill">เปิดใช้</span></td></tr>
-<tr><td><strong>ลาป่วย</strong><small>SICK</small></td><td><strong>5 วัน</strong> (ตามเกณฑ์บริษัท)</td><td>เต็มวัน · ครึ่งวัน · รายชั่วโมง</td><td><strong>ไม่มีการสะสมยกไป</strong></td><td><span class="status-pill">เปิดใช้</span></td></tr>
-<tr><td><strong>ลากิจ</strong><small>PERSONAL</small></td><td><strong>3 วัน</strong></td><td>เต็มวัน · ครึ่งวัน · รายชั่วโมง</td><td><strong>ไม่มีการสะสมยกไป</strong></td><td><span class="status-pill">เปิดใช้</span></td></tr>
-</tbody></table></div></div>
-</section>
-<section class="settings-section" data-setting-panel="employees" hidden>
-<div class="setting-section-head"><div><h2>รายชื่อพนักงาน</h2><p>ค้นหา ดูสถานะ และจัดการข้อมูลพนักงานในองค์กร</p></div><span class="preview-tag">ข้อมูลตัวอย่าง</span></div>
-<div class="setting-card"><div class="setting-toolbar"><div><h3>พนักงานทั้งหมด <span class="status-pill">103 คน</span></h3></div><button type="button" class="button primary" data-toast="เพิ่มพนักงานเป็นตัวอย่างเท่านั้น">+ เพิ่มพนักงาน</button></div>
-<div class="setting-grid" style="margin-bottom:14px"><div class="setting-field"><label for="employee-search">ค้นหาพนักงาน</label><input class="setting-input" id="employee-search" placeholder="ชื่อหรือรหัสพนักงาน"></div><div class="setting-field"><label>แผนก</label><div class="pg-radio-group"><button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ทุกแผนก</button><button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ฝ่ายบัญชี</button><button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ฝ่ายตรวจสอบ</button><button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ฝ่ายบุคคล</button></div></div></div>
-<div class="settings-table-wrap"><table class="settings-table"><thead><tr><th>พนักงาน</th><th>แผนก</th><th>ระดับ</th><th>สถานะ</th><th></th></tr></thead><tbody>
-<tr><td><strong>คุณภาณุพันธุ์ ใจดี</strong><small>CK-2024-0089</small></td><td>ฝ่ายทรัพยากรบุคคล</td><td>เจ้าหน้าที่ HR</td><td><span class="status-pill">ปฏิบัติงาน</span></td><td><button type="button" class="table-action" data-toast="เปิดรายละเอียดพนักงานตัวอย่าง">ดู</button></td></tr>
-<tr><td><strong>คุณสมชาย สายเสมอ</strong><small>CK-2023-0042</small></td><td>ฝ่ายบัญชี</td><td>บัญชีอาวุโส</td><td><span class="status-pill">ปฏิบัติงาน</span></td><td><button type="button" class="table-action" data-toast="เปิดรายละเอียดพนักงานตัวอย่าง">ดู</button></td></tr>
-<tr><td><strong>คุณวรรณา สดใส</strong><small>CK-2023-0055</small></td><td>ฝ่ายการเงิน</td><td>เจ้าหน้าที่การเงิน</td><td><span class="status-pill">ปฏิบัติงาน</span></td><td><button type="button" class="table-action" data-toast="เปิดรายละเอียดพนักงานตัวอย่าง">ดู</button></td></tr>
-</tbody></table></div></div>
-</section><section class="settings-section" data-setting-panel="departments" hidden>
-<div class="setting-section-head"><div><h2>การตั้งค่าแผนกและฝ่าย</h2><p>จัดโครงสร้างหน่วยงานและกำหนดผู้ดูแลของแต่ละฝ่าย</p></div><span class="preview-tag">ข้อมูลตัวอย่าง</span></div>
-<div class="setting-card"><div class="setting-toolbar"><div><h3>โครงสร้างองค์กร</h3><p class="setting-help" style="margin:4px 0 0">หน่วยงานและจำนวนคนในองค์กร</p></div><button type="button" class="button primary" data-toast="เพิ่มแผนกตัวอย่าง">+ เพิ่มแผนก</button></div>
-<div class="settings-table-wrap"><table class="settings-table"><thead><tr><th>ชื่อแผนก / ฝ่าย</th><th>ผู้ดูแล (ผู้อนุมัติระดับ 1)</th><th>พนักงาน</th><th>สถานะ</th><th></th></tr></thead><tbody>
-<tr><td><strong>ฝ่ายบัญชีและการเงิน</strong><small>Accounting &amp; Finance</small></td><td>คุณวิชัย กิจเจริญ</td><td>45 คน</td><td><span class="status-pill">เปิดใช้</span></td><td><button type="button" class="table-action" data-toast="แก้ไขแผนกตัวอย่าง">แก้ไข</button></td></tr>
-<tr><td><strong>ฝ่ายตรวจสอบบัญชี</strong><small>Audit</small></td><td>คุณเกรียงไกร เลิศลักษณ์</td><td>38 คน</td><td><span class="status-pill">เปิดใช้</span></td><td><button type="button" class="table-action" data-toast="แก้ไขแผนกตัวอย่าง">แก้ไข</button></td></tr>
-<tr><td><strong>ฝ่ายทรัพยากรบุคคลและบริหาร</strong><small>HR &amp; Admin</small></td><td>คุณสมศักดิ์ มั่นคง</td><td>20 คน</td><td><span class="status-pill">เปิดใช้</span></td><td><button type="button" class="table-action" data-toast="แก้ไขแผนกตัวอย่าง">แก้ไข</button></td></tr>
-</tbody></table></div></div>
-</section>
-<section class="settings-section" data-setting-panel="approvals" hidden>
-<div class="setting-section-head"><div><h2>ระดับการอนุมัติ (มาตรฐาน 3 ระดับ)</h2><p>ตั้งค่าสายการอนุมัติอัตโนมัติ 3 คน สำหรับการลา, OT, แก้ไขเวลา และเบิกสวัสดิการ</p></div><span class="preview-tag">สายอนุมัติ 3 ระดับ</span></div>
-<div class="setting-card"><div class="workflow-tabs" role="tablist" aria-label="ประเภทคำขอ">
-<button class="workflow-tab" type="button" role="tab" aria-selected="true" data-workflow="การลา">ลางาน (3 ระดับ)</button><button class="workflow-tab" type="button" role="tab" aria-selected="false" data-workflow="OT">OT (3 ระดับ)</button><button class="workflow-tab" type="button" role="tab" aria-selected="false" data-workflow="แก้ไขเวลา">แก้ไขเวลา (3 ระดับ)</button><button class="workflow-tab" type="button" role="tab" aria-selected="false" data-workflow="ค่ารักษา">เบิกค่ารักษา (3 ระดับ)</button></div>
-<div class="setting-toolbar"><div><h3>สายการอนุมัติอัตโนมัติ 3 ระดับ: <span id="workflow-type">การลา</span></h3><p class="setting-help" style="margin:4px 0 0">ระบบดึงสายการอนุมัติทั้ง 3 คนไปแสดงในฟอร์มยื่นคำขอและประวัติคำขอโดยอัตโนมัติ</p></div></div>
-<div class="workflow-steps">
-<div class="workflow-step"><div class="workflow-step-head"><i>01</i><strong>ผู้อนุมัติระดับที่ 1: หัวหน้างานโดยตรง (คุณสมศักดิ์ มั่นคง · ผจก.ฝ่ายบุคคล)</strong></div><p class="setting-help" style="margin:6px 0 0">ตรวจสอบความเหมาะสมของภาระงานภายในทีมและอนุมัติขั้นต้น</p></div>
-<div class="workflow-step"><div class="workflow-step-head"><i>02</i><strong>ผู้อนุมัติระดับที่ 2: ฝ่ายทรัพยากรบุคคลตรวจสอบ (คุณศิริพร วงศ์สวัสดิ์ · ผอ.ฝ่าย HR)</strong></div><p class="setting-help" style="margin:6px 0 0">ตรวจสอบสิทธิ์วันลาคงเหลือ เอกสารแนบ และระเบียบบริษัท</p></div>
-<div class="workflow-step"><div class="workflow-step-head"><i>03</i><strong>ผู้อนุมัติระดับที่ 3: ผู้บริหารอนุมัติสูงสุด (คุณจักรกฤษณ์ เอซ · กรรมการผู้จัดการ)</strong></div><p class="setting-help" style="margin:6px 0 0">พิจารณาอนุมัติขั้นสุดท้ายเพื่อบันทึกเข้าระบบ Payroll</p></div>
-</div></div>
-</section>
-<section class="settings-section" data-setting-panel="permissions" hidden>
-<div class="setting-section-head"><div><h2>ระดับและขอบเขตสิทธิ์</h2><p>กำหนดขอบเขตข้อมูลและงานที่แต่ละระดับผู้ใช้มองเห็นหรือจัดการได้</p></div><span class="preview-tag">โครงร่างตัวอย่าง</span></div>
-<div class="setting-card"><div class="setting-toolbar"><div><h3>ตารางสิทธิ์ตามระดับ</h3><p class="setting-help" style="margin:4px 0 0">ตรวจบทบาทและขอบเขตได้ในตารางเดียว</p></div><button type="button" class="inline-add" data-toast="แก้ไขสิทธิ์ตัวอย่าง">ปรับแต่งสิทธิ์</button></div>
-<div class="settings-table-wrap"><table class="settings-table"><thead><tr><th>ระดับผู้ใช้</th><th>ข้อมูลที่เห็น</th><th>ขอบเขต</th><th>จัดการตั้งค่า</th><th>อนุมัติคำขอ</th></tr></thead><tbody>
-<tr><td><strong>พนักงาน</strong></td><td>ข้อมูลของตนเอง</td><td>ตนเอง</td><td>บางรายการ</td><td><span class="status-pill off">ไม่มี</span></td></tr>
-<tr><td><strong>หัวหน้าทีม</strong></td><td>ข้อมูลทีม</td><td>ทีม / แผนก</td><td><span class="status-pill off">ไม่มี</span></td><td><span class="status-pill">ตามสายอนุมัติ</span></td></tr>
-<tr><td><strong>ผู้ดูแลระบบ</strong></td><td>ข้อมูลขององค์กร</td><td>ตามขอบเขตที่ได้รับ</td><td><span class="status-pill">จัดการได้</span></td><td><span class="status-pill">ตามสายอนุมัติ</span></td></tr>
-<tr><td><strong>ผู้ดูแลสูงสุด</strong></td><td>ข้อมูลทั้งระบบ</td><td>ทั้งองค์กร</td><td><span class="status-pill">จัดการได้</span></td><td><span class="status-pill">กำหนดได้</span></td></tr>
-</tbody></table></div><div class="permission-note">โครงร่างตัวอย่างเท่านั้น สิทธิ์จริงต้องยึดตามบทบาทและนโยบายที่ผู้ดูแลระบบกำหนด</div></div>
-</section>
-<div class="setting-footer"><small>พรีวิวนี้ใช้ตรวจรูปแบบเท่านั้น · ไม่มีการบันทึกหรือแก้ไขระบบจริง</small><div class="settings-actions"><button class="button" type="button" data-toast="ยังไม่มีการเปลี่ยนแปลงที่บันทึกในระบบจริง">ยกเลิก</button><button class="button primary" type="button" data-toast="บันทึกในพรีวิวเท่านั้น ยังไม่มีการส่งข้อมูลเข้าระบบ">บันทึกการตั้งค่า</button></div></div>
-</div></div></main>
+
+  <!-- แถบเลือกหมวดตั้งค่าระบบ (จัดวางชิดซ้ายเต็มความกว้าง เหมือนประเภทรายงานและกรองคำขอ) -->
+  <div class="pg-card" style="padding:14px 20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+        <span style="font-size:13px;font-weight:800;color:#0f172a;white-space:nowrap;">หมวดตั้งค่า:</span>
+        <div class="pg-radio-group" id="settings-tab-group">
+          <button type="button" class="pg-radio-btn active" style="white-space:nowrap;" data-setting-menu="worktime" aria-current="true">เวลาทำงานและวันหยุด</button>
+          <button type="button" class="pg-radio-btn" style="white-space:nowrap;" data-setting-menu="leave-benefits">นโยบายการลาและสวัสดิการ</button>
+          <button type="button" class="pg-radio-btn" style="white-space:nowrap;" data-setting-menu="org-people">องค์กรและรายชื่อพนักงาน</button>
+          <button type="button" class="pg-radio-btn" style="white-space:nowrap;" data-setting-menu="workflow-roles">สายอนุมัติและสิทธิ์การใช้งาน</button>
+        </div>
+      </div>
+      <span style="font-size:12px;font-weight:700;color:#1e70bf;background:#eff6ff;border:1px solid #bfdbfe;padding:4px 10px;border-radius:8px;white-space:nowrap;">รอบปีบัญชี: พ.ศ. 2569</span>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       หมวด 1: เวลาทำงานและวันหยุด (รวม วันทำงาน + เวลาทำงาน/OT + วันหยุดประจำปี)
+       ========================================== -->
+  <section class="settings-section" data-setting-panel="worktime">
+    <div class="ck-settings-2col">
+      <!-- ซ้าย: วันทำงาน & เวลาปฏิบัติงานมาตรฐาน -->
+      <div class="pg-card" style="margin-bottom:0;">
+        <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><use href="#clock"/></svg> วันทำงานและเวลาปฏิบัติงานมาตรฐาน</h3>
+          <span class="pg-badge pg-badge-info">5 วันทำงาน</span>
+        </div>
+        <div class="day-selector" style="margin-bottom:14px;">
+          <button type="button" class="day-choice" style="min-height:64px;" aria-pressed="true"><i><svg><use href="#check"/></svg></i>จันทร์</button>
+          <button type="button" class="day-choice" style="min-height:64px;" aria-pressed="true"><i><svg><use href="#check"/></svg></i>อังคาร</button>
+          <button type="button" class="day-choice" style="min-height:64px;" aria-pressed="true"><i><svg><use href="#check"/></svg></i>พุธ</button>
+          <button type="button" class="day-choice" style="min-height:64px;" aria-pressed="true"><i><svg><use href="#check"/></svg></i>พฤหัสบดี</button>
+          <button type="button" class="day-choice" style="min-height:64px;" aria-pressed="true"><i><svg><use href="#check"/></svg></i>ศุกร์</button>
+          <button type="button" class="day-choice" style="min-height:64px;" aria-pressed="false"><i></i>เสาร์</button>
+          <button type="button" class="day-choice" style="min-height:64px;" aria-pressed="false"><i></i>อาทิตย์</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px;">
+          <div class="schedule-block"><div class="schedule-block-head"><strong>เข้างาน – เลิกงาน</strong><span>เวลางาน</span></div><div class="schedule-times"><label>เริ่ม<input type="text" inputmode="numeric" maxlength="5" value="08:30"></label><em>ถึง</em><label>เลิก<input type="text" inputmode="numeric" maxlength="5" value="17:30"></label></div></div>
+          <div class="schedule-block"><div class="schedule-block-head"><strong>พักกลางวัน</strong><span>60 นาที</span></div><div class="schedule-times"><label>เริ่ม<input type="text" inputmode="numeric" maxlength="5" value="12:00"></label><em>ถึง</em><label>สิ้นสุด<input type="text" inputmode="numeric" maxlength="5" value="13:00"></label></div></div>
+          <div class="schedule-block"><div class="schedule-block-head"><strong>กิจกรรมบริษัท</strong><span>15 นาที</span></div><div class="schedule-times"><label>เริ่ม<input type="text" inputmode="numeric" maxlength="5" value="15:00"></label><em>ถึง</em><label>สิ้นสุด<input type="text" inputmode="numeric" maxlength="5" value="15:15"></label></div></div>
+          <div class="schedule-block"><div class="schedule-block-head"><strong>พักเย็นก่อน OT</strong><span>30 นาที</span></div><div class="schedule-times"><label>เริ่ม<input type="text" inputmode="numeric" maxlength="5" value="17:30"></label><em>ถึง</em><label>สิ้นสุด<input type="text" inputmode="numeric" maxlength="5" value="18:00"></label></div></div>
+        </div>
+        <label class="toggle-row" style="padding:10px 0 0;"><span class="toggle-copy"><strong>ไม่นับวันหยุดประจำสัปดาห์ในคำขอลา</strong><small>คำนวณเฉพาะวันทำงานปกติของบริษัท</small></span><input class="switch" type="checkbox" checked aria-label="ไม่นับวันหยุดประจำสัปดาห์ในคำขอลา"></label>
+      </div>
+
+      <!-- ขวา: เงื่อนไข OT, ตัวเลือกเวลาพัก และสวัสดิการมื้ออาหาร -->
+      <div class="pg-card" style="margin-bottom:0;display:flex;flex-direction:column;justify-content:space-between;">
+        <div>
+          <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#7c3aed"><use href="#settings-gear"/></svg> เงื่อนไขเวลาพัก การลงเวลา และเบิก OT</h3>
+            <span class="pg-badge" style="background:#f3e8ff;color:#7c3aed;border:1px solid #ddd6fe;">เชื่อมระบบ OT</span>
+          </div>
+          <div class="toggle-list">
+            <label class="toggle-row"><span class="toggle-copy"><strong>เริ่มคำนวณ OT หลังเวลาเลิกงานและพักเย็น</strong><small>เชื่อมเวลางาน 17:30 น. และพักเย็น 17:30–18:00 น. อัตโนมัติ</small></span><input class="switch" type="checkbox" checked aria-label="เริ่มคำนวณ OT หลังเวลางาน"></label>
+            <label class="toggle-row"><span class="toggle-copy"><strong>อนุญาตให้พนักงานปรับระยะเวลาพักกลางวันได้</strong><small>รองรับตัวเลือกพัก 30, 45 หรือ 60 นาที ตามตารางงาน</small></span><input class="switch" type="checkbox" checked aria-label="อนุญาตให้ปรับระยะเวลาพักกลางวัน"></label>
+            <label class="toggle-row"><span class="toggle-copy"><strong>อนุญาตให้เลือกไม่พักกลางวันในวันเร่งด่วน</strong><small>เปิดใช้งานตัวเลือกในหน้าลงเวลาและแก้ไขเวลา</small></span><input class="switch" type="checkbox" aria-label="อนุญาตให้ไม่พักกลางวัน"></label>
+            <label class="toggle-row"><span class="toggle-copy"><strong>บังคับแนบหลักฐานเมื่อขอแก้ไขเวลาย้อนหลัง</strong><small>เชื่อมโยงฟอร์มหน้าลงเวลาและแก้ไขเวลา (#attendance)</small></span><input class="switch" type="checkbox" checked aria-label="บังคับแนบหลักฐานแก้ไขเวลา"></label>
+          </div>
+          <div class="duration-options">
+            <strong>ตัวเลือกเวลาพักที่อนุญาต:</strong>
+            <label class="duration-option"><input type="checkbox" checked>30 นาที</label>
+            <label class="duration-option"><input type="checkbox" checked>45 นาที</label>
+            <label class="duration-option"><input type="checkbox" checked>60 นาที</label>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div class="benefit-items">
+            <span style="font-size:12px;font-weight:700;color:#0f172a;align-self:center;">สวัสดิการอาหาร OT:</span>
+            <span class="benefit-chip">มื้อเย็น</span>
+            <span class="benefit-chip">อาหารระหว่าง OT</span>
+          </div>
+          <button type="button" class="inline-add" data-toast="เพิ่มรายการสวัสดิการอาหาร OT ตัวอย่างแล้ว">+ เพิ่มรายการ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ตารางวันหยุดประจำปี -->
+    <div class="pg-card">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><use href="#calendar"/></svg> วันหยุดประจำปีบริษัท</h3>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="pg-radio-group">
+            <button type="button" class="pg-radio-btn active" style="padding:6px 12px;" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">พ.ศ. 2569</button>
+            <button type="button" class="pg-radio-btn" style="padding:6px 12px;" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">พ.ศ. 2570</button>
+          </div>
+          <button type="button" class="pg-btn pg-btn-primary" style="padding:7px 14px;font-size:12.5px;" data-toast="เพิ่มวันหยุดประจำปีตัวอย่างแล้ว">+ เพิ่มวันหยุด</button>
+        </div>
+      </div>
+      <div class="pg-table-responsive">
+        <table class="pg-table" style="width:100%;text-align:center;">
+          <thead>
+            <tr>
+              <th style="width:20%;text-align:center;">วันที่</th>
+              <th style="width:32%;text-align:center;">ชื่อวันหยุด</th>
+              <th style="width:20%;text-align:center;">ประเภท</th>
+              <th style="width:14%;text-align:center;">สถานะ</th>
+              <th style="width:14%;text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>01/01/2569</strong></td><td>วันขึ้นปีใหม่</td><td>วันหยุดบริษัท</td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไขวันหยุด" data-toast="แก้ไขรายการวันหยุดตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+            <tr><td><strong>06/04/2569</strong></td><td>วันจักรี</td><td>วันหยุดบริษัท</td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไขวันหยุด" data-toast="แก้ไขรายการวันหยุดตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+            <tr><td><strong>13/04/2569 – 15/04/2569</strong></td><td>วันสงกรานต์</td><td>วันหยุดบริษัท</td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไขวันหยุด" data-toast="แก้ไขรายการวันหยุดตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+            <tr><td><strong>23/10/2569</strong></td><td>วันปิยมหาราช</td><td>วันหยุดบริษัท</td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไขวันหยุด" data-toast="แก้ไขรายการวันหยุดตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       หมวด 2: นโยบายการลาและสวัสดิการ (รวม รอบการลา + ประเภทการลา + สวัสดิการ OPD)
+       ========================================== -->
+  <section class="settings-section" data-setting-panel="leave-benefits" hidden>
+    <div class="ck-settings-2col">
+      <!-- ซ้าย: รอบสิทธิการลาประจำปี -->
+      <div class="pg-card" style="margin-bottom:0;">
+        <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><use href="#calendar"/></svg> รอบสิทธิการลาประจำปี</h3>
+          <span class="pg-badge pg-badge-info">รอบถัดไป 01/01/2570</span>
+        </div>
+        <div class="setting-grid" style="margin-bottom:14px;">
+          <div class="setting-field">
+            <label>วันที่เริ่มรอบ</label>
+            <div class="pg-radio-group">
+              <button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">วันที่ 01</button>
+              <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">วันที่ 15</button>
+              <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">สิ้นเดือน</button>
+            </div>
+          </div>
+          <div class="setting-field">
+            <label>เดือนเริ่มรอบ</label>
+            <div class="pg-radio-group">
+              <button type="button" class="pg-radio-btn active" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">มกราคม</button>
+              <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">เมษายน</button>
+              <button type="button" class="pg-radio-btn" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">กรกฎาคม</button>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="choice-card" style="width:100%;min-height:auto;" aria-pressed="true"><span class="choice-radio"></span><span><strong>ตัดสิทธิ์เมื่อสิ้นสุดรอบปี (ไม่มีการสะสมยกไปปีถัดไป)</strong><small>วันลาพักร้อนคงเหลือใช้ได้ถึงวันที่ 31/12/2569 เท่านั้น</small></span></button>
+      </div>
+
+      <!-- ขวา: วงเงินสวัสดิการ OPD -->
+      <div class="pg-card" style="margin-bottom:0;display:flex;flex-direction:column;justify-content:space-between;">
+        <div>
+          <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#059669"><use href="#heart"/></svg> วงเงินและเงื่อนไขสวัสดิการ OPD</h3>
+            <span class="pg-badge pg-badge-success">฿10,000 / ปี</span>
+          </div>
+          <div class="setting-grid" style="margin-bottom:10px;">
+            <div class="setting-field"><label>วงเงิน OPD มาตรฐานต่อปี (บาท)</label><input class="setting-input" type="text" value="10,000.00"></div>
+            <div class="setting-field"><label>เพดานเบิกต่อครั้ง (บาท)</label><input class="setting-input" type="text" value="1,500.00"></div>
+          </div>
+        </div>
+        <div class="toggle-list">
+          <label class="toggle-row"><span class="toggle-copy"><strong>บังคับแนบใบเสร็จรับเงินฉบับจริงทุกคำขอเบิก OPD</strong><small>เชื่อมโยงฟอร์มเบิกสวัสดิการ (#benefits)</small></span><input class="switch" type="checkbox" checked aria-label="บังคับแนบใบเสร็จ OPD"></label>
+          <label class="toggle-row" style="padding-bottom:0;"><span class="toggle-copy"><strong>รองรับการลาเต็มวัน / ครึ่งวัน / รายชั่วโมง</strong><small>ใช้ร่วมกับทุกประเภทการลาในหน้า #leave</small></span><input class="switch" type="checkbox" checked aria-label="รองรับการลาหลายรูปแบบ"></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ตารางรายการและสิทธิการลา -->
+    <div class="pg-card">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><use href="#file"/></svg> รายการและสิทธิการลาประจำปี (รวม 23.00 วัน/ปี)</h3>
+        <button type="button" class="pg-btn pg-btn-primary" style="padding:7px 14px;font-size:12.5px;" data-toast="เพิ่มประเภทลาตัวอย่าง">+ เพิ่มประเภทลา</button>
+      </div>
+      <div class="pg-table-responsive">
+        <table class="pg-table" style="width:100%;text-align:center;">
+          <thead>
+            <tr>
+              <th style="width:20%;text-align:center;">ชื่อรายการลา</th>
+              <th style="width:16%;text-align:center;">สิทธิต่อปี</th>
+              <th style="width:24%;text-align:center;">รูปแบบที่อนุญาต</th>
+              <th style="width:20%;text-align:center;">การสะสมยกไปปีถัดไป</th>
+              <th style="width:10%;text-align:center;">สถานะ</th>
+              <th style="width:10%;text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="pg-badge" style="background:#eff6ff;color:#1e70bf;font-weight:700;">ลาพักร้อน</span></td><td><strong>15 วัน</strong></td><td>เต็มวัน · ครึ่งวัน · รายชั่วโมง</td><td>ไม่มีการสะสมยกไป</td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไข" data-toast="แก้ไขประเภทลาตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+            <tr><td><span class="pg-badge" style="background:#fee2e2;color:#b91c1c;font-weight:700;">ลาป่วย</span></td><td><strong>5 วัน</strong></td><td>เต็มวัน · ครึ่งวัน · รายชั่วโมง</td><td>ไม่มีการสะสมยกไป</td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไข" data-toast="แก้ไขประเภทลาตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+            <tr><td><span class="pg-badge" style="background:#fef3c7;color:#b45309;font-weight:700;">ลากิจ</span></td><td><strong>3 วัน</strong></td><td>เต็มวัน · ครึ่งวัน · รายชั่วโมง</td><td>ไม่มีการสะสมยกไป</td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไข" data-toast="แก้ไขประเภทลาตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       หมวด 3: องค์กรและรายชื่อพนักงาน (รวม แผนกและฝ่าย + รายชื่อพนักงาน)
+       ========================================== -->
+  <section class="settings-section" data-setting-panel="org-people" hidden>
+    <div class="pg-card">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><use href="#org"/></svg> โครงสร้างแผนกและฝ่าย (103 คน)</h3>
+        <button type="button" class="pg-btn pg-btn-primary" style="padding:7px 14px;font-size:12.5px;" data-toast="เพิ่มแผนกตัวอย่าง">+ เพิ่มแผนก</button>
+      </div>
+      <div class="pg-table-responsive">
+        <table class="pg-table" style="width:100%;text-align:center;">
+          <thead>
+            <tr>
+              <th style="width:28%;text-align:center;">ชื่อแผนก / ฝ่าย</th>
+              <th style="width:28%;text-align:center;">ผู้ดูแล (ผู้อนุมัติระดับ 1)</th>
+              <th style="width:16%;text-align:center;">จำนวนพนักงาน</th>
+              <th style="width:14%;text-align:center;">สถานะ</th>
+              <th style="width:14%;text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>ฝ่ายบัญชีและการเงิน</strong><div style="font-size:11.5px;color:#64748b;">Accounting &amp; Finance</div></td><td>คุณวิชัย กิจเจริญ</td><td><strong>45 คน</strong></td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไขแผนก" data-toast="แก้ไขแผนกตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+            <tr><td><strong>ฝ่ายตรวจสอบบัญชี</strong><div style="font-size:11.5px;color:#64748b;">Audit</div></td><td>คุณเกรียงไกร เลิศลักษณ์</td><td><strong>38 คน</strong></td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไขแผนก" data-toast="แก้ไขแผนกตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+            <tr><td><strong>ฝ่ายทรัพยากรบุคคลและบริหาร</strong><div style="font-size:11.5px;color:#64748b;">HR &amp; Admin</div></td><td>คุณสมศักดิ์ มั่นคง</td><td><strong>20 คน</strong></td><td><span class="pg-badge pg-badge-success">✓ เปิดใช้</span></td><td><button type="button" class="ck-action-btn edit" title="แก้ไขแผนก" data-toast="แก้ไขแผนกตัวอย่าง"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pg-card">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><use href="#users"/></svg> รายชื่อพนักงาน <span class="pg-badge pg-badge-info" style="margin-left:6px;">103 คน</span></h3>
+        <button type="button" class="pg-btn pg-btn-primary" style="padding:7px 14px;font-size:12.5px;" data-toast="เพิ่มพนักงานตัวอย่าง">+ เพิ่มพนักงาน</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;">
+        <input class="setting-input" id="employee-search" placeholder="ค้นหาชื่อหรือรหัสพนักงาน..." style="max-width:280px;height:38px;">
+        <div class="pg-radio-group">
+          <button type="button" class="pg-radio-btn active" style="padding:6px 12px;" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ทุกแผนก</button>
+          <button type="button" class="pg-radio-btn" style="padding:6px 12px;" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ฝ่ายบัญชีและการเงิน</button>
+          <button type="button" class="pg-radio-btn" style="padding:6px 12px;" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ฝ่ายตรวจสอบบัญชี</button>
+          <button type="button" class="pg-radio-btn" style="padding:6px 12px;" onclick="this.parentElement.querySelectorAll('.pg-radio-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');">ฝ่ายบุคคล</button>
+        </div>
+      </div>
+      <div class="pg-table-responsive">
+        <table class="pg-table" style="width:100%;text-align:center;">
+          <thead>
+            <tr>
+              <th style="width:28%;text-align:center;">พนักงาน</th>
+              <th style="width:24%;text-align:center;">แผนก / ฝ่าย</th>
+              <th style="width:20%;text-align:center;">ตำแหน่ง</th>
+              <th style="width:14%;text-align:center;">สถานะ</th>
+              <th style="width:14%;text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>คุณภาณุพันธุ์ ใจดี</strong><div style="font-size:11.5px;color:#64748b;">CK-2024-0089</div></td><td>ฝ่ายทรัพยากรบุคคล</td><td>เจ้าหน้าที่ HR</td><td><span class="pg-badge pg-badge-success">✓ ปฏิบัติงาน</span></td><td><button type="button" class="ck-action-btn view" title="ดูข้อมูล" data-toast="เปิดรายละเอียดพนักงานตัวอย่าง"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+            <tr><td><strong>คุณสมชาย สายเสมอ</strong><div style="font-size:11.5px;color:#64748b;">CK-2023-0042</div></td><td>ฝ่ายบัญชีและการเงิน</td><td>นักบัญชีอาวุโส</td><td><span class="pg-badge pg-badge-success">✓ ปฏิบัติงาน</span></td><td><button type="button" class="ck-action-btn view" title="ดูข้อมูล" data-toast="เปิดรายละเอียดพนักงานตัวอย่าง"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+            <tr><td><strong>คุณวรรณา สดใส</strong><div style="font-size:11.5px;color:#64748b;">CK-2023-0055</div></td><td>ฝ่ายบัญชีและการเงิน</td><td>เจ้าหน้าที่การเงิน</td><td><span class="pg-badge pg-badge-success">✓ ปฏิบัติงาน</span></td><td><button type="button" class="ck-action-btn view" title="ดูข้อมูล" data-toast="เปิดรายละเอียดพนักงานตัวอย่าง"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       หมวด 4: สายอนุมัติและสิทธิ์การใช้งาน (รวม ระดับการอนุมัติ 3 ระดับ + ขอบเขตสิทธิ์)
+       ========================================== -->
+  <section class="settings-section" data-setting-panel="workflow-roles" hidden>
+    <div class="pg-card">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><use href="#workflow"/></svg> สายการอนุมัติอัตโนมัติ 3 ระดับ (<span id="workflow-type">ลางาน</span>)</h3>
+        <div class="pg-radio-group" role="tablist" aria-label="ประเภทคำขอ">
+          <button class="pg-radio-btn active workflow-tab" type="button" role="tab" aria-selected="true" data-workflow="ลางาน" style="padding:6px 12px;">ลางาน</button>
+          <button class="pg-radio-btn workflow-tab" type="button" role="tab" aria-selected="false" data-workflow="เบิก OT" style="padding:6px 12px;">เบิก OT</button>
+          <button class="pg-radio-btn workflow-tab" type="button" role="tab" aria-selected="false" data-workflow="แก้ไขเวลา" style="padding:6px 12px;">แก้ไขเวลา</button>
+          <button class="pg-radio-btn workflow-tab" type="button" role="tab" aria-selected="false" data-workflow="เบิกสวัสดิการ OPD" style="padding:6px 12px;">สวัสดิการ OPD</button>
+        </div>
+      </div>
+      <div class="ck-chain-steps-3">
+        <div class="ck-chain-node">
+          <div class="ck-chain-node-top">
+            <div class="ck-chain-av">สม</div>
+            <span class="ck-chain-step-badge">ลำดับที่ 1</span>
+          </div>
+          <div class="ck-chain-name">คุณสมศักดิ์ มั่นคง</div>
+          <div class="ck-chain-role">หัวหน้างานโดยตรง · อนุมัติขั้นต้น</div>
+        </div>
+        <div class="ck-chain-node">
+          <div class="ck-chain-node-top">
+            <div class="ck-chain-av" style="background:linear-gradient(135deg,#0d9488,#065f46);">ศว</div>
+            <span class="ck-chain-step-badge">ลำดับที่ 2</span>
+          </div>
+          <div class="ck-chain-name">คุณศิริพร วงศ์สวัสดิ์</div>
+          <div class="ck-chain-role">ผอ.ฝ่าย HR · ตรวจสิทธิ์และเอกสาร</div>
+        </div>
+        <div class="ck-chain-node">
+          <div class="ck-chain-node-top">
+            <div class="ck-chain-av" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);">จอ</div>
+            <span class="ck-chain-step-badge">ลำดับที่ 3</span>
+          </div>
+          <div class="ck-chain-name">คุณจักรกฤษณ์ เอซ</div>
+          <div class="ck-chain-role">กรรมการผู้จัดการ · อนุมัติขั้นสุดท้าย</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pg-card">
+      <div class="pg-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h3 class="pg-card-title" style="margin:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><use href="#settings-gear"/></svg> ระดับและขอบเขตสิทธิ์การใช้งาน</h3>
+        <button type="button" class="inline-add" data-toast="ปรับแต่งสิทธิ์ตัวอย่าง">ปรับแต่งสิทธิ์</button>
+      </div>
+      <div class="pg-table-responsive">
+        <table class="pg-table" style="width:100%;text-align:center;">
+          <thead>
+            <tr>
+              <th style="width:20%;text-align:center;">ระดับผู้ใช้</th>
+              <th style="width:24%;text-align:center;">ข้อมูลที่เห็น</th>
+              <th style="width:20%;text-align:center;">ขอบเขตรายงาน</th>
+              <th style="width:18%;text-align:center;">จัดการตั้งค่า</th>
+              <th style="width:18%;text-align:center;">อนุมัติคำขอ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>พนักงาน</strong></td><td>ข้อมูลของตนเอง</td><td>ตนเองเท่านั้น</td><td><span class="pg-badge pg-badge-danger">ไม่อนุญาต</span></td><td><span class="pg-badge pg-badge-danger">ไม่มี</span></td></tr>
+            <tr><td><strong>หัวหน้าทีม</strong></td><td>ข้อมูลตนเองและทีม</td><td>ทีม / แผนกที่ดูแล</td><td><span class="pg-badge pg-badge-danger">ไม่อนุญาต</span></td><td><span class="pg-badge pg-badge-success">ตามสายอนุมัติ</span></td></tr>
+            <tr><td><strong>ผู้ดูแลระบบ HR</strong></td><td>ข้อมูลทั้งองค์กร</td><td>ตามแผนก / รายบุคคล</td><td><span class="pg-badge pg-badge-success">✓ จัดการได้</span></td><td><span class="pg-badge pg-badge-success">ตามสายอนุมัติ</span></td></tr>
+            <tr><td><strong>ผู้บริหารสูงสุด (MD)</strong></td><td>ข้อมูลทั้งระบบ</td><td>ทั้งองค์กร</td><td><span class="pg-badge pg-badge-success">✓ จัดการได้</span></td><td><span class="pg-badge pg-badge-info">อนุมัติขั้นสุดท้าย</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- แถบบันทึกการตั้งค่า -->
+  <div class="pg-card" style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <span style="font-size:12.5px;color:#64748b;font-weight:600;">พรีวิวนี้ใช้ตรวจรูปแบบเท่านั้น · การเปลี่ยนแปลงจะเชื่อมโยงกับระบบลางาน, OT, ลงเวลา, อนุมัติ และรายงาน</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button type="button" class="pg-btn" style="border:1px solid #cbd5e1;background:#f8fafc;color:#475569;padding:8px 16px;" data-toast="ยกเลิกการแก้ไขในพรีวิวแล้ว">ยกเลิก</button>
+      <button type="button" class="pg-btn pg-btn-primary" style="padding:8px 18px;" data-toast="บันทึกการตั้งค่าระบบในพรีวิวเรียบร้อยแล้ว">✓ บันทึกการตั้งค่า</button>
+    </div>
+  </div>
+</main>
 
 <!-- ==========================================
      PAGE 2: ขอลางาน (#leave)
@@ -9270,13 +9530,13 @@ main, .page-view, .settings-page {
         <div class="ck-att-tile" style="border-top:3px solid #1e70bf;">
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
-              <span class="ck-att-circle in" style="transform:none;"><svg><use href="#check"/></svg></span>
+              <span class="ck-att-circle in" style="background:#1e70bf;transform:none;"><svg><use href="#check"/></svg></span>
               <span class="ck-att-label">วันเริ่มงาน / อายุงาน</span>
             </div>
-            <span class="ck-att-pill green">พนักงานประจำ</span>
+            <span class="ck-att-pill" style="background:#eff6ff;color:#1e70bf;border-color:#bfdbfe;">พนักงานประจำ</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#1e70bf !important;;text-align:center;">01/02/2567 (2 ปี 8 ด.)</strong>
+            <strong class="ck-att-time" style="color:#1e70bf !important;text-align:center;">01/02/2567 (2 ปี 8 ด.)</strong>
           </div>
         </div>
 
@@ -9284,175 +9544,426 @@ main, .page-view, .settings-page {
           <div class="ck-att-topline">
             <div class="ck-att-head-left">
               <span class="ck-att-circle out" style="background:#059669;"><svg><use href="#file"/></svg></span>
-              <span class="ck-att-label">บัญชีรับเงินเดือน (SCB)</span>
+              <span class="ck-att-label">บัญชีรับเงินเดือน</span>
             </div>
-            <span class="ck-att-pill green">✓ ยืนยันแล้ว</span>
+            <span class="ck-att-pill green">✓ ยืนยัน</span>
           </div>
           <div class="ck-att-bottomline" style="text-align:center;">
-            <strong class="ck-att-time" style="color:#059669 !important;;text-align:center;">xxx-x-xx123-4</strong>
+            <strong class="ck-att-time" style="color:#059669 !important;text-align:center;">SCB 408-2-95123-4</strong>
           </div>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- Row 2: 4 KPI Cards (รูปแบบเดียวกับหน้า OT มีแถบสีด้านบนกรอบ) -->
-  <div class="ck-ot-kpi-grid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;margin-bottom:18px;">
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ลาพักร้อน</b>
+  <!-- Row 2: 6 KPI Cards (รูปแบบเดียวกับหน้ารายงาน ครบทั้ง ลาพักร้อน ลาป่วย ลากิจ ลงเวลา OT และ OPD) -->
+  <div class="ck-profile-kpi-6">
+    <!-- 1. ลาพักร้อน (Blue) -->
+    <div class="ck-pers-card" style="padding:13px 14px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #1e70bf;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+        <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#e0f2fe;color:#1e70bf;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></span>
+          <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ลาพักร้อน</b>
         </div>
-        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 15.00 วัน</span>
+        <span style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 15 วัน</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#1e70bf;letter-spacing:-0.4px;line-height:1.1;">เหลือ 12.00 วัน</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">ใช้ไป 3.00 วัน (20%)</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:6px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">ใช้ไปแล้ว</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#1e70bf;line-height:1.2;white-space:nowrap;">3.00 วัน</strong>
+        </div>
+        <div style="padding-left:8px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">คงเหลือ</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#0b3b68;line-height:1.2;white-space:nowrap;">12.00 วัน</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#1e70bf;white-space:nowrap;">ใช้ไป 20.0%</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="width:20%;height:100%;background:#1e70bf;border-radius:99px;"></div>
+        </div>
       </div>
     </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0284c7;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#e0f2fe;color:#0284c7;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">การลงเวลา</b>
+
+    <!-- 2. ลาป่วย (Red) -->
+    <div class="ck-pers-card" style="padding:13px 14px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #dc2626;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+        <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#fee2e2;color:#dc2626;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></span>
+          <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ลาป่วย</b>
         </div>
-        <span style="background:#f0f9ff;color:#0284c7;border:1px solid #bae6fd;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">ตรงเวลา 95%</span>
+        <span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 5 วัน</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#0284c7;letter-spacing:-0.4px;line-height:1.1;">18 / 19 วัน</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">บันทึกเวลาปกติ</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:6px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">ใช้ไปแล้ว</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#dc2626;line-height:1.2;white-space:nowrap;">1.00 วัน</strong>
+        </div>
+        <div style="padding-left:8px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">คงเหลือ</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#7f1d1d;line-height:1.2;white-space:nowrap;">4.00 วัน</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#dc2626;white-space:nowrap;">ใช้ไป 20.0%</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="width:20%;height:100%;background:#dc2626;border-radius:99px;"></div>
+        </div>
       </div>
     </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#f3e8ff;color:#7c3aed;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ชั่วโมง OT</b>
+
+    <!-- 3. ลากิจ (Amber) -->
+    <div class="ck-pers-card" style="padding:13px 14px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #d97706;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+        <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#fef3c7;color:#d97706;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#calendar"/></svg></span>
+          <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ลากิจ</b>
         </div>
-        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">พ.ย. 2569</span>
+        <span style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ 3 วัน</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#7c3aed;letter-spacing:-0.4px;line-height:1.1;">42.5 ชม.</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">อนุมัติแล้ว 8 รายการ</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:6px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">ใช้ไปแล้ว</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#d97706;line-height:1.2;white-space:nowrap;">1.00 วัน</strong>
+        </div>
+        <div style="padding-left:8px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">คงเหลือ</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#78350f;line-height:1.2;white-space:nowrap;">2.00 วัน</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#d97706;white-space:nowrap;">ใช้ไป 33.3%</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="width:33.3%;height:100%;background:#d97706;border-radius:99px;"></div>
+        </div>
       </div>
     </div>
-    <div class="ck-pers-card" style="padding:16px 18px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;gap:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:#d1fae5;color:#059669;border-radius:11px;flex-shrink:0;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
-          <b style="font-size:14.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ค่ารักษา OPD</b>
+
+    <!-- 4. การลงเวลา (Teal) -->
+    <div class="ck-pers-card" style="padding:13px 14px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #0d9488;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+        <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#ccfbf1;color:#0d9488;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#check"/></svg></span>
+          <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">การลงเวลา</b>
         </div>
-        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 9px;border-radius:8px;font-size:11.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">สิทธิ์ ฿10,000</span>
+        <span style="background:#f0fdfa;color:#0d9488;border:1px solid #99f6e4;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">พ.ย. 2569</span>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:2px;">
-        <strong style="font-size:24px;font-weight:800;color:#059669;letter-spacing:-0.4px;line-height:1.1;">เหลือ ฿7,500</strong>
-        <span style="font-size:11.5px;font-weight:600;color:#64748b;text-align:right;">เบิกแล้ว ฿2,500 (25%)</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:6px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">มาทำงาน</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#0d9488;line-height:1.2;white-space:nowrap;">18 วัน</strong>
+        </div>
+        <div style="padding-left:8px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">วันทำงาน</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#134e4a;line-height:1.2;white-space:nowrap;">19 วัน</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#0d9488;white-space:nowrap;">ตรงเวลา 95%</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="width:95%;height:100%;background:#0d9488;border-radius:99px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. ชั่วโมง OT (Purple) -->
+    <div class="ck-pers-card" style="padding:13px 14px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+        <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#f3e8ff;color:#7c3aed;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#clock"/></svg></span>
+          <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">ชั่วโมง OT</b>
+        </div>
+        <span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">✓ อนุมัติ</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:6px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">เดือนนี้</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#7c3aed;line-height:1.2;white-space:nowrap;">42.5 ชม.</strong>
+        </div>
+        <div style="padding-left:8px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">สะสมปีนี้</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#5b21b6;line-height:1.2;white-space:nowrap;">168.5 ชม.</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#7c3aed;white-space:nowrap;">อนุมัติ 100%</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="width:100%;height:100%;background:#7c3aed;border-radius:99px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. สวัสดิการ OPD (Emerald) -->
+    <div class="ck-pers-card" style="padding:13px 14px;background:#f8fbfe;border:1px solid #d4e5f5;border-top:3px solid #059669;border-radius:14px;box-shadow:0 2px 6px rgba(15,23,42,0.03);display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+        <div style="display:flex;align-items:center;gap:7px;min-width:0;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#d1fae5;color:#059669;border-radius:9px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 8 15 8 15S25 10 20 5zM8 12h8m-4-4v8"/></svg></span>
+          <b style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">สวัสดิการ</b>
+        </div>
+        <span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;flex-shrink:0;">฿10,000</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:2px 0;">
+        <div style="border-right:1px solid #cbd5e1;padding-right:6px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">เบิกแล้ว</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#059669;line-height:1.2;white-space:nowrap;">฿2,500</strong>
+        </div>
+        <div style="padding-left:8px;">
+          <div style="font-size:11px;font-weight:600;color:#64748b;">คงเหลือ</div>
+          <strong style="font-size:15.5px;font-weight:800;color:#064e3b;line-height:1.2;white-space:nowrap;">฿7,500</strong>
+        </div>
+      </div>
+      <div style="border-top:1px dashed #e2e8f0;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:#059669;white-space:nowrap;">ใช้ไป 25.0%</span>
+        <div style="flex:1;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="width:25%;height:100%;background:#059669;border-radius:99px;"></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="pg-2col-layout">
-    <!-- Left Profile Card -->
-    <div class="pf-hero-card">
-      <div class="pf-hero-avatar">ภจ</div>
-      <div>
-        <h3 style="margin:0 0 4px 0;font-size:19px;font-weight:800;color:#000000">คุณภาณุพันธุ์ ใจดี</h3>
-        <p style="margin:0;font-size:13.5px;color:#1e70bf !important;font-weight:800">เจ้าหน้าที่ทรัพยากรบุคคล (HR Officer)</p>
-        <span class="pg-badge pg-badge-success" style="margin-top:8px;">พนักงานประจำ (Active)</span>
+  <div class="pg-2col-layout" style="grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;">
+    <!-- Left Column: Profile Card + 3-Level Approval Chain -->
+    <div style="display:flex;flex-direction:column;gap:14px;height:100%;">
+      <!-- Left Profile Card -->
+      <div class="pf-hero-card" style="flex:1;justify-content:space-between;">
+        <div style="display:flex;flex-direction:column;gap:12px;width:100%;">
+          <!-- Compact Horizontal Header -->
+          <div style="display:flex;align-items:center;gap:14px;width:100%;padding-bottom:12px;border-bottom:1px solid #e2e8f0;">
+            <div class="pf-hero-avatar">ภจ</div>
+            <div style="min-width:0;flex:1;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                <h3 id="pf-disp-fullname" style="margin:0;font-size:17.5px;font-weight:800;color:#0f172a;line-height:1.25;">คุณภาณุพันธุ์ ใจดี (ณุ)</h3>
+                <span id="pf-disp-empcode-left" class="pg-badge pg-badge-info" style="font-size:11px;padding:3px 9px;">CK-2024-0089</span>
+              </div>
+              <p style="margin:4px 0 0 0;font-size:13px;color:#1e70bf !important;font-weight:700;">เจ้าหน้าที่ทรัพยากรบุคคล (HR Officer)</p>
+            </div>
+          </div>
+
+          <div class="pf-info-grid" style="width:100%;text-align:left;">
+            <div class="pf-info-item"><div class="pf-info-label">ชื่อบริษัท</div><div class="pf-info-val">บริษัท ซี.เค.เอซ การบัญชี จำกัด</div></div>
+            <div class="pf-info-item"><div class="pf-info-label">สังกัดแผนก</div><div class="pf-info-val">ฝ่ายทรัพยากรบุคคล</div></div>
+            <div class="pf-info-item"><div class="pf-info-label">วันที่เริ่มงาน</div><div class="pf-info-val">01/02/2567</div></div>
+            <div class="pf-info-item"><div class="pf-info-label">อายุงาน</div><div class="pf-info-val">2 ปี 8 เดือน</div></div>
+            <div class="pf-info-item"><div class="pf-info-label">สถานที่ปฏิบัติงาน</div><div class="pf-info-val">สำนักงานใหญ่ (สีลม)</div></div>
+            <div class="pf-info-item"><div class="pf-info-label">เวลาปฏิบัติงานปกติ</div><div class="pf-info-val">08:30 – 17:30 น.</div></div>
+            <div class="pf-info-item"><div class="pf-info-label">บัญชีรับเงินเดือน</div><div class="pf-info-val">SCB 408-5-65495-9</div></div>
+            <div class="pf-info-item"><div class="pf-info-label">สิทธิประกันสังคม</div><div class="pf-info-val">มาตรา 33 - รพ.พญาไท 2</div></div>
+          </div>
+
+          <!-- Employee Signature Upload Box -->
+          <div style="background:#f8fbfe;border:1px solid #dbe8f5;border-radius:12px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+              <span style="font-size:12.5px;font-weight:800;color:#0f172a;">ลายเซ็นพนักงาน (สำหรับอนุมัติเอกสาร)</span>
+              <span id="pf-sig-status" style="font-size:11px;font-weight:700;color:#64748b;background:#ffffff;border:1px solid #e2e8f0;padding:2px 8px;border-radius:999px;">ยังไม่อัปโหลด</span>
+            </div>
+            <input type="file" id="pf-sig-upload" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleProfileSignatureUpload(this)">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <div id="pf-sig-preview-box" style="flex:1;min-width:160px;height:66px;background:#ffffff;border:1.5px dashed #93c5fd;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:6px 10px;overflow:hidden;">
+                <img id="pf-sig-preview-img" alt="ลายเซ็นพนักงาน" style="display:none;max-height:54px;max-width:100%;object-fit:contain;">
+                <span id="pf-sig-placeholder" style="font-size:12px;color:#64748b;font-weight:600;text-align:center;">รองรับไฟล์ PNG, JPG (พื้นหลังโปร่งใสแนะนำ)</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <button type="button" class="pg-btn" style="padding:7px 12px;font-size:12px;background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;white-space:nowrap;" onclick="document.getElementById('pf-sig-upload').click()">อัปโหลดลายเซ็น</button>
+                <button type="button" id="pf-sig-clear-btn" class="pg-btn" style="display:none;padding:5px 12px;font-size:11.5px;background:#ffffff;color:#dc2626;border:1px solid #fecaca;white-space:nowrap;" onclick="clearProfileSignature()">ลบลายเซ็น</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="pf-info-grid">
-        <div class="pf-info-item">
-          <div class="pf-info-label">รหัสพนักงาน</div>
-          <div class="pf-info-val">CK-2024-0089</div>
+      <!-- สายการอนุมัติประจำตัว (การ์ดแยกด้านซ้ายเพื่อสมดุลซ้าย-ขวา) -->
+      <div class="pg-card" style="margin-bottom:0;padding:16px 18px;">
+        <div class="ck-auto-chain-head" style="margin-bottom:10px;">
+          <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติประจำตัว</strong>
+          <span class="pg-badge pg-badge-success">ผูกตามโครงสร้างองค์กร</span>
         </div>
-        <div class="pf-info-item">
-          <div class="pf-info-label">สังกัดแผนก</div>
-          <div class="pf-info-val">ฝ่ายทรัพยากรบุคคล</div>
-        </div>
-        <div class="pf-info-item">
-          <div class="pf-info-label">วันที่เริ่มงาน</div>
-          <div class="pf-info-val">01/02/2567</div>
-        </div>
-        <div class="pf-info-item">
-          <div class="pf-info-label">อายุงานรวม</div>
-          <div class="pf-info-val">2 ปี 8 เดือน</div>
+        <div class="ck-chain-steps-3">
+          <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+              <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">สม</div>
+              <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 1</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+              <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณสมศักดิ์ มั่นคง</strong>
+              <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผจก.ฝ่ายทรัพยากรบุคคล</span>
+            </div>
+          </div>
+          <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+              <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#b45309;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">ศว</div>
+              <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 2</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+              <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณศิริพร วงศ์สวัสดิ์</strong>
+              <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผอ.ฝ่ายทรัพยากรบุคคล</span>
+            </div>
+          </div>
+          <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+              <div style="width:34px;height:34px;border-radius:50%;background:#f3e8ff;color:#7c3aed;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">จอ</div>
+              <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 3</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
+              <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณจักรกฤษณ์ เอซ</strong>
+              <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">กรรมการผู้จัดการ (MD)</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Right Detailed Information + 3-Level Approval Chain Assigned -->
-    <div class="pg-card">
-      <div class="pg-card-header">
-        <h3 class="pg-card-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg> ข้อมูลการติดต่อ และสายการอนุมัติ</h3>
+    <!-- Right Column: 3 Separate Cards by Topic -->
+    <div style="display:flex;flex-direction:column;gap:14px;height:100%;">
+      <!-- กรอบที่ 1: ข้อมูลพนักงานพื้นฐาน -->
+      <div class="pg-card" style="margin-bottom:0;padding:16px 18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;">
+          <h3 class="pg-card-title" style="margin:0;font-size:14.5px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#1e70bf"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ข้อมูลพนักงานพื้นฐาน</h3>
+          <button type="button" class="pg-btn" style="padding:4px 10px;font-size:11.5px;background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;border-radius:8px;" onclick="openProfileEditSection('basic')">✎ แก้ไข</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px;">
+          <div class="pf-info-item"><div class="pf-info-label">รหัสพนักงาน</div><div class="pf-info-val" id="pf-v-empcode">CK-2024-0089</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">วันเกิด</div><div class="pf-info-val" id="pf-v-dob">15-05-1996</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">ชื่อ-สกุล (TH)</div><div class="pf-info-val" id="pf-v-name-th">ภาณุพันธุ์ ใจดี (ณุ)</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">ชื่อ-สกุล (EN)</div><div class="pf-info-val" id="pf-v-name-en">Panuphan Jaidee (Nu)</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">สัญชาติ</div><div class="pf-info-val" id="pf-v-nation">ไทย</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">ภาษาที่ได้</div><div class="pf-info-val" id="pf-v-doclang">ไทย / อังกฤษ</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">เลขบัตรประชาชน</div><div class="pf-info-val" id="pf-v-idcard">1-1004-00512-88-3</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">หนังสือเดินทาง</div><div class="pf-info-val" id="pf-v-passport">AC9842105</div></div>
+        </div>
       </div>
 
-      <div class="pg-form" style="gap:14px;">
-        <div class="pg-form-row2">
-          <div class="pf-info-item">
-            <div class="pf-info-label">อีเมลบริษัท</div>
-            <div class="pf-info-val">panuphan@ckace.co.th</div>
-          </div>
-          <div class="pf-info-item">
-            <div class="pf-info-label">เบอร์โทรศัพท์ติดต่อ</div>
-            <div class="pf-info-val">089-123-4567</div>
-          </div>
+      <!-- กรอบที่ 2: ข้อมูลการติดต่อ (รวมที่อยู่พนักงาน + ที่อยู่ตามบัตรประจำตัวประชาชน) -->
+      <div class="pg-card" style="margin-bottom:0;padding:16px 18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;">
+          <h3 class="pg-card-title" style="margin:0;font-size:14.5px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#059669"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> ข้อมูลการติดต่อ</h3>
+          <button type="button" class="pg-btn" style="padding:4px 10px;font-size:11.5px;background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;border-radius:8px;" onclick="openProfileEditSection('contact')">✎ แก้ไข</button>
         </div>
-
-        <div class="pg-form-row2">
-          <div class="pf-info-item">
-            <div class="pf-info-label">เวลาปฏิบัติงานปกติ</div>
-            <div class="pf-info-val">จันทร์ – ศุกร์ (08:30 – 17:30 น.)</div>
-          </div>
-          <div class="pf-info-item">
-            <div class="pf-info-label">บัญชีรับเงินเดือนและสวัสดิการ</div>
-            <div class="pf-info-val">ไทยพาณิชย์ (SCB) xxx-x-xx123-4</div>
-          </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px;">
+          <div class="pf-info-item"><div class="pf-info-label">เบอร์มือถือ</div><div class="pf-info-val" id="pf-v-mobile">089-123-4567</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">Line ID</div><div class="pf-info-val" id="pf-v-line">@panuphan.hr</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">อีเมล</div><div class="pf-info-val" id="pf-v-email">panuphan@ckace.co.th</div></div>
+          <div class="pf-info-item"><div class="pf-info-label">ผู้ติดต่อฉุกเฉิน</div><div class="pf-info-val" id="pf-v-emg">คุณสมหญิง ใจดี (081-999-8877)</div></div>
+          <div class="pf-info-item" style="grid-column:1 / -1;"><div class="pf-info-label">ที่อยู่พนักงาน</div><div class="pf-info-val" id="pf-v-curaddr">128/45 ถนนสีลม แขวงสุริยวงศ์ เขตบางรัก กรุงเทพมหานคร 10500</div></div>
+          <div class="pf-info-item" style="grid-column:1 / -1;"><div class="pf-info-label">ที่อยู่ตามบัตรประจำตัวประชาชน</div><div class="pf-info-val" id="pf-v-idaddr">เลขที่ 40/12 หมู่ที่ 3 ซอยสุขุมวิท 24 แยก 2 ถนนสุขุมวิท แขวงคลองตัน เขตคลองเตย กรุงเทพมหานคร 10110</div></div>
         </div>
+      </div>
 
-        <div class="ck-auto-chain-box">
-          <div class="ck-auto-chain-head">
-            <strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e70bf" stroke-width="2"><use href="#workflow"/></svg> สายการอนุมัติประจำตัว</strong>
-            <span class="pg-badge pg-badge-success">ผูกตามโครงสร้างองค์กร</span>
-          </div>
-          <div class="ck-chain-steps-3">
-            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">สม</div>
-                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 1</span>
-              </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
-                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณสมศักดิ์ มั่นคง</strong>
-                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผจก.ฝ่ายทรัพยากรบุคคล</span>
-              </div>
-            </div>
-            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#b45309;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">ศว</div>
-                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 2</span>
-              </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
-                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณศิริพร วงศ์สวัสดิ์</strong>
-                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">ผอ.ฝ่ายทรัพยากรบุคคล</span>
-              </div>
-            </div>
-            <div class="ck-chain-node" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#f3e8ff;color:#7c3aed;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex-shrink:0;">จอ</div>
-                <span class="ck-badge-tag" style="background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">ลำดับที่ 3</span>
-              </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-width:0;">
-                <strong style="font-size:12.5px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">คุณจักรกฤษณ์ เอซ</strong>
-                <span style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">กรรมการผู้จัดการ (MD)</span>
-              </div>
-            </div>
-          </div>
+      <!-- กรอบที่ 3: ข้อมูลการชำระเงินเดือน/ค่าจ้าง -->
+      <div class="pg-card" style="margin-bottom:0;padding:16px 18px;flex:1;display:flex;flex-direction:column;justify-content:center;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;">
+          <h3 class="pg-card-title" style="margin:0;font-size:14.5px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#0284c7"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> ข้อมูลการชำระเงินเดือน/ค่าจ้าง</h3>
+          <button type="button" class="pg-btn" style="padding:4px 10px;font-size:11.5px;background:#eff6ff;color:#1e70bf;border:1px solid #bfdbfe;border-radius:8px;" onclick="openProfileEditSection('payroll')">✎ แก้ไข</button>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:6px 16px;">
+          <div class="pf-info-item"><div class="pf-info-label">บัญชีรับเงินเดือน/ค่าจ้าง</div><div class="pf-info-val" id="pf-v-payroll-summary">โอนเงิน · ธ.ไทยพาณิชย์ · เลขที่บัญชี 408-5-65495-9 · บัญชีออมทรัพย์ · สาขา -</div></div>
         </div>
       </div>
     </div>
   </div>
 </main>
+
+<!-- Floating Modal: แก้ไขข้อมูลพนักงานเฉพาะจุด (สไตล์เดียวกับ ยืนยันการอนุมัติคำขอ) -->
+<div id="pf-edit-modal" class="ck-modal-backdrop" style="display:none;z-index:1060;" onclick="if(event.target===this)window.closeProfileEditCard()">
+  <div class="ck-modal" style="max-width:580px;width:94%;padding:0;overflow:hidden;border-radius:16px;">
+    <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;background:#eff6ff;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="width:34px;height:34px;border-radius:10px;background:#1e70bf;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;">✎</span>
+        <div>
+          <div id="pf-edit-modal-title" style="font-size:15px;font-weight:800;color:#0f172a;">แก้ไขข้อมูลพนักงานพื้นฐาน</div>
+          <div id="pf-edit-modal-sub" style="font-size:12px;font-weight:600;color:#475569;">CK-2024-0089 · คุณภาณุพันธุ์ ใจดี</div>
+        </div>
+      </div>
+      <button type="button" onclick="window.closeProfileEditCard()" style="border:none;background:transparent;font-size:18px;color:#64748b;cursor:pointer;padding:4px 8px;">✕</button>
+    </div>
+    <div class="pg-form" style="padding:18px 20px;background:#ffffff;gap:12px;max-height:74vh;overflow-y:auto;">
+      <!-- Pane 1: ข้อมูลพนักงานพื้นฐาน -->
+      <div id="pf-edit-pane-basic" style="display:flex;flex-direction:column;gap:12px;">
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">รหัสพนักงาน</label><input id="pf-in-empcode" type="text" class="pg-form-control" value="CK-2024-0089"></div>
+          <div class="pg-form-group"><label class="pg-form-label">วันเกิด</label><input id="pf-in-dob" type="text" class="pg-form-control" value="15-05-1996" placeholder="DD-MM-YYYY"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">ชื่อพนักงาน (TH)</label><input id="pf-in-fname" type="text" class="pg-form-control" value="ภาณุพันธุ์"></div>
+          <div class="pg-form-group"><label class="pg-form-label">นามสกุล (TH)</label><input id="pf-in-lname" type="text" class="pg-form-control" value="ใจดี"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">ชื่อเล่น (TH)</label><input id="pf-in-nname" type="text" class="pg-form-control" value="ณุ"></div>
+          <div class="pg-form-group"><label class="pg-form-label">ชื่อเล่น (EN)</label><input id="pf-in-nname-en" type="text" class="pg-form-control" value="Nu"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">ชื่อพนักงาน (EN)</label><input id="pf-in-fname-en" type="text" class="pg-form-control" value="Panuphan"></div>
+          <div class="pg-form-group"><label class="pg-form-label">นามสกุล (EN)</label><input id="pf-in-lname-en" type="text" class="pg-form-control" value="Jaidee"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">สัญชาติ</label><input id="pf-in-nation" type="text" class="pg-form-control" value="ไทย"></div>
+          <div class="pg-form-group"><label class="pg-form-label">ภาษาที่ได้</label><input id="pf-in-doclang" type="text" class="pg-form-control" value="ไทย / อังกฤษ"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">เลขบัตรประชาชน</label><input id="pf-in-idcard" type="text" class="pg-form-control" value="1-1004-00512-88-3"></div>
+          <div class="pg-form-group"><label class="pg-form-label">เลขหนังสือเดินทาง</label><input id="pf-in-passport" type="text" class="pg-form-control" value="AC9842105"></div>
+        </div>
+      </div>
+
+      <!-- Pane 2: ข้อมูลการติดต่อ + ที่อยู่ตามบัตรประจำตัวประชาชน -->
+      <div id="pf-edit-pane-contact" style="display:none;flex-direction:column;gap:12px;">
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">เบอร์มือถือ</label><input id="pf-in-mobile" type="text" class="pg-form-control" value="089-123-4567"></div>
+          <div class="pg-form-group"><label class="pg-form-label">อีเมล</label><input id="pf-in-email" type="email" class="pg-form-control" value="panuphan@ckace.co.th"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">Line ID</label><input id="pf-in-line" type="text" class="pg-form-control" value="@panuphan.hr"></div>
+          <div class="pg-form-group"><label class="pg-form-label">ชื่อผู้ติดต่อฉุกเฉิน</label><input id="pf-in-emgname" type="text" class="pg-form-control" value="คุณสมหญิง ใจดี"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">เบอร์ผู้ติดต่อฉุกเฉิน</label><input id="pf-in-emgphone" type="text" class="pg-form-control" value="081-999-8877"></div>
+          <div class="pg-form-group"><label class="pg-form-label">ที่อยู่พนักงาน</label><input id="pf-in-curaddr" type="text" class="pg-form-control" value="128/45 ถนนสีลม แขวงสุริยวงศ์ เขตบางรัก กรุงเทพมหานคร 10500"></div>
+        </div>
+        <div style="font-size:12.5px;font-weight:800;color:#1e70bf;padding-top:4px;border-top:1px solid #e2e8f0;">ที่อยู่ตามบัตรประจำตัวประชาชน</div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">เลขที่</label><input id="pf-in-addr-no" type="text" class="pg-form-control" value="40/12"></div>
+          <div class="pg-form-group"><label class="pg-form-label">หมู่ที่</label><input id="pf-in-addr-moo" type="text" class="pg-form-control" value="3"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">ตรอก/ซอย</label><input id="pf-in-addr-soi" type="text" class="pg-form-control" value="สุขุมวิท 24"></div>
+          <div class="pg-form-group"><label class="pg-form-label">แยก</label><input id="pf-in-addr-yaek" type="text" class="pg-form-control" value="2"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">ถนน</label><input id="pf-in-addr-road" type="text" class="pg-form-control" value="สุขุมวิท"></div>
+          <div class="pg-form-group"><label class="pg-form-label">ตำบล/แขวง</label><input id="pf-in-addr-subdist" type="text" class="pg-form-control" value="คลองตัน"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">อำเภอ/เขต</label><input id="pf-in-addr-dist" type="text" class="pg-form-control" value="คลองเตย"></div>
+          <div class="pg-form-group"><label class="pg-form-label">จังหวัด</label><input id="pf-in-addr-prov" type="text" class="pg-form-control" value="กรุงเทพมหานคร"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">รหัสไปรษณีย์</label><input id="pf-in-addr-zip" type="text" class="pg-form-control" value="10110"></div>
+          <div></div>
+        </div>
+      </div>
+
+      <!-- Pane 3: ข้อมูลการชำระเงินเดือน/ค่าจ้าง -->
+      <div id="pf-edit-pane-payroll" style="display:none;flex-direction:column;gap:12px;">
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">ช่องทางการรับชำระ</label><input id="pf-in-pay-channel" type="text" class="pg-form-control" value="โอนเงิน"></div>
+          <div class="pg-form-group"><label class="pg-form-label">ธนาคาร</label><input id="pf-in-pay-bank" type="text" class="pg-form-control" value="ธ.ไทยพาณิชย์"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">เลขที่บัญชี</label><input id="pf-in-pay-acc" type="text" class="pg-form-control" value="408-5-65495-9"></div>
+          <div class="pg-form-group"><label class="pg-form-label">ประเภทบัญชี</label><input id="pf-in-pay-type" type="text" class="pg-form-control" value="บัญชีออมทรัพย์"></div>
+        </div>
+        <div class="pg-form-row2">
+          <div class="pg-form-group"><label class="pg-form-label">สาขาธนาคาร</label><input id="pf-in-pay-branch" type="text" class="pg-form-control" value="-" placeholder="ระบุสาขาธนาคาร"></div>
+          <div></div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
+        <button type="button" onclick="window.closeProfileEditCard()" style="padding:8px 16px;border-radius:9px;border:1px solid #cbd5e1;background:#f8fafc;color:#475569;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">ยกเลิก</button>
+        <button type="button" onclick="window.saveProfileEditForm()" style="padding:8px 18px;border-radius:9px;border:1px solid #1e70bf;background:#1e70bf;color:#ffffff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✓ บันทึกข้อมูล</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Centered Floating Modal Dialog for Request Details & 3-Level Approval Chain (ดีไซน์ประยุกต์ใหม่ตามตัวอย่าง: 2 คอลัมน์, สรุปการลาประจำปี 3 การ์ด, ไฟล์แนบ, ขั้นตอนการอนุมัติ Stepper, ตารางรายละเอียดการอนุมัติ) -->
 <div id="appr-action-modal" class="ck-modal-backdrop" style="display:none;z-index:1060;" onclick="if(event.target===this)window.closeApprovalActionModal()">
@@ -9629,11 +10140,11 @@ window.addEventListener('hashchange',syncPageView);syncPageView();
 document.querySelectorAll('.nav a').forEach(link=>link.addEventListener('click',()=>{document.querySelectorAll('.nav a').forEach(a=>{a.classList.remove('active');a.removeAttribute('aria-current')});link.classList.add('active');link.setAttribute('aria-current','location');app.classList.remove('mobile-open')}));
 document.querySelectorAll('.brand').forEach(b => b.addEventListener('click',() => { location.hash = '#overview'; syncPageView(); }));
 const settingMenuButtons=document.querySelectorAll('[data-setting-menu]'),settingPanels=document.querySelectorAll('[data-setting-panel]');
-function selectSettingPanel(name){settingMenuButtons.forEach(button=>{const active=button.dataset.settingMenu===name;button.setAttribute('aria-current',String(active))});settingPanels.forEach(panel=>panel.hidden=panel.dataset.settingPanel!==name)}
+function selectSettingPanel(name){settingMenuButtons.forEach(button=>{const active=button.dataset.settingMenu===name;button.setAttribute('aria-current',String(active));button.classList.toggle('active',active)});settingPanels.forEach(panel=>panel.hidden=panel.dataset.settingPanel!==name)}
 settingMenuButtons.forEach(button=>button.addEventListener('click',()=>selectSettingPanel(button.dataset.settingMenu)));
 document.querySelectorAll('.day-choice').forEach(button=>button.addEventListener('click',()=>{const active=button.getAttribute('aria-pressed')==='true';button.setAttribute('aria-pressed',String(!active))}));
 document.querySelectorAll('.choice-card').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.choice-card').forEach(choice=>choice.setAttribute('aria-pressed','false'));button.setAttribute('aria-pressed','true')}));
-document.querySelectorAll('.workflow-tab').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.workflow-tab').forEach(tab=>tab.setAttribute('aria-selected','false'));button.setAttribute('aria-selected','true');document.getElementById('workflow-type').textContent=button.dataset.workflow}));
+document.querySelectorAll('.workflow-tab').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.workflow-tab').forEach(tab=>{tab.setAttribute('aria-selected','false');tab.classList.remove('active')});button.setAttribute('aria-selected','true');button.classList.add('active');document.getElementById('workflow-type').textContent=button.dataset.workflow}));
 const previewToast=document.getElementById('preview-toast');let toastTimer;
 document.querySelectorAll('[data-toast]').forEach(button=>button.addEventListener('click',()=>{previewToast.textContent=button.dataset.toast;previewToast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>previewToast.classList.remove('show'),2600)}));
 const copy={request:['สร้างคำขอ','ในระบบจริง จุดนี้จะเปิดแบบฟอร์มเลือกประเภทคำขอ: การลา, OT, แก้ไขเวลา หรือค่ารักษา พรีวิวนี้ใช้ตรวจรูปแบบเท่านั้น ยังไม่มีการส่งหรือบันทึกข้อมูล'],attachment:['เอกสารประกอบคำขอ','ตัวอย่าง: ฝ่ายบุคคลขอภาพใบเสร็จฉบับเต็มที่เห็นวันที่และยอดเงินชัดเจน ในระบบจริงจะแนบเอกสารจากหน้ารายละเอียดคำขอ'],notifications:['การแจ้งเตือน','ตัวอย่าง: คำขอเบิกค่ารักษาของคุณถูกส่งกลับเพื่อขอเอกสารเพิ่มเติม 1 รายการ'],news:['ตรวจสุขภาพประจำปี','ตัวอย่างประกาศ: วันที่ 6 พฤศจิกายน 2569 เวลา 09:00–12:00 น. ณ สำนักงาน โปรดสอบถามฝ่ายบุคคลเกี่ยวกับการเตรียมตัว'],benefit:['คู่มือเบิกค่ารักษาพยาบาล','ตัวอย่างประกาศ: เตรียมใบเสร็จและเอกสารประกอบให้ครบก่อนส่งคำขอ รายละเอียดสิทธิจริงจะอ้างอิงนโยบายของบริษัท']};
@@ -13597,6 +14108,137 @@ document.querySelectorAll('[data-modal]').forEach(button=>button.addEventListene
 
     window.renderManagerReport();
   })();
+
+  window.handleProfileSignatureUpload = function(input) {
+    if (!input || !input.files || !input.files[0]) return;
+    var file = input.files[0];
+    if (!file.type || file.type.indexOf('image/') !== 0) {
+      alert('กรุณาเลือกไฟล์รูปภาพสำหรับลายเซ็น (PNG, JPG, WebP, SVG)');
+      input.value = '';
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var img = document.getElementById('pf-sig-preview-img');
+      var placeholder = document.getElementById('pf-sig-placeholder');
+      var status = document.getElementById('pf-sig-status');
+      var clearBtn = document.getElementById('pf-sig-clear-btn');
+      var box = document.getElementById('pf-sig-preview-box');
+      if (img) { img.src = ev.target.result; img.style.display = 'block'; }
+      if (placeholder) placeholder.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = 'inline-flex';
+      if (box) box.style.borderStyle = 'solid';
+      if (status) {
+        status.textContent = '✓ อัปโหลดแล้ว';
+        status.style.color = '#059669';
+        status.style.background = '#ecfdf5';
+        status.style.borderColor = '#a7f3d0';
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.clearProfileSignature = function() {
+    var input = document.getElementById('pf-sig-upload');
+    var img = document.getElementById('pf-sig-preview-img');
+    var placeholder = document.getElementById('pf-sig-placeholder');
+    var status = document.getElementById('pf-sig-status');
+    var clearBtn = document.getElementById('pf-sig-clear-btn');
+    var box = document.getElementById('pf-sig-preview-box');
+    if (input) input.value = '';
+    if (img) { img.removeAttribute('src'); img.style.display = 'none'; }
+    if (placeholder) placeholder.style.display = 'inline';
+    if (clearBtn) clearBtn.style.display = 'none';
+    if (box) box.style.borderStyle = 'dashed';
+    if (status) {
+      status.textContent = 'ยังไม่อัปโหลด';
+      status.style.color = '#64748b';
+      status.style.background = '#ffffff';
+      status.style.borderColor = '#e2e8f0';
+    }
+  };
+
+  window.openProfileEditSection = function(tab) {
+    var sec = tab || 'basic';
+    var titles = {
+      basic: 'แก้ไขข้อมูลพนักงานพื้นฐาน',
+      contact: 'แก้ไขข้อมูลการติดต่อและที่อยู่',
+      payroll: 'แก้ไขข้อมูลการชำระเงินเดือน/ค่าจ้าง'
+    };
+    var titleEl = document.getElementById('pf-edit-modal-title');
+    if (titleEl) titleEl.textContent = titles[sec] || 'แก้ไขข้อมูลพนักงาน';
+    var subEl = document.getElementById('pf-edit-modal-sub');
+    var codeEl = document.getElementById('pf-disp-empcode-left');
+    var nameEl = document.getElementById('pf-disp-fullname');
+    if (subEl) subEl.textContent = (codeEl ? codeEl.textContent : 'CK-2024-0089') + ' · ' + (nameEl ? nameEl.textContent : 'คุณภาณุพันธุ์ ใจดี');
+
+    ['basic', 'contact', 'payroll'].forEach(function(key) {
+      var pane = document.getElementById('pf-edit-pane-' + key);
+      if (pane) pane.style.display = (key === sec) ? 'flex' : 'none';
+    });
+    var modal = document.getElementById('pf-edit-modal');
+    if (modal) modal.style.display = 'flex';
+  };
+
+  window.closeProfileEditCard = function() {
+    var modal = document.getElementById('pf-edit-modal');
+    if (modal) modal.style.display = 'none';
+  };
+
+  window.saveProfileEditForm = function() {
+    var val = function(id) {
+      var el = document.getElementById(id);
+      var v = el ? (el.value || '').trim() : '';
+      return v || '-';
+    };
+    var set = function(id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+    var empCode = val('pf-in-empcode');
+    var fn = val('pf-in-fname');
+    var ln = val('pf-in-lname');
+    var nn = val('pf-in-nname');
+    var fnEn = val('pf-in-fname-en');
+    var lnEn = val('pf-in-lname-en');
+    var nnEn = val('pf-in-nname-en');
+
+    set('pf-disp-fullname', 'คุณ' + fn + ' ' + ln + (nn !== '-' ? ' (' + nn + ')' : ''));
+    set('pf-disp-empcode-left', empCode);
+    set('pf-v-empcode', empCode);
+    set('pf-v-dob', val('pf-in-dob'));
+    set('pf-v-name-th', fn + ' ' + ln + (nn !== '-' ? ' (' + nn + ')' : ''));
+    set('pf-v-name-en', fnEn + ' ' + lnEn + (nnEn !== '-' ? ' (' + nnEn + ')' : ''));
+    set('pf-v-nation', val('pf-in-nation'));
+    set('pf-v-doclang', val('pf-in-doclang'));
+    set('pf-v-idcard', val('pf-in-idcard'));
+    set('pf-v-passport', val('pf-in-passport'));
+
+    set('pf-v-mobile', val('pf-in-mobile'));
+    set('pf-v-line', val('pf-in-line'));
+    set('pf-v-email', val('pf-in-email'));
+    set('pf-v-emg', val('pf-in-emgname') + (val('pf-in-emgphone') !== '-' ? ' (' + val('pf-in-emgphone') + ')' : ''));
+    set('pf-v-curaddr', val('pf-in-curaddr'));
+
+    var parts = [];
+    if (val('pf-in-addr-no') !== '-') parts.push('เลขที่ ' + val('pf-in-addr-no'));
+    if (val('pf-in-addr-moo') !== '-') parts.push('หมู่ที่ ' + val('pf-in-addr-moo'));
+    if (val('pf-in-addr-soi') !== '-') parts.push('ซอย' + val('pf-in-addr-soi'));
+    if (val('pf-in-addr-yaek') !== '-') parts.push('แยก ' + val('pf-in-addr-yaek'));
+    if (val('pf-in-addr-road') !== '-') parts.push('ถนน' + val('pf-in-addr-road'));
+    if (val('pf-in-addr-subdist') !== '-') parts.push('แขวง' + val('pf-in-addr-subdist'));
+    if (val('pf-in-addr-dist') !== '-') parts.push('เขต' + val('pf-in-addr-dist'));
+    if (val('pf-in-addr-prov') !== '-') parts.push(val('pf-in-addr-prov'));
+    if (val('pf-in-addr-zip') !== '-') parts.push(val('pf-in-addr-zip'));
+    set('pf-v-idaddr', parts.length ? parts.join(' ') : '-');
+
+    var payBranch = val('pf-in-pay-branch');
+    set('pf-v-payroll-summary',
+      val('pf-in-pay-channel') + ' · ' + val('pf-in-pay-bank') + ' · เลขที่บัญชี ' + val('pf-in-pay-acc') + ' · ' + val('pf-in-pay-type') + ' · สาขา ' + payBranch
+    );
+
+    window.closeProfileEditCard();
+  };
 
 </script>
 </body></html>
